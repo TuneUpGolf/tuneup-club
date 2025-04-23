@@ -13,28 +13,25 @@ use App\Mail\Admin\PurchaseFeedback;
 use App\Mail\Admin\VideoAdded;
 use App\Models\Coupon;
 use App\Models\FeedbackContent;
-use App\Models\Purchase;
-use App\Models\Lesson;
 use App\Models\Follower;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Lesson;
+use App\Models\Purchase;
 use App\Models\PurchaseVideos;
 use App\Models\Role;
 use App\Models\Slots;
+use App\Models\User;
 use App\Traits\ConvertVideos;
 use App\Traits\PurchaseTrait;
-use Illuminate\Support\Facades\Response as FacadesResponse;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
 use Error;
 use Exception;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-
 use function PHPUnit\Framework\isEmpty;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Stripe\Checkout\Session;
+use Stripe\Stripe;
 
 class PurchaseController extends Controller
 {
@@ -43,10 +40,11 @@ class PurchaseController extends Controller
 
     public function index(PurchaseDataTable $dataTable)
     {
-        if (Auth::user()->can('manage-purchases'))
+        if (Auth::user()->can('manage-purchases')) {
             return $dataTable->render('admin.purchases.index');
-    }
+        }
 
+    }
 
     public function store(Request $request)
     {
@@ -69,7 +67,7 @@ class PurchaseController extends Controller
             if ($student && $lesson && ! empty($lesson->user) && Auth::user()->can('create-purchases')) {
                 try {
                     $newPurchase = new Purchase([
-                        'follower_id'    => $student->id,
+                        'follower_id'   => $student->id,
                         'influencer_id' => $lesson->user->id,
                         'lesson_id'     => $lesson->id,
                         'coupon_id'     => $coupon,
@@ -111,10 +109,10 @@ class PurchaseController extends Controller
 
     public function edit($id)
     {
-        $students = Follower::all(); // Adjust as needed
+        $students    = Follower::all(); // Adjust as needed
         $instructors = User::all();
-        $lessons = Lesson::all();
-        $purchase   = Purchase::find($id);
+        $lessons     = Lesson::all();
+        $purchase    = Purchase::find($id);
         return view('admin.purchases.edit', compact('purchase', 'students', 'instructors', 'lessons'));
     }
 
@@ -150,7 +148,7 @@ class PurchaseController extends Controller
 
                     try {
                         $newPurchase = new Purchase([
-                            'follower_id'    => $student->id,
+                            'follower_id'   => $student->id,
                             'influencer_id' => $lesson->user->id,
                             'lesson_id'     => $lesson->id,
                             'coupon_id'     => $coupon,
@@ -191,7 +189,7 @@ class PurchaseController extends Controller
     public function confirmPurchase(Request $request)
     {
         $request->validate([
-            'purchase_id'  => 'required',
+            'purchase_id' => 'required',
         ]);
 
         try {
@@ -216,12 +214,12 @@ class PurchaseController extends Controller
     {
         $purchase = Purchase::find($request->query('purchase_id'));
 
-        if (!!$purchase && $purchase->lesson->type == Lesson::LESSON_TYPE_INPERSON) {
+        if (! ! $purchase && $purchase->lesson->type == Lesson::LESSON_TYPE_INPERSON) {
             $slot = Slots::find($purchase?->slot_id);
         }
 
         try {
-            if (!empty($purchase)) {
+            if (! empty($purchase)) {
                 Stripe::setApiKey(config('services.stripe.secret'));
                 $session = Session::retrieve($purchase->session_id);
 
@@ -231,26 +229,26 @@ class PurchaseController extends Controller
 
                     if (isset($slot)) {
                         // If the slot is a package lesson, attach student and their friends
-                        if (!!$slot->lesson->is_package_lesson) {
+                        if (! ! $slot->lesson->is_package_lesson) {
                             $slots = $slot->lesson->slots; // Fetch all slots of the lesson
 
                             foreach ($slots as $lessonSlot) {
                                 // Attach student to all slots
                                 $lessonSlot->student()->attach($purchase->follower_id, [
-                                    'isFriend' => false,
+                                    'isFriend'    => false,
                                     'friend_name' => null,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
+                                    'created_at'  => now(),
+                                    'updated_at'  => now(),
                                 ]);
 
                                 // Attach friends if any were included in the purchase
                                 $friendNames = json_decode($purchase->friend_names, true) ?? [];
                                 foreach ($friendNames as $friendName) {
                                     $lessonSlot->student()->attach($purchase->follower_id, [
-                                        'isFriend' => true,
+                                        'isFriend'    => true,
                                         'friend_name' => $friendName,
-                                        'created_at' => now(),
-                                        'updated_at' => now(),
+                                        'created_at'  => now(),
+                                        'updated_at'  => now(),
                                     ]);
                                 }
                             }
@@ -272,8 +270,8 @@ class PurchaseController extends Controller
                             );
                         }
 
-                        if (Purchase::where('slot_id', $slot->id)->where('status', Purchase::STATUS_INCOMPLETE)->doesntExist() && !$slot->lesson->is_package_lesson) {
-                            $slot->is_completed = true;
+                        if (Purchase::where('slot_id', $slot->id)->where('status', Purchase::STATUS_INCOMPLETE)->doesntExist() && ! $slot->lesson->is_package_lesson) {
+                            $slot->is_completed           = true;
                             $purchase->isFeedbackComplete = true;
                             $slot->save();
                             $this->sendSlotNotification(
@@ -287,7 +285,7 @@ class PurchaseController extends Controller
                         // Non-slot purchases
                         SendEmail::dispatch($purchase->student->email, new PurchaseCompleted($purchase));
                         $message = __('Hello, :name, a purchase has been confirmed for :ammount against your account.', [
-                            'name' => $purchase->student->name,
+                            'name'    => $purchase->student->name,
                             'ammount' => $purchase->total_amount,
                         ]);
                         SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Purchase Confirmed', $message);
@@ -320,31 +318,35 @@ class PurchaseController extends Controller
     public function addVideo(Request $request)
     {
         $request->validate([
-            'video' => 'required|mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
-            'video_2' => 'mimetypes:mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
-            'purchase_id' => 'required'
+            'video'       => 'required|mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
+            'video_2'     => 'mimetypes:mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
+            'purchase_id' => 'required',
         ]);
         $purchase = Purchase::with('lesson')->find($request?->purchase_id);
         if (isset($purchase) && Auth::user()->type == Role::ROLE_STUDENT) {
             if ($purchase?->lesson->lesson_quantity > $purchase->lessons_used) {
                 try {
                     $purchase_video = PurchaseVideos::create([
-                        'tenant_id' => Auth::user()->tenant_id,
+                        'tenant_id'   => Auth::user()->tenant_id,
                         'purchase_id' => $request?->purchase_id,
-                        'note' => $request?->note,
+                        'note'        => $request?->note,
                     ]);
                     if ($request?->hasFile('video')) {
                         $path = $request->file('video')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
+                        if (Str::endsWith($path, '.mov')) {
                             $path = $this->convertSingleVideo($path);
+                        }
+
                         $purchase_video->video_url = $path;
                         $purchase_video->save();
                     }
 
                     if ($request?->hasFile('video_2')) {
                         $path = $request->file('video_2')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
+                        if (Str::endsWith($path, '.mov')) {
                             $path = $this->convertSingleVideo($path);
+                        }
+
                         $purchase_video->video_url_2 = $path;
                         $purchase_video->save();
                     }
@@ -375,7 +377,7 @@ class PurchaseController extends Controller
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
                     return response($e, 419);
-                };
+                }
             } else {
                 return throw new ValidationException(['You dont have enough lessons remaining']);
             }
@@ -388,10 +390,10 @@ class PurchaseController extends Controller
     {
         try {
             $request->validate([
-                'video' => 'required|mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
-                'video_2' => 'mimetypes:mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
+                'video'       => 'required|mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
+                'video_2'     => 'mimetypes:mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
                 'purchase_id' => 'required',
-                'note' => 'max:250',
+                'note'        => 'max:250',
             ]);
 
             $purchase = Purchase::with('lesson')->find($request?->purchase_id);
@@ -399,10 +401,10 @@ class PurchaseController extends Controller
             if (isset($purchase) && Auth::user()->type == Role::ROLE_STUDENT) {
                 if ($purchase?->lesson->lesson_quantity > $purchase->lessons_used) {
                     $purchase_video = PurchaseVideos::create([
-                        'tenant_id' => Auth::user()->tenant_id,
+                        'tenant_id'   => Auth::user()->tenant_id,
                         'purchase_id' => $request?->purchase_id,
-                        'note' => $request?->note,
-                        'feedback' => '',
+                        'note'        => $request?->note,
+                        'feedback'    => '',
                     ]);
                     if ($request->hasFile('thumbnail')) {
                         $purchase_video['thumbnail'] = $request->file('thumbnail')->store('purchaseVideos/thumbnails');
@@ -410,15 +412,19 @@ class PurchaseController extends Controller
                     }
                     if ($request?->hasFile('video')) {
                         $path = $request->file('video')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
+                        if (Str::endsWith($path, '.mov')) {
                             $path = $this->convertSingleVideo($path);
+                        }
+
                         $purchase_video->video_url = $path;
                         $purchase_video->save();
                     }
                     if ($request?->hasFile('video_2')) {
                         $path = $request->file('video_2')->store('purchaseVideos');
-                        if (Str::endsWith($path, '.mov'))
+                        if (Str::endsWith($path, '.mov')) {
                             $path = $this->convertSingleVideo($path);
+                        }
+
                         $purchase_video->video_url_2 = $path;
                         $purchase_video->save();
                     }
@@ -434,8 +440,10 @@ class PurchaseController extends Controller
                         SendPushNotification::dispatch($purchase->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
                     }
                     return response()->json(['message' => 'Lesson Video Added Successfully', 'lessons_used' => $purchase->lessons_used, 'lessons_remaing' => $purchase->lesson->lesson_quantity - $purchase->lessons_used], 200);
-                } else
+                } else {
                     return response()->json(['error' => 'Unable to add lessons, as lesson videos limit is full'], 422);
+                }
+
             } else {
                 return response()->json(['error' => 'Purchase doesnot exist or unauthorized'], 401);
             }
@@ -448,7 +456,7 @@ class PurchaseController extends Controller
 
         try {
             $request->validate([
-                'purchase_id' => 'required'
+                'purchase_id' => 'required',
             ]);
 
             if (Auth::user()->active_status == true) {
@@ -470,13 +478,13 @@ class PurchaseController extends Controller
     {
         try {
             $request->validate([
-                'purchase_id' => 'required',
+                'purchase_id'       => 'required',
                 'purchase_video_id' => 'required',
-                'feedback' => 'required',
-                'fdbk_video' => 'required',
+                'feedback'          => 'required',
+                'fdbk_video'        => 'required',
             ]);
 
-            if (Auth::user()->type == Role::ROLE_INSTRUCTOR) {
+            if (Auth::user()->type == Role::ROLE_INFLUENCER) {
 
                 $purchase = Purchase::find($request->purchase_id);
                 if (isset($purchase)) {
@@ -486,14 +494,16 @@ class PurchaseController extends Controller
                         if ($request?->hasFile('fdbk_video')) {
                             foreach ($request->file('fdbk_video') as $file) {
                                 $path = $file->store('feedbackContent');
-                                if (Str::endsWith($path, '.mov'))
+                                if (Str::endsWith($path, '.mov')) {
                                     $path = $this->convertSingleVideo($path);
+                                }
+
                                 $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
 
                                 FeedbackContent::create([
                                     'purchase_video_id' => $purchaseVideo->id,
-                                    'url' => $path,
-                                    'type' => $type,
+                                    'url'               => $path,
+                                    'type'              => $type,
                                 ]);
                             }
                         }
@@ -505,12 +515,14 @@ class PurchaseController extends Controller
                             'name' => $purchase->lesson->user->name,
                         ]);
 
-                        if (isset($purchase->student->pushToken->token))
+                        if (isset($purchase->student->pushToken->token)) {
                             SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Feedback Recieved', $message);
+                        }
+
                     }
                     $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
-                    if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && !!isEmpty($allPurchaseVideosFeedback)) {
-                        $purchase = Purchase::find($purchaseVideo->purchase_id);
+                    if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
+                        $purchase                     = Purchase::find($purchaseVideo->purchase_id);
                         $purchase->isFeedbackComplete = 1;
                         $purchase->save();
                     }
@@ -585,9 +597,9 @@ class PurchaseController extends Controller
     public function addFeedBack(Request $request)
     {
         $request->validate([
-            'feedback' => 'required',
+            'feedback'          => 'required',
             'purchase_video_id' => 'required',
-            'fdbk_video' => 'required',
+            'fdbk_video'        => 'required',
         ]);
 
         try {
@@ -600,8 +612,8 @@ class PurchaseController extends Controller
                         $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
                         FeedbackContent::create([
                             'purchase_video_id' => $purchaseVideo->id,
-                            'url' => $path,
-                            'type' => $type,
+                            'url'               => $path,
+                            'type'              => $type,
                         ]);
                     }
                 }
@@ -619,8 +631,8 @@ class PurchaseController extends Controller
 
                 SendPushNotification::dispatch($purchaseVideo->purchase->student->pushToken->token, 'Feedback Recieved', $message);
 
-                if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && !!isEmpty($allPurchaseVideosFeedback)) {
-                    $purchase = Purchase::find($purchaseVideo->purchase_id);
+                if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
+                    $purchase                     = Purchase::find($purchaseVideo->purchase_id);
                     $purchase->isFeedbackComplete = 1;
                     $purchase->save();
                 }
@@ -630,8 +642,8 @@ class PurchaseController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('errors', $e->getMessage());
-        };
-    {
+        }
+        {
             $purchaseVideo = PurchaseVideos::find($request->purchase_video);
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
@@ -641,7 +653,7 @@ class PurchaseController extends Controller
 
         if (Auth::user()->can('manage-purchases')) {
             $request->validate([
-                'follower_id' => 'required'
+                'follower_id' => 'required',
             ]);
             if ($student = Follower::find($request?->follower_id)) {
                 return Purchase::where('follower_id', $student?->id);
@@ -655,7 +667,7 @@ class PurchaseController extends Controller
         try {
             if (\Auth::user()->can('manage-purchases')) {
                 $request->validate([
-                    'purchase_id' => 'required'
+                    'purchase_id' => 'required',
                 ]);
 
                 if ($purchase = Purchase::find($request?->purchase_id)) {
@@ -673,7 +685,7 @@ class PurchaseController extends Controller
     public function update(Request $request, Purchase $purchase)
     {
         $validatedData = $request->validate([
-            'follower_id'     => 'required|exists:users,id',
+            'follower_id'    => 'required|exists:users,id',
             'influencer_id'  => 'required|exists:instructors,id',
             'lesson_id'      => 'required|exists:lessons,id',
             'payment_method' => 'required|string',
@@ -709,7 +721,7 @@ class PurchaseController extends Controller
     public function getVideo(PurchaseVideos $video)
     {
         $filePath = Storage::disk('local')->path($video->video_url);
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             abort(404, 'Video not found');
         }
         $fileSize = filesize($filePath);
@@ -728,14 +740,14 @@ class PurchaseController extends Controller
             $range = $_SERVER['HTTP_RANGE'];
             if (preg_match('/bytes=(\d+)-(\d*)/', $range, $matches)) {
                 $start = intval($matches[1]);
-                $end = isset($matches[2]) && $matches[2] !== '' ? intval($matches[2]) : ($fileSize - 1);
+                $end   = isset($matches[2]) && $matches[2] !== '' ? intval($matches[2]) : ($fileSize - 1);
 
                 // Fix for Safari's initial 0-1 range request
                 if ($start == 0 && $end == 1) {
-                    // Just serve these two bytes as requested, don't modify the range
-                    $length = 2; // Just the 2 bytes requested
+                                                    // Just serve these two bytes as requested, don't modify the range
+                    $length                    = 2; // Just the 2 bytes requested
                     $headers['Content-Length'] = $length;
-                    $headers['Content-Range'] = "bytes 0-1/$fileSize";
+                    $headers['Content-Range']  = "bytes 0-1/$fileSize";
 
                     return response()->stream(function () use ($filePath) {
                         $handle = fopen($filePath, 'rb');
@@ -745,9 +757,9 @@ class PurchaseController extends Controller
                 }
 
                 // For normal range requests
-                $length = ($end - $start) + 1;
+                $length                    = ($end - $start) + 1;
                 $headers['Content-Length'] = $length;
-                $headers['Content-Range'] = "bytes $start-$end/$fileSize";
+                $headers['Content-Range']  = "bytes $start-$end/$fileSize";
 
                 if ($start > $end || $end >= $fileSize) {
                     header("HTTP/1.1 416 Requested Range Not Satisfiable");
@@ -759,9 +771,9 @@ class PurchaseController extends Controller
                     $handle = fopen($filePath, 'rb');
                     fseek($handle, $start);
                     $bufferSize = 8192;
-                    $remaining = ($end - $start) + 1;
+                    $remaining  = ($end - $start) + 1;
 
-                    while (!feof($handle) && $remaining > 0) {
+                    while (! feof($handle) && $remaining > 0) {
                         $readSize = min($bufferSize, $remaining);
                         echo fread($handle, $readSize);
                         $remaining -= $readSize;
