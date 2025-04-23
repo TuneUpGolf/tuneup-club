@@ -13,13 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('expo_token', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('influencer_id')->nullable()->default(null);
-            $table->unsignedBigInteger('follower_id')->nullable()->default(null);
-            $table->string('token');
+        Schema::table('follows', function (Blueprint $table) {
+            $table->bigInteger('follower_id')->unsigned()->index()->nullable()->default(1);
             $table->foreign('follower_id')->references('id')->on('followers')->onDelete('cascade');
-            $table->foreign('influencer_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -30,7 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        //
-        Schema::dropIfExists('expo_token');
+        Schema::table('follows', function (Blueprint $table) {
+            //
+        });
     }
 };

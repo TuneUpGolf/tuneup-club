@@ -56,9 +56,9 @@ class LessonsGridView extends GridView
         $symbol = User::getCurrencySymbol($currency);
 
         return [
-            'image'       => asset('/storage' . '/' . tenant('id') . '/' . $model?->user?->logo) ?? asset('assets/img/logo/logo.png'),
-            'title'       => $model->lesson_name,
-            'subtitle'    => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
+            'image' =>  asset('/storage' . '/' . tenant('id') . '/' . $model?->user?->logo) ?? asset('assets/img/logo/logo.png'),
+            'title' => $model->lesson_name,
+            'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
             'description' => $model->lesson_description,
         ];
     }

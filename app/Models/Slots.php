@@ -18,7 +18,7 @@ class Slots extends Model
 
     protected $fillable = [
         'lesson_id',
-        'student_id',
+        'follower_id',
         'date_time',
         'location',
         'is_completed',
@@ -33,7 +33,7 @@ class Slots extends Model
     // Relationship with students
     public function student(): BelongsToMany
     {
-        return $this->belongsToMany(Student::class, 'student_slots', 'slot_id', 'student_id')
+        return $this->belongsToMany(Follower::class, 'student_slots', 'slot_id', 'follower_id')
             ->withPivot(['isFriend', 'friend_name', 'created_at', 'updated_at'])
             ->withTimestamps();
     }

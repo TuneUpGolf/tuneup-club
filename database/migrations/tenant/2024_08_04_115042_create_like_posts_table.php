@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('post_id');
             $table->unsignedBigInteger('influencer_id')->nullable()->default(null);
-            $table->unsignedBigInteger('student_id')->nullable()->default(null);
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->unsignedBigInteger('follower_id')->nullable()->default(null);
+            $table->foreign('follower_id')->references('id')->on('followers')->onDelete('cascade');
             $table->foreign('influencer_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('post_id')->references('id')->on('post')->onDelete('cascade');
             $table->timestamps();

@@ -57,6 +57,7 @@ use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Resources\InstructorAPIResource;
 use App\Http\Resources\StudentAPIResource;
+use App\Models\Follower;
 use App\Models\Role;
 use App\Models\Student;
 use App\Models\User;
@@ -487,10 +488,6 @@ Route::middleware([
         Route::post('purchase/add/video', [PurchaseController::class, 'addVideoAPI']);
 
         Route::post('follow', [FollowController::class, 'followInstructorApi']);
-        Route::post('follow/delete', [FollowController::class, 'unfollowInstructor']);
-        Route::get('follow/instructor', [FollowController::class, 'getInstructors']);
-        Route::post('follow/subscribe/inst', [FollowController::class, 'subscribeInst']);
-        Route::get('follow/instructor/subscribed', [FollowController::class, 'getSubscribedInstructors']);
         Route::get('follow/students', [FollowController::class, 'getStudents']);
 
         Route::get('post', [PostsController::class, 'getAllPosts']);
@@ -587,18 +584,18 @@ Route::middleware([
 
     try {
         $user = User::where('email', $_REQUEST['email'])->first();
-        if (! isset($user)) {
-            $user = Student::where('email', $_REQUEST['email'])->where('active_status', true)->first();
+        if (!isset($user)) {
+            $user = Follower::where('email', $_REQUEST['email'])->where('active_status', true)->first();
         }
 
-        if (! $user || ! Hash::check($_REQUEST['password'], $user->password)) {
+        if (!$user || !Hash::check($_REQUEST['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
     } catch (\Exception $th) {
         return response()->json([
-            'message' => 'Login Failed, ' . $th->getMessage(),
+            'message' => 'Login Failed, ' . $th->getMessage()
         ], 403);
     }
     return $user->createToken($_REQUEST['device_name'])->plainTextToken;
@@ -611,7 +608,7 @@ Route::middleware([
 // ])->post('student/sanctum/token', function () {
 
 //     try {
-//         $user = Student::where('email', $_REQUEST['email'])->where('active_status', true)->first();
+//         $user = Follower::where('email', $_REQUEST['email'])->where('active_status', true)->first();
 
 //         if (!$user || !Hash::check($_REQUEST['password'], $user->password)) {
 //             throw ValidationException::withMessages([

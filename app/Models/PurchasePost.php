@@ -10,11 +10,11 @@ class PurchasePost extends Model
     use HasFactory;
     protected $table = 'purchasepost';
 
-    protected $fillable = ['student_id', 'post_id', 'active_status', 'session_id'];
+    protected $fillable = ['follower_id', 'post_id', 'active_status', 'session_id'];
 
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Follower::class);
     }
     public function post()
     {

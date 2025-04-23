@@ -13,7 +13,7 @@ class ReportUser extends Model
     public $table = 'report_user';
     protected $fillable = [
         'influencer_id',
-        'student_id',
+        'follower_id',
         'comment',
     ];
     protected $casts = [
@@ -27,7 +27,7 @@ class ReportUser extends Model
     }
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Follower::class);
     }
     public function post()
     {

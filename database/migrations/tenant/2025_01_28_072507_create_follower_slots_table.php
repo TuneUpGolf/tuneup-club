@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('purchases', function (Blueprint $table) {
-            $table->dropForeign(['follower_id']);
-            $table->foreign('follower_id')
-                ->references('id')->on('followers')
-                ->onDelete('cascade');
+        Schema::create('follower_slots', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('slot_id')->constrained('slots')->onDelete('cascade');
+            $table->foreignId('follower_id')->constrained('followers')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -28,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('followers', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('follower_slots');
     }
 };

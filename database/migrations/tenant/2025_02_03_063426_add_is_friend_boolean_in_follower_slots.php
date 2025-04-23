@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('purchases', function (Blueprint $table) {
-            $table->dropForeign(['follower_id']);
-            $table->foreign('follower_id')
-                ->references('id')->on('followers')
-                ->onDelete('cascade');
+        Schema::table('follower_slots', function (Blueprint $table) {
+            //
+            $table->string('friend_name')->nullable()->after('follower_id');
+            $table->boolean('isFriend')->default(false)->after('follower_id');
         });
     }
 
@@ -28,8 +27,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('followers', function (Blueprint $table) {
+        Schema::table('follower_slots', function (Blueprint $table) {
             //
+            $table->dropColumn('friend_name');
+            $table->dropColumn('isFriend');
         });
     }
 };

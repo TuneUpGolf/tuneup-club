@@ -10,15 +10,15 @@ class PushToken extends Model
     use HasFactory;
     protected $table = "expo_token";
     protected $guard_name = 'web';
-    protected $fillable = ['student_id', 'influencer_id', 'token'];
+    protected $fillable = ['follower_id', 'influencer_id', 'token'];
     public $timestamps = false;
 
-    public function influencer()
+    public function instructor()
     {
         return $this->belongsTo(User::class);
     }
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Follower::class);
     }
 }

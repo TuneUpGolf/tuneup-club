@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Post;
 use App\Models\PurchasePost;
-use App\Models\Student;
+use App\Models\Follower;
 use App\Http\Controllers\Controller;
 use Error;
 use Illuminate\Http\Request;
@@ -24,7 +24,7 @@ class PurchasePostController extends Controller
             $post = Post::where('paid', true)->where('id', $request->post_id)->where('status', 'active')->first();
             $purchasePost = PurchasePost::firstOrCreate(
                 [
-                    'student_id' => Auth::user()->id,
+                    'follower_id' => Auth::user()->id,
                     'post_id' => $post->id,
                 ],
                 [
@@ -50,7 +50,7 @@ class PurchasePostController extends Controller
                     'mode' => 'payment',
                     'success_url' => route('purchase-post-success', [
                         'purchase_post_id' => $purchasePost?->id,
-                        'student_id' => Auth::user()->id,
+                        'follower_id' => Auth::user()->id,
                         'redirect' => $request->redirect
                     ]),
                     'cancel_url' => route('subscription-unsuccess'),
@@ -81,7 +81,7 @@ class PurchasePostController extends Controller
                     $purchasePost->active_status = true;
                     $purchasePost->session_id = $session->id;
                     $purchasePost->save();
-                    $student = Student::find($request->query('student_id'));
+                    $student = Follower::find($request->query('follower_id'));
                     if (!isset($student->stripe_cus_id)) {
                         $student->stripe_cus_id = $session->customer;
                         $student->save();

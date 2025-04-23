@@ -13,15 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('purchases', function (Blueprint $table) {
-            $table->json('friend_names')->nullable()->after('follower_id');
+        Schema::table('slots', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('follower_id');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
-        Schema::table('purchases', function (Blueprint $table) {
-            $table->dropColumn('friend_names');
+        Schema::table('slots', function (Blueprint $table) {
+            //
         });
     }
 };

@@ -208,7 +208,7 @@
                     </li>
                 @endif
                 @if ($users->type != 'Super Admin')
-                    @canany(['manage-user', 'manage-role', 'manage-students'])
+                    @canany(['manage-user', 'manage-role', 'manage-followers'])
                         <li
                             class="dash-item dash-hasmenu {{ request()->is('student*') || request()->is('users*') || request()->is('roles*') || request()->is('instructor*') ? 'active dash-trigger' : 'collapsed' }}">
                             <a href="#!" class="dash-link py-3 px-4">
@@ -237,7 +237,7 @@
                                             href="{{ route('instructor.index') }}">{{ __('Instructor') }}</a>
                                     </li>
                                 @endcan
-                                @can('manage-students')
+                                @can('manage-followers')
                                     <li class="dash-item {{ request()->is('student*') ? 'active' : '' }}">
                                         <a class="dash-link" href="{{ route('student.index') }}">{{ __('Student') }}</a>
                                     </li>

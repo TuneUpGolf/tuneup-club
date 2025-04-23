@@ -43,7 +43,7 @@ class TenantDatabaseSeeder extends Seeder
             'user'                  => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'lessons'               => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'influencers'           => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'students'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'followers'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'setting'               => ['manage'],
             'transaction'           => ['manage'],
             'landingpage'           => ['manage'],
@@ -73,7 +73,7 @@ class TenantDatabaseSeeder extends Seeder
             'role'                  => ['manage', 'create', 'edit', 'delete', 'show'],
             'user'                  => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'influencers'           => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'students'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'followers'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'lessons'               => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'purchases'             => ['manage', 'create', 'edit', 'delete'],
             'setting'               => ['manage'],
@@ -113,8 +113,8 @@ class TenantDatabaseSeeder extends Seeder
                 $adminRole->givePermissionTo($temp1);
             }
         }
-        $influencerpermissions  = [
-            'students'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+        $instructorpermissions  = [
+            'followers'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'lessons'               => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'purchases'             => ['manage'],
             'setting'               => ['manage'],
@@ -157,10 +157,10 @@ class TenantDatabaseSeeder extends Seeder
             'follow'                => ['manage', 'create', 'delete'],
         ];
 
-        foreach ($studentpermissions as $influencerModule => $studentpermissions) {
+        foreach ($studentpermissions as $instructorModule => $studentpermissions) {
             Module::firstOrCreate(['name' => $adminmodule]);
-            foreach ($studentpermissions as $influencerPermission) {
-                $temp2 = Permission::firstOrCreate(['name' => $influencerPermission . '-' . $influencerModule]);
+            foreach ($studentpermissions as $instructorPermission) {
+                $temp2 = Permission::firstOrCreate(['name' => $instructorPermission . '-' . $instructorModule]);
                 $studentRole->givePermissionTo($temp2);
             }
         }
@@ -758,7 +758,7 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => WelcomeMailStudent::class,
+            'mailable' => WelcomeMailFollower::class,
             'subject' => 'Welcome, {{ name }}',
             'html_template' => '<p>Hello, {{ name }}. Welcome to tuneup. You can login in  with your password : {{password}} at {{link}} </p>',
             'text_template' => 'Hello, {{ name }}.'

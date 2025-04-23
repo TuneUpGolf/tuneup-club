@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Http\Livewire;
 
 use App\Models\Follow;
+use App\Models\Lesson;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;

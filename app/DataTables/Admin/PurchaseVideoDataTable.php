@@ -12,6 +12,8 @@ use Yajra\DataTables\Services\DataTable;
 class PurchaseVideoDataTable extends DataTable
 {
 
+
+
     public function dataTable($query)
     {
         return datatables()
@@ -56,12 +58,12 @@ class PurchaseVideoDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
-                "paginate"          => [
-                    "next"     => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>',
+                "paginate" => [
+                    "next" => '<i class="ti ti-chevron-right"></i>',
+                    "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
-                'lengthMenu'        => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search...'), "search" => "",
+                'lengthMenu' => __('_MENU_ entries per page'),
+                "searchPlaceholder" => __('Search...'), "search" => ""
             ])
             ->initComplete('function() {
                 var table = this;
@@ -71,19 +73,19 @@ class PurchaseVideoDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
-                "dom"          => "
+                "dom" =>  "
                                <'dataTable-top row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                              <'dataTable-container'<'col-sm-12'tr>>
                              <'dataTable-bottom row'<'col-sm-5'i><'col-sm-7'p>>
                                ",
-                'buttons'      => [
+                'buttons'   => [
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                                     window.location = '" . route('purchase.create') . "';
                                }"],
                     ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
                     ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
-                "scrollX"      => true,
+                "scrollX" => true,
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
@@ -101,17 +103,17 @@ class PurchaseVideoDataTable extends DataTable
                       var toastList = toastElList.map(function (toastEl) {
                         return new bootstrap.Toast(toastEl);
                       });
-                }',
+                }'
             ])->language([
-            'buttons' => [
-                'create' => __('Create'),
-                'print'  => __('Print'),
-                'reset'  => __('Reset'),
-                'reload' => __('Reload'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Create'),
+                    'print' => __('Print'),
+                    'reset' => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel' => __('Excel'),
+                    'csv' => __('CSV'),
+                ]
+            ]);
     }
 
     protected function getColumns()

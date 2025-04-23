@@ -30,7 +30,7 @@ class SubscriptionsDataTable extends DataTable
             })
             ->addColumn('next_date', function (Follow $follow) {
                 Stripe::setApiKey(config('services.stripe.secret'));
-                $stripe       = new StripeClient(config('services.stripe.secret'));
+                $stripe = new StripeClient(config('services.stripe.secret'));
                 $subscription = $stripe->subscriptions->retrieve($follow->subscription_id);
                 return Carbon::createFromTimestamp($subscription->current_period_end)->format('M d,Y');
             })
@@ -43,7 +43,7 @@ class SubscriptionsDataTable extends DataTable
 
     public function query(Follow $model)
     {
-        return $model->newQuery()->where('active_status', true)->where('student_id', Auth::user()->id)->where('isPaid', true);
+        return $model->newQuery()->where('active_status', true)->where('follower_id', Auth::user()->id)->where('isPaid', true);
     }
 
     public function html()
@@ -51,7 +51,7 @@ class SubscriptionsDataTable extends DataTable
         $buttons = [
             ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('lesson.create') . "';
-           }", ],
+           }"],
             [
                 'extend' => 'collection', 'className' => 'btn btn-light-secondary me-1 dropdown-toggle', 'text' => '<i class="ti ti-download"></i> Export', "buttons" => [
                     ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
@@ -63,9 +63,8 @@ class SubscriptionsDataTable extends DataTable
             ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
             ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
-        if (Auth::user()->type == Role::ROLE_STUDENT) {
+        if (Auth::user()->type == Role::ROLE_STUDENT)
             unset($buttons[0]);
-        }
 
         return $this->builder()
             ->setTableId('subscription-table')
@@ -73,12 +72,12 @@ class SubscriptionsDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
-                "paginate"          => [
-                    "next"     => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>',
+                "paginate" => [
+                    "next" => '<i class="ti ti-chevron-right"></i>',
+                    "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
-                'lengthMenu'        => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search...'), "search" => "",
+                'lengthMenu' => __('_MENU_ entries per page'),
+                "searchPlaceholder" => __('Search...'), "search" => ""
             ])
             ->initComplete('function() {
                 var table = this;
@@ -88,13 +87,13 @@ class SubscriptionsDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
-                "dom"          => "
+                "dom" =>  "
                                <'dataTable-top row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                              <'dataTable-container'<'col-sm-12'tr>>
                              <'dataTable-bottom row'<'col-sm-5'i><'col-sm-7'p>>
                                ",
-                'buttons'      => $buttons,
-                "scrollX"      => true,
+                'buttons'   => $buttons,
+                "scrollX" => true,
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
@@ -112,18 +111,18 @@ class SubscriptionsDataTable extends DataTable
                       var toastList = toastElList.map(function (toastEl) {
                         return new bootstrap.Toast(toastEl);
                       });
-                }',
+                }'
             ])->language([
-            'buttons' => [
-                'create' => __('Create'),
-                'export' => __('Export'),
-                'print'  => __('Print'),
-                'reset'  => __('Reset'),
-                'reload' => __('Reload'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Create'),
+                    'export' => __('Export'),
+                    'print' => __('Print'),
+                    'reset' => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel' => __('Excel'),
+                    'csv' => __('CSV'),
+                ]
+            ]);
     }
 
     protected function getColumns()

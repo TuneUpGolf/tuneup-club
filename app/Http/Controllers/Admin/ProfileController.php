@@ -1,18 +1,19 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
-use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
+use App\Facades\UtilityFacades;
 use App\Http\Resources\InstructorAPIResource;
 use App\Http\Resources\StudentAPIResource;
 use App\Models\PushToken;
 use App\Models\Role;
-use App\Models\Student;
+use App\Models\Follower;
+use Illuminate\Http\Request;
 use App\Models\User;
 use Exception;
-use File;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use File;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -26,56 +27,58 @@ class ProfileController extends Controller
             $this->user = Auth::user();
             return $next($request);
         });
-        $path            = storage_path() . "/json/country.json";
-        $this->countries = json_decode(file_get_contents($path), true);
+        $path               = storage_path() . "/json/country.json";
+        $this->countries    = json_decode(file_get_contents($path), true);
     }
 
     public function index()
     {
-        $role      = Auth::user()->roles->first();
-        $tenantId  = tenant('id');
-        $countries = $this->countries;
+        $role       = Auth::user()->roles->first();
+        $tenantId   = tenant('id');
+        $countries  = $this->countries;
         return view('admin.profile.index', [
-            'user'      => Auth::user(),
-            'role'      => $role,
+            'user' => Auth::user(),
+            'role' => $role,
             'tenant_id' => $tenantId,
             'countries' => $countries,
         ]);
     }
 
+
+
     private function activeTwoFactor()
     {
-        $user         = Auth::user();
-        $google2faUrl = "";
-        $secretKey    = "";
+        $user           = Auth::user();
+        $google2faUrl   = "";
+        $secretKey      = "";
 
         if ($user->loginSecurity()->exists()) {
-            $google2fa    = (new \PragmaRX\Google2FAQRCode\Google2FA());
-            $google2faUrl = $google2fa->getQRCodeInline(
+            $google2fa      = (new \PragmaRX\Google2FAQRCode\Google2FA());
+            $google2faUrl   = $google2fa->getQRCodeInline(
                 @UtilityFacades::getsettings('app_name'),
                 $user->name,
                 $user->loginSecurity->google2fa_secret
             );
             $secretKey = $user->loginSecurity->google2fa_secret;
         }
-        $user      = auth()->user();
-        $role      = $user->roles->first();
-        $tenantId  = tenant('id');
-        $countries = $this->countries;
-        $data      = [
+        $user       = auth()->user();
+        $role       = $user->roles->first();
+        $tenantId   = tenant('id');
+        $countries  = $this->countries;
+        $data       = array(
             'user'          => $user,
             'secret'        => $secretKey,
             'google2fa_url' => $google2faUrl,
             'tenant_id'     => $tenantId,
             'countries'     => $countries,
-        ];
+        );
         return view('admin.profile.index', [
             'user'          => $user,
             'role'          => $role,
             'secret'        => $secretKey,
             'google2fa_url' => $google2faUrl,
             'tenant_id'     => $tenantId,
-            'countries'     => $countries,
+            'countries'     => $countries
         ]);
     }
 
@@ -145,15 +148,15 @@ class ProfileController extends Controller
 
         $userDetail = Auth::user();
         if (Auth::user()->type == Role::ROLE_STUDENT) {
-            $user = Student::findOrFail($userDetail['id']);
+            $user = Follower::findOrFail($userDetail['id']);
         }
         if (Auth::user()->type !== Role::ROLE_STUDENT) {
             $user = User::findOrFail($userDetail['id']);
         }
         request()->validate([
-            'email'    => 'email|unique:users,email,' . $userDetail['id'],
-            'avatar'   => 'image|mimes:jpeg,png,jpg,svg|max:3072',
-            'password' => 'same:password_confirmation',
+            'email'     => 'email|unique:users,email,' . $userDetail['id'],
+            'avatar'    => 'image|mimes:jpeg,png,jpg,svg|max:3072',
+            'password'  => 'same:password_confirmation',
         ]);
         if ($request->hasFile('avatar')) {
             $filenameWithExt = $request->file('avatar')->getClientOriginalName();
@@ -165,23 +168,23 @@ class ProfileController extends Controller
             if (File::exists($imagePath)) {
                 //File::delete($imagePath);
             }
-            if (! file_exists($dir)) {
+            if (!file_exists($dir)) {
                 mkdir($dir, 0777, true);
             }
-            $path = $request->file('avatar')->storeAs('avatar/', $fileNameToStore);
+            $path   = $request->file('avatar')->storeAs('avatar/', $fileNameToStore);
         }
-        if (! empty($request->avatar)) {
+        if (!empty($request->avatar)) {
             $user['avatar'] = 'avatar/' . $fileNameToStore;
         }
-        if (! empty($request->password)) {
+        if (!empty($request->password)) {
             $user->password = bcrypt($request->password);
         }
         $user->save();
         if (\Auth::user()->type == 'Admin') {
-            $order = tenancy()->central(function ($tenant) use ($request, $userDetail) {
-                $users = User::where('tenant_id', $userDetail->tenant_id)->first();
-                if (! empty($request->password)) {
-                    $users->password = bcrypt($request->password);
+            $order      = tenancy()->central(function ($tenant) use ($request, $userDetail) {
+                $users  = User::where('tenant_id', $userDetail->tenant_id)->first();
+                if (!empty($request->password)) {
+                    $users->password    = bcrypt($request->password);
                 }
                 $users->save();
             });
@@ -195,20 +198,19 @@ class ProfileController extends Controller
             $userDetail = Auth::user();
 
             request()->validate([
-                'password' => 'same:password_confirmation',
+                'password'  => 'same:password_confirmation',
             ]);
 
-            if (Auth::user()->type == Role::ROLE_STUDENT) {
-                $user = Student::findOrFail($userDetail['id']);
-            }
+            if (Auth::user()->type == Role::ROLE_STUDENT)
+                $user = Follower::findOrFail($userDetail['id']);
 
-            if (Auth::user()->type !== Role::ROLE_STUDENT) {
+
+            if (Auth::user()->type !== Role::ROLE_STUDENT)
                 $user = User::findOrFail($userDetail['id']);
-            }
 
-            if (! empty($request->password)) {
+
+            if (!empty($request->password))
                 $user->password = bcrypt($request->password);
-            }
 
             $user->save();
             return response()->json(['message' => 'Password Successfully Changed']);
@@ -222,15 +224,15 @@ class ProfileController extends Controller
         $disk = Storage::disk();
         $user = User::find(auth()->id());
         request()->validate([
-            'avatar' => 'required',
+            'avatar'    => 'required',
         ]);
-        $image     = $request->avatar;
-        $image     = str_replace('data:image/png;base64,', '', $image);
-        $image     = str_replace(' ', '+', $image);
-        $imageName = time() . '.' . 'png';
-        $imagePath = "uploads/avatar/" . $imageName;
+        $image          = $request->avatar;
+        $image          = str_replace('data:image/png;base64,', '', $image);
+        $image          = str_replace(' ', '+', $image);
+        $imageName      = time() . '.' . 'png';
+        $imagePath      = "uploads/avatar/" . $imageName;
         $disk->put($imagePath, base64_decode($image));
-        $user->avatar = $imagePath;
+        $user->avatar   = $imagePath;
         if ($user->save()) {
             return __("Avatar updated successfully.");
         }
@@ -239,13 +241,13 @@ class ProfileController extends Controller
 
     public function profileStatus()
     {
-        $user = tenancy()->central(function ($tenant) {
+        $user   = tenancy()->central(function ($tenant) {
             $centralUser                = User::find($tenant->id);
             $centralUser->active_status = 0;
             $centralUser->save();
         });
-        $user                = User::find(Auth::user()->id);
-        $user->active_status = 0;
+        $user                   = User::find(Auth::user()->id);
+        $user->active_status    = 0;
         $user->save();
         auth()->logout();
         return redirect()->route('home');
@@ -281,7 +283,7 @@ class ProfileController extends Controller
                 $user->save();
                 return response(new InstructorAPIResource($user), 200);
             } else if (Auth::user()->type === Role::ROLE_STUDENT && Auth::user()->active_status == true) {
-                $user = Student::find(Auth::user()->id);
+                $user = Follower::find(Auth::user()->id);
                 if ($request->hasFile('dp')) {
                     $user['dp'] = $request->file('dp')->store('dp');
                 }
@@ -313,7 +315,7 @@ class ProfileController extends Controller
         try {
             \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
             $stripeClient = new \Stripe\StripeClient(config('services.stripe.secret'));
-            $account      = $stripeClient->accounts->retrieve($stripeAccountId);
+            $account = $stripeClient->accounts->retrieve($stripeAccountId);
 
             if ($account && $account->id) {
                 $isVerified = false;
@@ -327,7 +329,7 @@ class ProfileController extends Controller
                 }
 
                 // Save the account ID and verification status
-                $user->stripe_account_id   = $stripeAccountId;
+                $user->stripe_account_id = $stripeAccountId;
                 $user->is_stripe_connected = $isVerified;
                 $user->save();
 
@@ -359,7 +361,7 @@ class ProfileController extends Controller
 
             if (Auth::user()->type == Role::ROLE_STUDENT) {
                 $pushToken = PushToken::updateOrCreate([
-                    'student_id' => Auth::user()->id,
+                    'follower_id' => Auth::user()->id,
                 ], ['token' => $request->get('push_token')]);
                 return response()->json(['message' => 'Success', 'push_token' => $pushToken], 200);
             }

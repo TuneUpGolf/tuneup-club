@@ -43,13 +43,13 @@ class SendBookingReminderCron extends Command
                 $now = Carbon::now();
 
                 // Get slots in the next hour
-                $slots = Slots::whereHas('student') // Ensure slot has students
+                $slots = Slots::whereHas('follower') // Ensure slot has followers
                     ->whereBetween('date_time', [$now->format('Y-m-d H:i:s'), $now->addHour()->format('Y-m-d H:i:s')])
                     ->get();
 
                 try {
                     foreach ($slots as $slot) {
-                        $slot->load('students'); // Load all students
+                        $slot->load('followers'); // Load all followers
                         $slot->load('lesson.user'); // Load lesson instructor
 
                         $date = Carbon::createFromFormat('Y-m-d H:i:s', $slot->date_time);
@@ -57,7 +57,7 @@ class SendBookingReminderCron extends Command
                         $instructor = $slot->lesson?->user;
                         $instructorName = $instructor?->name;
 
-                        foreach ($slot->students as $student) {
+                        foreach ($slot->followers as $student) {
                             $studentName = $student->pivot->friend_name ?? $student->name; // Show friend name if available
                             $messageStudent = __(
                                 "Hey {$studentName} Reminder! You have an upcoming booking for {$date->toDayDateTimeString()} with {$instructorName} for the in-person lesson {$lessonName}."
@@ -76,9 +76,9 @@ class SendBookingReminderCron extends Command
 
                         // Notify Instructor
                         if ($instructor) {
-                            $studentNames = $slot->students->pluck('name')->join(', ');
+                            $studentNames = $slot->followers->pluck('name')->join(', ');
                             $messageInstructor = __(
-                                "Reminder! You have an upcoming booking for {$date->toDayDateTimeString()} with students: {$studentNames} for the in-person lesson {$lessonName}."
+                                "Reminder! You have an upcoming booking for {$date->toDayDateTimeString()} with followers: {$studentNames} for the in-person lesson {$lessonName}."
                             );
 
                             // Send Push Notification to Instructor

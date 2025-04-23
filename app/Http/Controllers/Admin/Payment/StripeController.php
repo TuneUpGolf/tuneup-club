@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Admin\Payment;
 
-use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Facades\UtilityFacades;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Plan;
@@ -10,7 +12,6 @@ use App\Models\User;
 use App\Models\UserCoupon;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Stripe\Stripe;
@@ -20,7 +21,7 @@ class StripeController extends Controller
 {
     public function stripe()
     {
-        $view = view('payment.PaymentStripe');
+        $view =  view('payment.PaymentStripe');
         return ['html' => $view->render()];
     }
 
@@ -38,7 +39,7 @@ class StripeController extends Controller
 
             if (empty($instructor->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
-                    'type'  => 'standard',
+                    'type' => 'standard',
                     'email' => $instructor->email,
                 ]);
                 $instructor->stripe_account_id = $account->id;
@@ -54,7 +55,7 @@ class StripeController extends Controller
             return redirect($accountLink->url);
         } catch (\Exception $e) {
             return redirect(route('purchase.index'))->with('errors', $e->getMessage());
-        }
+        };
     }
 
     public function refreshAccountLink(Request $request)
@@ -69,7 +70,7 @@ class StripeController extends Controller
 
             if (empty($instructor->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
-                    'type'  => 'standard',
+                    'type' => 'standard',
                     'email' => $instructor->email,
                 ]);
                 $instructor->stripe_account_id = $account->id;
@@ -85,7 +86,7 @@ class StripeController extends Controller
             return redirect($accountLink->url);
         } catch (\Exception $e) {
             return redirect(route('purchase.index'))->with('errors', $e->getMessage());
-        }
+        };
     }
 
     public function redirectFromCreate(Request $request)
@@ -113,7 +114,7 @@ class StripeController extends Controller
                     }
 
                     // Save the account ID and verification status
-                    $instructor->stripe_account_id   = $instructor->stripe_account_id;
+                    $instructor->stripe_account_id = $instructor->stripe_account_id;
                     $instructor->is_stripe_connected = $isVerified;
                 }
                 $instructor->save();
@@ -121,46 +122,46 @@ class StripeController extends Controller
             return redirect()->route('home')->with('success', __('Stripe Connect Integrated Successfully'));
         } catch (\Exception $e) {
             return redirect(route('purchase.index'))->with('errors', $e->getMessage());
-        }
+        };
     }
 
     public function stripePostPending(Request $request)
     {
-        $planID   = \Illuminate\Support\Facades\Crypt::decrypt($request->plan_id);
-        $authUser = Auth::user();
+        $planID    = \Illuminate\Support\Facades\Crypt::decrypt($request->plan_id);
+        $authUser  = Auth::user();
         if ($authUser->type == 'Admin') {
-            $plan = tenancy()->central(function ($tenant) use ($planID) {
+            $plan   = tenancy()->central(function ($tenant) use ($planID) {
                 return Plan::find($planID);
             });
-            $resData = tenancy()->central(function ($tenant) use ($plan, $request) {
-                $couponId      = '0';
-                $price         = $plan->price;
-                $couponCode    = null;
+            $resData =  tenancy()->central(function ($tenant) use ($plan, $request) {
+                $couponId = '0';
+                $price = $plan->price;
+                $couponCode = null;
                 $discountValue = null;
-                $coupons       = Coupon::where('code', $request->coupon)->where('is_active', '1')->first();
+                $coupons = Coupon::where('code', $request->coupon)->where('is_active', '1')->first();
                 if ($coupons) {
-                    $couponCode = $coupons->code;
-                    $usedCoupun = $coupons->used_coupon();
+                    $couponCode     = $coupons->code;
+                    $usedCoupun     = $coupons->used_coupon();
                     if ($coupons->limit == $usedCoupun) {
                         $resData['errors'] = __('This coupon code has expired.');
                     } else {
-                        $discount      = $coupons->discount;
-                        $discount_type = $coupons->discount_type;
-                        $discountValue = UtilityFacades::calculateDiscount($price, $discount, $discount_type);
-                        $price         = $price - $discountValue;
+                        $discount       = $coupons->discount;
+                        $discount_type  = $coupons->discount_type;
+                        $discountValue  =  UtilityFacades::calculateDiscount($price, $discount, $discount_type);
+                        $price          = $price - $discountValue;
                         if ($price < 0) {
-                            $price = $plan->price;
+                            $price      = $plan->price;
                         }
-                        $couponId = $coupons->id;
+                        $couponId       = $coupons->id;
                     }
                 }
                 $data = Order::create([
-                    'plan_id'         => $plan->id,
-                    'user_id'         => $tenant->id,
-                    'amount'          => $price,
-                    'discount_amount' => $discountValue,
-                    'coupon_code'     => $couponCode,
-                    'status'          => 0,
+                    'plan_id'           => $plan->id,
+                    'user_id'           => $tenant->id,
+                    'amount'            => $price,
+                    'discount_amount'   => $discountValue,
+                    'coupon_code'       => $couponCode,
+                    'status'            => 0,
                 ]);
 
                 $resData['total_price'] = $price;
@@ -171,35 +172,35 @@ class StripeController extends Controller
             });
             return $resData;
         } else {
-            $plan          = Plan::find($planID);
-            $couponId      = '0';
-            $price         = $plan->price;
-            $couponCode    = null;
-            $discountValue = null;
-            $coupons       = Coupon::where('code', $request->coupon)->where('is_active', '1')->first();
+            $plan           =  Plan::find($planID);
+            $couponId       = '0';
+            $price          = $plan->price;
+            $couponCode     = null;
+            $discountValue  = null;
+            $coupons        = Coupon::where('code', $request->coupon)->where('is_active', '1')->first();
             if ($coupons) {
-                $couponCode = $coupons->code;
-                $usedCoupun = $coupons->used_coupon();
+                $couponCode     = $coupons->code;
+                $usedCoupun     = $coupons->used_coupon();
                 if ($coupons->limit == $usedCoupun) {
                     $resData['errors'] = __('This coupon code has expired.');
                 } else {
-                    $discount      = $coupons->discount;
-                    $discount_type = $coupons->discount_type;
-                    $discountValue = UtilityFacades::calculateDiscount($price, $discount, $discount_type);
-                    $price         = $price - $discountValue;
+                    $discount       = $coupons->discount;
+                    $discount_type  = $coupons->discount_type;
+                    $discountValue  =  UtilityFacades::calculateDiscount($price, $discount, $discount_type);
+                    $price          = $price - $discountValue;
                     if ($price < 0) {
-                        $price = $plan->price;
+                        $price      = $plan->price;
                     }
-                    $couponId = $coupons->id;
+                    $couponId       = $coupons->id;
                 }
             }
             $data = Order::create([
-                'plan_id'         => $plan->id,
-                'user_id'         => $authUser->id,
-                'amount'          => $price,
-                'discount_amount' => $discountValue,
-                'coupon_code'     => $couponCode,
-                'status'          => 0,
+                'plan_id'           => $plan->id,
+                'user_id'           => $authUser->id,
+                'amount'            => $price,
+                'discount_amount'   => $discountValue,
+                'coupon_code'       => $couponCode,
+                'status'            => 0,
             ]);
 
             $resData['total_price'] = $price;
@@ -213,173 +214,173 @@ class StripeController extends Controller
     {
         if (Auth::user()->type != 'Admin') {
             Stripe::setApiKey(UtilityFacades::getsettings('stripe_secret'));
-            $currency = UtilityFacades::getsettings('currency');
+            $currency       = UtilityFacades::getsettings('currency');
         } else {
-            $currency = tenancy()->central(function ($tenant) {
+            $currency       = tenancy()->central(function ($tenant) {
                 return UtilityFacades::getsettings('currency');
             });
-            $stripe_secret = tenancy()->central(function ($tenant) {
+            $stripe_secret  = tenancy()->central(function ($tenant) {
                 return UtilityFacades::getsettings('stripe_secret');
             });
             Stripe::setApiKey($stripe_secret);
         }
-        if (! empty($request->createCheckoutSession)) {
+        if (!empty($request->createCheckoutSession)) {
             if (Auth::user()->type == 'Admin') {
-                $planDetails = tenancy()->central(function ($tenant) use ($request) {
+                $planDetails   = tenancy()->central(function ($tenant) use ($request) {
                     return Plan::find($request->plan_id);
                 });
             } else {
-                $planDetails = Plan::find($request->plan_id);
+                $planDetails   =  Plan::find($request->plan_id);
             }
             try {
                 $checkout_session = \Stripe\Checkout\Session::create([
-                    'payment_method_types' => ['card'],
-                    'line_items'           => [[
-                        'price_data' => [
-                            'currency'     => $currency,
-                            'product_data' => [
-                                'name'     => $planDetails->name,
-                                'metadata' => [
-                                    'plan_id'          => $request->plan_id,
-                                    'domainrequest_id' => $request->domainrequest_id,
-                                ],
+                    'payment_method_types'  => ['card'],
+                    'line_items'            => [[
+                        'price_data'    => [
+                            'currency'      => $currency,
+                            'product_data'  => [
+                                'name'      => $planDetails->name,
+                                'metadata'  => [
+                                    'plan_id'           => $request->plan_id,
+                                    'domainrequest_id'  => $request->domainrequest_id
+                                ]
                             ],
-                            'unit_amount'  => $request->amount * 100,
+                            'unit_amount'   => $request->amount * 100,
                         ],
-                        'quantity'   => 1,
+                        'quantity'      => 1,
                     ]],
-                    'mode'                 => 'payment',
-                    'success_url'          => route('stripe.success.pay', Crypt::encrypt([
-                        'coupon'   => $request->coupon,
-                        'plan_id'  => $planDetails->id,
-                        'price'    => $request->amount,
-                        'user_id'  => Auth::user()->id,
-                        'order_id' => $request->order_id,
-                        'type'     => 'stripe',
+                    'mode'          => 'payment',
+                    'success_url'   => route('stripe.success.pay', Crypt::encrypt([
+                        'coupon'    => $request->coupon,
+                        'plan_id'   => $planDetails->id,
+                        'price'     => $request->amount,
+                        'user_id'   => Auth::user()->id,
+                        'order_id'  => $request->order_id,
+                        'type'      => 'stripe'
                     ])),
-                    'cancel_url'           => route('stripe.cancel.pay', Crypt::encrypt([
-                        'coupon'   => $request->coupon,
-                        'plan_id'  => $planDetails->id,
-                        'price'    => $request->amount,
-                        'user_id'  => Auth::user()->id,
-                        'order_id' => $request->order_id,
-                        'type'     => 'stripe',
+                    'cancel_url'    => route('stripe.cancel.pay', Crypt::encrypt([
+                        'coupon'    => $request->coupon,
+                        'plan_id'   => $planDetails->id,
+                        'price'     => $request->amount,
+                        'user_id'   => Auth::user()->id,
+                        'order_id'  => $request->order_id,
+                        'type'      => 'stripe'
                     ])),
                 ]);
             } catch (Exception $e) {
-                $api_error = $e->getMessage();
+                $api_error  = $e->getMessage();
             }
             if (empty($api_error) && $checkout_session) {
-                $response = [
+                $response   = [
                     'status'    => 1,
                     'message'   => 'Checkout session created successfully.',
-                    'sessionId' => $checkout_session->id,
+                    'sessionId' => $checkout_session->id
                 ];
             } else {
                 $response = [
-                    'status' => 0,
-                    'error'  => [
-                        'message' => 'Checkout session creation failed. ' . $api_error,
-                    ],
+                    'status'    => 0,
+                    'error'     => [
+                        'message' => 'Checkout session creation failed. ' . $api_error
+                    ]
                 ];
             }
         }
         return response()->json($response);
     }
 
-    public function paymentPending(Request $request)
+    function paymentPending(Request $request)
     {
         if (Auth::user()->type == 'Admin') {
-            $user  = User::find(Auth::user()->id);
-            $order = tenancy()->central(function ($tenant) use ($request, $user) {
-                $data['plan_details'] = Plan::find($request->plan_id);
-                $user                 = User::where('email', $user->email)->first();
-                $data['order']        = Order::create([
-                    'plan_id' => $request->plan_id,
-                    'user_id' => $user->id,
-                    'amount'  => $data['plan_details']->price,
-                    'status'  => 0,
+            $user   = User::find(Auth::user()->id);
+            $order  = tenancy()->central(function ($tenant) use ($request, $user) {
+                $data['plan_details']   = Plan::find($request->plan_id);
+                $user                   = User::where('email', $user->email)->first();
+                $data['order']  = Order::create([
+                    'plan_id'   => $request->plan_id,
+                    'user_id'   => $user->id,
+                    'amount'    => $data['plan_details']->price,
+                    'status'    => 0,
                 ]);
                 return $data;
             });
-            $response = [
-                'status'          => 0,
-                'order_id'        => $order['order']->id,
-                'amount'          => $order['order']->amount,
-                'plan_name'       => $order['plan_details']->name,
-                'currency'        => $request->currency,
-                'currency_symbol' => $request->currency_symbol,
-            ];
+            $response = array(
+                'status'            => 0,
+                'order_id'          => $order['order']->id,
+                'amount'            => $order['order']->amount,
+                'plan_name'         => $order['plan_details']->name,
+                'currency'          => $request->currency,
+                'currency_symbol'   => $request->currency_symbol,
+            );
             echo json_encode($response);
             die;
         } else {
-            $user = User::find(Auth::user()->id);{
-                $planDetails = Plan::find($request->plan_id);
-                $user        = User::where('email', $user->email)->first();
-                $data        = Order::create([
-                    'plan_id' => $request->plan_id,
-                    'user_id' => Auth::user()->id,
-                    'amount'  => $planDetails->price,
-                    'status'  => 0,
+            $user = User::find(Auth::user()->id); {
+                $planDetails    = Plan::find($request->plan_id);
+                $user           = User::where('email', $user->email)->first();
+                $data           = Order::create([
+                    'plan_id'   => $request->plan_id,
+                    'user_id'   => Auth::user()->id,
+                    'amount'    => $planDetails->price,
+                    'status'    => 0,
                 ]);
             }
-            $response = [
-                'status'          => 0,
-                'order_id'        => $data->id,
-                'amount'          => $planDetails->price,
-                'plan_name'       => $planDetails->name,
-                'currency'        => $request->currency,
-                'currency_symbol' => $request->currency_symbol,
-            ];
+            $response = array(
+                'status'            => 0,
+                'order_id'          => $data->id,
+                'amount'            => $planDetails->price,
+                'plan_name'         => $planDetails->name,
+                'currency'          => $request->currency,
+                'currency_symbol'   => $request->currency_symbol,
+            );
             echo json_encode($response);
             die;
         }
     }
 
-    public function paymentCancel($data)
+    function paymentCancel($data)
     {
         $data = Crypt::decrypt($data);
         if (Auth::user()->type == 'Admin') {
-            $order = tenancy()->central(function ($tenant) use ($data) {
-                $datas               = Order::find($data['order_id']);
-                $datas->status       = 2;
-                $datas->payment_type = 'stripe';
+            $order  = tenancy()->central(function ($tenant) use ($data) {
+                $datas                  = Order::find($data['order_id']);
+                $datas->status          = 2;
+                $datas->payment_type    = 'stripe';
                 $datas->update();
             });
         } else {
-            $datas               = Order::find($data['order_id']);
-            $datas->status       = 2;
-            $datas->payment_type = 'stripe';
+            $datas                  = Order::find($data['order_id']);
+            $datas->status          = 2;
+            $datas->payment_type    = 'stripe';
             $datas->update();
         }
         return redirect()->route('plans.index')->with('errors', __('Payment canceled.'));
     }
 
-    public function paymentSuccess($data)
+    function paymentSuccess($data)
     {
-        $data = Crypt::decrypt($data);
+        $data   = Crypt::decrypt($data);
         if (Auth::user()->type == 'Admin') {
             $order = tenancy()->central(function ($tenant) use ($data) {
-                $datas               = Order::find($data['order_id']);
-                $datas->status       = 1;
-                $datas->payment_type = 'stripe';
+                $datas                  = Order::find($data['order_id']);
+                $datas->status          = 1;
+                $datas->payment_type    = 'stripe';
                 $datas->update();
-                $coupons = Coupon::find($data['coupon']);
-                $user    = User::find($tenant->id);
-                if (! empty($coupons)) {
+                $coupons    = Coupon::find($data['coupon']);
+                $user       = User::find($tenant->id);
+                if (!empty($coupons)) {
                     $userCoupon         = new UserCoupon();
                     $userCoupon->user   = $user->id;
                     $userCoupon->coupon = $coupons->id;
                     $userCoupon->order  = $datas->id;
                     $userCoupon->save();
-                    $usedCoupun = $coupons->used_coupon();
+                    $usedCoupun         = $coupons->used_coupon();
                     if ($coupons->limit <= $usedCoupun) {
                         $coupons->is_active = 0;
                         $coupons->save();
                     }
                 }
-                $plan          = Plan::find($data['plan_id']);
-                $user->plan_id = $plan->id;
+                $plan           = Plan::find($data['plan_id']);
+                $user->plan_id  = $plan->id;
                 if ($plan->durationtype == 'Month' && $plan->id != '1') {
                     $user->plan_expired_date = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
                 } elseif ($plan->durationtype == 'Year' && $plan->id != '1') {
@@ -390,26 +391,26 @@ class StripeController extends Controller
                 $user->save();
             });
         } else {
-            $datas               = Order::find($data['order_id']);
-            $datas->status       = 1;
-            $datas->payment_type = 'stripe';
+            $datas                  = Order::find($data['order_id']);
+            $datas->status          = 1;
+            $datas->payment_type    = 'stripe';
             $datas->update();
-            $user    = User::find(Auth::user()->id);
-            $coupons = Coupon::find($data['coupon']);
-            if (! empty($coupons)) {
+            $user       = User::find(Auth::user()->id);
+            $coupons    = Coupon::find($data['coupon']);
+            if (!empty($coupons)) {
                 $userCoupon         = new UserCoupon();
                 $userCoupon->user   = $user->id;
                 $userCoupon->coupon = $coupons->id;
                 $userCoupon->order  = $datas->id;
                 $userCoupon->save();
-                $usedCoupun = $coupons->used_coupon();
+                $usedCoupun         = $coupons->used_coupon();
                 if ($coupons->limit <= $usedCoupun) {
                     $coupons->is_active = 0;
                     $coupons->save();
                 }
             }
-            $plan          = Plan::find($data['plan_id']);
-            $user->plan_id = $plan->id;
+            $plan           = Plan::find($data['plan_id']);
+            $user->plan_id  = $plan->id;
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
                 $user->plan_expired_date = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
             } elseif ($plan->durationtype == 'Year' && $plan->id != '1') {

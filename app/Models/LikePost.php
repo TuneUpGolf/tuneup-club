@@ -12,7 +12,7 @@ class LikePost extends Model
     public $table = 'like_posts';
     protected $fillable = [
         'influencer_id',
-        'student_id',
+        'follower_id',
         'post_id',
     ];
 
@@ -27,7 +27,7 @@ class LikePost extends Model
     }
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Follower::class);
     }
     public function post()
     {

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
@@ -23,23 +24,22 @@ class LessonDataTable extends DataTable
                 return UtilityFacades::amount_format($lesson->lesson_price);
             })
             ->editColumn('created_by', function (Lesson $lesson) {
-                $imageSrc = $lesson?->user?->dp ? asset('/storage' . '/' . tenant('id') . '/' . $lesson?->user?->dp) : asset('assets/img/logo/logo.png');
-                $html     =
-                '
+                $imageSrc = $lesson?->user?->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $lesson?->user?->dp) : asset('assets/img/logo/logo.png');
+                $html =
+                    '
                 <div class="flex justify-start items-center">'
-                .
-                "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                .
-                "<span class='px-0'>" . $lesson->user->name . " </span>" .
+                    .
+                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
+                    .
+                    "<span class='px-0'>" . $lesson->user->name . " </span>" .
                     '</div>';
                 return $html;
             })
             ->editColumn('type', function (Lesson $lesson) {
                 $s = Lesson::TYPE_MAPPING[$lesson->type];
 
-                if ($lesson->type == Lesson::LESSON_TYPE_INPERSON && $lesson->is_package_lesson) {
+                if ($lesson->type == Lesson::LESSON_TYPE_INPERSON && $lesson->is_package_lesson)
                     $s .= ' - PL';
-                }
 
                 if ($lesson->type == Lesson::LESSON_TYPE_ONLINE) {
                     return '<label class="badge rounded-pill bg-green-600 p-2 px-3">' . $s . '</label>';
@@ -59,7 +59,7 @@ class LessonDataTable extends DataTable
     public function query(Lesson $model)
     {
         if (tenant('id') == null) {
-            return $model->newQuery()->select(['lessons.*', 'domains.domain'])
+            return   $model->newQuery()->select(['lessons.*', 'domains.domain'])
                 ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Admin');
         } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_STUDENT) {
             return $model->newQuery()->where('tenant_id', '=', tenant('id'))->where('active_status', true);
@@ -73,12 +73,12 @@ class LessonDataTable extends DataTable
         $buttons = [
             ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                 window.location = '" . route('lesson.create', ["type" => 'online']) . "';
-           }", ],
+           }"],
             [
-                'extend'    => 'collection',
+                'extend' => 'collection',
                 'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
-                'text'      => '<i class="ti ti-download"></i> Export',
-                "buttons"   => [
+                'text' => '<i class="ti ti-download"></i> Export',
+                "buttons" => [
                     ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                     ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                     ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
@@ -88,9 +88,8 @@ class LessonDataTable extends DataTable
             ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
             ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
-        if (Auth::user()->type == Role::ROLE_STUDENT) {
+        if (Auth::user()->type == Role::ROLE_STUDENT)
             unset($buttons[0]);
-        }
 
         return $this->builder()
             ->setTableId('lessons-table')
@@ -98,13 +97,13 @@ class LessonDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
-                "paginate"          => [
-                    "next"     => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>',
+                "paginate" => [
+                    "next" => '<i class="ti ti-chevron-right"></i>',
+                    "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
-                'lengthMenu'        => __('_MENU_ entries per page'),
+                'lengthMenu' => __('_MENU_ entries per page'),
                 "searchPlaceholder" => __('Search...'),
-                "search"            => "",
+                "search" => ""
             ])
             ->initComplete('function() {
                 var table = this;
@@ -114,15 +113,15 @@ class LessonDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
-                "dom"            => "
+                "dom" =>  "
                         <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
                         <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                         <'dataTable-container'<'col-sm-12'tr>>
                         <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                         <'col-sm-7'p>>
                         ",
-                'buttons'        => $buttons,
-                "scrollX"        => true,
+                'buttons'   => $buttons,
+                "scrollX" => true,
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -131,12 +130,12 @@ class LessonDataTable extends DataTable
                         "border":"none",
                     });
                 }',
-                'rowCallback'    => 'function(row, data, index) {
+                'rowCallback' => 'function(row, data, index) {
                     // Make the first column bold
                     $("td", row).css("font-family", "Helvetica");
                     $("td", row).css("font-weight", "300");
                 }',
-                "drawCallback"   => 'function( settings ) {
+                "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
                       );
@@ -153,18 +152,18 @@ class LessonDataTable extends DataTable
                       var toastList = toastElList.map(function (toastEl) {
                         return new bootstrap.Toast(toastEl);
                       });
-                }',
+                }'
             ])->language([
-            'buttons' => [
-                'create' => __('Create'),
-                'export' => __('Export'),
-                'print'  => __('Print'),
-                'reset'  => __('Reset'),
-                'reload' => __('Reload'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Create'),
+                    'export' => __('Export'),
+                    'print' => __('Print'),
+                    'reset' => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel' => __('Excel'),
+                    'csv' => __('CSV'),
+                ]
+            ]);
     }
 
     protected function getColumns()

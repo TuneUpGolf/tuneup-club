@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('purchasepost', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('student_id');
+            $table->unsignedBigInteger('follower_id');
             $table->unsignedBigInteger('post_id');
             $table->boolean('active_status');
             $table->string('session_id', 250)->nullable()->default(null);
             $table->foreign('post_id')->references('id')->on('post')->onDelete('cascade');
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('follower_id')->references('id')->on('followers')->onDelete('cascade');
             $table->timestamps();
         });
     }

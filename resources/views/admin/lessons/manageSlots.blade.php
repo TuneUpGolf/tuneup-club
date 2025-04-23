@@ -158,7 +158,7 @@
                          </div>
                         <div class="form-group" id="student-form">
                             <label class="mb-1">Select Students</label>
-                            <select name="student_id[]" id="student_id" class="form-select w-full" multiple>
+                            <select name="follower_id[]" id="follower_id" class="form-select w-full" multiple>
                                 @foreach ($students as $student)
                                     <option value="{{ $student->id }}">
                                         {{ ucfirst($student->name) }}
@@ -188,8 +188,8 @@
                             preConfirm: () => {
                                 const isGuest = document.getElementById('guestBooking')
                                     .checked;
-                                const studentSelect = document.getElementById('student_id');
-                                const student_ids = [...studentSelect.selectedOptions].map(
+                                const studentSelect = document.getElementById('follower_id');
+                                const follower_ids = [...studentSelect.selectedOptions].map(
                                     opt => opt.value);
                                 const guestName = document.getElementById('guestName')
                                     ?.value;
@@ -200,12 +200,12 @@
                                 const phoneRegex = /^[+]?[0-9]{10,15}$/;
 
 
-                                if (!student_ids.length && !isGuest || (isGuest && (!
+                                if (!follower_ids.length && !isGuest || (isGuest && (!
                                         guestName || !
                                         guestPhone || !guestEmail)))
                                     Swal.showValidationMessage('All fields are required');
 
-                                if (student_ids.length > availableSeats) {
+                                if (follower_ids.length > availableSeats) {
                                     Swal.showValidationMessage(
                                         `You can only select up to ${availableSeats} students.`
                                     );
@@ -223,7 +223,7 @@
 
                                 return {
                                     isGuest,
-                                    student_ids,
+                                    follower_ids,
                                     guestName,
                                     guestPhone,
                                     guestEmail,
@@ -242,7 +242,7 @@
                                     _token: $('meta[name="csrf-token"]').attr(
                                         'content'),
                                     isGuest: formData.isGuest ?? false,
-                                    student_Ids: formData.student_ids,
+                                    follower_ids: formData.follower_ids,
                                     guestName: formData.guestName,
                                     guestPhone: formData.guestPhone,
                                     guestEmail: formData.guestEmail,
@@ -376,7 +376,7 @@
                         _token: $('meta[name="csrf-token"]').attr('content'),
                         unbook: 1,
                         slot_id: slot_id,
-                        student_ids: selectedStudents,
+                        follower_ids: selectedStudents,
                         redirect: 1,
                     },
                     success: function(response) {

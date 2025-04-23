@@ -14,7 +14,7 @@ use App\Models\Lesson;
 use App\Models\Purchase;
 use App\Models\Role;
 use App\Models\Slots;
-use App\Models\Student;
+use App\Models\Follower;
 use App\Models\User;
 use App\Traits\PurchaseTrait;
 use Carbon\Carbon;
@@ -99,7 +99,7 @@ class LessonController extends Controller
         $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
         $validatedData['tenant_id']      = Auth::user()->tenant_id;
         $lesson                          = Lesson::create($validatedData);
-        $students                        = Student::whereHas('pushToken')
+        $students                        = Follower::whereHas('pushToken')
             ->with('pushToken')
             ->get()
             ->pluck('pushToken.token')
@@ -215,7 +215,7 @@ class LessonController extends Controller
 
             $lesson_id   = request()->get('lesson_id');
             $instructors = User::where('type', Role::ROLE_INFLUENCER)->get();
-            $students    = Student::where('active_status', true)->where('isGuest', false)->get();
+            $students    = Follower::where('active_status', true)->where('isGuest', false)->get();
             return view('admin.lessons.manageSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
         }
         if (Auth::user()->type === Role::ROLE_INFLUENCER) {
@@ -263,7 +263,7 @@ class LessonController extends Controller
 
             $lesson_id = request()->get('lesson_id');
             $lessons   = Lesson::where('created_by', Auth::user()->id)->where('type', Lesson::LESSON_TYPE_INPERSON)->get();
-            $students  = Student::where('active_status', true)->where('isGuest', false)->get();
+            $students  = Follower::where('active_status', true)->where('isGuest', false)->get();
             return view('admin.lessons.instructorSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'lessons', 'students'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -320,7 +320,7 @@ class LessonController extends Controller
 
             $lesson_id = request()->get('lesson_id');
             $authId    = Auth::user()->id;
-            $students  = Student::where('active_status', true)->where('isGuest', false)->get();
+            $students  = Follower::where('active_status', true)->where('isGuest', false)->get();
             return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson'));
         }
     }
@@ -369,7 +369,7 @@ class LessonController extends Controller
                         Slots::create(['lesson_id' => $lesson->id, 'date_time' => Carbon::parse($slot)]);
                     }
                 }
-                $students = Student::whereHas('pushToken')
+                $students = Follower::whereHas('pushToken')
                     ->with('pushToken')
                     ->get()
                     ->pluck('pushToken.token')
@@ -535,7 +535,7 @@ class LessonController extends Controller
             }
 
             // Send push notifications for new lessons
-            $students = Student::whereHas('pushToken')
+            $students = Follower::whereHas('pushToken')
                 ->with('pushToken')
                 ->get()
                 ->pluck('pushToken.token')
@@ -574,7 +574,7 @@ class LessonController extends Controller
 
             if ($request->isGuest != "false") {
                 // Check if a guest with the same email already exists
-                $existingGuest = Student::where('email', $request->guestEmail)->first();
+                $existingGuest = Follower::where('email', $request->guestEmail)->first();
 
                 if ($existingGuest) {
                     // Guest already exists, use existing student ID
@@ -595,13 +595,13 @@ class LessonController extends Controller
                         'phone'             => str_replace(' ', '', $request->guestPhone),
                     ];
 
-                    $user = Student::create($userData);
+                    $user = Follower::create($userData);
                     $user->assignRole(Role::ROLE_STUDENT);
                     $studentIds[] = $user->id;
                 }
             } else {
                 // If not a guest, use provided student IDs
-                $studentIds = $request->get('student_Ids', []);
+                $studentIds = $request->get('follower_Ids', []);
             }
 
             $alreadyBookedStudents = $slot->student()->pluck('students.id')->toArray();
@@ -612,7 +612,7 @@ class LessonController extends Controller
 
                 foreach ($newStudentIds as $studentId) {
                     Purchase::create([
-                        'student_id'    => $studentId,
+                        'follower_id'    => $studentId,
                         'influencer_id' => $slot->lesson->created_by,
                         'lesson_id'     => $slot->lesson_id,
                         'slot_id'       => $slot->id,
@@ -653,8 +653,8 @@ class LessonController extends Controller
 
             request()->validate([
                 'slot_id'        => 'required|exists:slots,id',
-                'student_ids'    => 'array',
-                'student_ids.*'  => 'integer|exists:students,id',
+                'follower_ids'    => 'array',
+                'follower_ids.*'  => 'integer|exists:students,id',
                 'friend_names'   => 'array',
                 'friend_names.*' => 'string|max:255',
             ]);
@@ -710,7 +710,7 @@ class LessonController extends Controller
 
         // Create purchase entry
         $newPurchase = new Purchase([
-            'student_id'    => $bookingStudentId,
+            'follower_id'    => $bookingStudentId,
             'influencer_id' => $slot->lesson->created_by,
             'lesson_id'     => $slot->lesson_id,
             'slot_id'       => $slot->id,
@@ -768,7 +768,7 @@ class LessonController extends Controller
 
     private function handleInstructorBookingAPI($slot)
     {
-        $studentIds = request()->input('student_ids', []);
+        $studentIds = request()->input('follower_ids', []);
 
         if (empty($studentIds)) {
             return response()->json(['error' => 'At least one student ID is required for instructor booking.'], 422);
@@ -788,7 +788,7 @@ class LessonController extends Controller
         foreach ($studentsToBook as $studentId) {
             $slot->student()->attach($studentId);
             Purchase::create([
-                'student_id'    => $studentId,
+                'follower_id'    => $studentId,
                 'influencer_id' => $slot->lesson->created_by,
                 'lesson_id'     => $slot->lesson_id,
                 'slot_id'       => $slot->id,
@@ -870,7 +870,7 @@ class LessonController extends Controller
                     continue;
                 }
 
-                $purchase = Purchase::where('student_id', $student->id)
+                $purchase = Purchase::where('follower_id', $student->id)
                     ->where('slot_id', $slot->id)
                     ->first();
 
@@ -998,8 +998,8 @@ class LessonController extends Controller
                 'is_active'     => 'boolean',
                 'cancelled'     => 'boolean',
                 'unbook'        => 'boolean',
-                'student_ids'   => 'array',
-                'student_ids.*' => 'integer|exists:students,id',
+                'follower_ids'   => 'array',
+                'follower_ids.*' => 'integer|exists:students,id',
             ]);
 
             $slot = Slots::find($request->slot_id);
@@ -1025,12 +1025,12 @@ class LessonController extends Controller
                     );
                 }
 
-                if ($request->unbook == '1' && $request->filled('student_ids')) {
-                    $unbookedStudents = $slot->student()->whereIn('students.id', $request->student_ids)->get();
-                    $slot->student()->detach($request->student_ids);
+                if ($request->unbook == '1' && $request->filled('follower_ids')) {
+                    $unbookedStudents = $slot->student()->whereIn('students.id', $request->follower_ids)->get();
+                    $slot->student()->detach($request->follower_ids);
 
                     foreach ($unbookedStudents as $student) {
-                        Purchase::where('slot_id', $slot->id)->where('student_id', $student->id)->delete();
+                        Purchase::where('slot_id', $slot->id)->where('follower_id', $student->id)->delete();
                         if (! $student->pivot->isFriend) {
                             $this->sendSlotNotification(
                                 $slot,
@@ -1066,7 +1066,7 @@ class LessonController extends Controller
             // // If the user is a student and is unbooking themselves
             if ($slot->student->contains($user->id)) {
                 $slot->student()->detach($user->id);
-                Purchase::where('slot_id', $slot->id)->where('student_id', $user->id)->delete();
+                Purchase::where('slot_id', $slot->id)->where('follower_id', $user->id)->delete();
                 $this->sendSlotNotification(
                     $slot,
                     'Slot Unreserved',

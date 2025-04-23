@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Student;
+use App\Models\Follower;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -14,7 +14,7 @@ class StudentsImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
 
-        return new Student([
+        return new Follower([
             'name'              => $row['name'],
             'email'             => $row['email'],
             'password'          => Hash::make(Str::random(10)), // Generates a random password

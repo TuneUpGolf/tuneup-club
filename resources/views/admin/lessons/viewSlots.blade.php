@@ -149,7 +149,7 @@
                              <div class="flex justify-start">
                             <label class="mb-1">Select Students</label>
                             </div>
-                            <select name="student_id[]" id="student_id" class="form-select w-full" multiple>
+                            <select name="follower_id[]" id="follower_id" class="form-select w-full" multiple>
                                 @foreach ($students as $student)
                                     <option value="{{ $student->id }}">
                                         {{ ucfirst($student->name) }}
@@ -159,17 +159,17 @@
                         </div>
                         </form>`,
                              preConfirm: () => {
-                                 const studentSelect = document.getElementById('student_id');
-                                 const student_ids = [...studentSelect.selectedOptions].map(
+                                 const studentSelect = document.getElementById('follower_id');
+                                 const follower_ids = [...studentSelect.selectedOptions].map(
                                      opt => opt.value);
 
-                                 if (student_ids.length > availableSeats)
+                                 if (follower_ids.length > availableSeats)
                                      Swal.showValidationMessage(
                                          `You can only select up to ${availableSeats} students.`
                                      );
 
                                  return {
-                                     student_ids,
+                                     follower_ids,
                                  };
                              },
                              showCancelButton: true,
@@ -185,7 +185,7 @@
                                      _token: $('meta[name="csrf-token"]').attr(
                                          'content'),
                                      isGuest: false,
-                                     student_Ids: formData.student_ids,
+                                     follower_ids: formData.follower_ids,
                                      slot_id: slot_id,
                                      redirect: 1,
                                  },
@@ -384,7 +384,7 @@
                                              'content'),
                                          unbook: 1,
                                          slot_id: slot_id,
-                                         student_ids: selectedStudents,
+                                         follower_ids: selectedStudents,
                                          redirect: 1,
                                      },
                                      success: function(response) {
@@ -488,7 +488,7 @@
                                          'content'),
                                      unbook: 1,
                                      slot_id: slot_id,
-                                     student_ids: [authId],
+                                     follower_ids: [authId],
                                      redirect: 1,
                                  },
                                  success: function(response) {

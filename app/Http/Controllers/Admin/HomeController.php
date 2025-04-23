@@ -12,7 +12,7 @@ use App\Models\Plan;
 use App\Models\Posts;
 use App\Models\Purchase;
 use App\Models\Role;
-use App\Models\Student;
+use App\Models\Follower;
 use App\Models\SupportTicket;
 use App\Models\User;
 use App\Providers\AuthServiceProvider;
@@ -28,7 +28,7 @@ class HomeController extends Controller
 
     public function landingPage()
     {
-        $plans = tenancy()->central(function ($tenant) {
+        $plans  = tenancy()->central(function ($tenant) {
             return Plan::where('active_status', 1)->get();
         });
         return view('welcome', compact('plans'));
@@ -53,12 +53,12 @@ class HomeController extends Controller
 
         // Fetch Plan Expiration
         $planExpiredDate = $userType == AuthServiceProvider::ADMIN_TYPE
-        ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()->plan_expired_date)
-        : User::where('email', $user->email)->first()->plan_expired_date;
+            ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()->plan_expired_date)
+            : User::where('email', $user->email)->first()->plan_expired_date ?? '';
 
         // Fetch Instructor Count
-        $instructor = User::where('tenant_id', $tenantId)->where('type', Role::ROLE_INFLUENCER)->count();
-        $students   = Student::where('tenant_id', $tenantId)->where('active_status', true)->where('isGuest', false)->count();
+        $instructor = User::where('tenant_id', $tenantId)->where('type', Role::ROLE_INSTRUCTOR)->count();
+        $students = Follower::where('tenant_id', $tenantId)->where('active_status', true)->where('isGuest', false)->count();
 
         // Fetch Lessons Count
         $lessons = ($userType == "Admin")
@@ -68,9 +68,9 @@ class HomeController extends Controller
         $influencerLesson = Lesson::where('tenant_id', $tenantId)->where('created_by', $user->id)->get();
 
         // Fetch Earnings
-        $earning = ($userType === Role::ROLE_INFLUENCER)
-        ? Purchase::where('influencer_id', $user->id)->where('status', 'complete')->sum('total_amount')
-        : Purchase::where('status', 'complete')->sum('total_amount');
+        $earning = ($userType === Role::ROLE_INSTRUCTOR)
+            ? Purchase::where('instructor_id', $user->id)->where('status', 'complete')->sum('total_amount')
+            : Purchase::where('status', 'complete')->sum('total_amount');
 
         // Fetch Instructor Statistics for Admins (Without Student Count)
         $instructorStats = [];
@@ -146,7 +146,7 @@ class HomeController extends Controller
             $query->where('status', Purchase::STATUS_COMPLETE);
         }
 
-        $completed  = (clone $query)->where('isFeedbackComplete', true)->count();
+        $completed = (clone $query)->where('isFeedbackComplete', true)->count();
         $inprogress = $query->where('isFeedbackComplete', false)->count();
 
         return [$completed, $inprogress];
@@ -155,10 +155,10 @@ class HomeController extends Controller
     // Student Dashboard
     private function studentDashboard($user, $paymentTypes, $documents, $documentsDatas, $posts, $events, $supports)
     {
-        $purchaseComplete   = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->count();
-        $purchaseInprogress = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
-        $inPersonCompleted  = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
-        $inPersonPending    = Purchase::where('student_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', false)->count();
+        $purchaseComplete = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->count();
+        $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
+        $inPersonCompleted = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
+        $inPersonPending = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', false)->count();
         return view('admin.dashboard.home', compact(
             'user',
             'paymentTypes',
@@ -210,44 +210,44 @@ class HomeController extends Controller
             ->groupBy(DB::raw($dateFormat))
             ->get()
             ->toArray();
-        $dateRange = new DatePeriod($startDate, $interval, $endDate);
+        $dateRange  = new DatePeriod($startDate, $interval, $endDate);
         switch ($timeType) {
             case 'date':
-                $format      = 'Y-m-d';
+                $format = 'Y-m-d';
                 $labelFormat = 'd M';
                 break;
             case 'month':
-                $format      = 'Y-m';
+                $format = 'Y-m';
                 $labelFormat = 'M Y';
                 break;
             default:
-                $format      = 'Y';
+                $format = 'Y';
                 $labelFormat = 'Y';
                 break;
         }
         foreach ($dateRange as $date) {
             $foundReport = false;
-            $Date        = Carbon::parse($date->format('Y-m-d'));
+            $Date = Carbon::parse($date->format('Y-m-d'));
             foreach ($userReaports as $orderReaport) {
                 if ($orderReaport[$timeType] == $date->format($format)) {
-                    $arrLable[]  = $Date->format($labelFormat);
-                    $arrValue[]  = $orderReaport['userCount'];
+                    $arrLable[] = $Date->format($labelFormat);
+                    $arrValue[] = $orderReaport['userCount'];
                     $foundReport = true;
                     break;
                 }
             }
-            if (! $foundReport) {
+            if (!$foundReport) {
                 $arrLable[] = $Date->format($labelFormat);
                 $arrValue[] = 0.0;
-            } else if (! $userReaports) {
+            } else if (!$userReaports) {
                 $arrLable[] = $Date->format($labelFormat);
                 $arrValue[] = 0.0;
             }
         }
         return response()->json(
             [
-                'lable' => $arrLable,
-                'value' => $arrValue,
+                'lable'    => $arrLable,
+                'value'     => $arrValue
             ],
             200
         );
@@ -255,27 +255,27 @@ class HomeController extends Controller
 
     public function readNotification()
     {
-        $user = User::where('tenant_id', tenant('id'))->first();
+        $user   = User::where('tenant_id', tenant('id'))->first();
         $user->notifications->markAsRead();
         return response()->json(['is_success' => true], 200);
     }
 
     public function changeThemeMode()
     {
-        $user = \Auth::user();
+        $user   = \Auth::user();
         if ($user->dark_layout == 1) {
             $user->dark_layout = 0;
         } else {
             $user->dark_layout = 1;
         }
         $user->save();
-        $data = [
+        $data   = [
             'dark_mode' => ($user->dark_layout == 1) ? 'on' : 'off',
         ];
         foreach ($data as $key => $value) {
             UtilityFacades::storesettings([
                 'key'   => $key,
-                'value' => $value,
+                'value' => $value
             ]);
         }
         return response()->json(['mode' => $user->dark_layout]);

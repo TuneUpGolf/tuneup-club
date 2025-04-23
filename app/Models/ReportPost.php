@@ -1,21 +1,19 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class ReportPost extends Model
 {
     use HasFactory;
 
-    public $table = 'report_posts';
+    public $table       = 'report_posts';
     protected $fillable = [
         'influencer_id',
-        'student_id',
+        'follower_id',
         'post_id',
-        'comment'
+        'comment',
     ];
     protected $casts = [
         'created_at' => 'datetime',
@@ -28,7 +26,7 @@ class ReportPost extends Model
     }
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Follower::class);
     }
     public function post()
     {

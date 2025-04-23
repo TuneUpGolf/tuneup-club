@@ -6,7 +6,7 @@ use App\Models\LikePost;
 use App\Models\Purchase;
 use App\Models\PurchasePost;
 use App\Models\Role;
-use App\Models\Student;
+use App\Models\Follower;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +21,7 @@ class PostAPIResource extends JsonResource
      */
     public function toArray($request)
     {
-        $user = $this->isStudentPost == true ? new StudentAPIResource(Student::find($this->student->id)) : new InstructorAPIResource(User::find($this->instructor->id));
+        $user = $this->isStudentPost == true ? new StudentAPIResource(Follower::find($this->student->id)) : new InstructorAPIResource(User::find($this->instructor->id));
         $likes = LikePost::where('post_id', $this->id)->count();
         $apiResource = [
             'id' => $this->id,

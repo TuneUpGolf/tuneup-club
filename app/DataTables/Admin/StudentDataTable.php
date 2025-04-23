@@ -3,7 +3,7 @@
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
-use App\Models\Student;
+use App\Models\Follower;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
@@ -15,7 +15,7 @@ class StudentDataTable extends DataTable
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
-            ->editColumn('name', function (Student $user) {
+            ->editColumn('name', function (Follower $user) {
                 $imageSrc = $user->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
                 $html =
                     '
@@ -30,7 +30,7 @@ class StudentDataTable extends DataTable
             ->editColumn('created_at', function ($request) {
                 return UtilityFacades::date_time_format($request->created_at);
             })
-            ->editColumn('email_verified_at', function (Student $user) {
+            ->editColumn('email_verified_at', function (Follower $user) {
                 if ($user->email_verified_at) {
                     $html = '
                     <div class="flex justify-center items-center">
@@ -71,7 +71,7 @@ class StudentDataTable extends DataTable
                     return $html;
                 }
             })
-            ->editColumn('phone_verified_at', function (Student $user) {
+            ->editColumn('phone_verified_at', function (Follower $user) {
                 if ($user->phone_verified_at) {
                     $html = '
                     <div class="flex justify-center items-center">
@@ -112,27 +112,27 @@ class StudentDataTable extends DataTable
                     return $html;
                 }
             })
-            ->editColumn('active_status', function (Student $user) {
+            ->editColumn('active_status', function (Follower $user) {
                 $checked = ($user->active_status == 1) ? 'checked' : '';
                 $status   = '<label class="form-switch">
                              <input class="form-check-input chnageStatus" name="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
                              </label>';
                 return $status;
             })
-            ->addColumn('action', function (Student $user) {
+            ->addColumn('action', function (Follower $user) {
                 return view('admin.students.action', compact('user'));
             })
             ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name']);
         return $data;
     }
 
-    public function query(Student $model)
+    public function query(Follower $model)
     {
         if (tenant('id') == null) {
-            return   $model->newQuery()->select(['students.*', 'domains.domain'])
+            return   $model->newQuery()->select(['followers.*', 'domains.domain'])
                 ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Admin');
         } else {
-            return $model->newQuery()->where('type', '=', 'Student')->where('isGuest', false);
+            return $model->newQuery()->where('type', '=', 'Follower')->where('isGuest', false);
         }
     }
 

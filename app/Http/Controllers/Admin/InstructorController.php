@@ -18,7 +18,7 @@ use App\Models\Purchase;
 use App\Models\ReportUser;
 use App\Models\Review;
 use App\Models\Role;
-use App\Models\Student;
+use App\Models\Follower;
 use App\Models\User;
 use App\Traits\ConvertVideos;
 use Carbon\Carbon;
@@ -38,8 +38,8 @@ class InstructorController extends Controller
 
     public function __construct()
     {
-        $path            = storage_path() . "/json/country.json";
-        $this->countries = json_decode(file_get_contents($path), true);
+        $path               = storage_path() . "/json/country.json";
+        $this->countries    = json_decode(file_get_contents($path), true);
     }
 
     public function index(InstructorDataTable $dataTable)
@@ -309,7 +309,7 @@ class InstructorController extends Controller
                 $instructor->update();
                 return response()->json([
                     'instructor' => $instructor,
-                    'message'    => 'Profile Picture has been successfully updated',
+                    'message' => 'Profile Picture has been successfully updated'
                 ], 201);
             }
         } catch (ValidationException $e) {
@@ -319,19 +319,21 @@ class InstructorController extends Controller
         }
     }
 
+
+
     public function update(Request $request, $id)
     {
         if (Auth::user()->can('edit-user')) {
             request()->validate([
-                'name'         => 'required|max:50',
-                'country_code' => 'required',
-                'dial_code'    => 'required',
-                'phone'        => 'required',
-                'password'     => 'same:password_confirmation',
-                'country'      => 'required',
+                'name'          => 'required|max:50',
+                'country_code'  => 'required',
+                'dial_code'     => 'required',
+                'phone'         => 'required',
+                'password'      => 'same:password_confirmation',
+                'country'       => 'required',
             ]);
-            $input              = $request->all();
-            $user               = User::find($id);
+            $input          = $request->all();
+            $user           = User::find($id);
             $user->country_code = $request->country_code;
             $user->dial_code    = $request->dial_code;
             $user->phone        = str_replace(' ', '', $request->phone);
@@ -340,7 +342,7 @@ class InstructorController extends Controller
             if ($currentdate <= $newEndingDate) {
             }
             $user->update($input);
-            if (! empty($request->password)) {
+            if (!empty($request->password)) {
                 $user->password = bcrypt($request->password);
                 $user->save();
             }
@@ -404,7 +406,7 @@ class InstructorController extends Controller
         if ($instructor) {
             try {
                 return response()->json([
-                    'students'           => Student::where('active_status', 1)->where('isGuest', false)->count(),
+                    'students'           => Follower::where('active_status', 1)->where('isGuest', false)->count(),
                     'lessons_pending'    => Purchase::where('influencer_id', $request->influencer_id)->where('status', Purchase::STATUS_COMPLETE)->whereHas('lesson', function ($query) {
                         $query->where('type', Lesson::LESSON_TYPE_ONLINE);
                     })->where('isFeedbackComplete', false)->count(),
@@ -428,15 +430,15 @@ class InstructorController extends Controller
 
     public function userStatus(Request $request, $id)
     {
-        $user  = User::find($id);
-        $input = ($request->value == "true") ? 1 : 0;
+        $user   = User::find($id);
+        $input  = ($request->value == "true") ? 1 : 0;
         if ($user) {
             $user->active_status = $input;
             $user->save();
         }
         return response()->json([
-            'is_success' => true,
-            'message'    => __('User status changed successfully.'),
+            'is_success'    => true,
+            'message'       => __('User status changed successfully.')
         ]);
     }
     public function getAllUsers()

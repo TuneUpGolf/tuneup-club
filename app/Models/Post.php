@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,14 +9,14 @@ class Post extends Model
 {
     use HasFactory;
 
-    public $table = 'post';
+    public $table       = 'post';
     protected $fillable = [
         'influencer_id',
-        'student_id',
+        'follower_id',
         'title',
         'description',
         'isStudentPost',
-        'file_type'
+        'file_type',
     ];
 
     protected $casts = [
@@ -31,7 +30,7 @@ class Post extends Model
     }
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Follower::class);
     }
     public function likePost(): HasMany
     {

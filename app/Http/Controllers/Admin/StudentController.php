@@ -8,27 +8,26 @@ use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentAPIResource;
 use App\Imports\StudentsImport;
-use App\Mail\Admin\WelcomeMail;
 use App\Mail\Admin\WelcomeMailStudent;
 use App\Models\Role;
-use App\Models\Student;
+use App\Models\Follower;
 use Carbon\Carbon;
 use Dotenv\Exception\ValidationException;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Stancl\Tenancy\Database\Models\Domain;
+use App\Mail\Admin\WelcomeMail;
+use Exception;
 
 class StudentController extends Controller
 {
 
     public function index(StudentDataTable $dataTable)
     {
-
-        if (Auth::user()->can('manage-students')) {
+        if (Auth::user()->can('manage-followers')) {
             return $dataTable->render('admin.students.index');
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -37,7 +36,7 @@ class StudentController extends Controller
 
     public function create()
     {
-        if (Auth::user()->can('create-students')) {
+        if (Auth::user()->can('create-followers')) {
             return view('admin.students.create');
         }
         return redirect()->back()->with('failed', __('Permission denied.'));
@@ -46,7 +45,7 @@ class StudentController extends Controller
     public function import()
     {
 
-        if (Auth::user()->can('create-students')) {
+        if (Auth::user()->can('create-followers')) {
             return view('admin.students.import');
         }
         return redirect()->back()->with('failed', __('Permission denied.'));
@@ -54,26 +53,26 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        if (Auth::user()->can('create-students')) {
+        if (Auth::user()->can('create-followers')) {
             request()->validate([
-                'name'         => 'required|max:50',
-                'email'        => 'required|email|unique:students,email|unique:users,email',
-                'country_code' => 'required',
-                'dial_code'    => 'required',
-                'phone'        => 'required',
+                'name'          => 'required|max:50',
+                'email'         => 'required|email|unique:followers,email|unique:users,email',
+                'country_code'  => 'required',
+                'dial_code'     => 'required',
+                'phone'         => 'required',
             ]);
             $randomPassword                = Str::random(10);
             $userData                      = $request->all();
             $userData['uuid']              = Str::uuid();
             $userData['password']          = Hash::make($randomPassword);
-            $userData['type']              = 'Student';
+            $userData['type']              = 'Follower';
             $userData['created_by']        = Auth::user()->id;
             $userData['email_verified_at'] = (UtilityFacades::getsettings('email_verification') == '1') ? null : Carbon::now()->toDateTimeString();
             $userData['phone_verified_at'] = (UtilityFacades::getsettings('phone_verification') == '1') ? null : Carbon::now()->toDateTimeString();
             $userData['country_code']      = $request->country_code;
             $userData['dial_code']         = $request->dial_code;
             $userData['phone']             = str_replace(' ', '', $request->phone);
-            $user                          = Student::create($userData);
+            $user                          = Follower::create($userData);
             $user->assignRole(Role::ROLE_STUDENT);
             if ($request->hasFile('dp')) {
                 $user['dp'] = $request->file('dp')->store('dp');
@@ -81,9 +80,9 @@ class StudentController extends Controller
             $user->update();
             SendEmail::dispatch($userData['email'], new WelcomeMailStudent($user, $randomPassword));
             $message = __('Welcome, :name, you have successfully signed up!, Please login with password :password at :link', [
-                'name'     => $userData['name'],
+                'name' => $userData['name'],
                 'password' => $randomPassword,
-                'link'     => route('login'),
+                'link' => route('login'),
             ]);
             // $userPhone = Str::of($userData['dial_code'])->append($userData['phone'])->value();
             // $userPhone = str_replace(array('(', ')'), '', $userPhone);
@@ -98,13 +97,13 @@ class StudentController extends Controller
     public function edit($id)
     {
         if (Auth::user()->can('edit-user')) {
-            $user = Student::find($id);
+            $user   = Follower::find($id);
             if (Auth::user()->type == 'Admin') {
-                $roles   = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
-                $domains = Domain::pluck('domain', 'domain')->all();
+                $roles      = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
+                $domains    = Domain::pluck('domain', 'domain')->all();
             } else {
-                $roles   = Role::where('name', '!=', 'Admin')->where('name', Auth::user()->type)->pluck('name', 'name');
-                $domains = Domain::pluck('domain', 'domain')->all();
+                $roles      = Role::where('name', '!=', 'Admin')->where('name', Auth::user()->type)->pluck('name', 'name');
+                $domains    = Domain::pluck('domain', 'domain')->all();
             }
             return view('admin.students.edit', compact('user', 'roles', 'domains'));
         } else {
@@ -116,20 +115,20 @@ class StudentController extends Controller
     {
         if (Auth::user()->can('edit-user')) {
             request()->validate([
-                'name'         => 'required|max:50',
-                'country_code' => 'required',
-                'dial_code'    => 'required',
-                'phone'        => 'required',
-                'password'     => 'same:password_confirmation',
+                'name'          => 'required|max:50',
+                'country_code'  => 'required',
+                'dial_code'     => 'required',
+                'phone'         => 'required',
+                'password'  => 'same:password_confirmation',
 
             ]);
-            $input              = $request->all();
-            $user               = Student::find($id);
+            $input          = $request->all();
+            $user           = Follower::find($id);
             $user->country_code = $request->country_code;
             $user->dial_code    = $request->dial_code;
             $user->phone        = str_replace(' ', '', $request->phone);
             $user->update($input);
-            if (! empty($request->password)) {
+            if (!empty($request->password)) {
                 $user->password = bcrypt($request->password);
                 $user->save();
             }
@@ -143,7 +142,7 @@ class StudentController extends Controller
     public function destroy($id)
     {
         if (Auth::user()->can('delete-user')) {
-            $user = Student::find($id);
+            $user = Follower::find($id);
             $user->purchasePost()->delete();
             $user->purchase()->delete();
             $user->follows()->delete();
@@ -160,7 +159,7 @@ class StudentController extends Controller
     {
         try {
             if (Auth::user()->id == $id && Auth::user()->type === Role::ROLE_STUDENT) {
-                $user = Student::find($id);
+                $user = Follower::find($id);
                 $user->purchasePost()->delete();
                 $user->purchase()->delete();
                 $user->follows()->delete();
@@ -179,16 +178,17 @@ class StudentController extends Controller
     {
 
         try {
-
+        	
             request()->validate([
-                'name'         => 'required|max:50',
-                'email'        => 'required|email|unique:students,email|unique:users,email',
-                'password'     => 'same:confirm-password',
-                'country_code' => 'required',
-                'dial_code'    => 'required',
-                'phone'        => 'required',
-                'bio'          => 'nullable|max:250',
+                'name'          => 'required|max:50',
+                'email'         => 'required|email|unique:students,email|unique:users,email',
+                'password'      => 'same:confirm-password',
+                'country_code'  => 'required',
+                'dial_code'     => 'required',
+                'phone'         => 'required',
+                'bio'           => 'nullable|max:250',
             ]);
+
 
             $userData                      = $request->all();
             $userData['password']          = Hash::make($userData['password']);
@@ -200,7 +200,7 @@ class StudentController extends Controller
             $userData['dial_code']         = $request?->dial_code;
             $userData['bio']               = $request?->bio;
             $userData['phone']             = str_replace(' ', '', $request->phone);
-            $user                          = Student::create($userData);
+            $user                          = Follower::create($userData);
             $user->assignRole(Role::ROLE_STUDENT);
 
             if ($request->hasFile('profile_picture')) {
@@ -208,11 +208,11 @@ class StudentController extends Controller
             }
 
             $user->save();
-            $newUserData = ['name' => $request->name, 'unhashedPass' => $request->password];
-            //$newUserData
+	$newUserData = ['name'=>$request->name,'unhashedPass'=>$request->password];
+	//$newUserData 
             // $studentPhone = Str::of($userData['country_code'])->append($userData['dial_code'])->append($userData['phone'])->value();
 
-            SendEmail::dispatch($request->email, new WelcomeMail($newUserData));
+            SendEmail::dispatch($request->email,  new WelcomeMail($newUserData));
 
             $message = __('Welcome, :name, you have successfully signed up!, Please login at :link', [
                 'name' => $userData['name'],
@@ -222,7 +222,7 @@ class StudentController extends Controller
             return response(["user" => $user], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th->getMessage(),
+                'message' => $th->getMessage()
             ], 500);
         }
     }
@@ -230,11 +230,11 @@ class StudentController extends Controller
     public function updateStudentBio()
     {
         request()->validate([
-            'bio' => 'required|max:250',
+            'bio' => 'required|max:250'
         ]);
         try {
             if (Auth::user()->type === Role::ROLE_STUDENT) {
-                $student = Student::find(Auth::user()->id);
+                $student = Follower::find(Auth::user()->id);
                 if ($student->active_status == true) {
                     $student['bio'] = request()?->bio;
                     $student->update();
@@ -252,7 +252,7 @@ class StudentController extends Controller
 
     public function userEmailVerified($id)
     {
-        $user = Student::find($id);
+        $user = Follower::find($id);
         if ($user->email_verified_at) {
             $user->email_verified_at = null;
             $user->save();
@@ -266,7 +266,7 @@ class StudentController extends Controller
 
     public function userPhoneVerified($id)
     {
-        $user = Student::find($id);
+        $user = Follower::find($id);
         if ($user->phone_verified_at) {
             $user->phone_verified_at = null;
             $user->save();
@@ -280,22 +280,22 @@ class StudentController extends Controller
 
     public function userStatus(Request $request, $id)
     {
-        $user  = Student::find($id);
-        $input = ($request->value == "true") ? 1 : 0;
+        $user   = Follower::find($id);
+        $input  = ($request->value == "true") ? 1 : 0;
         if ($user) {
             $user->active_status = $input;
             $user->save();
         }
         return response()->json([
-            'is_success' => true,
-            'message'    => __('User status changed successfully.'),
+            'is_success'    => true,
+            'message'       => __('User status changed successfully.')
         ]);
     }
     public function getAllUsers()
     {
         try {
             if (Auth::user()->active_status == true) {
-                return StudentAPIResource::collection(Student::where('active_status', true)->orderBy(request()->get('sortKey', 'created_at'), request()->get('sortOrder', 'desc'))->paginate(request()->get('perPage')));
+                return  StudentAPIResource::collection(Follower::where('active_status', true)->orderBy(request()->get('sortKey', 'created_at'), request()->get('sortOrder', 'desc'))->paginate(request()->get('perPage')));
             } else {
                 return response()->json(['error' => 'Unauthorized', 401]);
             }
@@ -328,24 +328,25 @@ class StudentController extends Controller
     }
 
     public function updateProfilePicture(Request $request)
-    {{
-        try {
-            $request->validate([
-                'dp' => 'required',
-            ]);
-            if ($request->hasFile('dp') && Auth::user()->type === Role::ROLE_INFLUENCER) {
-                $student       = Student::find(Auth::user()?->id);
-                $student['dp'] = $request->file('dp')->store('dp');
-                $student->update();
-                return response()->json([
-                    'student' => $student,
-                    'message' => 'Profile Picture has been successfully updated',
-                ], 201);
+    { {
+            try {
+                $request->validate([
+                    'dp' => 'required',
+                ]);
+                if ($request->hasFile('dp') && Auth::user()->type === Role::ROLE_INSTRUCTOR) {
+                    $student = Follower::find(Auth::user()?->id);
+                    $student['dp'] = $request->file('dp')->store('dp');
+                    $student->update();
+                    return response()->json([
+                        'student' => $student,
+                        'message' => 'Profile Picture has been successfully updated'
+                    ], 201);
+                }
+            } catch (ValidationException $e) {
+                return response()->json(['error' => 'Validation failed.', 'message' => $e->errors()], 422);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Error', 'message' => $e->getMessage()], 500);
             }
-        } catch (ValidationException $e) {
-            return response()->json(['error' => 'Validation failed.', 'message' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error', 'message' => $e->getMessage()], 500);
         }
-    }}
+    }
 }

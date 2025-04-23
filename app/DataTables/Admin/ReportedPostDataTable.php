@@ -3,6 +3,7 @@ namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
 use App\Models\Post;
+use App\Models\PurchasePost;
 use App\Models\ReportPost;
 use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class ReportedPostDataTable extends DataTable
             ->eloquent($query)
             ->addIndexColumn()
             ->editColumn('title', function (ReportPost $post) {
-                return $post->post->title;
+                return  $post->post->title;
             })
             ->editColumn('created_at', function ($request) {
                 $created_at = UtilityFacades::date_time_format($request->created_at);
@@ -42,7 +43,7 @@ class ReportedPostDataTable extends DataTable
                 }
                 return $return;
             })
-            ->rawColumns(['action', 'photo']);
+            ->rawColumns(['action',  'photo']);
     }
 
     public function query(ReportPost $model)
@@ -55,7 +56,7 @@ class ReportedPostDataTable extends DataTable
             return $model->newQuery()->where('influencer_id', Auth::user()->id);
         }
 
-        return $model->newQuery()->where('student_id', Auth::user()->id);
+        return $model->newQuery()->where('follower_id', Auth::user()->id);
     }
 
     public function html()
@@ -66,13 +67,13 @@ class ReportedPostDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
-                "paginate"          => [
-                    "next"     => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>',
+                "paginate" => [
+                    "next" => '<i class="ti ti-chevron-right"></i>',
+                    "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
-                'lengthMenu'        => __('_MENU_ entries per page'),
+                'lengthMenu' => __('_MENU_ entries per page'),
                 "searchPlaceholder" => __('Search...'),
-                "search"            => "",
+                "search" => ""
             ])
             ->initComplete('function() {
                 var table = this;
@@ -82,22 +83,22 @@ class ReportedPostDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
-                "dom"            => "
+                "dom" =>  "
                 <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
                 <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                 <'dataTable-container'<'col-sm-12'tr>>
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>
                 ",
-                'buttons'        => [
+                'buttons'   => [
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                         window.location = '" . route('blogs.create') . "';
-                   }", ],
+                   }"],
                     [
-                        'extend'    => 'collection',
+                        'extend' => 'collection',
                         'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
-                        'text'      => '<i class="ti ti-download"></i> Export',
-                        "buttons"   => [
+                        'text' => '<i class="ti ti-download"></i> Export',
+                        "buttons" => [
                             ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
@@ -107,7 +108,7 @@ class ReportedPostDataTable extends DataTable
                     ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
                     ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
-                "scrollX"        => true,
+                "scrollX" => true,
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -116,12 +117,12 @@ class ReportedPostDataTable extends DataTable
                         "border":"none",
                     });
                 }',
-                'rowCallback'    => 'function(row, data, index) {
+                'rowCallback' => 'function(row, data, index) {
                     // Make the first column bold
                     $("td", row).css("font-family", "Helvetica");
                     $("td", row).css("font-weight", "300");
                 }',
-                "drawCallback"   => 'function( settings ) {
+                "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
                       );
@@ -138,18 +139,18 @@ class ReportedPostDataTable extends DataTable
                       var toastList = toastElList.map(function (toastEl) {
                         return new bootstrap.Toast(toastEl);
                       });
-                }',
+                }'
             ])->language([
-            'buttons' => [
-                'create' => __('Create'),
-                'export' => __('Export'),
-                'print'  => __('Print'),
-                'reset'  => __('Reset'),
-                'reload' => __('Reload'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Create'),
+                    'export' => __('Export'),
+                    'print' => __('Print'),
+                    'reset' => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel' => __('Excel'),
+                    'csv' => __('CSV'),
+                ]
+            ]);
     }
 
     protected function getColumns()

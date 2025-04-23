@@ -9,16 +9,16 @@ class Follow extends Model
 {
     use HasFactory;
     public $table = 'follows';
-    protected $fillable = ['student_id', 'influencer_id', 'isPaid', 'active_status', 'session_id', 'subscription_id'];
+    protected $fillable = ['follower_id', 'influencer_id', 'isPaid', 'active_status', 'session_id', 'subscription_id'];
 
     public const FOLLOW = 0;
     public const SUBSCRIPTION = 1;
 
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Follower::class);
     }
-    public function influencer()
+    public function instructor()
     {
         return $this->belongsTo(User::class);
     }

@@ -17,7 +17,7 @@ class Purchase extends Model
     protected $fillable = [
         'id',
         'tenant_id',
-        'student_id',
+        'follower_id',
         'influencer_id',
         'coupon_id',
         'lesson_id', // ammount of purchase can be deduced from lesson_id
@@ -46,7 +46,7 @@ class Purchase extends Model
 
     public function student()
     {
-        return $this->belongsTo(\App\Models\Student::class, 'student_id');
+        return $this->belongsTo(\App\Models\Follower::class, 'follower_id');
     }
 
     public function influencer()

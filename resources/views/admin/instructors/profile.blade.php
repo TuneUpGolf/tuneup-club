@@ -54,7 +54,7 @@
                                     'follow.instructor',
                                     [
                                         'influencer_id' => $instructor?->id,
-                                        'follow' => $follow->where('student_id', Auth::user()->id)?->first()?->active_status
+                                        'follow' => $follow->where('follower_id', Auth::user()->id)?->first()?->active_status
                                             ? 'unfollow'
                                             : 'follow',
                                     ],
@@ -62,7 +62,7 @@
                                 'method' => 'Post',
                                 'data-validate',
                             ]) !!}
-                            {{ Form::button(__($follow->where('student_id', Auth::user()->id)->first()?->active_status ? 'Unfollow' : 'Follow'), ['type' => 'submit', 'class' => 'follow-profile-btn']) }}
+                            {{ Form::button(__($follow->where('follower_id', Auth::user()->id)->first()?->active_status ? 'Unfollow' : 'Follow'), ['type' => 'submit', 'class' => 'follow-profile-btn']) }}
                             {!! Form::close() !!}
                         </div>
                     </div>

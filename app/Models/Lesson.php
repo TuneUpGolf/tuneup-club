@@ -29,7 +29,7 @@ class Lesson extends Model
         'lesson_name',
         'lesson_description',
         'lesson_price',
-        'lesson_quantity', // student can upload video, influencer will provide feedback. This field will decide how many videos will the influencer give feedback on in the given price. 
+        'lesson_quantity', // student can upload video, instructor will provide feedback. This field will decide how many videos will the instructor give feedback on in the given price. 
         'required_time',
         'created_by',
         'detailed_description',

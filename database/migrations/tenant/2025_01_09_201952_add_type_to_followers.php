@@ -14,9 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('followers', function (Blueprint $table) {
-            $table->string('social_url_ig')->nullable()->default(NULL);
-            $table->string('social_url_fb')->nullable()->default(NULL);
-            $table->string('social_url_x')->nullable()->default(NULL);
+            $table->boolean('isGuest')->default(false)->after('type');
         });
     }
 
@@ -27,10 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('social_url_ig');
-            $table->dropColumn('social_url_fb');
-            $table->dropColumn('social_url_x');
+        Schema::table('followers', function (Blueprint $table) {
+            $table->dropColumn('type');
         });
     }
 };

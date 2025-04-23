@@ -44,11 +44,11 @@ class PostController extends Controller
     {
         try {
             $this->validate($request, [
-                'post_text'  => 'required|string',
+                'post_text' => 'required|string',
                 'post_image' => 'nullable|string',
                 'post_video' => 'nullable|string',
-                'paid'       => 'required|boolean',
-                'price'      => 'nullable|numeric',
+                'paid' => 'required|boolean',
+                'price' => 'nullable|numeric',
             ]);
 
             if (Auth::user()->can('create-posts')) {

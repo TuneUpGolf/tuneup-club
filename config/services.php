@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Student;
+use App\Models\Follower;
 
 return [
 
@@ -48,7 +48,7 @@ return [
     ],
 
     'stripe' => [
-        'model' => Student::class,
+        'model' => Follower::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
         'webhook' => [

@@ -17,5 +17,5 @@ class Role extends Model
 
     const ROLE_ADMIN = "Admin";
     const ROLE_INFLUENCER = "Influencer";
-    const ROLE_STUDENT = "Student";
+    const ROLE_STUDENT = "Follower";
 }

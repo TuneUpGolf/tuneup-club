@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('slots', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lesson_id');
-            $table->unsignedBigInteger('student_id')->nullable()->default(null);
+            $table->unsignedBigInteger('follower_id')->nullable()->default(null);
             $table->foreign('lesson_id')->references('id')->on('lessons')->onDelete('cascade');
-            $table->foreign('student_id')->references('id')->on('students')->nullable()->onDelete('cascade');
+            $table->foreign('follower_id')->references('id')->on('followers')->nullable()->onDelete('cascade');
             $table->timestamp('date_time');
             $table->string('location', 255)->nullable();
             $table->boolean('is_completed')->default(false);

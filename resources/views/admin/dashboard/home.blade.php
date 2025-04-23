@@ -128,8 +128,49 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card dash-supports mt-2">
+                    <div class="card-header">
+                        <h5>{{ __('Upcoming Lessons') }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('Instructor') }}</th>
+                                        <th>{{ __('Name') }}</th>
+                                        <th>{{ __('Price') }}</th>
+                                        <th>{{ __('Quantity') }}</th>
+                                        <th>{{ __('Created At') }}</th>
+                                        <th>{{ __('Type') }}</th>
+                                        <th>{{ __('Action') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($instructorStats as $instructor)
+                                        <tr>
+                                            <td>{{ $instructor->name }}</td>
+                                            <td>${{ number_format($instructor->purchase->where('status', 'complete')->sum('total_amount'), 2) }}
+                                            </td>
+                                            <td>{{ $instructor->completed_inperson_lessons }}</td>
+                                            <td>{{ $instructor->completed_online_lessons }}</td>
+                                            <td>{{ $instructor->pending_inperson_lessons }}</td>
+                                            <td>{{ $instructor->pending_online_lessons }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center">{{ __('No instructors available') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 @endcan
-                @can('manage-students')
+                @can('manage-followers')
                     <div class="col-lg-2 col-6 p-2">
                         <div class="relative flex flex-col bg-card2  rounded-lg w-96 min-h-card">
                             <div class="p-4 flex flex-col justify-center items-center">
@@ -146,7 +187,7 @@
                                         </svg>
                                     </div>
                                     <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
-                                    <span class="font-roboto font-semibold"> {{ __('Students') }} </span>
+                                    <span class="font-roboto font-semibold"> {{ __('Followers') }} </span>
                                 </div>
                                 <p class="mb-0 font-sans font-thin bg-card2-text text-xl"> {{ $students }} </p>
                             </div>

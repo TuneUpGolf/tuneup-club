@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('post', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('influencer_id')->nullable()->default(null);
-            $table->unsignedBigInteger('student_id')->nullable()->default(null);
+            $table->unsignedBigInteger('follower_id')->nullable()->default(null);
             $table->string('title');
             $table->text('short_description');
             $table->longText('description');
@@ -25,14 +25,14 @@ return new class extends Migration
             $table->string('slug')->nullable();
             $table->boolean('paid')->default(false);
             $table->decimal('price', 8, 2)->nullable();
-            $table->boolean('isStudentPost')->default(false);
+            $table->boolean('isFollowerPost')->default(false);
             $table->string('status')->default('active');
             $table->enum('file_type', ['image', 'video'])->default('image')->nullable();
             $table->timestamps();
 
             // Foreign key relationships
             $table->foreign('influencer_id')->references('id')->on('users')->nullable();
-            $table->foreign('student_id')->references('id')->on('students')->nullable();
+            $table->foreign('follower_id')->references('id')->on('followers')->nullable();
         });
     }
 

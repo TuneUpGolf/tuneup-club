@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Lab404\Impersonate\Models\Impersonate;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\MailTemplates\Models\MailTemplate;
 use Spatie\Permission\Traits\HasRoles;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Lab404\Impersonate\Models\Impersonate;
+use Spatie\MailTemplates\Models\MailTemplate;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -206,7 +206,7 @@ class User extends Authenticatable implements MustVerifyEmail
         } else {
             return [
                 'is_success' => false,
-                'errors'     => __('Plan is deleted.'),
+                'errors' => __('Plan is deleted.'),
             ];
         }
     }
@@ -240,7 +240,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasVerifiedPhone()
     {
-        return ! is_null($this->phone_verified_at);
+        return !is_null($this->phone_verified_at);
     }
 
     public function lastCodeRemainingSeconds()

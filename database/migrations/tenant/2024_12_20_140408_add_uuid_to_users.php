@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('uuid')->nullable()->after('id');
         });
 
-        Schema::table('students', function (Blueprint $table) {
+        Schema::table('followers', function (Blueprint $table) {
             $table->string('uuid')->nullable()->after('id');
         });
     }
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->dropColumn('uuid');
         });
 
-        Schema::table('students', function (Blueprint $table) {
+        Schema::table('followers', function (Blueprint $table) {
             $table->dropColumn('uuid');
         });
     }
