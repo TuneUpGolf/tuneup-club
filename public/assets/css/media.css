@@ -1,0 +1,81 @@
+@media (max-width: 1140px) {
+  .menu {
+    gap: 20px !important;
+  }
+  .master {
+    margin-left: 20;
+  }
+}
+@media (max-width: 992px) {
+  .menu {
+    display: none !important;
+  }
+  /* .demo {
+    display: none !important;
+  } */
+  .icon {
+    display: block !important;
+  }
+  .hero-sec {
+    flex-wrap: wrap;
+  }
+  .master {
+    margin-top: 30px;
+  }
+  .management {
+    flex-wrap: wrap !important;
+    margin-top: 10px !important;
+  }
+  .lesson {
+    margin-top: 20px;
+  }
+  .iphone-two {
+    order: -1;
+  }
+  .solt {
+    margin-top: 30px !important;
+  }
+}
+@media (max-width: 884px) {
+  .iphone {
+    order: -1;
+  }
+}
+@media (max-width: 768px) {
+  .lesson,
+  .lesson-two {
+    padding-inline: 30px;
+  }
+  .master {
+    /* padding-inline: 20px; */
+  }
+  .footer-one {
+    flex-wrap: wrap;
+  }
+  .google {
+    margin-top: 30px;
+  }
+  .footer-two {
+    flex-wrap: wrap;
+  }
+  .navbar-toggler {
+    outline: none !important;
+  }
+}
+@media (max-width: 576px) {
+  .navbar-nav {
+    margin-top: 12px;
+  }
+  .hero-img {
+    width: 300px;
+  }
+  .group {
+    width: 300px;
+  }
+  .footer-one {
+    padding-inline: 30px;
+  }
+  .footer-two {
+    padding-inline: 30px;
+  }
+}
