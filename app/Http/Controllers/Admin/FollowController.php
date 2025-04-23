@@ -27,11 +27,11 @@ class FollowController extends Controller
 
             $instructorId = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->first()?->id;
 
-            if (Follow::where('student_id', Auth::user()->id)->where('isPaid', Follow::FOLLOW)->where('influencer_id', $instructorId)->exists()) {
+            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::FOLLOW)->where('influencer_id', $instructorId)->exists()) {
                 return response()->json(['message' => 'Student already follows this instructor'], 422);
             }
 
-            if (Follow::where('student_id', Auth::user()->id)->where('isPaid', Follow::SUBSCRIPTION)->where('influencer_id', $instructorId)->exists()) {
+            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::SUBSCRIPTION)->where('influencer_id', $instructorId)->exists()) {
                 return response()->json(['message' => 'Student is already subscribed to this instructor'], 422);
             }
 

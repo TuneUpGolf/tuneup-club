@@ -130,7 +130,7 @@ class ProfileController extends Controller
 
         if (Auth::user()->type == Role::ROLE_STUDENT) {
             PushToken::updateOrCreate([
-                'student_id' => Auth::user()->id,
+                'follower_id' => Auth::user()->id,
             ], ['token' => $request->get('push_token')]);
         }
 

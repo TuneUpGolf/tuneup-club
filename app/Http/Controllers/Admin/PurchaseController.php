@@ -547,7 +547,7 @@ class PurchaseController extends Controller
                         $purchases                 = Purchase::where('influencer_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
                         request()->student_request = true;
                     } else if (Auth::user()->type == Role::ROLE_STUDENT) {
-                        $purchases = Purchase::where('student_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
+                        $purchases = Purchase::where('follower_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
                     }
 
                     return PurchaseAPIResource::collection($purchases->orderBy(request()->get('sortKey', 'updated_at'), request()->get('sortOrder', 'desc'))->paginate(request()->get('perPage')));

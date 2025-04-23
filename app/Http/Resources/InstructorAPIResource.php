@@ -14,7 +14,7 @@ class InstructorAPIResource extends JsonResource
      */
     public function toArray($request)
     {
-        $followers = Follow::where('influencer_id', $this->id)->where('active_status', 1)->where('student_id', '!=', null);
+        $followers = Follow::where('influencer_id', $this->id)->where('active_status', 1)->where('follower_id', '!=', null);
 
         return [
             'id'                  => $this->id,

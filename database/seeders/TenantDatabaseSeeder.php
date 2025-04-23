@@ -113,7 +113,7 @@ class TenantDatabaseSeeder extends Seeder
                 $adminRole->givePermissionTo($temp1);
             }
         }
-        $instructorpermissions  = [
+        $influencerpermissions  = [
             'followers'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'lessons'               => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'purchases'             => ['manage'],

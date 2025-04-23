@@ -167,7 +167,7 @@ class InstructorController extends Controller
                 $reportUser->influencer_id = $instructor->id;
 
                 if (Auth::user()->type === Role::ROLE_STUDENT) {
-                    $reportUser->student_id = Auth::user()->id;
+                    $reportUser->follower_id = Auth::user()->id;
                 } else {
                     throw new Exception('UnAuthorized', 401);
                 }
@@ -198,7 +198,7 @@ class InstructorController extends Controller
 
             if (! ! $instructor && Auth::user()->type === Role::ROLE_STUDENT) {
 
-                $review = Review::firstOrCreate(['student_id' => Auth::user()->id, 'influencer_id' => $instructor->id]);
+                $review = Review::firstOrCreate(['follower_id' => Auth::user()->id, 'influencer_id' => $instructor->id]);
 
                 if (isset(request()->review)) {
                     $review->review = request()->review;

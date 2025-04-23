@@ -55,7 +55,7 @@ class Influencer extends Authenticatable implements MustVerifyEmail
 
     public function students()
     {
-        return $this->belongsToMany(Student::class, 'follows', 'influencer_id', 'student_id');
+        return $this->belongsToMany(Student::class, 'follows', 'influencer_id', 'follower_id');
     }
 
     public function currentLanguage()

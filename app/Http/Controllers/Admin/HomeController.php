@@ -69,7 +69,7 @@ class HomeController extends Controller
 
         // Fetch Earnings
         $earning = ($userType === Role::ROLE_INFLUENCER)
-        ? Purchase::where('instructor_id', $user->id)->where('status', 'complete')->sum('total_amount')
+        ? Purchase::where('influencer_id', $user->id)->where('status', 'complete')->sum('total_amount')
         : Purchase::where('status', 'complete')->sum('total_amount');
 
         // Fetch Instructor Statistics for Admins (Without Student Count)
