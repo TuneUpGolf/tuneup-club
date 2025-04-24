@@ -100,12 +100,12 @@ class PurchaseDataTable extends DataTable
                 'followers.name as follower_name' // Get student name
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-            ->join('users as instructors', 'purchases.instructor_id', '=', 'instructors.id')
+            ->join('users as instructors', 'purchases.influencer_id', '=', 'instructors.id')
             ->join('followers as followers', 'purchases.follower_id', '=', 'followers.id')
             ->orderBy('purchases.created_at', 'desc'); // Order by creation date in descending order
 
         // Filter query based on user role
-        if ($user->type == Role::ROLE_STUDENT) {
+        if ($user->type == Role::ROLE_FOLLOWER) {
             $query->where('purchases.follower_id', $user->id)
                 ->where('purchases.status', Purchase::STATUS_COMPLETE);
         }

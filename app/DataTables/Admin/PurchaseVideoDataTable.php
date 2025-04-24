@@ -133,7 +133,7 @@ class PurchaseVideoDataTable extends DataTable
                 ->width('20%'),
         ];
 
-        if (Auth::user()->type == Role::ROLE_STUDENT) {
+        if (Auth::user()->type == Role::ROLE_FOLLOWER) {
             unset($columns[6]);
         }
 

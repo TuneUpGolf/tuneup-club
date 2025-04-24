@@ -47,7 +47,7 @@ class HomeController extends Controller
         $events         = Event::latest()->take(5)->get();
         $supports       = tenancy()->central(fn($tenant) => SupportTicket::where('tenant_id', $tenant->id)->latest()->take(7)->get());
 
-        if ($userType == Role::ROLE_STUDENT) {
+        if ($userType == Role::ROLE_FOLLOWER) {
             return $this->studentDashboard($user, $paymentTypes, $documents, $documentsDatas, $posts, $events, $supports);
         }
 

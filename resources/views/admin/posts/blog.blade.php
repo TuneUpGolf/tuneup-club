@@ -2,7 +2,7 @@
     <div class="bg-white px-4 py-2 rounded-tl-3xl rounded-tr-3xl">
         <div class="flex justify-between items-center w-full">
             <div class="flex items-center gap-2">
-                @if ($post->isStudentPost)
+                @if ($post->isFollowerPost)
                     <img class="w-10 h-10 rounded-full"
                         src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->student?->dp) }}" alt="Profile" />
                 @else
@@ -12,10 +12,10 @@
                 @endif
                 <div>
                     <p class="text-md text-gray-900 font-semibold mb-0 leading-tight">
-                        {{ ucfirst($post->isStudentPost ? $post?->student->name : $post?->instructor?->name) }}
+                    {{ ucfirst($post->isFollowerPost ? $post?->follower?->name : $post?->instructor?->name) }}
                     </p>
                     <span class="text-xs italic text-gray-600">
-                        {{ $post->isStudentPost ? 'Student' : 'Instructor' }}
+                        {{ $post->isFollowerPost ? 'Student' : 'Instructor' }}
                     </span>
                 </div>
             </div>

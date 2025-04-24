@@ -21,7 +21,7 @@ class PostAPIResource extends JsonResource
      */
     public function toArray($request)
     {
-        $user = $this->isStudentPost == true ? new StudentAPIResource(Follower::find($this->student->id)) : new InstructorAPIResource(User::find($this->instructor->id));
+        $user = $this->isFollowerPost == true ? new StudentAPIResource(Follower::find($this->student->id)) : new InstructorAPIResource(User::find($this->instructor->id));
         $likes = LikePost::where('post_id', $this->id)->count();
         $apiResource = [
             'id' => $this->id,
@@ -38,7 +38,7 @@ class PostAPIResource extends JsonResource
             'reports' => $this->reportPost,
 
         ];
-        if (Auth::user()->type  === Role::ROLE_STUDENT && $this->paid) {
+        if (Auth::user()->type  === Role::ROLE_FOLLOWER && $this->paid) {
             $apiResource += (['post_purchase_status' => (bool)Auth::user()?->purchasePost->firstWhere('post_id', $this->id)?->active_status]);
         }
 

@@ -44,7 +44,7 @@ class RegisteredUserController extends Controller
             'uuid' => Str::uuid(),
             'password' => Hash::make($request->password),
             'tenant_id' => tenant('id'),
-            'type' => Role::ROLE_STUDENT,
+            'type' => Role::ROLE_FOLLOWER,
             'created_by' => 'signup',
             'email_verified_at' => (UtilityFacades::getsettings('email_verification') == '1') ? null : Carbon::now()->toDateTimeString(),
             'country_code' => $request->country_code,
@@ -54,7 +54,7 @@ class RegisteredUserController extends Controller
             'lang' => 'en',
             'active_status' => 1
         ]);
-        $user->assignRole(Role::ROLE_STUDENT);
+        $user->assignRole(Role::ROLE_FOLLOWER);
         SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
 
         // else {
