@@ -61,7 +61,7 @@ class LessonDataTable extends DataTable
         if (tenant('id') == null) {
             return   $model->newQuery()->select(['lessons.*', 'domains.domain'])
                 ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Admin');
-        } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_STUDENT) {
+        } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_FOLLOWER) {
             return $model->newQuery()->where('tenant_id', '=', tenant('id'))->where('active_status', true);
         } else {
             return $model->newQuery()->where('created_by', '=', Auth::user()->id);
@@ -88,7 +88,7 @@ class LessonDataTable extends DataTable
             ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
             ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
-        if (Auth::user()->type == Role::ROLE_STUDENT)
+        if (Auth::user()->type == Role::ROLE_FOLLOWER)
             unset($buttons[0]);
 
         return $this->builder()

@@ -33,13 +33,13 @@ class PostsController extends Controller
                     $posts = $posts->where('paid', true);
                     break;
                 case ('student'):
-                    $posts = $posts->where('isStudentPost', true);
+                    $posts = $posts->where('isFollowerPost', true);
                     break;
                 case ('instructor'):
-                    $posts = $posts->where('isStudentPost', false);
+                    $posts = $posts->where('isFollowerPost', false);
             }
             $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
-            $posts->load('instructor');
+            $posts->load('influencer');
             $posts->load('student');
             return view('admin.posts.infinite', compact('posts'));
         } else {
@@ -83,12 +83,12 @@ class PostsController extends Controller
                     'description' => 'required|string',
                 ]);
 
-                if (Auth::user()->type === Role::ROLE_STUDENT) {
+                if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                     $request->merge(['follower_id' => Auth::user()->id]);
-                    $request->merge(['isStudentPost' => true]);
+                    $request->merge(['isFollowerPost' => true]);
                 } else {
                     $request->merge(['influencer_id' => Auth::user()->id]);
-                    $request->merge(['isStudentPost' => false]);
+                    $request->merge(['isFollowerPost' => false]);
                 }
 
                 $post = Post::create($request->all());
@@ -227,7 +227,7 @@ class PostsController extends Controller
 
                 $postLike          = new LikePost();
                 $postLike->post_id = $post->id;
-                if (Auth::user()->type === Role::ROLE_STUDENT) {
+                if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                     $postLike->follower_id = Auth::user()->id;
                 } else {
                     $postLike->influencer_id = Auth::user()->id;
@@ -258,7 +258,7 @@ class PostsController extends Controller
                     'price' => 'string|max:6',
                     'status' => 'in:active,inactive',
                 ]);
-                if ($post->isStudentPost) {
+                if ($post->isFollowerPost) {
                     $post->update(request()->only('title', 'description', 'short_description', 'status'));
                 } else
                     $post->update(request()->all());
@@ -286,7 +286,7 @@ class PostsController extends Controller
 
                 $postLike          = new LikePost();
                 $postLike->post_id = $post->id;
-                if (Auth::user()->type === Role::ROLE_STUDENT) {
+                if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                     $postLike->follower_id = Auth::user()->id;
                 } else {
                     $postLike->influencer_id = Auth::user()->id;
@@ -316,7 +316,7 @@ class PostsController extends Controller
                 $reportPost          = new ReportPost();
                 $reportPost->post_id = $post->id;
 
-                if (Auth::user()->type === Role::ROLE_STUDENT) {
+                if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                     $reportPost->follower_id = Auth::user()->id;
                 } else {
                     $reportPost->influencer_id = Auth::user()->id;
@@ -366,10 +366,10 @@ class PostsController extends Controller
                         $posts = $posts->where('paid', true);
                         break;
                     case ('student'):
-                        $posts = $posts->where('isStudentPost', true);
+                        $posts = $posts->where('isFollowerPost', true);
                         break;
                     case ('instructor'):
-                        $posts = $posts->where('isStudentPost', false);
+                        $posts = $posts->where('isFollowerPost', false);
                         break;
                     case ('myPosts'):
                         if (Auth::user()->type === Role::ROLE_INFLUENCER) {
@@ -379,7 +379,7 @@ class PostsController extends Controller
                         }
                         break;
                     case ('subscribed'):
-                        if (Auth::user()->type === Role::ROLE_STUDENT) {
+                        if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                             $ids   = Auth::user()->follows->where('active_status', true)->where('isPaid', true)->implode('influencer_id', ',');
                             $posts = $posts->whereIn('influencer_id', explode(',', $ids));
                         } else {
@@ -387,7 +387,7 @@ class PostsController extends Controller
                         }
                         break;
                     case ('followed'):
-                        if (Auth::user()->type === Role::ROLE_STUDENT) {
+                        if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                             $ids   = Auth::user()->follows->where('active_status', true)->implode('influencer_id', ',');
                             $posts = $posts->whereIn('influencer_id', explode(',', $ids));
                         } else {
@@ -434,12 +434,12 @@ class PostsController extends Controller
                 'status'      => 'in:active,inactive',
             ]);
 
-            if (Auth::user()->type === Role::ROLE_STUDENT) {
+            if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                 $request->merge(['follower_id' => Auth::user()->id]);
-                $request->merge(['isStudentPost' => true]);
+                $request->merge(['isFollowerPost' => true]);
             } else {
                 $request->merge(['influencer_id' => Auth::user()->id]);
-                $request->merge(['isStudentPost' => false]);
+                $request->merge(['isFollowerPost' => false]);
             }
 
             $post = Post::create($request->all());

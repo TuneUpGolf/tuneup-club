@@ -63,7 +63,7 @@ class SubscriptionsDataTable extends DataTable
             ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
             ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
-        if (Auth::user()->type == Role::ROLE_STUDENT)
+        if (Auth::user()->type == Role::ROLE_FOLLOWER)
             unset($buttons[0]);
 
         return $this->builder()

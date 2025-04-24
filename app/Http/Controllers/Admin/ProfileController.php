@@ -128,7 +128,7 @@ class ProfileController extends Controller
             $user['dp'] = $request->file('file')->store('dp');
         }
 
-        if (Auth::user()->type == Role::ROLE_STUDENT) {
+        if (Auth::user()->type == Role::ROLE_FOLLOWER) {
             PushToken::updateOrCreate([
                 'follower_id' => Auth::user()->id,
             ], ['token' => $request->get('push_token')]);
@@ -145,12 +145,11 @@ class ProfileController extends Controller
 
     public function LoginDetails(Request $request)
     {
-
         $userDetail = Auth::user();
-        if (Auth::user()->type == Role::ROLE_STUDENT) {
+        if (Auth::user()->type == Role::ROLE_FOLLOWER) {
             $user = Follower::findOrFail($userDetail['id']);
         }
-        if (Auth::user()->type !== Role::ROLE_STUDENT) {
+        if (Auth::user()->type !== Role::ROLE_FOLLOWER) {
             $user = User::findOrFail($userDetail['id']);
         }
         request()->validate([
@@ -201,11 +200,11 @@ class ProfileController extends Controller
                 'password'  => 'same:password_confirmation',
             ]);
 
-            if (Auth::user()->type == Role::ROLE_STUDENT)
+            if (Auth::user()->type == Role::ROLE_FOLLOWER)
                 $user = Follower::findOrFail($userDetail['id']);
 
 
-            if (Auth::user()->type !== Role::ROLE_STUDENT)
+            if (Auth::user()->type !== Role::ROLE_FOLLOWER)
                 $user = User::findOrFail($userDetail['id']);
 
 
@@ -282,7 +281,7 @@ class ProfileController extends Controller
                 $user->update($request->all());
                 $user->save();
                 return response(new InstructorAPIResource($user), 200);
-            } else if (Auth::user()->type === Role::ROLE_STUDENT && Auth::user()->active_status == true) {
+            } else if (Auth::user()->type === Role::ROLE_FOLLOWER && Auth::user()->active_status == true) {
                 $user = Follower::find(Auth::user()->id);
                 if ($request->hasFile('dp')) {
                     $user['dp'] = $request->file('dp')->store('dp');
@@ -359,7 +358,7 @@ class ProfileController extends Controller
                 'push_token' => 'required',
             ]);
 
-            if (Auth::user()->type == Role::ROLE_STUDENT) {
+            if (Auth::user()->type == Role::ROLE_FOLLOWER) {
                 $pushToken = PushToken::updateOrCreate([
                     'follower_id' => Auth::user()->id,
                 ], ['token' => $request->get('push_token')]);

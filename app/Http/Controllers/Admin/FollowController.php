@@ -189,7 +189,7 @@ class FollowController extends Controller
 
     public function mySubscriptions(SubscriptionsDataTable $dataTable)
     {
-        if (Auth::user()->type == Role::ROLE_STUDENT) {
+        if (Auth::user()->type == Role::ROLE_FOLLOWER) {
             return $dataTable->render('admin.subscription.index');
         }
     }

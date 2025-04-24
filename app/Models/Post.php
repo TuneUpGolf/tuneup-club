@@ -15,7 +15,7 @@ class Post extends Model
         'follower_id',
         'title',
         'description',
-        'isStudentPost',
+        'isFollowerPost',
         'file_type',
     ];
 

@@ -132,7 +132,7 @@ class PurchaseController extends Controller
                 'lesson_id' => 'required',
             ]);
 
-            if (Auth::user()->type == Role::ROLE_STUDENT) {
+            if (Auth::user()->type == Role::ROLE_FOLLOWER) {
                 $student      = Auth::user();
                 $lesson       = Lesson::find($request->lesson_id);
                 $total_amount = $lesson->lesson_price;
@@ -323,7 +323,7 @@ class PurchaseController extends Controller
             'purchase_id' => 'required',
         ]);
         $purchase = Purchase::with('lesson')->find($request?->purchase_id);
-        if (isset($purchase) && Auth::user()->type == Role::ROLE_STUDENT) {
+        if (isset($purchase) && Auth::user()->type == Role::ROLE_FOLLOWER) {
             if ($purchase?->lesson->lesson_quantity > $purchase->lessons_used) {
                 try {
                     $purchase_video = PurchaseVideos::create([
@@ -398,7 +398,7 @@ class PurchaseController extends Controller
 
             $purchase = Purchase::with('lesson')->find($request?->purchase_id);
 
-            if (isset($purchase) && Auth::user()->type == Role::ROLE_STUDENT) {
+            if (isset($purchase) && Auth::user()->type == Role::ROLE_FOLLOWER) {
                 if ($purchase?->lesson->lesson_quantity > $purchase->lessons_used) {
                     $purchase_video = PurchaseVideos::create([
                         'tenant_id'   => Auth::user()->tenant_id,
@@ -546,7 +546,7 @@ class PurchaseController extends Controller
                     if (Auth::user()->type == Role::ROLE_INFLUENCER) {
                         $purchases                 = Purchase::where('influencer_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
                         request()->student_request = true;
-                    } else if (Auth::user()->type == Role::ROLE_STUDENT) {
+                    } else if (Auth::user()->type == Role::ROLE_FOLLOWER) {
                         $purchases = Purchase::where('follower_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
                     }
 

@@ -73,7 +73,7 @@ class StudentController extends Controller
             $userData['dial_code']         = $request->dial_code;
             $userData['phone']             = str_replace(' ', '', $request->phone);
             $user                          = Follower::create($userData);
-            $user->assignRole(Role::ROLE_STUDENT);
+            $user->assignRole(Role::ROLE_FOLLOWER);
             if ($request->hasFile('dp')) {
                 $user['dp'] = $request->file('dp')->store('dp');
             }
@@ -158,7 +158,7 @@ class StudentController extends Controller
     public function deleteAPI($id)
     {
         try {
-            if (Auth::user()->id == $id && Auth::user()->type === Role::ROLE_STUDENT) {
+            if (Auth::user()->id == $id && Auth::user()->type === Role::ROLE_FOLLOWER) {
                 $user = Follower::find($id);
                 $user->purchasePost()->delete();
                 $user->purchase()->delete();
@@ -191,7 +191,7 @@ class StudentController extends Controller
 
             $userData                      = $request->all();
             $userData['password']          = Hash::make($userData['password']);
-            $userData['type']              = Role::ROLE_STUDENT;
+            $userData['type']              = Role::ROLE_FOLLOWER;
             $userData['created_by']        = "signup";
             $userData['email_verified_at'] = (UtilityFacades::getsettings('email_verification') == '1') ? null : Carbon::now()->toDateTimeString();
             $userData['phone_verified_at'] = (UtilityFacades::getsettings('phone_verification') == '1') ? null : Carbon::now()->toDateTimeString();
@@ -200,7 +200,7 @@ class StudentController extends Controller
             $userData['bio']               = $request?->bio;
             $userData['phone']             = str_replace(' ', '', $request->phone);
             $user                          = Follower::create($userData);
-            $user->assignRole(Role::ROLE_STUDENT);
+            $user->assignRole(Role::ROLE_FOLLOWER);
 
             if ($request->hasFile('profile_picture')) {
                 $user['dp'] = $request->file('profile_picture')->store('dp');
@@ -232,7 +232,7 @@ class StudentController extends Controller
             'bio' => 'required|max:250',
         ]);
         try {
-            if (Auth::user()->type === Role::ROLE_STUDENT) {
+            if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                 $student = Follower::find(Auth::user()->id);
                 if ($student->active_status == true) {
                     $student['bio'] = request()?->bio;

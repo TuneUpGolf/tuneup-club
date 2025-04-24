@@ -279,7 +279,7 @@ class LessonController extends Controller
             $authUser = Auth::user();
             $type     = $authUser->type;
 
-            if ($type == Role::ROLE_STUDENT) {
+            if ($type == Role::ROLE_FOLLOWER) {
                 $slots = $slots->filter(function ($slot) use ($authUser) {
                     return $slot->availableSeats() > 0 || $slot->student->contains('id', $authUser->id);
                 });
@@ -295,10 +295,10 @@ class LessonController extends Controller
                 $students = $appointment->student;
 
                 $colors = $appointment->is_completed ? '#41d85f' : (($type == Role::ROLE_INFLUENCER && $appointment->isFullyBooked() ||
-                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id)) ?
+                    $type == Role::ROLE_FOLLOWER && $students->contains('id', Auth::user()->id)) ?
                     '#f7e50a' : '#0071ce');
                 $className = $appointment->is_completed ? 'custom-completed-class' : (($type == Role::ROLE_INFLUENCER && $appointment->isFullyBooked() ||
-                    $type == Role::ROLE_STUDENT && $students->contains('id', Auth::user()->id))
+                    $type == Role::ROLE_FOLLOWER && $students->contains('id', Auth::user()->id))
                     ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
 
                 array_push($events, [
@@ -587,7 +587,7 @@ class LessonController extends Controller
                         'email'             => $request->guestEmail,
                         'uuid'              => Str::uuid(),
                         'password'          => Hash::make($randomPassword),
-                        'type'              => Role::ROLE_STUDENT,
+                        'type'              => Role::ROLE_FOLLOWER,
                         'isGuest'           => true,
                         'created_by'        => Auth::user()->id,
                         'email_verified_at' => (UtilityFacades::getsettings('email_verification') == '1') ? null : Carbon::now()->toDateTimeString(),
@@ -596,7 +596,7 @@ class LessonController extends Controller
                     ];
 
                     $user = Follower::create($userData);
-                    $user->assignRole(Role::ROLE_STUDENT);
+                    $user->assignRole(Role::ROLE_FOLLOWER);
                     $studentIds[] = $user->id;
                 }
             } else {
@@ -663,7 +663,7 @@ class LessonController extends Controller
 
             $slot = Slots::with('lesson', 'student')->findOrFail(request()->slot_id);
 
-            if (Auth::user()->type == Role::ROLE_STUDENT && Auth::user()->active_status == 1 && ! ! $slot) {
+            if (Auth::user()->type == Role::ROLE_FOLLOWER && Auth::user()->active_status == 1 && ! ! $slot) {
 
                 return $this->handleStudentBookingAPI($slot);
             }
