@@ -249,17 +249,45 @@
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                             @can('manage-lessons')
                             <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
-                            <a class="dash-link py-3 px-4"
-                                href="{{ route('lesson.available', ['type' => 'inPerson']) }}">
-                                <svg width="24" height="24" viewBox="0 0 16 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M0.4375 0.1875H1.125H14.875H15.5625V0.875V14.625V15.3125H14.875H1.125H0.4375V14.625V0.875V0.1875ZM1.8125 1.5625V7.0625H7.3125V1.5625H1.8125ZM8.6875 1.5625V7.0625H14.1875V1.5625H8.6875ZM1.8125 8.4375V13.9375H7.3125V8.4375H1.8125ZM8.6875 8.4375V13.9375H14.1875V8.4375H8.6875Z"
-                                        fill="{{ request()->is('lesson*') ? 'white' : 'black' }}" />
-                                </svg>
-                                <span class="pl-6 text-l font-thin">{{ __('Start Lesson') }}</span>
-                            </a>
-                        </li>
+                                <a href="#!" class="dash-link py-3 px-4">
+                                    <svg width="24" height="24" viewBox="0 0 16 16" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M0.4375 0.1875H1.125H14.875H15.5625V0.875V14.625V15.3125H14.875H1.125H0.4375V14.625V0.875V0.1875ZM1.8125 1.5625V7.0625H7.3125V1.5625H1.8125ZM8.6875 1.5625V7.0625H14.1875V1.5625H8.6875ZM1.8125 8.4375V13.9375H7.3125V8.4375H1.8125ZM8.6875 8.4375V13.9375H14.1875V8.4375H8.6875Z"
+                                            fill="{{ request()->is('lesson*') ? 'white' : 'black' }}" />
+                                    </svg>
+                                    <span class="pl-6 text-l font-thin">{{ __('Lessons') }}</span>
+                                    <span class="dash-arrow"><i data-feather="chevron-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="dash-submenu">
+                                    <li class="dash-item {{ request()->is('lesson') ? 'active' : '' }}">
+                                        <a class="dash-link"
+                                            href="{{ route('lesson.index') }}">{{ __('Manage Lessons') }}</a>
+                                    </li>
+                                    @if (Auth::user()->type === 'Admin')
+                                        <li class="dash-item {{ request()->is('lesson/manage/slot') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('slot.manage') }}">{{ __('Admin Bookings') }}</a>
+                                        </li>
+                                    @else
+                                        <li class="dash-item {{ request()->is('lesson/manage/slot') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('slot.manage') }}">{{ __('All Slots') }}</a>
+                                        </li>
+                                    @endif
+                                    <li
+                                        class="dash-item {{ request()->is('lesson/create?type=online') ? 'active' : '' }}">
+                                        <a class="dash-link"
+                                            href="{{ route('lesson.create', ['type' => 'online']) }}">{{ __('Create Lesson') }}</a>
+                                    </li>
+                                    <li
+                                        class="dash-item {{ request()->is('lesson/create?type=inPerson') ? 'active' : '' }}">
+                                        <a class="dash-link"
+                                            href="{{ route('lesson.create', ['type' => 'inPerson']) }}">{{ __('Create In-Person Lesson') }}</a>
+                                    </li>
+                                </ul>
+                            </li>
                         @endcan
                     @endif
                     @if (Auth::user()->type == 'Follower')
