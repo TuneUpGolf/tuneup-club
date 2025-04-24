@@ -134,7 +134,8 @@ class StudentDataTable extends DataTable
 
             if (auth()->user()->type === 'Influencer') {
                 $query->whereHas('follows', function ($q) {
-                    $q->where('influencer_id', auth()->id());
+                    $q->where('influencer_id', auth()->id())
+                        ->where('active_status', 1);
                 });
             }
             return $query;
@@ -175,7 +176,7 @@ class StudentDataTable extends DataTable
                 'buttons'        => [
                     ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
                         window.location = '" . route('student.import') . "';
-                   }", ],
+                   }"],
                     [
                         'extend'    => 'collection',
                         'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
