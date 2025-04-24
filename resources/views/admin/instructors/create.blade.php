@@ -1,9 +1,9 @@
 @extends('layouts.main')
-@section('title', __('Create Instructor'))
+@section('title', __('Create Influencer'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('instructor.index') }}">{{ __('Instructors') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Create Instructor') }}</li>
+    <li class="breadcrumb-item"><a href="{{ route('instructor.index') }}">{{ __('Influencers') }}</a></li>
+    <li class="breadcrumb-item">{{ __('Create Influencer') }}</li>
 @endsection
 @section('content')
     <div class="main-content">
@@ -17,7 +17,7 @@
                 <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5>{{ __('Create Instructor') }}</h5>
+                            <h5>{{ __('Create Influencer') }}</h5>
                         </div>
                         <div class="card-body">
                             {!! Form::open([

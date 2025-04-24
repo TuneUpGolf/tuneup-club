@@ -12,13 +12,13 @@ use App\Imports\InstructorsImport;
 use App\Mail\Admin\WelcomeMail;
 use App\Models\AnnotationVideos;
 use App\Models\Follow;
+use App\Models\Follower;
 use App\Models\Lesson;
 use App\Models\Post;
 use App\Models\Purchase;
 use App\Models\ReportUser;
 use App\Models\Review;
 use App\Models\Role;
-use App\Models\Follower;
 use App\Models\User;
 use App\Traits\ConvertVideos;
 use Carbon\Carbon;
@@ -38,8 +38,8 @@ class InstructorController extends Controller
 
     public function __construct()
     {
-        $path               = storage_path() . "/json/country.json";
-        $this->countries    = json_decode(file_get_contents($path), true);
+        $path            = storage_path() . "/json/country.json";
+        $this->countries = json_decode(file_get_contents($path), true);
     }
 
     public function index(InstructorDataTable $dataTable)
@@ -309,7 +309,7 @@ class InstructorController extends Controller
                 $instructor->update();
                 return response()->json([
                     'instructor' => $instructor,
-                    'message' => 'Profile Picture has been successfully updated'
+                    'message'    => 'Profile Picture has been successfully updated',
                 ], 201);
             }
         } catch (ValidationException $e) {
@@ -319,21 +319,19 @@ class InstructorController extends Controller
         }
     }
 
-
-
     public function update(Request $request, $id)
     {
         if (Auth::user()->can('edit-user')) {
             request()->validate([
-                'name'          => 'required|max:50',
-                'country_code'  => 'required',
-                'dial_code'     => 'required',
-                'phone'         => 'required',
-                'password'      => 'same:password_confirmation',
-                'country'       => 'required',
+                'name'         => 'required|max:50',
+                'country_code' => 'required',
+                'dial_code'    => 'required',
+                'phone'        => 'required',
+                'password'     => 'same:password_confirmation',
+                'country'      => 'required',
             ]);
-            $input          = $request->all();
-            $user           = User::find($id);
+            $input              = $request->all();
+            $user               = User::find($id);
             $user->country_code = $request->country_code;
             $user->dial_code    = $request->dial_code;
             $user->phone        = str_replace(' ', '', $request->phone);
@@ -342,7 +340,7 @@ class InstructorController extends Controller
             if ($currentdate <= $newEndingDate) {
             }
             $user->update($input);
-            if (!empty($request->password)) {
+            if (! empty($request->password)) {
                 $user->password = bcrypt($request->password);
                 $user->save();
             }
@@ -430,15 +428,15 @@ class InstructorController extends Controller
 
     public function userStatus(Request $request, $id)
     {
-        $user   = User::find($id);
-        $input  = ($request->value == "true") ? 1 : 0;
+        $user  = User::find($id);
+        $input = ($request->value == "true") ? 1 : 0;
         if ($user) {
             $user->active_status = $input;
             $user->save();
         }
         return response()->json([
-            'is_success'    => true,
-            'message'       => __('User status changed successfully.')
+            'is_success' => true,
+            'message'    => __('User status changed successfully.'),
         ]);
     }
     public function getAllUsers()
@@ -478,7 +476,7 @@ class InstructorController extends Controller
 
     public function importfun(Request $request)
     {
-        if (Auth::user()->can('create-instructors')) {
+        if (Auth::user()->can('create-influencers')) {
             if (Auth::user()->type == 'Admin') {
                 Excel::import(new InstructorsImport, $request->file('file'));
 

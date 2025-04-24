@@ -304,7 +304,7 @@ class StudentController extends Controller
     }
     public function importfun(Request $request)
     {
-        if (Auth::user()->can('create-instructors')) {
+        if (Auth::user()->can('create-influencers')) {
             if (Auth::user()->type == 'Admin') {
                 Excel::import(new StudentsImport(), $request->file('file'));
 
