@@ -27,8 +27,8 @@ class PurchaseDataTable extends DataTable
                 $query->where('followers.name', 'like', "%{$keyword}%");
             })
             ->editColumn('instructor_name', function ($purchase) {
-                $imageSrc = $purchase->instructor->dp
-                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->instructor->dp)
+                $imageSrc = $purchase->influencer->dp
+                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->influencer->dp)
                 : asset('assets/img/logo/logo.png');
 
                 return '
@@ -40,10 +40,6 @@ class PurchaseDataTable extends DataTable
             ->editColumn('lesson_name', function ($purchase) {
                 $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
                 $lesson_type = $purchase->lesson->type ?? null;
-
-                if ($lesson_type == Lesson::LESSON_TYPE_INPERSON && $purchase->lesson->is_package_lesson) {
-                    $s .= ' - PL'; // Append "- PL" for package lessons
-                }
 
                 $lesson_active_status = $purchase->lesson->active_status;
                 $badgeClass = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';

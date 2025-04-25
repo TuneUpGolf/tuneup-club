@@ -96,7 +96,7 @@ trait PurchaseTrait
                 $application_currency       = $userData?->currency ?? 'usd';
             });
 
-            $instructor      = $purchase?->instructor;
+            $instructor      = $purchase?->influencer;
             $isInstructorUSA = $instructor?->country == 'United States';
 
             Stripe::setApiKey(config('services.stripe.secret'));
@@ -131,7 +131,7 @@ trait PurchaseTrait
                 $success_params['slot_id'] = $slot_id;
             }
 
-            $purchase->load('instructor');
+            $purchase->load('influencer');
 
             $sessionData = [
                 'line_items'          => [[

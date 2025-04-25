@@ -1,4 +1,4 @@
-@if ($purchase->status !== 'complete' && Auth::user()->type == 'Student')
+@if ($purchase->status !== 'complete' && Auth::user()->type == 'Follower')
     @can('create-purchases')
         {!! Form::open([
             'method' => 'POST',
@@ -15,7 +15,7 @@
 @if (
     $purchase->status == 'complete' &&
         $purchase->lesson->lesson_quantity !== $purchase->lessons_used &&
-        Auth::user()->type == 'Student' &&
+        Auth::user()->type == 'Follower' &&
         $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
@@ -25,7 +25,7 @@
         </a>
     @endcan
 @endif
-@if ($purchase->status == 'complete' && Auth::user()->type == 'Student' && $purchase->lesson->type === 'online')
+@if ($purchase->status == 'complete' && Auth::user()->type == 'Follower' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -34,7 +34,7 @@
         </a>
     @endcan
 @endif
-@if ($purchase->status == 'complete' && Auth::user()->type == 'Instructor' && $purchase->lesson->type === 'online')
+@if ($purchase->status == 'complete' && Auth::user()->type == 'Influencer' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"

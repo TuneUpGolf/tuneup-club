@@ -366,6 +366,7 @@ class PurchaseController extends Controller
 
                         SendPushNotification::dispatch($purchase?->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
                     }
+
                     if ($request->checkout == 1) {
                         $request->merge(['purchase_id' => $purchase->id]);
                         $request->setMethod('POST');
@@ -644,6 +645,14 @@ class PurchaseController extends Controller
             return redirect()->back()->with('errors', $e->getMessage());
         }
         {
+            $purchaseVideo = PurchaseVideos::find($request->purchase_video);
+            return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
+        }
+    }
+
+    public function addFeedBackIndex(Request $request)
+    {
+        if (Auth::user()->can('manage-purchases')) {
             $purchaseVideo = PurchaseVideos::find($request->purchase_video);
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
