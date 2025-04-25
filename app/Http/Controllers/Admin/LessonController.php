@@ -78,21 +78,6 @@ class LessonController extends Controller
             ]);
         }
 
-        if ($request->type === Lesson::LESSON_TYPE_INPERSON) {
-            $validatedData = $request->validate([
-                'lesson_name'        => 'required|string|max:255',
-                'lesson_description' => 'required|string',
-                'lesson_price'       => 'required|numeric',
-                'lesson_duration'    => 'required|numeric',
-                'payment_method'     => ['required', 'in:online,cash,both'],
-                'slots'              => 'array',
-                'max_students'       => 'required|integer|min:1',
-                'is_package_lesson'  => 'string',
-            ]);
-            $validatedData['lesson_quantity']                                                                                               = 1;
-            $validatedData['required_time']                                                                                                 = 0;
-            ! empty($validatedData['is_package_lesson']) && $validatedData['is_package_lesson'] == "1" ? $validatedData['is_package_lesson'] = true : $validatedData['is_package_lesson'] = false;
-        }
         // Assuming 'created_by' is the ID of the currently authenticated instructor
         $validatedData['created_by']     = Auth::user()->id;
         $validatedData['type']           = $request->type;

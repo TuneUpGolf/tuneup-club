@@ -281,11 +281,6 @@
                                         <a class="dash-link"
                                             href="{{ route('lesson.create', ['type' => 'online']) }}">{{ __('Create Lesson') }}</a>
                                     </li>
-                                    <li
-                                        class="dash-item {{ request()->is('lesson/create?type=inPerson') ? 'active' : '' }}">
-                                        <a class="dash-link"
-                                            href="{{ route('lesson.create', ['type' => 'inPerson']) }}">{{ __('Create In-Person Lesson') }}</a>
-                                    </li>
                                 </ul>
                             </li>
                         @endcan
