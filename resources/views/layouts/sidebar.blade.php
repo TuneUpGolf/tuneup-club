@@ -270,11 +270,6 @@
                                             <a class="dash-link"
                                                 href="{{ route('slot.manage') }}">{{ __('Admin Bookings') }}</a>
                                         </li>
-                                    @else
-                                        <li class="dash-item {{ request()->is('lesson/manage/slot') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('slot.manage') }}">{{ __('All Slots') }}</a>
-                                        </li>
                                     @endif
                                     <li
                                         class="dash-item {{ request()->is('lesson/create?type=online') ? 'active' : '' }}">
