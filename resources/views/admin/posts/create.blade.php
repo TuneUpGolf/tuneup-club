@@ -1,9 +1,9 @@
 @extends('layouts.main')
 @section('title', __('Create Post'))
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('blogs.index') }}">{{ __('Posts') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Create Posts') }}</li>
+<li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+<li class="breadcrumb-item"><a href="{{ route('blogs.index') }}">{{ __('Posts') }}</a></li>
+<li class="breadcrumb-item">{{ __('Create Posts') }}</li>
 @endsection
 @section('content')
     <div class="main-content">
@@ -42,10 +42,18 @@
                                         'required' => 'required',
                                     ]) !!}
                                 </div>
-
+                                <div class="form-group">
+                                {{ Form::label('lessons', __('Select Lessons'), ['class' => 'form-label']) }}
+                                {!! Form::select('lessons[]', $lessons, null, [
+                                'class' => 'form-control',
+                                'multiple' => true, // Enable multi-select
+                                'required' => true,
+                                'data-trigger' => true // Enable Choices.js enhancement
+                                ]) !!}
+                            </div>
                             </div>
                             <div class="col-xl-6">
-                                @if (Auth::user()->type != 'Student')
+                                @if (Auth::user()->type != 'Follower')
                                     <div class="form-group flex flex-col">
                                         {{ Form::label('Paid', __('Paid *'), ['class' => 'form-label']) }}
                                         {!! Form::checkbox('paid', null, true, [
@@ -88,14 +96,16 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            var genericExamples = document.querySelectorAll('[data-trigger]');
-            for (i = 0; i < genericExamples.length; ++i) {
-                var element = genericExamples[i];
-                new Choices(element, {
-                    placeholderValue: 'This is a placeholder set in the config',
-                    searchPlaceholderValue: 'This is a search placeholder',
-                });
-            }
-        });
+        var genericExamples = document.querySelectorAll('[data-trigger]');
+        for (var i = 0; i < genericExamples.length; ++i) {
+            var element = genericExamples[i];
+            new Choices(element, {
+                placeholderValue: element.getAttribute('placeholder') || 'Select an option',
+                searchPlaceholderValue: 'Search...',
+                removeItemButton: element.multiple ? true : false,
+                shouldSort: false,
+            });
+        }
+    });
     </script>
 @endpush

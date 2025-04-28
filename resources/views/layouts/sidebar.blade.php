@@ -270,11 +270,21 @@
                                             <a class="dash-link"
                                                 href="{{ route('slot.manage') }}">{{ __('Admin Bookings') }}</a>
                                         </li>
+                                    @else
+                                        <li class="dash-item {{ request()->is('lesson/manage/slot') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('slot.manage') }}">{{ __('All Slots') }}</a>
+                                        </li>
                                     @endif
                                     <li
                                         class="dash-item {{ request()->is('lesson/create?type=online') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('lesson.create', ['type' => 'online']) }}">{{ __('Create Lesson') }}</a>
+                                    </li>
+                                    <li
+                                        class="dash-item {{ request()->is('lesson/create?type=inPerson') ? 'active' : '' }}">
+                                        <a class="dash-link"
+                                            href="{{ route('lesson.create', ['type' => 'inPerson']) }}">{{ __('Create In-Person Lesson') }}</a>
                                     </li>
                                 </ul>
                             </li>
@@ -349,23 +359,27 @@
                                 <span class="pl-6 text-l font-thin">{{ __('Post') }}</span><span class="dash-arrow"><i
                                         data-feather="chevron-right"></i></span></a>
                             <ul class="dash-submenu">
+                            @if (Auth::user()->type === 'Influencer' || Auth::user()->type === 'Admin')
                                 @can('create-blog')
                                     <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
                                     </li>
                                 @endcan
+                            @endif
                                 @can('manage-blog')
                                     <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
                                         <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
                                     </li>
                                 @endcan
+                            @if (Auth::user()->type === 'Influencer' || Auth::user()->type === 'Admin')
                                 @can('manage-blog')
                                     <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
                                     </li>
                                 @endcan
+                            @endif
                                 @if ($users->type == 'Admin')
                                     @can('manage-blog')
                                         <li class="dash-item {{ request()->is('blogs/manage/report') ? 'active' : '' }}">

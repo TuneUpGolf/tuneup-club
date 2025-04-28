@@ -102,7 +102,7 @@ class TenantDatabaseSeeder extends Seeder
             'name' => 'influencer'
         ]);
         $studentRole = Role::firstOrCreate([
-            'name' => 'Student'
+            'name' => 'Follower'
         ]);
 
 

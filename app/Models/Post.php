@@ -28,7 +28,7 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function student()
+    public function follower()
     {
         return $this->belongsTo(Follower::class);
     }
@@ -43,5 +43,12 @@ class Post extends Model
     public function purchasePost(): HasMany
     {
         return $this->hasMany(PurchasePost::class);
+    }
+
+    public function lessons()
+    {
+        return $this->belongsToMany(Lesson::class, 'post_lesson')
+            ->withPivot('created_by')
+            ->withTimestamps();
     }
 }

@@ -8,8 +8,10 @@ use App\DataTables\Admin\ReportedPostDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Resources\PostAPIResource;
 use App\Models\Category;
+use App\Models\Lesson;
 use App\Models\LikePost;
 use App\Models\Post;
+use App\Models\PostLesson;
 use App\Models\ReportPost;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -32,7 +34,7 @@ class PostsController extends Controller
                 case ('paid'):
                     $posts = $posts->where('paid', true);
                     break;
-                case ('student'):
+                case ('follower'):
                     $posts = $posts->where('isFollowerPost', true);
                     break;
                 case ('instructor'):
@@ -40,7 +42,7 @@ class PostsController extends Controller
             }
             $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
             $posts->load('influencer');
-            $posts->load('student');
+            $posts->load('follower');
             return view('admin.posts.infinite', compact('posts'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -67,8 +69,9 @@ class PostsController extends Controller
         $plans          = json_decode($settingData, true);
 
         if (Auth::user()->can('create-blog')) {
-            $category   = Category::where('status', 1)->pluck('name', 'id');
-            return  view('admin.posts.create', compact('category'));
+            $category = Category::where('status', 1)->pluck('name', 'id');
+            $lessons = Lesson::where('active_status', 1)->pluck('lesson_name', 'id');
+            return view('admin.posts.create', compact('category', 'lessons'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -99,8 +102,32 @@ class PostsController extends Controller
                     $post['file'] = $request->file('file')->store('posts');
                     $post['file_type'] = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
                 }
-                $post->update();
-                return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
+    
+               
+                $post->save();
+                $postId = $post->id;
+                
+                $postExists = Post::find($postId);
+                if ($request->has('lessons') && is_array($request->lessons)) {
+    
+
+
+                    foreach ($request->lessons as $lessonId) {
+                        $lessonExists = Lesson::find($lessonId);
+                        if (!$postExists || !$lessonExists) {
+                            return response()->json(['error' => 'Invalid post or lesson ID.'], 400);
+                        }
+                        
+                        PostLesson::create([
+                            'post_id' => $postId,
+                            'lesson_id' => $lessonId,
+                            'created_by' => Auth::id()
+                        ]);
+                        return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
+                    }
+                } else {
+                    return response()->json(['error' => 'No lessons selected.']);
+                }
             } catch (ValidationException $e) {
                 return response()->json(['error' => 'Validation failed.', 'message' => $e->errors()], 422);
             } catch (\Exception $e) {
@@ -128,7 +155,7 @@ class PostsController extends Controller
             request()->validate([
                 'title'         => 'required|max:50',
                 'description'   => 'required',
-                'short_description' => 'required',
+                // 'short_description' => 'required',
             ]);
             $post   = Post::find($id);
             if ($request->hasFile('file')) {
@@ -139,7 +166,7 @@ class PostsController extends Controller
             $post->paid                 = $request?->paid == 'on' ? true : false;
             $post->price                = $request?->paid == 'on' ? $request?->price : 0;
             $post->description          = $request->description;
-            $post->short_description    = $request->short_description;
+            // $post->short_description    = $request->short_description;
 
             $post->save();
             return redirect()->route('blogs.index')->with('success', __('Posts updated successfully'));

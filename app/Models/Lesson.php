@@ -60,4 +60,11 @@ class Lesson extends Model
     {
         return $this->hasMany(Purchase::class, 'lesson_id');
     }
+
+    public function posts()
+    {
+        return $this->belongsToMany(Post::class, 'post_lesson')
+            ->withPivot('created_by', 'type')
+            ->withTimestamps();
+    }
 }

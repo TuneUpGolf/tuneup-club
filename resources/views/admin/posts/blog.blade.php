@@ -15,7 +15,7 @@
                     {{ ucfirst($post->isFollowerPost ? $post?->follower?->name : $post?->instructor?->name) }}
                     </p>
                     <span class="text-xs italic text-gray-600">
-                        {{ $post->isFollowerPost ? 'Student' : 'Instructor' }}
+                        {{ $post->isFollowerPost ? 'Follower' : 'Instructor' }}
                     </span>
                 </div>
             </div>
