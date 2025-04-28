@@ -38,17 +38,17 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
+                $s           = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
                 $lesson_type = $purchase->lesson->type ?? null;
 
                 $lesson_active_status = $purchase->lesson->active_status;
-                $badgeClass = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
+                $badgeClass           = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
 
                 // Check if lesson is deleted
-                $deletedText = !$lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
+                $deletedText = ! $lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
 
                 // Truncate lesson name if it exceeds 16 characters
-                $lessonName = e($purchase->lesson_name);
+                $lessonName          = e($purchase->lesson_name);
                 $truncatedLessonName = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
                 return '
@@ -59,8 +59,8 @@ class PurchaseDataTable extends DataTable
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->student->dp
-                    ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->student->dp)
-                    : asset('assets/img/logo/logo.png');
+                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->student->dp)
+                : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -69,7 +69,7 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->addColumn('status', function ($purchase) {
-                $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
+                $s           = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
                 $statusClass = $purchase->status == Purchase::STATUS_COMPLETE ? 'bg-green-600' : 'bg-red-600';
 
                 return '<label class="badge rounded-pill ' . $statusClass . ' p-2 px-3">' . e($s) . '</label>';
@@ -83,17 +83,16 @@ class PurchaseDataTable extends DataTable
             ->rawColumns(['action', 'status', 'follower_name', 'instructor_name', 'lesson_name']);
     }
 
-
     public function query(Purchase $model)
     {
         $user = Auth::user();
 
         $query = $model->newQuery()
             ->select([
-                'purchases.*',  // Select all purchase fields
+                'purchases.*',                         // Select all purchase fields
                 'lessons.lesson_name as lesson_name',  // Get lesson name
                 'instructors.name as instructor_name', // Get instructor name
-                'followers.name as follower_name' // Get student name
+                'followers.name as follower_name',     // Get student name
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as instructors', 'purchases.influencer_id', '=', 'instructors.id')
@@ -129,9 +128,6 @@ class PurchaseDataTable extends DataTable
         return $query;
     }
 
-
-
-
     public function html()
     {
         $buttons = [
@@ -148,13 +144,13 @@ class PurchaseDataTable extends DataTable
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
-                "paginate" => [
-                    "next" => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>'
+                "paginate"          => [
+                    "next"     => '<i class="ti ti-chevron-right"></i>',
+                    "previous" => '<i class="ti ti-chevron-left"></i>',
                 ],
-                'lengthMenu' => __('_MENU_ entries per page'),
+                'lengthMenu'        => __('_MENU_ entries per page'),
                 "searchPlaceholder" => __('Search'),
-                'search' => ''
+                'search'            => '',
             ])
             ->initComplete('function() {
                 var table = this;
@@ -164,15 +160,15 @@ class PurchaseDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
-                "dom" =>  "
+                "dom"            => "
                 <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
                 <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                 <'dataTable-container'<'col-sm-12'tr>>
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>
                 ",
-                'buttons'   => $buttons,
-                "scrollX" => true,
+                'buttons'        => $buttons,
+                "scrollX"        => true,
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -181,12 +177,12 @@ class PurchaseDataTable extends DataTable
                         "border":"none",
                     });
                 }',
-                'rowCallback' => 'function(row, data, index) {
+                'rowCallback'    => 'function(row, data, index) {
                     // Make the first column bold
                     $("td", row).css("font-family", "Helvetica");
                     $("td", row).css("font-weight", "300");
                 }',
-                "drawCallback" => 'function( settings ) {
+                "drawCallback"   => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
                       );
@@ -203,26 +199,31 @@ class PurchaseDataTable extends DataTable
                       var toastList = toastElList.map(function (toastEl) {
                         return new bootstrap.Toast(toastEl);
                       });
-                }'
+                }',
             ])->language([
-                'buttons' => [
-                    'create' => __('Choose Your Coach'),
-                    'print' => __('Print'),
-                    'reset' => __('Reset'),
-                    'reload' => __('Reload'),
-                    'excel' => __('Excel'),
-                    'csv' => __('CSV'),
-                ]
-            ]);
+            'buttons' => [
+                'create' => __('Choose Your Coach'),
+                'print'  => __('Print'),
+                'reset'  => __('Reset'),
+                'reload' => __('Reload'),
+                'excel'  => __('Excel'),
+                'csv'    => __('CSV'),
+            ],
+        ]);
     }
 
     protected function getColumns()
     {
-        return [
+        $columns = [
             Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('lesson_name')->title(__('Lesson'))->searchable(false),
-            Column::make('instructor_name')->title(__('Instructor'))->searchable(true),
-            Column::make('follower_name')->title("Student")->searchable(true),
+        ];
+        if (Auth::user()->type == Role::ROLE_INFLUENCER) {
+            $columns[] = Column::make('follower_name')->title("Follower")->searchable(true);
+        } elseif (Auth::user()->type == Role::ROLE_FOLLOWER) {
+            $columns[] = Column::make('instructor_name')->title(__('Influencer'))->searchable(true);
+        }
+        return array_merge($columns, [
             Column::make('status')->title(__('Payment Status')),
             Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
             Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
@@ -232,7 +233,7 @@ class PurchaseDataTable extends DataTable
                 ->width(60)
                 ->addClass('text-center')
                 ->width('20%'),
-        ];
+        ]);
     }
 
     protected function filename(): string
