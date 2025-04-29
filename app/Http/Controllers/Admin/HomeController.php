@@ -48,7 +48,16 @@ class HomeController extends Controller
         $supports       = tenancy()->central(fn($tenant) => SupportTicket::where('tenant_id', $tenant->id)->latest()->take(7)->get());
 
         if ($userType == Role::ROLE_FOLLOWER) {
-            return $this->studentDashboard($dataTable, $user);
+            return $this->studentDashboard([
+                'dataTable'      => $dataTable,
+                'user'           => $user,
+                'paymentTypes'   => $paymentTypes,
+                'documents'      => $documents,
+                'documentsDatas' => $documentsDatas,
+                'posts'          => $posts,
+                'events'         => $events,
+                'supports'       => $supports,
+            ]);
         }
 
         // Fetch Plan Expiration
@@ -131,8 +140,17 @@ class HomeController extends Controller
     }
 
     // Student Dashboard
-    private function studentDashboard($datatable, $user)
+    private function studentDashboard($data)
     {
+        $datatable      = $data['dataTable'];
+        $user           = $data['user'];
+        $paymentTypes   = $data['paymentTypes'];
+        $documents      = $data['documents'];
+        $documentsDatas = $data['documentsDatas'];
+        $posts          = $data['posts'];
+        $events         = $data['events'];
+        $supports       = $data['supports'];
+
         $purchaseComplete   = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->count();
         $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
         $inPersonCompleted  = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
