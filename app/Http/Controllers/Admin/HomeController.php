@@ -1,8 +1,8 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\Admin\LessonDataTable;
 use App\DataTables\Admin\SalesDataTable;
+use App\DataTables\Admin\UpcomingLessonDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentGenrator;
@@ -33,7 +33,7 @@ class HomeController extends Controller
         });
         return view('welcome', compact('plans'));
     }
-    public function index(LessonDataTable $dataTable)
+    public function index(UpcomingLessonDataTable $dataTable)
     {
         $user     = Auth::user();
         $userType = $user->type;
@@ -48,7 +48,7 @@ class HomeController extends Controller
         $supports       = tenancy()->central(fn($tenant) => SupportTicket::where('tenant_id', $tenant->id)->latest()->take(7)->get());
 
         if ($userType == Role::ROLE_FOLLOWER) {
-            return $this->studentDashboard($user, $paymentTypes, $documents, $documentsDatas, $posts, $events, $supports);
+            return $this->studentDashboard($dataTable, $user);
         }
 
         // Fetch Plan Expiration
@@ -89,28 +89,7 @@ class HomeController extends Controller
 
         [$purchaseComplete, $purchaseInprogress] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_ONLINE);
         [$inPersonCompleted, $inPersonPending]   = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_INPERSON);
-        // return $dataTable->render('admin.dashboard.home', compact(
-        //     'user',
-        //     'userType',
-        //     'instructor',
-        //     'students',
-        //     'lessons',
-        //     'planExpiredDate',
-        //     'earning',
-        //     'paymentTypes',
-        //     'documents',
-        //     'documentsDatas',
-        //     'posts',
-        //     'events',
-        //     'supports',
-        //     'purchaseComplete',
-        //     'purchaseInprogress',
-        //     'inPersonCompleted',
-        //     'inPersonPending',
-        //     'instructorStats'
-        // ));
-        // dd($lessons);
-        return view('admin.dashboard.home', compact(
+        return $dataTable->render('admin.dashboard.home', compact(
             'user',
             'userType',
             'instructor',
@@ -123,7 +102,6 @@ class HomeController extends Controller
             'documentsDatas',
             'posts',
             'events',
-            'influencerLesson',
             'supports',
             'purchaseComplete',
             'purchaseInprogress',
@@ -153,13 +131,13 @@ class HomeController extends Controller
     }
 
     // Student Dashboard
-    private function studentDashboard($user, $paymentTypes, $documents, $documentsDatas, $posts, $events, $supports)
+    private function studentDashboard($datatable, $user)
     {
         $purchaseComplete   = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->count();
         $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
         $inPersonCompleted  = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
         $inPersonPending    = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', false)->count();
-        return view('admin.dashboard.home', compact(
+        return $datatable->render('admin.dashboard.home', compact(
             'user',
             'paymentTypes',
             'documents',

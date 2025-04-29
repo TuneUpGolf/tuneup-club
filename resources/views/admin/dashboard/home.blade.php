@@ -83,51 +83,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card1  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center text-center">
-                                    <div class="mb-6">
-                                        <svg width="34" height="34" viewBox="0 0 35 35" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M4.5727 30.357H32.906C33.9492 30.357 34.7949 31.2027 34.7949 32.2459C34.7949 33.2891 33.9492 34.1348 32.906 34.1348H2.68381C1.64061 34.1348 0.794922 33.2891 0.794922 32.2459V2.02365C0.794922 0.98045 1.64061 0.134766 2.68381 0.134766C3.72702 0.134766 4.5727 0.98045 4.5727 2.02365V30.357Z"
-                                                fill="#4AD991" />
-                                            <path opacity="0.5"
-                                                d="M11.6204 22.2038C10.9069 22.9648 9.71158 23.0034 8.95052 22.2899C8.18947 21.5764 8.15091 20.381 8.8644 19.62L15.9477 12.0644C16.6378 11.3284 17.7844 11.2646 18.5519 11.9195L24.1425 16.6901L31.4265 7.46364C32.0729 6.64485 33.2607 6.50511 34.0795 7.15153C34.8983 7.79794 35.038 8.98573 34.3916 9.80452L25.8916 20.5712C25.2277 21.4122 23.998 21.5331 23.183 20.8376L17.4709 15.9633L11.6204 22.2038Z"
-                                                fill="#4AD991" />
-                                        </svg>
-                                    </div>
-                                    <p class="font-sans font-thin mb-0">{{ __('In Person') }}</p>
-                                    <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
-                                </div>
-                                <p class="mb-0 font-sans font-thin bg-card-text text-xl"> {{ $inPersonCompleted }} </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-6 p-2">
-                        <div class="relative flex flex-col bg-card4  rounded-lg w-96 min-h-card">
-                            <div class="p-4 flex flex-col justify-center items-center">
-                                <div class="flex flex-col justify-center items-center">
-                                    <div class="mb-6">
-                                        <svg width="33" height="35" viewBox="0 0 33 35" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path opacity="0.48" fill-rule="evenodd" clip-rule="evenodd"
-                                                d="M14.87 10.6994C14.89 10.4389 15.1072 10.2378 15.3685 10.2378H16.0146C16.2714 10.2378 16.4865 10.4324 16.5121 10.688L17.2478 18.0456L22.4614 21.0248C22.6172 21.1139 22.7133 21.2795 22.7133 21.459V22.0757C22.7133 22.4054 22.3999 22.6449 22.0818 22.5581L14.5234 20.4967C14.292 20.4336 14.138 20.2151 14.1564 19.976L14.87 10.6994Z"
-                                                fill="#FEC53D" />
-                                            <path opacity="0.901274" fill-rule="evenodd" clip-rule="evenodd"
-                                                d="M7.83134 0.313688C7.56724 -0.00106104 7.0573 0.119411 6.96197 0.519073L4.98275 8.81675C4.90507 9.1424 5.16314 9.4509 5.49739 9.43196L14.0333 8.94824C14.4442 8.92496 14.6526 8.44293 14.388 8.12765L12.1686 5.48265C13.5334 5.01605 14.9807 4.77234 16.4668 4.77234C23.7975 4.77234 29.7402 10.715 29.7402 18.0457C29.7402 25.3764 23.7975 31.319 16.4668 31.319C9.13614 31.319 3.19345 25.3764 3.19345 18.0457C3.19345 16.8151 3.36011 15.6097 3.68505 14.4513L0.677972 13.6078C0.282053 15.0193 0.0703125 16.5077 0.0703125 18.0457C0.0703125 27.1012 7.41127 34.4422 16.4668 34.4422C25.5223 34.4422 32.8633 27.1012 32.8633 18.0457C32.8633 8.99016 25.5223 1.6492 16.4668 1.6492C14.1883 1.6492 12.0184 2.11394 10.0467 2.9538L7.83134 0.313688Z"
-                                                fill="#FEC53D" />
-                                        </svg>
-                                    </div>
-                                    <p class="font-sans font-thin mb-0">{{ __('In Person') }}</p>
-                                    <span class="font-roboto font-semibold"> {{ __('Upcoming  Lessons') }} </span>
-                                </div>
-                                <p class="mb-0 font-sans font-thin bg-card4-text text-xl">
-                                    {{ $inPersonPending }} </p>
-                            </div>
-                        </div>
-                    </div>
                 @endcan
                 @can('manage-followers')
                     <div class="col-lg-2 col-6 p-2">
@@ -188,17 +143,6 @@
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="row">
-                        <div class="col-xl-12">
-                            <div class="card">
-                                <div class="card-body table-border-style">
-                                    <div class="table-responsive">
-                                        {{ $dataTable->table(['width' => '100%']) }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                 @endif
             </div>
 
@@ -229,46 +173,18 @@
                 </div>
             @endif
 
-            @if (Auth::user()->type == 'Influencer')
-                <div class="card dash-supports mt-2">
-                    <div class="card-header">
-                        <h5>{{ __('Upcoming Lesson') }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>{{ __('Influencer') }}</th>
-                                        <th>{{ __('Name') }}</th>
-                                        <th>{{ __('Price') }}</th>
-                                        <th>{{ __('Quantity') }}</th>
-                                        <th>{{ __('Created At') }}</th>
-                                        <th>{{ __('Type') }}</th>
-                                        <th>{{ __('Action') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($influencerLesson as $lesson)
-                                        <tr>
-                                            <td>{{ $lesson->name }}</td>
-                                            <td>{{ $lesson->lesson_name }}</td>
-                                            <td>${{ $lesson->lesson_price }}</td>
-                                            <td>{{ $lesson->lesson_quantity }}</td>
-                                            <td>{{ $lesson->created_at }}</td>
-                                            <td>{{ $lesson->type }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="text-center">{{ __('No upcomming lesson available') }}
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+            @if (Auth::user()->type == 'Influencer' || Auth::user()->type == 'Follower')
+                <div class="row">
+                        <div class="col-xl-12">
+                            <div class="card">
+                                <div class="card-body table-border-style">
+                                    <div class="table-responsive">
+                                        {{ $dataTable->table(['width' => '100%']) }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
             @endif
 
             @if (Auth::user()->type == 'Admin')
@@ -317,11 +233,11 @@
     @endsection
     @push('css')
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/daterangepicker/daterangepicker.css') }}">
-        {{-- @include('layouts.includes.datatable_css') --}}
+        @include('layouts.includes.datatable_css')
     @endpush
     @push('javascript')
-        {{-- @include('layouts.includes.datatable_js')
-        {{ $dataTable->scripts() }} --}}
+        @include('layouts.includes.datatable_js')
+        {{ $dataTable->scripts() }}
         <script src="{{ asset('vendor/modules/moment.min.js') }}"></script>
         <script src="{{ asset('assets/js/plugins/apexcharts.min.js') }}"></script>
         <script src="{{ asset('vendor/daterangepicker/daterangepicker.min.js') }}"></script>
