@@ -110,8 +110,8 @@ class FollowerPurchaseDataTable extends DataTable
     public function html()
     {
         $buttons = [
-            // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-            // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+            ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+            ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             unset($buttons[0]);
@@ -122,15 +122,14 @@ class FollowerPurchaseDataTable extends DataTable
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
-            ->searching(false)  // Disable search functionality
             ->language([
                 "paginate"          => [
                     "next"     => '<i class="ti ti-chevron-right"></i>',
                     "previous" => '<i class="ti ti-chevron-left"></i>',
                 ],
                 'lengthMenu'        => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search'),  // You can leave this as is, but it won't show anything
-                'search'            => '',  // Empty search text
+                "searchPlaceholder" => __('Search'),
+                'search'            => '',
             ])
             ->initComplete('function() {
                 var table = this;
@@ -181,15 +180,15 @@ class FollowerPurchaseDataTable extends DataTable
                       });
                 }',
             ])->language([
-                'buttons' => [
-                    'create' => __('Choose Your Coach'),
-                    'print'  => __('Print'),
-                    'reset'  => __('Reset'),
-                    'reload' => __('Reload'),
-                    'excel'  => __('Excel'),
-                    'csv'    => __('CSV'),
-                ],
-            ]);
+            'buttons' => [
+                'create' => __('Choose Your Coach'),
+                'print'  => __('Print'),
+                'reset'  => __('Reset'),
+                'reload' => __('Reload'),
+                'excel'  => __('Excel'),
+                'csv'    => __('CSV'),
+            ],
+        ]);
     }
     protected function getColumns()
     {

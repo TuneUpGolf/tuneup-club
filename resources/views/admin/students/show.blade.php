@@ -10,26 +10,20 @@
 @section('content')
 <div class="row">
     {{-- Profile Card --}}
-    <!-- <div class="col-xl-9"> -->
-    <div class="col-xl-9 mx-auto">
-    <!-- <div class="col-xl-12"> -->
+
+    <div class="col-xl-12">
         <div id="useradd-1" class="text-white card bg-primary mb-4">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <div class="me-3">
-                            <img src="{{ $follower->avatar_image }}" class="img-user wid-80 rounded-circle" alt="Avatar">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" class="img-user wid-80 rounded-circle" alt="Avatar">
                         </div>
                         <div>
                             <h4 class="mb-1 text-white">{{ $follower->name }}</h4>
                             <p class="mb-0 text-sm text-white-50">{{ $follower->email }}</p>
                             <p class="mb-0 text-sm text-white-50">{{ $follower->name }}</p>
                         </div>
-                    </div>
-                    <div class="ms-auto">
-                        <a href="#" class="text-white" title="Chat">
-                            <i class="fas fa-comment-dots fa-2x"></i>
-                        </a>
                     </div>
                 </div>
             </div>
