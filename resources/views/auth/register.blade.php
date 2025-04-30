@@ -139,14 +139,6 @@
                         {!! Form::hidden('country_code', null, []) !!}
                         {!! Form::hidden('dial_code', null, []) !!}
                     </div>
-                     <div class="form-group">
-                        {{ Form::label('type', __('Type'), ['class' => 'form-label']) }}
-                        {!! Form::select('type', ['Follower' => 'Follower', 'Influencer' => 'Influencer'], null, [
-                            'class' => 'form-control-new',
-                            'data-trigger',
-                            'placeholder' => __('User Type'),
-                        ]) !!}
-                    </div> 
 
                     <div class="form-check check-box">
                         <label class="switch">
