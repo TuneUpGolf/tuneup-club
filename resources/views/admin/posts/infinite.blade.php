@@ -32,10 +32,6 @@
                                 class="dropdown-item {{ request()->query('filter') === 'instructor' ? 'active' : '' }}">
                                 <span>{{ __('Instructor') }}</span>
                             </a>
-                            <a href="{{ route('blogs.index', ['filter' => 'student']) }}"
-                                class="dropdown-item {{ request()->query('filter') === 'student' ? 'active' : '' }}">
-                                <span>{{ __('Student') }}</span>
-                            </a>
                         </div>
                     </div>
                     <div class="mx-auto container">

@@ -34,9 +34,6 @@ class PostsController extends Controller
                 case ('paid'):
                     $posts = $posts->where('paid', true);
                     break;
-                case ('follower'):
-                    $posts = $posts->where('isFollowerPost', true);
-                    break;
                 case ('instructor'):
                     $posts = $posts->where('isFollowerPost', false);
             }
