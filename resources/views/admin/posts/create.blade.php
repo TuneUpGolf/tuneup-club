@@ -42,15 +42,6 @@
                                         'required' => 'required',
                                     ]) !!}
                                 </div>
-                                <div class="form-group">
-                                {{ Form::label('lessons', __('Select Lessons'), ['class' => 'form-label']) }}
-                                {!! Form::select('lessons[]', $lessons, null, [
-                                'class' => 'form-control',
-                                'multiple' => true, // Enable multi-select
-                                'required' => true,
-                                'data-trigger' => true // Enable Choices.js enhancement
-                                ]) !!}
-                            </div>
                             </div>
                             <div class="col-xl-6">
                                 @if (Auth::user()->type != 'Follower')

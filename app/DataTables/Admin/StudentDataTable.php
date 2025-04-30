@@ -132,12 +132,6 @@ class StudentDataTable extends DataTable
                 ->where('type', 'Follower')
                 ->where('isGuest', false);
 
-            if (auth()->user()->type === 'Influencer') {
-                $query->whereHas('follows', function ($q) {
-                    $q->where('influencer_id', auth()->id())
-                        ->where('active_status', 1);
-                });
-            }
             return $query;
         }
     }

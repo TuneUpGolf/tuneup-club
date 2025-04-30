@@ -56,6 +56,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'stripe_account_id',
         'application_fee_percentage',
         'is_stripe_connected',
+        'banner_image',
     ];
 
     protected $hidden = [

@@ -37,7 +37,6 @@ class RegisteredUserController extends Controller
             'name' => 'required|max:255',
             'email' => 'required|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'type' => 'required'
         ]);
         $user = Follower::create([
             'name' => $request->name,
@@ -45,7 +44,7 @@ class RegisteredUserController extends Controller
             'uuid' => Str::uuid(),
             'password' => Hash::make($request->password),
             'tenant_id' => tenant('id'),
-            'type' => $request->type,
+            'type' => Role::ROLE_FOLLOWER,
             'created_by' => 'signup',
             'email_verified_at' => (UtilityFacades::getsettings('email_verification') == '1') ? null : Carbon::now()->toDateTimeString(),
             'country_code' => $request->country_code,
@@ -55,7 +54,7 @@ class RegisteredUserController extends Controller
             'lang' => 'en',
             'active_status' => 1
         ]);
-        $user->assignRole($request->type);
+        $user->assignRole(Role::ROLE_FOLLOWER);
         SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
 
         // else {

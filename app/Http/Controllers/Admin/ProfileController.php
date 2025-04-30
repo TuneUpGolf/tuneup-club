@@ -14,6 +14,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use File;
+use Illuminate\Support\Facades\File as FacadesFile;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -93,7 +94,7 @@ class ProfileController extends Controller
         if ($userDetail->type === Role::ROLE_INFLUENCER) {
             $user = User::find(Auth::id());
         } else {
-            $user = Student::find(Auth::id());
+            $user = Follower::find(Auth::id());
         }
 
         request()->validate([
@@ -142,7 +143,78 @@ class ProfileController extends Controller
         $user->save();
         return redirect()->back()->with('success', __('Account details updated successfully.'));
     }
+    // public function BannerDetails(Request $request)
+    // {
+    //     $userDetail = Auth::user();
+    //     $user = User::findOrFail($userDetail['id']);
 
+    //     $request->validate([
+    //         'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    //     ]);
+
+    //     if ($request->hasFile('banner_image')) {
+
+
+    //         // Delete old banner if it exists
+    //         if (!empty($user->banner_image) && Storage::disk('public')->exists($user->banner_image)) {
+    //             Storage::disk('public')->delete($user->banner_image);
+    //         }
+
+    //         // Store new banner
+    //         $bannerPath = $request->file('banner_image')->store('banners', 'public');
+    //         $user->banner_image = $bannerPath;
+
+    //     }
+
+    //     $user->save();
+
+    //     return redirect()->back()->with('success', __('Banner image updated successfully.'));
+    // }
+    public function BannerDetails(Request $request)
+    {
+        $request->validate([
+            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $userDetail = Auth::user();
+        $user = User::findOrFail($userDetail['id']);
+        $tenantId = $user->tenant_id;
+
+        if ($request->hasFile('banner_image')) {
+            $file = $request->file('banner_image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $relativePath = 'banners/' . $fileName;
+    
+            // Full dynamic path: storage/{tenant_id}/app/public/banners/filename.png
+            $fullStoragePath = base_path("storage/{$tenantId}/app/public/banners");
+    
+            // Ensure the directory exists
+            if (!FacadesFile::exists($fullStoragePath)) {
+                FacadesFile::makeDirectory($fullStoragePath, 0755, true);
+            }
+    
+            // Save file content
+            $img = file_get_contents($file->getRealPath());
+            file_put_contents($fullStoragePath . '/' . $fileName, $img);
+    
+            // Optional: delete old image
+            $oldImagePath = base_path("storage/{$tenantId}/app/public/") . $user->banner_image;
+            if (!empty($user->banner_image) && FacadesFile::exists($oldImagePath)) {
+                FacadesFile::delete($oldImagePath);
+            }
+    
+            // Save relative path in DB
+            $user->update([
+                'banner_image' => $relativePath,
+            ]);
+    
+            return redirect()->back()->with('success', __('Banner image updated successfully.'));
+        }
+
+        return redirect()->back()->with('error', __('No image file selected.'));
+    }
+    
+    
     public function LoginDetails(Request $request)
     {
         $userDetail = Auth::user();

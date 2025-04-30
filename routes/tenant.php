@@ -265,6 +265,8 @@ Route::middleware([
         Route::post('update-avatar', [ProfileController::class, 'updateAvatar'])->name('update.avatar');
         Route::post('profile/basicinfo/update/', [ProfileController::class, 'BasicInfoUpdate'])->name('profile.update.basicinfo');
         Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
+        Route::post('update-banner-image', [ProfileController::class, 'BannerDetails'])->name('update.banner.image');
+
 
         //setting
         Route::get('settings', [SettingsController::class, 'index'])->name('settings');

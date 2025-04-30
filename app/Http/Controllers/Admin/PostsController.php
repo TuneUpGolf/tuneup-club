@@ -67,8 +67,7 @@ class PostsController extends Controller
 
         if (Auth::user()->can('create-blog')) {
             $category = Category::where('status', 1)->pluck('name', 'id');
-            $lessons = Lesson::where('active_status', 1)->pluck('lesson_name', 'id');
-            return view('admin.posts.create', compact('category', 'lessons'));
+            return view('admin.posts.create', compact('category'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -99,32 +98,8 @@ class PostsController extends Controller
                     $post['file'] = $request->file('file')->store('posts');
                     $post['file_type'] = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
                 }
-    
-               
-                $post->save();
-                $postId = $post->id;
-                
-                $postExists = Post::find($postId);
-                if ($request->has('lessons') && is_array($request->lessons)) {
-    
-
-
-                    foreach ($request->lessons as $lessonId) {
-                        $lessonExists = Lesson::find($lessonId);
-                        if (!$postExists || !$lessonExists) {
-                            return response()->json(['error' => 'Invalid post or lesson ID.'], 400);
-                        }
-                        
-                        PostLesson::create([
-                            'post_id' => $postId,
-                            'lesson_id' => $lessonId,
-                            'created_by' => Auth::id()
-                        ]);
-                        return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
-                    }
-                } else {
-                    return response()->json(['error' => 'No lessons selected.']);
-                }
+                $post->update();
+                return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
             } catch (ValidationException $e) {
                 return response()->json(['error' => 'Validation failed.', 'message' => $e->errors()], 422);
             } catch (\Exception $e) {
