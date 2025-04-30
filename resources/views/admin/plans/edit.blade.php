@@ -66,6 +66,26 @@
                             {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
                             {!! Form::text('description', null, ['placeholder' => __('Enter description'), 'class' => 'form-control']) !!}
                         </div>
+                        @if (Auth::user()->type == 'Influencer')
+                            <div class="form-group flex flex-row gap-4">
+                                <div class="flex flex-col">
+                                    {{ Form::label('Chat', __('Chat *'), ['class' => 'form-label']) }}
+                                    {!! Form::checkbox('chat', 1, $plan->is_chat_enabled, [
+                                        'class' => 'form-check form-control',
+                                        'data-onstyle' => 'primary',
+                                        'data-toggle' => 'switchbutton',
+                                    ]) !!}
+                                </div>
+                                <div class="flex flex-col">
+                                    {{ Form::label('Feed', __('Feed *'), ['class' => 'form-label']) }}
+                                    {!! Form::checkbox('feed', 1, $plan->is_feed_enabled, [
+                                        'class' => 'form-check form-control',
+                                        'data-onstyle' => 'primary',
+                                        'data-toggle' => 'switchbutton',
+                                    ]) !!}
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     <div class="card-footer">
                         <div class="text-end">

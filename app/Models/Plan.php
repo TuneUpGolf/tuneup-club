@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +24,9 @@ class Plan extends Model
         'description',
         'tenant_id',
         'active_status',
-        'discount_setting'
+        'discount_setting',
+        'is_chat_enabled',
+        'is_feed_enabled',
+        'influencer_id',
     ];
 }

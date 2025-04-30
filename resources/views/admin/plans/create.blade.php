@@ -66,6 +66,26 @@
                                 'class' => 'form-control',
                             ]) !!}
                         </div>
+                        @if (Auth::user()->type == 'Influencer')
+                            <div class="form-group flex flex-row gap-4">
+                                <div class="flex flex-col">
+                                    {{ Form::label('Chat', __('Chat *'), ['class' => 'form-label']) }}
+                                    {!! Form::checkbox('chat', null, false, [
+                                        'class' => 'form-check form-control',
+                                        'data-onstyle' => 'primary',
+                                        'data-toggle' => 'switchbutton',
+                                    ]) !!}
+                                </div>
+                                <div class="flex flex-col">
+                                    {{ Form::label('Feed', __('Feed *'), ['class' => 'form-label']) }}
+                                    {!! Form::checkbox('feed', null, false, [
+                                        'class' => 'form-check form-control',
+                                        'data-onstyle' => 'primary',
+                                        'data-toggle' => 'switchbutton',
+                                    ]) !!}
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
