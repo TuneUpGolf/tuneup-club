@@ -21,7 +21,6 @@ class PurchaseLessonDataTable extends DataTable
                 return $purchaseVideo->purchase_id;
             })
             ->editColumn('note', function (PurchaseVideos $purchaseVideo) {
-                // dd($purchaseVideo);
                 return $purchaseVideo->note;
             })
             ->editColumn('influencer_id', function () {
