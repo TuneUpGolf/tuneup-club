@@ -23,7 +23,7 @@ class PurchaseCreatedInsructor extends TemplateMailable
     {
         //
         $this->name = $purchase->instructor->name;
-        $this->studentName = $purchase->student->name;
+        $this->studentName = $purchase->follower->name;
         $this->lesson = $purchase->lesson->id;
         $this->amount = $purchase->total_amount;
     }

@@ -44,7 +44,7 @@ class Purchase extends Model
         "inprogress" => "InComplete",
     ];
 
-    public function student()
+    public function follower()
     {
         return $this->belongsTo(\App\Models\Follower::class, 'follower_id');
     }

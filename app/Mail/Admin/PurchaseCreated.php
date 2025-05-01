@@ -21,7 +21,7 @@ class PurchaseCreated extends TemplateMailable
     public function __construct(Purchase $purchase)
     {
         //
-        $this->name = $purchase->student->name;
+        $this->name = $purchase->follower->name;
         $this->amount = $purchase->total_amount;
     }
 

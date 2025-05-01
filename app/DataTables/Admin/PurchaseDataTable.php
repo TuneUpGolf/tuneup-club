@@ -38,28 +38,25 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $s           = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
+                $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
                 $lesson_type = $purchase->lesson->type ?? null;
-
                 $lesson_active_status = $purchase->lesson->active_status;
-                $badgeClass           = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
-
-                // Check if lesson is deleted
-                $deletedText = ! $lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
-
-                // Truncate lesson name if it exceeds 16 characters
-                $lessonName          = e($purchase->lesson_name);
+                $badgeClass = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
+                $deletedText = !$lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
+                $lessonName = e($purchase->lesson_name);
                 $truncatedLessonName = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
-
+                
+                $url = route('purchase.show', $purchase->id);
+            
                 return '
-                    <div class="flex justify-between">
-                        <span class="mr-2" title="' . $lessonName . '">' . $truncatedLessonName . $deletedText . '</span>
-                        <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>
+                    <div class="flex justify-between items-center">
+                        <a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>
+                        <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
                     </div>';
             })
             ->editColumn('follower_name', function ($purchase) {
-                $imageSrc = $purchase->student->dp
-                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->student->dp)
+                $imageSrc = $purchase->follower->dp
+                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->follower->dp)
                 : asset('assets/img/logo/logo.png');
 
                 return '

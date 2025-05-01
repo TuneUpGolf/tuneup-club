@@ -64,8 +64,8 @@ class FollowerPurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('follower_name', function ($purchase) {
-                $imageSrc = $purchase->student->dp
-                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->student->dp)
+                $imageSrc = $purchase->follower->dp
+                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->follower->dp)
                 : asset('assets/img/logo/logo.png');
 
                 return '
@@ -101,7 +101,7 @@ class FollowerPurchaseDataTable extends DataTable
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as instructors', 'purchases.influencer_id', '=', 'instructors.id')
             ->join('followers as followers', 'purchases.follower_id', '=', 'followers.id')
-            ->where('purchases.follower_id', $this->followerId)  // 🔥 Filter by follower
+            ->where('purchases.follower_id', $this->followerId)
             ->orderBy('purchases.created_at', 'desc');
 
         return $query;
@@ -116,14 +116,14 @@ class FollowerPurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             unset($buttons[0]);
         }
-
+    
         return $this->builder()
             ->setTableId('purchases-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
-                "paginate"          => [
+                "paginate" => [
                     "next"     => '<i class="ti ti-chevron-right"></i>',
                     "previous" => '<i class="ti ti-chevron-left"></i>',
                 ],
@@ -139,15 +139,14 @@ class FollowerPurchaseDataTable extends DataTable
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
             }')
             ->parameters([
-                "dom"            => "
-                <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
-                <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
-                <'dataTable-container'<'col-sm-12'tr>>
-                <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                <'col-sm-7'p>>
-                ",
+                "dom" => "
+                    <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
+                    <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+                    <'dataTable-container'<'col-sm-12'tr>>
+                ", 
                 'buttons'        => $buttons,
                 "scrollX"        => true,
+                "paging"         => false, 
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -156,40 +155,40 @@ class FollowerPurchaseDataTable extends DataTable
                         "border":"none",
                     });
                 }',
-                'rowCallback'    => 'function(row, data, index) {
-                    // Make the first column bold
+                'rowCallback' => 'function(row, data, index) {
                     $("td", row).css("font-family", "Helvetica");
                     $("td", row).css("font-weight", "300");
                 }',
-                "drawCallback"   => 'function( settings ) {
+                "drawCallback" => 'function(settings) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")
-                      );
-                      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    );
+                    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                         return new bootstrap.Tooltip(tooltipTriggerEl);
-                      });
-                      var popoverTriggerList = [].slice.call(
+                    });
+                    var popoverTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=popover]")
-                      );
-                      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                    );
+                    var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
                         return new bootstrap.Popover(popoverTriggerEl);
-                      });
-                      var toastElList = [].slice.call(document.querySelectorAll(".toast"));
-                      var toastList = toastElList.map(function (toastEl) {
+                    });
+                    var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+                    var toastList = toastElList.map(function(toastEl) {
                         return new bootstrap.Toast(toastEl);
-                      });
+                    });
                 }',
             ])->language([
-            'buttons' => [
-                'create' => __('Choose Your Coach'),
-                'print'  => __('Print'),
-                'reset'  => __('Reset'),
-                'reload' => __('Reload'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Choose Your Coach'),
+                    'print'  => __('Print'),
+                    'reset'  => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel'  => __('Excel'),
+                    'csv'    => __('CSV'),
+                ],
+            ]);
     }
+    
     protected function getColumns()
     {
         $columns = [
