@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Facades\UtilityFacades;
 use App\Models\Coupon;
+use App\Models\Follower;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
@@ -172,6 +173,14 @@ class StripeController extends Controller
             });
             return $resData;
         } else {
+            if($authUser->type == 'Follower'){
+                $authUserId = 0;
+                $followerId = $authUser->id;
+            }else{
+                $authUserId = $authUser->id;
+                $followerId = null;
+            }
+            $followerId = $authUser->type == 'Follower' ? $authUser->id : null;
             $plan           =  Plan::find($planID);
             $couponId       = '0';
             $price          = $plan->price;
@@ -196,11 +205,12 @@ class StripeController extends Controller
             }
             $data = Order::create([
                 'plan_id'           => $plan->id,
-                'user_id'           => $authUser->id,
+                'user_id'           => $authUserId,
                 'amount'            => $price,
                 'discount_amount'   => $discountValue,
                 'coupon_code'       => $couponCode,
                 'status'            => 0,
+                'follower_id'       => $followerId,
             ]);
 
             $resData['total_price'] = $price;
@@ -395,11 +405,18 @@ class StripeController extends Controller
             $datas->status          = 1;
             $datas->payment_type    = 'stripe';
             $datas->update();
-            $user       = User::find(Auth::user()->id);
+            $currentUser = Auth::user();
+            $userType = $currentUser->type;
+
+            $user = $userType === 'Follower' ? Follower::find($currentUser->id) : User::find($currentUser->id);
             $coupons    = Coupon::find($data['coupon']);
             if (!empty($coupons)) {
                 $userCoupon         = new UserCoupon();
-                $userCoupon->user   = $user->id;
+                if($userType == 'Follower'){
+                    $userCoupon->follower = $user->id;
+                }else{
+                    $userCoupon->user   = $user->id;
+                }
                 $userCoupon->coupon = $coupons->id;
                 $userCoupon->order  = $datas->id;
                 $userCoupon->save();
@@ -420,6 +437,11 @@ class StripeController extends Controller
             }
             $user->save();
         }
-        return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
+        if($userType == 'Follower'){
+            $influencerId = $user->follows->first()?->influencer_id;
+            return redirect()->route('instructor.profile', ['influencer_id' => $influencerId])->with('status', __('Payment successfully!'));
+        }else{
+            return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
+        }
     }
 }

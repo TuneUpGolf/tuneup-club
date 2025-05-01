@@ -10,6 +10,7 @@ use App\Http\Resources\PostAPIResource;
 use App\Models\Category;
 use App\Models\Lesson;
 use App\Models\LikePost;
+use App\Models\Plan;
 use App\Models\Post;
 use App\Models\PostLesson;
 use App\Models\ReportPost;
@@ -26,6 +27,18 @@ class PostsController extends Controller
     public function index(PostDataTable $dataTable)
     {
         if (Auth::user()->can('manage-blog')) {
+            $isInfluencer = Auth::user()->type === Role::ROLE_INFLUENCER;
+            $isSubscribed = true;
+            $isFollowing = true;
+
+            if(Auth::user()->type === Role::ROLE_FOLLOWER) {
+                $follow = Auth::user()->follows->first();
+                $isFollowing = $follow->active_status;
+                $influencerId = $follow?->influencer_id;
+                $feedEnabledPlanId = Plan::where('influencer_id', $influencerId)
+                        ->where('is_feed_enabled', true)->pluck('id')->toArray();
+                $isSubscribed = in_array(Auth::user()->plan_id, $feedEnabledPlanId);
+            }
             $posts = Post::where('status', 'active');
             switch (request()->query('filter')) {
                 case ('free'):
@@ -40,7 +53,7 @@ class PostsController extends Controller
             $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
             $posts->load('influencer');
             $posts->load('follower');
-            return view('admin.posts.infinite', compact('posts'));
+            return view('admin.posts.infinite', compact('posts', 'isInfluencer', 'isSubscribed', 'isFollowing'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }

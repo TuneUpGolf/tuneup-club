@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +10,8 @@ class UserCoupon extends Model
     protected $fillable = [
         'user',
         'coupon',
-        'requestdomain'
+        'requestdomain',
+        'follower',
     ];
 
     public function userDetail()
@@ -27,5 +27,10 @@ class UserCoupon extends Model
     public function coupon_detail()
     {
         return $this->hasOne('App\Models\Coupon', 'id', 'coupon');
+    }
+
+    public function followerDetail()
+    {
+        return $this->hasOne('App\Models\Follower', 'id', 'follower');
     }
 }

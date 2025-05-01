@@ -15,7 +15,7 @@
                     {{ ucfirst($post->isFollowerPost ? $post?->follower?->name : $post?->influencer?->name) }}
                     </p>
                     <span class="text-xs italic text-gray-600">
-                        {{ $post->isFollowerPost ? 'Follower' : 'Instructor' }}
+                        {{ $post->isFollowerPost ? 'Follower' : 'Influencer' }}
                     </span>
                 </div>
             </div>
@@ -26,7 +26,7 @@
     </div>
 
     @if ($post->file_type == 'image')
-        @if ($post->paid && !isset($purchasePost))
+        @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
             <div class="relative bg-black">
                 <img class="rounded-md w-full opacity-20"
                     src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}" alt="Post Image" />
@@ -45,7 +45,7 @@
                 alt="Post Image" />
         @endif
     @else
-        @if ($post->paid && !isset($purchasePost))
+        @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
             <div class="relative bg-black h-48 flex justify-center items-center">
                 {!! Form::open([
                     'route' => ['purchase.post.index', ['post_id' => $post->id]],

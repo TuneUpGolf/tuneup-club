@@ -1,8 +1,26 @@
+@php
+    use Carbon\Carbon;
+    $user = Auth::user();
+    if (Auth::user()->type == 'Admin') {
+        $currency_symbol = tenancy()->central(function ($tenant) {
+            return Utility::getsettings('currency_symbol');
+        });
+    } else {
+        $currency_symbol = Utility::getsettings('currency_symbol');
+    }
+    if (Auth::user()->type != 'Admin') {
+        $currency = Utility::getsettings('currency');
+    } else {
+        $currency = tenancy()->central(function ($tenant) {
+            return Utility::getsettings('currency');
+        });
+    }
+@endphp
 @extends('layouts.main')
-@section('title', __('Instructor Profile'))
+@section('title', __('Influencer Profile'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Instructor Profile') }}</li>
+    <li class="breadcrumb-item">{{ __('Influencer Profile') }}</li>
 @endsection
 @section('content')
     <div class="row">
@@ -22,7 +40,7 @@
                                 </div>
                                 <div class="text-sm leading-normal text-gray-600 uppercase">
                                     <i class="fas fa-user"></i>
-                                    Instructor
+                                    Influencer
                                 </div>
                             </div>
                         </div>
@@ -69,6 +87,7 @@
                     <div class="tab">
                         <button class="tablinks active" onclick="openCity(event, 'Lessons')">Lessons</button>
                         <button class="tablinks" onclick="openCity(event, 'Posts')">Posts</button>
+                        <button class="tablinks" onclick="openCity(event, 'Subscriptions')">Subscriptions</button>
                         </hr>
                     </div>
                     <div id="Lessons" class="tabcontent flex items-center">
@@ -77,28 +96,121 @@
                         @else
                             <div class='flex flex-col justify-center items-center no-data gap-2'><i
                                     class="fa fa-thumbs-down" aria-hidden="true"></i>There are no lessons from this
-                                instructor yet
+                                influencer yet
                             </div>
                         @endif
                     </div>
                     <div id="Posts" class="tabcontent">
-                        @if (!!$totalLessons)
-                            <div id="blog" class="bg-gray-100 px-4 xl:px-4 py-14">
-                                <div class="mx-auto container">
-                                    <div class="focus:outline-none mt-5 mb-5 lg:mt-24">
-                                        <div class="infinity">
-                                            <div class="flex flex-col justify-center items-center w-100">
-                                                @each('admin.posts.blog', $posts, 'post')
-                                                {{ $posts->links('pagination::bootstrap-4') }}
+                        @if($isFollowing)
+                            @if (!!$totalLessons)
+                                <div id="blog" class="bg-gray-100 px-4 xl:px-4 py-14">
+                                    <div class="mx-auto container">
+                                        <div class="focus:outline-none mt-5 mb-5 lg:mt-24">
+                                            <div class="infinity">
+                                                <div class="flex flex-col justify-center items-center w-100">
+                                                    @foreach ($posts as $post)
+                                                        @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed])
+                                                    @endforeach
+                                                    {{ $posts->links('pagination::bootstrap-4') }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            @else
+                                <div class='flex flex-col justify-center items-center no-data gap-2'><i
+                                        class="fa fa-thumbs-down" aria-hidden="true"></i>There are no posts from
+                                    this influencer yet</div>
+                            @endif
+                        @else
+                            <div class="flex flex-col justify-center items-center no-data gap-2 text-center">
+                                <i class="fa fa-lock text-xl mb-2" aria-hidden="true"></i>
+                                <span class="text-lg font-semibold">Follow to access this section</span>
+                            </div>
+                        @endif
+                    </div>
+                    <div id="Subscriptions" class="tabcontent">
+                        @if($isFollowing)
+                            <div class="row ">
+                                @foreach ($plans as $plan)
+                                    @if ($plan->active_status == 1)
+                                        <div class="col-xl-3 col-md-6">
+                                            <div class="card price-card price-1 wow animate__fadeInUp ani-fade" data-wow-delay="0.2s">
+                                                <div class="card-body">
+                                                    <span class="price-badge bg-primary">{{ $plan->name }}</span>
+                                                    <span class="mb-4 f-w-600 p-price"> {{ $currency_symbol . '' . $plan->price }}<small
+                                                            class="text-sm">/{{ $plan->duration . ' ' . $plan->durationtype }}</small></span>
+                                                    <p class="mb-0">
+                                                        {{ $plan->description }}
+                                                        <div class="mt-2 d-flex justify-content-center gap-3">
+                                                            @if($plan->is_chat_enabled)
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="ti ti-message-circle text-success me-1"></i>
+                                                                    <span>{{ __('Free Chat') }}</span>
+                                                                </div>
+                                                            @endif
+                                                            @if($plan->is_feed_enabled)
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="ti ti-rss text-success me-1"></i>
+                                                                    <span>{{ __('Free Feed') }}</span>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </p>
+                                                    <ul class="mt-4">
+                                                        <li class="list-unstyled d-flex">
+                                                            <span class="theme-avtar">
+                                                                <i class="text-primary ti ti-circle-plus"></i></span>
+                                                            {{ $plan->max_users . ' ' . __('Users') }}
+                                                        </li>
+                                                        <li class="list-unstyled d-flex">
+                                                            <span class="theme-avtar">
+                                                                <i class="text-primary ti ti-circle-plus"></i></span>
+                                                            {{ $plan->duration . ' ' . $plan->durationtype . ' ' . __('Duration') }}
+                                                        </li>
+                                                        @if (Auth::user()->type == 'Admin')
+                                                            <li class="list-unstyled d-flex">
+                                                                <span class="theme-avtar">
+                                                                    <i class="text-primary ti ti-circle-plus"></i></span>
+                                                                {{ $plan->max_roles . ' ' . __('Roles') }}
+                                                            </li>
+                                                            <li class="list-unstyled d-flex">
+                                                                <span class="theme-avtar">
+                                                                    <i class="text-primary ti ti-circle-plus"></i></span>
+                                                                {{ $plan->max_documents . ' ' . __('Documents') }}
+                                                            </li>
+                                                            <li class="list-unstyled d-flex">
+                                                                <span class="theme-avtar">
+                                                                    <i class="text-primary ti ti-circle-plus"></i></span>
+                                                                {{ $plan->max_blogs . ' ' . __('Blogs') }}
+                                                            </li>
+                                                        @endif
+                                                    </ul>
+                                                    <div class="text-center">
+                                                        @if ($plan->id != 1)
+                                                            @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date))
+                                                                <a href="javascript:void(0)" data-id="{{ $plan->id }}"
+                                                                    class="btn btn-primary"
+                                                                    data-amount="{{ $plan->price }}">{{ __('Expire at') }}
+                                                                    {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
+                                                            @else
+                                                                <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                                    class="btn btn-primary">{{ __('Buy Plan') }}
+                                                                    <i class="ti ti-chevron-right ms-2"></i></a>
+                                                            @endif
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
                             </div>
                         @else
-                            <div class='flex flex-col justify-center items-center no-data gap-2'><i
-                                    class="fa fa-thumbs-down" aria-hidden="true"></i>There are no posts from
-                                this instructor yet</div>
+                            <div class="flex flex-col justify-center items-center no-data gap-2 text-center">
+                                <i class="fa fa-lock text-xl mb-2" aria-hidden="true"></i>
+                                <span class="text-lg font-semibold">Follow to access this section</span>
+                            </div>
                         @endif
                     </div>
                 </div>
