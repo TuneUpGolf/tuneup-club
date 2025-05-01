@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Stancl\Tenancy\Database\Models\Domain;
+use App\DataTables\Admin\FollowerPurchaseDataTable;
 
 class StudentController extends Controller
 {
@@ -42,6 +43,12 @@ class StudentController extends Controller
         return redirect()->back()->with('failed', __('Permission denied.'));
     }
 
+    public function show($id)
+    {
+        $follower = Follower::findOrFail($id);
+        $dataTable = new FollowerPurchaseDataTable($id); // Pass follower ID to the datatable
+        return $dataTable->render('admin.students.show', compact('follower', 'dataTable'));
+    }
     public function import()
     {
 

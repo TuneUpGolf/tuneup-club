@@ -153,13 +153,15 @@ Route::middleware([
         Route::post('/import_instructors', [InstructorController::class, 'importfun'])->name('instructor.import_instructors');
         Route::get('get-video/{video}', [PurchaseController::class, 'getVideo'])->name('getVideo');
 
+
         Route::get('/student/import', [StudentController::class, 'import'])->name('student.import');
         Route::resource('student', StudentController::class);
         Route::get('student-emailverified/{id}', [StudentController::class, 'userEmailVerified'])->name('student.email.verified');
         Route::get('student-phoneverified/{id}', [StudentController::class, 'userPhoneVerified'])->name('student.phone.verified');
         Route::post('student-status/{id}', [StudentController::class, 'userStatus'])->name('student.status');
         Route::post('/import_students', [StudentController::class, 'importfun'])->name('student.import_students');
-
+        Route::get('follower/{id}', [StudentController::class, 'show'])->name('follower.show');
+        
         Route::resource('lesson', LessonController::class);
         Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
         Route::get('lesson/purchase/all', [LessonController::class, 'availableLessons'])->name('lesson.available');
@@ -184,6 +186,7 @@ Route::middleware([
         Route::get('purchase/feedback/all', [PurchaseController::class, 'feedbackIndex'])->name('purchase.feedback.index');
         Route::get('purchase/add/feedback/create', [PurchaseController::class, 'addFeedBackIndex'])->name('purchase.feedback.create');
         Route::post('purchase/add/feedback/add', [PurchaseController::class, 'addFeedBack'])->name('purchase.feedback.add');
+        Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
 
         //follow
         Route::post('follow/instructor', [FollowController::class, 'followInstructor'])->name('follow.instructor');

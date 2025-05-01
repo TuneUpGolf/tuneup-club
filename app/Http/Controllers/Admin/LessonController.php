@@ -266,7 +266,7 @@ class LessonController extends Controller
 
             if ($type == Role::ROLE_FOLLOWER) {
                 $slots = $slots->filter(function ($slot) use ($authUser) {
-                    return $slot->availableSeats() > 0 || $slot->student->contains('id', $authUser->id);
+                    return $slot->availableSeats() > 0 || $slot->follower->contains('id', $authUser->id);
                 });
             }
 
@@ -1049,7 +1049,7 @@ class LessonController extends Controller
             }
 
             // // If the user is a student and is unbooking themselves
-            if ($slot->student->contains($user->id)) {
+            if ($slot->follower->contains($user->id)) {
                 $slot->student()->detach($user->id);
                 Purchase::where('slot_id', $slot->id)->where('follower_id', $user->id)->delete();
                 $this->sendSlotNotification(

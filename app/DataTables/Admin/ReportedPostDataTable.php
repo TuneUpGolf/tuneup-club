@@ -32,7 +32,7 @@ class ReportedPostDataTable extends DataTable
                 return isset($post->comment) ? $post->comment : "No Comment";
             })
             ->editColumn('reported_by', function (ReportPost $post) {
-                return isset($post->influencer_id) ? $post->instructor->name . " - Instructor " : $post->student->name . " - Student ";
+                return isset($post->influencer_id) ? $post->instructor->name . " - Instructor " : $post->follower->name . " - Student ";
             })
             ->editColumn("photo", function (ReportPost $post) {
                 if ($post->post->file) {

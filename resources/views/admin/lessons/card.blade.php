@@ -79,7 +79,7 @@
                     @if ($firstSlot && !$firstSlot->isFullyBooked())
                         @php
                             $isAlreadyBooked = $model->slots->contains(function ($slot) {
-                                return $slot->student->contains(Auth::id());
+                                return $slot->follower->contains(Auth::id());
                             });
                         @endphp
 

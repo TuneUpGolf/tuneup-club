@@ -33,7 +33,7 @@ class SlotAPIResource extends JsonResource
             'is_package_lesson' => (bool) $this->lesson->is_package_lesson,
             'students' => $this->when(
                 request()->has('include_students'),
-                fn() => $this->student->map(function ($student) {
+                fn() => $this->follower->map(function ($student) {
                     return [
                         'id' => $student->id,
                         'name' => $student->name,

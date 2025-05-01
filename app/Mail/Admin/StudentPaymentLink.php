@@ -20,7 +20,7 @@ class StudentPaymentLink extends TemplateMailable
     public function __construct($purchase, $link)
     {
         //
-        $this->name = $purchase->student->name;
+        $this->name = $purchase->follower->name;
         $this->link = $link;
     }
 

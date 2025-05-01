@@ -162,7 +162,6 @@ class UserController extends Controller
                 // tenant database setting store
                 return redirect()->route('users.index')->with('success', __('User created successfully.'));
             } catch (\Exception $e) {
-                dd($e);
                 echo $e->getMessage();
                 return redirect()->back()->with('errors', 'Please check database name, database user name and database password.' . $e->getMessage());
             }

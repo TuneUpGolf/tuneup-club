@@ -21,7 +21,7 @@ class PostAPIResource extends JsonResource
      */
     public function toArray($request)
     {
-        $user = $this->isFollowerPost == true ? new StudentAPIResource(Follower::find($this->student->id)) : new InstructorAPIResource(User::find($this->instructor->id));
+        $user = $this->isFollowerPost == true ? new StudentAPIResource(Follower::find($this->follower->id)) : new InstructorAPIResource(User::find($this->instructor->id));
         $likes = LikePost::where('post_id', $this->id)->count();
         $apiResource = [
             'id' => $this->id,

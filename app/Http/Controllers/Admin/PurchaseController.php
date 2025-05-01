@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\SendEmail;
 use App\Actions\SendPushNotification;
 use App\DataTables\Admin\PurchaseDataTable;
-use App\DataTables\Admin\PurchaseVideoDataTable;
+use App\DataTables\Admin\PurchaseLessonVideoDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseAPIResource;
 use App\Http\Resources\PurchaseVideoAPIResource;
@@ -32,6 +32,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
+use App\DataTables\Admin\PurchaseLessonDataTable;
 
 class PurchaseController extends Controller
 {
@@ -46,6 +47,12 @@ class PurchaseController extends Controller
 
     }
 
+    public function view($id)
+    {
+        $lesson = Lesson::findOrFail($id);
+        $dataTable = new LessonDataTable($id); // Pass follower ID to the datatable
+        return $dataTable->render('admin.purchases.show', compact('lesson', 'dataTable'));
+    }
     public function store(Request $request)
     {
         $request->validate([
@@ -86,7 +93,7 @@ class PurchaseController extends Controller
                     echo 'Caught exception: ', $e->getMessage(), "\n";
                 }
 
-                // SendEmail::run($newPurchase->student->email, new PurchaseCreated($newPurchase));
+                // SendEmail::run($newPurchase->follower->email, new PurchaseCreated($newPurchase));
 
                 // $message = __('Hello, :name, a purchase has been created for :ammount against your account.', [
                 //     'name' => $student['name'],
@@ -159,7 +166,7 @@ class PurchaseController extends Controller
                         $newPurchase->status       = Purchase::STATUS_INCOMPLETE;
                         $newPurchase->lessons_used = 0;
                         $newPurchase->save();
-                        // SendEmail::dispatch($newPurchase->student->email, new PurchaseCreated($newPurchase));
+                        // SendEmail::dispatch($newPurchase->follower->email, new PurchaseCreated($newPurchase));
                         // $message = __('Hello, :name, a purchase has been created for :ammount against your account.', [
                         //     'name' => $student['name'],
                         //     'ammount' => $newPurchase->total_amount,
@@ -283,9 +290,9 @@ class PurchaseController extends Controller
                         }
                     } else {
                         // Non-slot purchases
-                        SendEmail::dispatch($purchase->student->email, new PurchaseCompleted($purchase));
+                        SendEmail::dispatch($purchase->follower->email, new PurchaseCompleted($purchase));
                         $message = __('Hello, :name, a purchase has been confirmed for :ammount against your account.', [
-                            'name'    => $purchase->student->name,
+                            'name'    => $purchase->follower->name,
                             'ammount' => $purchase->total_amount,
                         ]);
                         SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Purchase Confirmed', $message);
@@ -361,7 +368,7 @@ class PurchaseController extends Controller
                         SendEmail::dispatch($purchase?->lesson?->user?->email, new VideoAdded($purchase));
 
                         $message = __('Hello, :name, has submitted an online submission.', [
-                            'name' => $purchase->student->name,
+                            'name' => $purchase->follower->name,
                         ]);
 
                         SendPushNotification::dispatch($purchase?->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
@@ -435,7 +442,7 @@ class PurchaseController extends Controller
                         SendEmail::dispatch($purchase?->lesson?->user?->email, new VideoAdded($purchase));
 
                         $message = __('Hello, :name, has submitted an online submission.', [
-                            'name' => $purchase->student->name,
+                            'name' => $purchase->follower->name,
                         ]);
 
                         SendPushNotification::dispatch($purchase->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
@@ -511,12 +518,12 @@ class PurchaseController extends Controller
 
                         $purchaseVideo->isFeedbackComplete = 1;
                         $purchaseVideo->save();
-                        SendEmail::dispatch($purchase->student->email, new PurchaseFeedback($purchase));
+                        SendEmail::dispatch($purchase->follower->email, new PurchaseFeedback($purchase));
                         $message = __(':name, has sent feedback for your online submission.', [
                             'name' => $purchase->lesson->user->name,
                         ]);
 
-                        if (isset($purchase->student->pushToken->token)) {
+                        if (isset($purchase->follower->pushToken->token)) {
                             SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Feedback Recieved', $message);
                         }
 
@@ -587,7 +594,7 @@ class PurchaseController extends Controller
         }
     }
 
-    public function feedbackIndex(PurchaseVideoDataTable $dataTable)
+    public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
             $purchase = Purchase::with('videos')->find(request()->purchase_id);
@@ -624,13 +631,13 @@ class PurchaseController extends Controller
 
                 $purchaseVideo->load('purchase');
                 $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
-                SendEmail::dispatch($purchaseVideo->purchase->student->email, new PurchaseFeedback($purchaseVideo->purchase));
+                SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
 
                 $message = __(':name, has sent feedback for your online submission.', [
                     'name' => $purchaseVideo->purchase->lesson->user->name,
                 ]);
 
-                SendPushNotification::dispatch($purchaseVideo->purchase->student->pushToken->token, 'Feedback Recieved', $message);
+                SendPushNotification::dispatch($purchaseVideo->purchase->follower->pushToken->token, 'Feedback Recieved', $message);
 
                 if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
                     $purchase                     = Purchase::find($purchaseVideo->purchase_id);
@@ -711,6 +718,13 @@ class PurchaseController extends Controller
     public function show(Purchase $purchase)
     {
         return view('admin.purchases.index', compact('purchase'));
+    }
+    public function showLesson(PurchaseLessonDataTable $dataTable, $lessonId)
+    {
+        $purchase = Purchase::with('follower')->findOrFail($lessonId); 
+
+                         $video = Purchase::with('videos')->find(request()->purchase_id);
+                         return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video'));
     }
     public function destroy($id)
     {

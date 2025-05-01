@@ -19,7 +19,7 @@ class PurchaseFeedback extends TemplateMailable
     public function __construct(Purchase $purchase)
     {
         //
-        $this->name = $purchase->student->name;
+        $this->name = $purchase->follower->name;
         $this->id = $purchase->id;
     }
 

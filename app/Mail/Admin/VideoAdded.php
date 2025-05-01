@@ -23,7 +23,7 @@ class VideoAdded extends TemplateMailable
         //
         $this->name = $purchase?->lesson?->user?->name;
         $this->link = route('purchase.feedback.index', ['purchase_id' => $purchase->id]);
-        $this->student_name = $purchase->student->name;
+        $this->student_name = $purchase->follower->name;
     }
     public function build()
     {
