@@ -57,6 +57,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'application_fee_percentage',
         'is_stripe_connected',
         'banner_image',
+        'social_url_ln',
+        'social_url_yt',
     ];
 
     protected $hidden = [

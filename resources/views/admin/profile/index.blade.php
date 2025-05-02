@@ -18,25 +18,32 @@
                     <div
                         class="float-end"><i class="ti ti-chevron-right"></i></div>
                 </a>
-                <a href="#useradd-4" class="border-0 list-group-item list-group-item-action">{{ __('Banner Image') }}
-                    <div class="float-end"><i class="ti ti-chevron-right"></i></div>
-                    <a href="#useradd-3" class="border-0 list-group-item list-group-item-action">{{ __('Update Login') }}
+                @if(Auth::user()->type == 'Influencer')
+                    <a href="#useradd-7" class="border-0 list-group-item list-group-item-action">{{ __('Social Media Links') }}
+                        <div
+                            class="float-end"><i class="ti ti-chevron-right"></i></div>
+                    </a>
+                    <a href="#useradd-4" class="border-0 list-group-item list-group-item-action">{{ __('Banner Image') }}
                         <div class="float-end"><i class="ti ti-chevron-right"></i></div>
                     </a>
-                    @if (Utility::getsettings('2fa'))
+                @endif
+                <a href="#useradd-3" class="border-0 list-group-item list-group-item-action">{{ __('Update Login') }}
+                    <div class="float-end"><i class="ti ti-chevron-right"></i></div>
+                </a>
+                @if (Utility::getsettings('2fa'))
                     <a href="#useradd-4" class="border-0 list-group-item list-group-item-action">{{ __('2FA') }}
                         <div class="float-end"><i class="ti ti-chevron-right"></i></div>
                     </a>
                     @endif
-                    @if (Auth::user()->type == 'Instructor')
+                    @if (Auth::user()->type == 'Influencer')
                     <a href="#useradd-6"
                         class="border-0 list-group-item list-group-item-action">{{ __('Stripe Connect') }}
                         <div class="float-end"><i class="ti ti-chevron-right"></i></div>
                     </a>
-                    @endif
-                    <a href="#useradd-5" class="border-0 list-group-item list-group-item-action">{{ __('Delete Account') }}
-                        <div class="float-end"><i class="ti ti-chevron-right"></i></div>
-                    </a>
+                @endif
+                <a href="#useradd-5" class="border-0 list-group-item list-group-item-action">{{ __('Delete Account') }}
+                    <div class="float-end"><i class="ti ti-chevron-right"></i></div>
+                </a>
             </div>
         </div>
     </div>
@@ -89,7 +96,7 @@
                                 placeholder="{{ __('Enter phone') }}" required>
                         </div>
                     </div>
-                    @if (Auth::user()->type === 'Instructor')
+                    @if (Auth::user()->type == 'Influencer')
                     <div class="col-sm-6">
                         <div class="form-group">
                             {{ Form::label('country', __('Country'), ['class' => 'form-label']) }}
@@ -111,7 +118,7 @@
                         </div>
                     </div>
                     @endif
-                    @if (Auth::user()->type === 'Instructor')
+                    @if (Auth::user()->type == 'Influencer')
                     <div class="col-sm-6">
                         <div class="form-group">
                             {{ Form::label('address', __('Address'), ['class' => 'form-label']) }}
@@ -153,54 +160,36 @@
                             'readonly',
                             ]) !!}
                         </div>
-                        @if (Auth::user()->type === 'Instructor')
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                {{ Form::label('sub_price', __('Subscription Price ($)'), ['class' => 'form-label']) }}
-                                {!! Form::number('sub_price', $user->sub_price, [
-                                'class' => 'form-control',
-                                'id' => 'sub_price',
-                                'placeholder' => __('Subscription Price'),
-                                'required',
-                                ]) !!}
-                                @if ($errors->has('sub_price'))
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $errors->first('sub_price') }}</strong>
-                                </span>
-                                @endif
+                        @if (Auth::user()->type == 'Influencer')
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ Form::label('sub_price', __('Subscription Price ($)'), ['class' => 'form-label']) }}
+                                    {!! Form::number('sub_price', $user->sub_price, [
+                                    'class' => 'form-control',
+                                    'id' => 'sub_price',
+                                    'placeholder' => __('Subscription Price'),
+                                    'required',
+                                    ]) !!}
+                                    @if ($errors->has('sub_price'))
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $errors->first('sub_price') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
                         @endif
-                        @if (Auth::user()->type === 'Instructor')
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                {{ Form::label('golf_course', __('Golf Course'), ['class' => 'form-label']) }}
-                                {!! Form::text('golf_course', $user->golf_course, [
-                                'class' => 'form-control',
-                                'id' => 'golf_course',
-                                'placeholder' => __('Golf Course'),
-                                'required',
-                                ]) !!}
-                                @if ($errors->has('golf_course'))
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $errors->first('golf_course') }}</strong>
-                                </span>
-                                @endif
+                        @if (Auth::user()->type == 'Influencer')
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ Form::label('stripe_account_id', __('Stripe Account Id'), ['class' => 'form-label']) }}
+                                    {!! Form::text('stripe_account_id', $user->stripe_account_id, [
+                                    'class' => 'form-control',
+                                    'id' => 'stripe_account_id',
+                                    'placeholder' => __('Stripe Account Id'),
+                                    'disabled',
+                                    ]) !!}
+                                </div>
                             </div>
-                        </div>
-                        @endif
-                        @if (Auth::user()->type === 'Instructor')
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                {{ Form::label('stripe_account_id', __('Stripe Account Id'), ['class' => 'form-label']) }}
-                                {!! Form::text('stripe_account_id', $user->stripe_account_id, [
-                                'class' => 'form-control',
-                                'id' => 'stripe_account_id',
-                                'placeholder' => __('Stripe Account Id'),
-                                'disabled',
-                                ]) !!}
-                            </div>
-                        </div>
                         @endif
                         <div class="form-group">
                             {{ Form::label('push_token', __('Push Token'), ['class' => 'form-label']) }}
@@ -242,6 +231,94 @@
             </div>
             {!! Form::close() !!}
         </div>
+        @if(Auth::user()->type == 'Influencer')
+            <div id="useradd-7" class="card">
+                <div class="card-header">
+                    <h5>{{ __('Social Media Links') }}</h5>
+                </div>
+                {{ Form::open(['route' => 'update.socialmedia', 'method' => 'Post', 'class' => 'form-horizontal', 'data-validate']) }}
+                <div class="card-body">
+                    <div class="row form-group">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                {{ Form::label('name', __('Linkedin'), ['class' => 'form-label']) }}
+                                {!! Form::text('linkedin', $user->social_url_ln, [
+                                'class' => 'form-control',
+                                'placeholder' => __('Linkedin'),
+                                ]) !!}
+                                @if ($errors->has('linkedin'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('linkedin') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                {{ Form::label('name', __('Facebook'), ['class' => 'form-label']) }}
+                                {!! Form::text('facebook', $user->social_url_fb, [
+                                'class' => 'form-control',
+                                'placeholder' => __('facebook'),
+                                ]) !!}
+                                @if ($errors->has('Facebook'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('facebook') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                {{ Form::label('name', __('Instagram'), ['class' => 'form-label']) }}
+                                {!! Form::text('instagram', $user->social_url_ig, [
+                                'class' => 'form-control',
+                                'placeholder' => __('Instagram'),
+                                ]) !!}
+                                @if ($errors->has('instagram'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('instagram') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                {{ Form::label('name', __('Twitter'), ['class' => 'form-label']) }}
+                                {!! Form::text('twitter', $user->social_url_x, [
+                                'class' => 'form-control',
+                                'placeholder' => __('Twitter'),
+                                ]) !!}
+                                @if ($errors->has('twitter'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('twitter') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                {{ Form::label('name', __('YouTube'), ['class' => 'form-label']) }}
+                                {!! Form::text('youtube', $user->social_url_yt, [
+                                'class' => 'form-control',
+                                'placeholder' => __('YouTube'),
+                                ]) !!}
+                                @if ($errors->has('youtube'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('youtube') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="text-end">
+                        {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
+                    </div>
+                </div>
+                {!! Form::close() !!}
+            </div>
+        @endif
         <div id="useradd-4" class="card">
             <div class="card-header">
                 <h5>{{ __('Banner') }}</h5>
@@ -499,7 +576,7 @@
             @endif
         </div>
         @endif
-        @if (Auth::user()->type == 'Instructor')
+        @if (Auth::user()->type == 'Influencer')
         <div id="useradd-6" class="card">
             <div class="card-header">
                 <h5>{{ __('Stripe Connect') }}</h5>

@@ -283,7 +283,7 @@
                     @if (Auth::user()->type == 'Follower')
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                             <a class="dash-link py-3 px-4"
-                                href="{{ route('lesson.available', ['type' => 'inPerson']) }}">
+                                href="{{ route('lesson.available', ['type' => 'online']) }}">
                                 <svg width="24" height="24" viewBox="0 0 16 16" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path

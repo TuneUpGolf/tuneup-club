@@ -33,7 +33,7 @@ class PostsController extends Controller
 
             if(Auth::user()->type === Role::ROLE_FOLLOWER) {
                 $follow = Auth::user()->follows->first();
-                $isFollowing = $follow->active_status;
+                $isFollowing = $follow ? $follow->active_status : false;
                 $influencerId = $follow?->influencer_id;
                 $feedEnabledPlanId = Plan::where('influencer_id', $influencerId)
                         ->where('is_feed_enabled', true)->pluck('id')->toArray();
