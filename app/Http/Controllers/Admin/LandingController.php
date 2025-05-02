@@ -12,9 +12,8 @@ use App\Mail\Admin\ConatctMail;
 use App\Models\Posts;
 use Spatie\MailTemplates\Models\MailTemplate;
 use App\Models\Faq;
-use App\Models\FooterSetting;
 use App\Models\NotificationsSetting;
-use App\Models\Testimonial;
+use App\Models\Role;
 use App\Notifications\Admin\ConatctNotification;
 use Illuminate\Support\Facades\Cookie;
 
@@ -39,27 +38,16 @@ class LandingController extends Controller
         } else {
             $lang                           = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
-            $appsMultipleImageSettings      = json_decode(UtilityFacades::getsettings('apps_multiple_image_setting'));
-            $features                       = json_decode(UtilityFacades::getsettings('feature_setting'));
-            $menuSettings                   = json_decode(UtilityFacades::getsettings('menu_setting'));
-            $businessGrowthsSettings        = json_decode(UtilityFacades::getsettings('business_growth_setting'));
-            $businessGrowthsViewSettings    = json_decode(UtilityFacades::getsettings('business_growth_view_setting'));
-            $testimonials                   = Testimonial::where('status', 1)->get();
-            $faqs                           = Faq::latest()->take(4)->get();
-            $footerMainMenus                = FooterSetting::where('parent_id', 0)->get();
-            $blogs = Posts::all();
+            $influencerDetails = User::where('type', Role::ROLE_INFLUENCER)
+                    ->with(['lessons', 'post', 'post.likePost'])
+                    ->first();
+            $plans = Plan::where('influencer_id', $influencerDetails->id)
+                    ->where('active_status', 1)->get();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 return view('welcome', compact(
-                    'blogs',
-                    'features',
-                    'faqs',
-                    'testimonials',
-                    'menuSettings',
-                    'businessGrowthsSettings',
-                    'businessGrowthsViewSettings',
-                    'appsMultipleImageSettings',
-                    'footerMainMenus',
-                    'lang'
+                    'lang',
+                    'influencerDetails',
+                    'plans'
                 ));
             } else {
                 return redirect()->route('home');
