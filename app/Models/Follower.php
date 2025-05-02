@@ -47,6 +47,8 @@ class Follower extends User implements MustVerifyEmail
         'social_url_fb',
         'social_url_x',
         'isGuest',
+        'plan_id',
+        'plan_expired_date'
     ];
     protected $hidden = [
         'password',

@@ -283,7 +283,7 @@
                     @if (Auth::user()->type == 'Follower')
                         <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                             <a class="dash-link py-3 px-4"
-                                href="{{ route('lesson.available', ['type' => 'inPerson']) }}">
+                                href="{{ route('lesson.available', ['type' => 'online']) }}">
                                 <svg width="24" height="24" viewBox="0 0 16 16" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -407,13 +407,13 @@
                                 @can('manage-plan')
                                     <li
                                         class="dash-item {{ request()->is('plans*') || request()->is('payment*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('plans.index') }}">{{ __('Plans') }}</a>
+                                        <a class="dash-link" href="{{ route('plans.index') }}">{{ __('Your Subscription Plan') }}</a>
                                     </li>
                                 @endcan
-                                @if ($users->type == 'Admin')
+                                @if ($users->type != 'Follower')
                                     <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
                                         <a class="dash-link"
-                                            href="{{ route('plans.myplan') }}">{{ __('My Plans') }}</a>
+                                            href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
                                     </li>
                                 @endif
                                 @if ($users->type === 'Follower')

@@ -41,7 +41,11 @@ class PlanDataTable extends DataTable
 
     public function query(Plan $model)
     {
-        return $model->newQuery()->where('tenant_id', null);
+        if(auth()->user()->type == 'Admin') {
+            return $model->newQuery()->where('tenant_id', null);
+        } else {
+            return $model->newQuery()->where('influencer_id', auth()->user()->id);
+        }
     }
 
     public function html()

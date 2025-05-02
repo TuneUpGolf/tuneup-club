@@ -14,6 +14,7 @@ use App\Models\AnnotationVideos;
 use App\Models\Follow;
 use App\Models\Follower;
 use App\Models\Lesson;
+use App\Models\Plan;
 use App\Models\Post;
 use App\Models\Purchase;
 use App\Models\ReportUser;
@@ -81,11 +82,20 @@ class InstructorController extends Controller
         $totalLessons = Lesson::where('created_by', request()->query('influencer_id'))->count();
         $totalPosts   = $posts->count();
         $posts        = $posts->orderBy('created_at', 'desc')->paginate(6);
-        $followers    = Follow::where('influencer_id', $instructor->id)->count();
         $section      = $request->section;
         $follow       = Follow::where('influencer_id', $instructor->id);
+        $followers    = $follow->count();
+        $isFollowing  = $follow->where('follower_id', Auth::user()->id)
+            ->where('active_status', 1)
+            ->exists();
         $subscribers  = Follow::where('influencer_id', $instructor->id)->where('active_status', 1)->where('isPaid', true)->count();
-        return view('admin.instructors.profile', compact('instructor', 'totalPosts', 'totalLessons', 'followers', 'subscribers', 'section', 'posts', 'follow'));
+        $plans        = Plan::where('influencer_id', $instructor->id)->get();
+        $isInfluencer = Auth::user()->type === Role::ROLE_INFLUENCER;
+        $feedEnabledPlanId = Plan::where('influencer_id', $instructor->id)
+                        ->where('is_feed_enabled', true)->pluck('id')->toArray();
+        
+        $isSubscribed = in_array(Auth::user()->plan_id, $feedEnabledPlanId);
+        return view('admin.instructors.profile', compact('instructor', 'totalPosts', 'totalLessons', 'followers', 'subscribers', 'section', 'posts', 'follow', 'plans', 'isInfluencer', 'isSubscribed', 'isFollowing'));
     }
 
     public function store(Request $request)

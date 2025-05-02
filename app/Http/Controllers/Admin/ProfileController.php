@@ -143,33 +143,35 @@ class ProfileController extends Controller
         $user->save();
         return redirect()->back()->with('success', __('Account details updated successfully.'));
     }
-    // public function BannerDetails(Request $request)
-    // {
-    //     $userDetail = Auth::user();
-    //     $user = User::findOrFail($userDetail['id']);
 
-    //     $request->validate([
-    //         'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    //     ]);
+    public function SocialMediaUpdate(Request $request)
+    {
+        $userDetail = Auth::user();
+        if ($userDetail->type === Role::ROLE_INFLUENCER) {
+            $user = User::find(Auth::id());
+        } else {
+            $user = Follower::find(Auth::id());
+        }
 
-    //     if ($request->hasFile('banner_image')) {
+        if ($user->type === Role::ROLE_INFLUENCER) {
+            $socialFields = [
+                'linkedin'  => 'social_url_ln',
+                'facebook'  => 'social_url_fb',
+                'instagram' => 'social_url_ig',
+                'twitter'   => 'social_url_x',
+                'youtube'   => 'social_url_yt',
+            ];
+            
+            foreach ($socialFields as $requestKey => $attribute) {
+                if ($request->filled($requestKey)) {
+                    $user->$attribute = $request->$requestKey;
+                }
+            }
+        }
+        $user->save();
+        return redirect()->back()->with('success', __('Social Media details updated successfully.'));
+    }
 
-
-    //         // Delete old banner if it exists
-    //         if (!empty($user->banner_image) && Storage::disk('public')->exists($user->banner_image)) {
-    //             Storage::disk('public')->delete($user->banner_image);
-    //         }
-
-    //         // Store new banner
-    //         $bannerPath = $request->file('banner_image')->store('banners', 'public');
-    //         $user->banner_image = $bannerPath;
-
-    //     }
-
-    //     $user->save();
-
-    //     return redirect()->back()->with('success', __('Banner image updated successfully.'));
-    // }
     public function BannerDetails(Request $request)
     {
         $request->validate([

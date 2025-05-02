@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,16 +18,22 @@ class Order extends Model
         'payment_id',
         'coupon_code',
         'discount_amount',
-        'payment_type'
+        'payment_type',
+        'follower_id',
     ];
 
     public function Plan()
     {
         return $this->hasOne('App\Models\Plan', 'id', 'plan_id');
     }
-    
+
     public function orderUser()
     {
         return $this->hasOne('App\Models\User', 'id', 'user_id');
+    }
+
+    public function orderFollower()
+    {
+        return $this->hasOne('App\Models\Follower', 'id', 'follower_id');
     }
 }
