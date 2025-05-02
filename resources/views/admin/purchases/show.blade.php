@@ -4,7 +4,7 @@
 
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Follower') }}</li>
+    <li class="breadcrumb-item">{{ __('Purchase') }}</li>
 @endsection
 
 @section('content')

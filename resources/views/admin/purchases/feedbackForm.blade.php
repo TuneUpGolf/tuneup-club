@@ -29,7 +29,7 @@
                             <div class="form-group">
                                 {{ Form::label('feedback', __('Feedback'), ['class' => 'form-label']) }}
                                 *
-                                {!! Form::textarea('feedback', null, [
+                                {!! Form::textarea('feedback', $purchaseVideo->feedback ?? '', [
                                     'class' => 'form-control ',
                                     'placeholder' => __('Enter Feedback'),
                                     'required' => 'required',

@@ -597,11 +597,12 @@ class PurchaseController extends Controller
     public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchase = Purchase::with('videos')->find(request()->purchase_id);
-            return $dataTable->with('purchase', $purchase)->render('admin.purchases.videos');
+            $purchase = Purchase::with(['videos', 'lesson', 'follower', 'influencer'])
+                ->find(request()->purchase_id);
+            return view('admin.purchases.videos', compact('purchase'));
+            
         }
     }
-
     public function addFeedBack(Request $request)
     {
         $request->validate([
@@ -660,9 +661,22 @@ class PurchaseController extends Controller
     public function addFeedBackIndex(Request $request)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchaseVideo = PurchaseVideos::find($request->purchase_video);
+            $purchaseVideo = PurchaseVideos::where('video_url', $request->purchase_video)->first();
+
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
+    }
+
+    public function deleteFeedback(PurchaseVideos $purchaseVideo)
+    {
+        if (Auth::user()->can('manage-purchases')) {
+            // Clear the feedback field (if stored as a string)
+            $purchaseVideo->feedback = null;
+            $purchaseVideo->save();
+    
+            return redirect()->back()->with('success', 'Feedback deleted successfully.');
+        }
+    
     }
     public function getStudentPurchases(Request $request)
     {
@@ -721,10 +735,9 @@ class PurchaseController extends Controller
     }
     public function showLesson(PurchaseLessonDataTable $dataTable, $lessonId)
     {
-        $purchase = Purchase::with('follower')->findOrFail($lessonId); 
-
-                         $video = Purchase::with('videos')->find(request()->purchase_id);
-                         return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video'));
+        $purchase = Purchase::with('follower')->findOrFail($lessonId);
+        $video = Purchase::with('videos')->find(request()->purchase_id);
+        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video'));
     }
     public function destroy($id)
     {
