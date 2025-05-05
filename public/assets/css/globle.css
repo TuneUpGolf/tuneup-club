@@ -1,4 +1,4 @@
-@font-face {
+/* @font-face {
   font-family: SFPRODISPLAYREGULAR;
   src: url(fonts/SFPRODISPLAYREGULAR.OTF);
 }
@@ -6,7 +6,7 @@
 @font-face {
   font-family: SFPRODISPLAYBOLD;
   src: url(fonts/SFPRODISPLAYBOLD.OTF);
-}
+} */
 .anker:hover {
   color: #0071ce;
 }
@@ -77,10 +77,7 @@
 .head {
   background-color: #fbfbfb;
 }
-.master {
-  margin-top: 60px;
-  margin-left: 40px;
-}
+
 .lesson {
   max-width: 630px;
 }
@@ -94,26 +91,17 @@
 }
 
 .foot {
-  background-color: #414141;
+  background-color: #EFEFEF;
   padding-block: 70px;
   border-bottom: 2px solid #eef0f3;
 }
 .foot-two {
-  background-color: #414141;
+  background-color: #EFEFEF;
   padding-block: 10px;
 }
 .icon img {
   padding-left: 30px;
-}
-
-h1 {
-  font-family: SFPRODISPLAYREGULAR;
-}
-p {
-  font-family: SFPRODISPLAYREGULAR;
-}
-a {
-  font-family: SFPRODISPLAYREGULAR;
+  filter: brightness(0.5);
 }
 .fot-golf {
   font-size: 19px;
@@ -130,7 +118,6 @@ a {
   text-decoration: none;
 }
 .request-text {
-  font-family: SFPRODISPLAYREGULAR;
   font-weight: 500;
   line-height: 14px;
   font-size: 12px;
@@ -138,7 +125,6 @@ a {
 }
 .access-content h1 {
   font-weight: 700 !important;
-  font-family: SFPRODISPLAYBOLD;
 }
 .golf-p {
   font-size: 21px;

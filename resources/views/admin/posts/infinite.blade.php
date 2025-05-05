@@ -9,42 +9,43 @@
         <div class="col-xl-12">
             <div class="card">
                 @if($isFollowing)
-                    <div id="blog" class="bg-gray-100 px-4 xl:px-4 py-14">
-                        <div class="dropdown dash-h-item drp-company mt-8">
-                            <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                                href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
-                                <span class="hide-mob ms-2 text-lg">Filter</span>
-                                <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
-                            </a>
-                            <div class="dropdown-menu dash-h-dropdown">
-                                <a href="{{ route('blogs.index', ['filter' => 'all']) }}"
-                                    class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
-                                    <span>{{ __('All') }}</span>
+                    <div class="card ctm-post-card">
+                        <div id="blog" class="sm:p-4">
+                            <div class="dropdown dash-h-item drp-company">
+                                <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
+                                    href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
+                                    <span class="hide-mob ms-2 text-lg">Filter</span>
+                                    <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
                                 </a>
-                                <a href="{{ route('blogs.index', ['filter' => 'free']) }}"
-                                    class="dropdown-item  {{ request()->query('filter') === 'free' ? 'active' : '' }}">
-                                    <span>{{ __('Free') }}</span>
-                                </a>
-                                <a href="{{ route('blogs.index', ['filter' => 'paid']) }}"
-                                    class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
-                                    <span>{{ __('Paid') }}</span>
-                                </a>
+                                <div class="dropdown-menu dash-h-dropdown">
+                                    <a href="{{ route('blogs.index', ['filter' => 'all']) }}"
+                                        class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
+                                        <span>{{ __('All') }}</span>
+                                    </a>
+                                    <a href="{{ route('blogs.index', ['filter' => 'free']) }}"
+                                        class="dropdown-item  {{ request()->query('filter') === 'free' ? 'active' : '' }}">
+                                        <span>{{ __('Free') }}</span>
+                                    </a>
+                                    <a href="{{ route('blogs.index', ['filter' => 'paid']) }}"
+                                        class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
+                                        <span>{{ __('Paid') }}</span>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mx-auto container">
-                            <div class="focus:outline-none mt-5 mb-5 lg:mt-24">
-                                <div class="infinity">
-                                    <div class="flex flex-col justify-center items-center w-100">
-                                        @if ($posts->count() > 0)
-                                            {{-- @each('admin.posts.blog', $posts, 'post') --}}
-                                            @foreach ($posts as $post)
-                                                @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed])
-                                            @endforeach
+                            <div class="">
+                                <div class="focus:outline-none mt-5 mb-5 lg:mt-24">
+                                    <div class="infinity">
+                                        <div class="flex flex-wrap w-100">
+                                            @if ($posts->count() > 0)
+                                                @foreach ($posts as $post)
+                                                    @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed])
+                                                @endforeach
 
-                                            {{ $posts->links('pagination::bootstrap-4') }}
-                                        @else
-                                            <p class="text-gray-500 text-lg mt-5">No posts available.</p>
-                                        @endif
+                                                {{ $posts->links('pagination::bootstrap-4') }}
+                                            @else
+                                                <p class="text-gray-500 text-lg mt-5">No posts available.</p>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>

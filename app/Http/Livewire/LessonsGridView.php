@@ -35,7 +35,7 @@ class LessonsGridView extends GridView
         return $query;
     }
 
-    public $maxCols = 3;
+    public $maxCols = 4;
     // protected $paginate = 4;
 
     /**
