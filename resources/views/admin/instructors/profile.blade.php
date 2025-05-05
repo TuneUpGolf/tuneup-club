@@ -107,7 +107,7 @@
                                     <div class="mx-auto container">
                                         <div class="focus:outline-none mt-5 mb-5 lg:mt-24">
                                             <div class="infinity">
-                                                <div class="flex flex-col justify-center items-center w-100">
+                                                <div class="flex flex-wrap w-100">
                                                     @foreach ($posts as $post)
                                                         @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed])
                                                     @endforeach

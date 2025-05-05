@@ -51,7 +51,7 @@
                                 {{ $currency}} {{ $lesson->lesson_price }} (USD)
                             </div>
                             <div class="text-sm font-medium text-gray-500 italic">
-                                <span class="">(8 Purchased)</span>
+                                <span class="">({!! \App\Models\Purchase::where('lesson_id', $lesson->id)->where('status', 'complete')->count() !!} Purchased)</span>
                             </div>
                         </div>
                     </div>
