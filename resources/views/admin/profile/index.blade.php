@@ -52,7 +52,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="avatar me-3">
-                        <img src="{{ asset('storage/'.$user->tenant_id.'/'.$user->avatar) }}" class="img-user wid-80 rounded-circle">
+                        <img src="{{ $user->avatar ?? $user->dp }}" class="img-user wid-80 rounded-circle">
                     </div>
                     <div class="d-block d-sm-flex align-items-center justify-content-between w-100">
                         <div class="mb-3 mb-sm-0">
@@ -318,59 +318,60 @@
                 </div>
                 {!! Form::close() !!}
             </div>
-        @endif
-        <div id="useradd-4" class="card">
-            <div class="card-header">
-                <h5>{{ __('Banner') }}</h5>
-                <small class="text-muted">{{ __('Upload banner image') }}</small>
-            </div>
 
-            {{ Form::open(['route' => 'update.banner.image', 'method' => 'POST', 'enctype' => 'multipart/form-data', 'class' => 'form-horizontal', 'data-validate']) }}
-            <div class="card-body">
-                <div class="row form-group">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            {{ Form::label('Banner Image', __('Banner Image'), ['class' => 'col-form-label ms-4']) }}
-                            <div class="pt-0 card-body">
-                                <div class="setting_card">
-                                    <div class="logo-content">
-                                        <a href="{{ !empty($user->banner_image) ? asset('storage/' . $user->banner_image) : '#' }}" target="_blank">
-
-                                            <img id="banner-preview"
-                                                src="{{ !empty($user->banner_image) ? asset('storage/'.$user->tenant_id.'/app/public/' . $user->banner_image) : asset('seeder-image/default-banner.jpg') }}"
-                                                alt="Banner Image"
-                                                style="max-height: 150px; width: auto; border-radius: 8px;">
-                                        </a>
-                                    </div>
-                                    <div class="mt-4 choose-files">
-                                        <label for="banner_image">
-                                            <div class="bg-primary logo input-img-div">
-                                                <i class="px-1 ti ti-upload"></i>
-                                                {{ __('Choose file here') }}
-                                                <input type="file"
-                                                    class="form-control file image-input"
-                                                    accept="image/png, image/gif, image/jpeg, image/jpg"
-                                                    id="banner_image"
-                                                    name="banner_image"
-                                                    onchange="document.getElementById('banner-preview').src = window.URL.createObjectURL(this.files[0])"
-                                                    data-filename="banner_image">
-                                            </div>
-                                        </label>
+            <div id="useradd-4" class="card">
+                <div class="card-header">
+                    <h5>{{ __('Banner') }}</h5>
+                    <small class="text-muted">{{ __('Upload banner image') }}</small>
+                </div>
+    
+                {{ Form::open(['route' => 'update.banner.image', 'method' => 'POST', 'enctype' => 'multipart/form-data', 'class' => 'form-horizontal', 'data-validate']) }}
+                <div class="card-body">
+                    <div class="row form-group">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ Form::label('Banner Image', __('Banner Image'), ['class' => 'col-form-label ms-4']) }}
+                                <div class="pt-0 card-body">
+                                    <div class="setting_card">
+                                        <div class="logo-content">
+                                            <a href="{{ !empty($user->banner_image) ? $user->banner_image : '#' }}" target="_blank">
+    
+                                                <img id="banner-preview"
+                                                    src="{{ $user->banner_image }}"
+                                                    alt="Banner Image"
+                                                    style="max-height: 150px; width: auto; border-radius: 8px;">
+                                            </a>
+                                        </div>
+                                        <div class="mt-4 choose-files">
+                                            <label for="banner_image">
+                                                <div class="bg-primary logo input-img-div">
+                                                    <i class="px-1 ti ti-upload"></i>
+                                                    {{ __('Choose file here') }}
+                                                    <input type="file"
+                                                        class="form-control file image-input"
+                                                        accept="image/png, image/gif, image/jpeg, image/jpg"
+                                                        id="banner_image"
+                                                        name="banner_image"
+                                                        onchange="document.getElementById('banner-preview').src = window.URL.createObjectURL(this.files[0])"
+                                                        data-filename="banner_image">
+                                                </div>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="card-footer">
-                <div class="text-end">
-                    {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
+    
+                <div class="card-footer">
+                    <div class="text-end">
+                        {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
+                    </div>
                 </div>
+                {!! Form::close() !!}
             </div>
-            {!! Form::close() !!}
-        </div>
+        @endif
 
         <div id="useradd-3" class="card">
             <div class="card-header">

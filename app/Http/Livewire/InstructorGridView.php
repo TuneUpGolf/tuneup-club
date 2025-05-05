@@ -35,7 +35,7 @@ class InstructorGridView extends GridView
     public function card($model)
     {
         return [
-            'image'       => asset('/storage' . '/' . tenant('id') . '/' . $model->logo) ?? asset('assets/img/logo/logo.png'),
+            'image'       =>  $model->logo ?? asset('assets/img/logo/logo.png'),
             'follow'      => Follow::where('influencer_id', $model->id)?->where('follower_id', Auth::user()->id)->first()?->active_status,
             'followers'   => Follow::where('influencer_id', $model->id)->where('active_status', true)->count(),
             'subscribers' => Follow::where('influencer_id', $model->id)->where('active_status', true)->where('isPaid', true)->count(),

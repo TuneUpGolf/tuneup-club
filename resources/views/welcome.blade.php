@@ -26,7 +26,7 @@
 
 <section class="landing-hero">
     <div class="hero-sec">
-        <img class="w-full" src="{{ asset('/storage' . '/' . tenant('id') . '/app/public/' . $influencerDetails->banner_image) }}" alt="hero-banner">
+        <img class="w-full" src="{{ $influencerDetails->banner_image }}" alt="hero-banner">
     </div>
 </section>
 <section class="lession-sec">
@@ -39,7 +39,7 @@
             <div class="px-3 py-4">
                 <div class=" bg-white rounded-lg shadow   flex flex-col">
                     <div class="relative text-center p-3 flex gap-3">
-                        <img src="{{ asset('/storage' . '/' . tenant('id') . '/' . $influencerDetails->avatar) }}"
+                        <img src="{{ $influencerDetails->avatar }}"
                             alt="{{ $influencerDetails->name }}"
                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                         <div class="text-left">
@@ -173,7 +173,7 @@
                             <div class="flex justify-between items-center w-full">
                                 <div class="flex items-center gap-3">
                                     <img class="w-16 h-16 rounded-full"
-                                        src="{{ asset('/storage' . '/' . tenant('id') . '/' . $influencerDetails->avatar) }}"
+                                        src="{{ $influencerDetails->avatar }}"
                                         alt="Profile">
                                     <div>
                                         <p class="text-xl text-white font-bold mb-0 leading-tight">

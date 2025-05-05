@@ -180,31 +180,16 @@ class ProfileController extends Controller
 
         $userDetail = Auth::user();
         $user = User::findOrFail($userDetail['id']);
-        $tenantId = $user->tenant_id;
+        $currentDomain = tenant('domains');
+        $currentDomain = $currentDomain[0]->domain;
 
         if ($request->hasFile('banner_image')) {
             $file = $request->file('banner_image');
             $fileName = time() . '_' . $file->getClientOriginalName();
-            $relativePath = 'banners/' . $fileName;
-    
-            // Full dynamic path: storage/{tenant_id}/app/public/banners/filename.png
-            $fullStoragePath = base_path("storage/{$tenantId}/app/public/banners");
-    
-            // Ensure the directory exists
-            if (!FacadesFile::exists($fullStoragePath)) {
-                FacadesFile::makeDirectory($fullStoragePath, 0755, true);
-            }
-    
-            // Save file content
-            $img = file_get_contents($file->getRealPath());
-            file_put_contents($fullStoragePath . '/' . $fileName, $img);
-    
-            // Optional: delete old image
-            $oldImagePath = base_path("storage/{$tenantId}/app/public/") . $user->banner_image;
-            if (!empty($user->banner_image) && FacadesFile::exists($oldImagePath)) {
-                FacadesFile::delete($oldImagePath);
-            }
-    
+
+            $filePath      = $currentDomain.'/' . "uploads/banner/" . Auth::user()->id . '/' . $fileName;
+            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+            $relativePath = Storage::disk('spaces')->url($filePath);
             // Save relative path in DB
             $user->update([
                 'banner_image' => $relativePath,
@@ -294,8 +279,21 @@ class ProfileController extends Controller
 
     public function updateAvatar(Request $request)
     {
-        $disk = Storage::disk();
-        $user = User::find(auth()->id());
+        $currentDomain = tenant('domains');
+        $currentDomain = $currentDomain[0]->domain;
+        $logo = false;
+
+        if(auth()->user()->type == 'Influencer'){
+            $user = User::find(auth()->id());
+            $basePath = $currentDomain.'/' . "uploads/avatar/influencer/";
+            $column = 'avatar';
+            $logo = true;
+        }else{
+            $user = Follower::find(auth()->id());
+            $basePath = $currentDomain.'/' . "uploads/avatar/follower/";
+            $column = 'dp';
+        }
+
         request()->validate([
             'avatar'    => 'required',
         ]);
@@ -303,9 +301,14 @@ class ProfileController extends Controller
         $image          = str_replace('data:image/png;base64,', '', $image);
         $image          = str_replace(' ', '+', $image);
         $imageName      = time() . '.' . 'png';
-        $imagePath      = "uploads/avatar/" . $imageName;
-        $disk->put($imagePath, base64_decode($image));
-        $user->avatar   = $imagePath;
+        $filePath      = $basePath . Auth::user()->id . '/' . $imageName;
+        Storage::disk('spaces')->put($filePath, base64_decode($image), 'public');
+        $imagePath = Storage::disk('spaces')->url($filePath);
+
+        $user->$column   = $imagePath;
+        if($logo){
+            $user->logo = $imagePath;
+        }
         if ($user->save()) {
             return __("Avatar updated successfully.");
         }

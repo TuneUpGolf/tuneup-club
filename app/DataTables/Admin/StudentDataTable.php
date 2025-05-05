@@ -15,7 +15,7 @@ class StudentDataTable extends DataTable
             ->eloquent($query)
             ->addIndexColumn()
             ->editColumn('name', function (Follower $user) {
-                $imageSrc = $user->dp ? asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
+                $imageSrc = $user->dp ?? asset('assets/img/user.png');
                 $userUrl = route('follower.show', $user->id); 
                 $html = '
                 <div class="flex justify-start items-center">

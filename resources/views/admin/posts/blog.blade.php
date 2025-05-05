@@ -9,7 +9,7 @@
             <div class="flex justify-between items-center w-full">
                 <div class="flex items-center gap-3">
                     <img class="w-16 h-16 rounded-full"
-                        src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post?->influencer?->logo) }}"
+                        src="{{ $post?->influencer?->logo }}"
                         alt="Profile" />
                     <div>
                         <p class="text-xl text-white font-bold mb-0 leading-tight">
@@ -29,7 +29,7 @@
                     ]) !!}
                     
                     <button type="submit" class="text-md font-semibold flex items-center gap-2"><i class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count()  }} Likes</span></button>
-                    {!! Form::close() !!} 
+                    {!! Form::close() !!}
                 </div>
 
             </div>

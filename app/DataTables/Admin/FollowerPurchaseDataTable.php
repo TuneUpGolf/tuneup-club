@@ -33,8 +33,8 @@ class FollowerPurchaseDataTable extends DataTable
                 $query->where('followers.name', 'like', "%{$keyword}%");
             })
             ->editColumn('instructor_name', function ($purchase) {
-                $imageSrc = $purchase->influencer->dp
-                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->influencer->dp)
+                $imageSrc = $purchase->influencer->avatar
+                ? $purchase->influencer->avatar
                 : asset('assets/img/logo/logo.png');
 
                 return '
