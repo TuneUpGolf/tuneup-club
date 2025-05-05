@@ -17,7 +17,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <div class="me-3">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" class="img-user wid-80 rounded-circle" alt="Avatar">
+                            <img src="{{ $purchase->follower->dp }}" class="img-user wid-80 rounded-circle" alt="Avatar">
                         </div>
                         <div>
                             <h4 class="mb-1 text-white">{{ $purchase->follower->name }}</h4>

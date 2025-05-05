@@ -29,7 +29,7 @@ class PurchaseLessonDataTable extends DataTable
                 return $instructor_name->name;
             })
             ->editColumn('video', function (PurchaseVideos $purchaseVideo) {
-                $video = $purchaseVideo;
+                $video = $purchaseVideo->video_url;
                 return view('admin.purchases.renderVideo', compact('video'));
             })
             ->editColumn('feedback', function (PurchaseVideos $purchaseVideo) {
