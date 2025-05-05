@@ -28,7 +28,7 @@ class UsersDataTable extends DataTable
                 return $out;
             })
             ->editColumn('name', function (User $user) {
-                $imageSrc = $user->dp ?  asset('/storage' . '/' . tenant('id') . '/' . $user->dp) : asset('assets/img/user.png');
+                $imageSrc = $user->dp ?  $user->dp : asset('assets/img/user.png');
                 $html =
                     '
                 <div class="flex justify-start items-center">'

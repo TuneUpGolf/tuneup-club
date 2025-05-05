@@ -28,8 +28,8 @@
             <div class="flex flex-col">
                 <div class="profile-backdrop">
                     <div class="profile-info-container flex">
-                        <img alt="{{ $instructor->name }}""
-                            src="{{ asset('/storage' . '/' . tenant('id') . '/' . $instructor?->logo) }}""
+                        <img alt="{{ $instructor->name }}"
+                            src="{{ $instructor?->logo }}"
                             class="rounded-full align-middle border-1 profile-image">
                         <div class="flex flex-col">
                             <span class="font-medium text-3xl mb-2">{{ $instructor->name }}</span>

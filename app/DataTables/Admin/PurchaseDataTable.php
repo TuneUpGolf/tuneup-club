@@ -20,21 +20,21 @@ class PurchaseDataTable extends DataTable
             ->filterColumn('lesson_name', function ($query, $keyword) {
                 $query->where('lessons.lesson_name', 'like', "%{$keyword}%");
             })
-            ->filterColumn('instructor_name', function ($query, $keyword) {
+            ->filterColumn('influencer_name', function ($query, $keyword) {
                 $query->where('influencers.name', 'like', "%{$keyword}%");
             })
             ->filterColumn('follower_name', function ($query, $keyword) {
                 $query->where('followers.name', 'like', "%{$keyword}%");
             })
-            ->editColumn('instructor_name', function ($purchase) {
-                $imageSrc = $purchase->influencer->dp
-                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->influencer->dp)
+            ->editColumn('influencer_name', function ($purchase) {
+                $imageSrc = $purchase->influencer->logo
+                ? $purchase->influencer->logo
                 : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
                         <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase->instructor_name) . '</span>
+                        <span class="px-0">' . e($purchase->influencer_name) . '</span>
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
@@ -56,7 +56,7 @@ class PurchaseDataTable extends DataTable
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->follower->dp
-                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->follower->dp)
+                ? $purchase->follower->dp
                 : asset('assets/img/logo/logo.png');
 
                 return '
@@ -77,7 +77,7 @@ class PurchaseDataTable extends DataTable
             ->addColumn('action', function ($purchase) {
                 return view('admin.purchases.action', compact('purchase'));
             })
-            ->rawColumns(['action', 'status', 'follower_name', 'instructor_name', 'lesson_name']);
+            ->rawColumns(['action', 'status', 'follower_name', 'influencer_name', 'lesson_name']);
     }
 
     public function query(Purchase $model)
@@ -88,7 +88,7 @@ class PurchaseDataTable extends DataTable
             ->select([
                 'purchases.*',                         // Select all purchase fields
                 'lessons.lesson_name as lesson_name',  // Get lesson name
-                'instructors.name as instructor_name', // Get instructor name
+                'instructors.name as influencer_name', // Get instructor name
                 'followers.name as follower_name',     // Get student name
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
@@ -218,7 +218,7 @@ class PurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             $columns[] = Column::make('follower_name')->title("Follower")->searchable(true);
         } elseif (Auth::user()->type == Role::ROLE_FOLLOWER) {
-            $columns[] = Column::make('instructor_name')->title(__('Influencer'))->searchable(true);
+            $columns[] = Column::make('influencer_name')->title(__('Influencer'))->searchable(true);
         }
         return array_merge($columns, [
             Column::make('status')->title(__('Payment Status')),
