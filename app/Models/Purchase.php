@@ -5,8 +5,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Payment;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Models\Payment;
 
 class Purchase extends Model
 {

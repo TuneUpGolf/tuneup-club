@@ -52,11 +52,6 @@
     {{-- Purchases table styles --}}
     @include('layouts.includes.datatable_css')
 
-    <!-- <style>
-    .dt-buttons {
-        display: none !important;
-    }
-</style> -->
 @endpush
 
 @push('javascript')

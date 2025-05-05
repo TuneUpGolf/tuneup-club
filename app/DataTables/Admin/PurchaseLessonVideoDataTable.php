@@ -9,8 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class PurchaseLessonDataTable extends DataTable
+class PurchaseLessonVideoDataTable extends DataTable
 {
+
+
+
     public function dataTable($query)
     {
         return datatables()
@@ -19,9 +22,6 @@ class PurchaseLessonDataTable extends DataTable
             ->editColumn('purchase_id', function (PurchaseVideos $purchaseVideo) {
 
                 return $purchaseVideo->purchase_id;
-            })
-            ->editColumn('note', function (PurchaseVideos $purchaseVideo) {
-                return $purchaseVideo->note;
             })
             ->editColumn('influencer_id', function () {
                 $instructor_name = User::find($this->purchase->influencer_id);
@@ -32,8 +32,8 @@ class PurchaseLessonDataTable extends DataTable
                 return view('admin.purchases.renderVideo', compact('video'));
             })
             ->editColumn('feedback', function (PurchaseVideos $purchaseVideo) {
-                $feedback = $purchaseVideo->feedback ? nl2br(e($purchaseVideo->feedback)) : "Feedback pending";
-                return '<div style="white-space: pre-wrap; word-wrap: break-word; max-width: 400px;">' . $feedback . '</div>';
+                $feedback = $purchaseVideo->feedback ? $purchaseVideo->feedback : "Feedback pending";
+                return $feedback;
             })
             ->editColumn('created_at', function ($request) {
                 $created_at = UtilityFacades::date_time_format($request->created_at);
@@ -42,7 +42,7 @@ class PurchaseLessonDataTable extends DataTable
             ->addColumn('action', function (PurchaseVideos $purchaseVideo) {
                 return view('admin.purchases.purchaseVideoAction', compact('purchaseVideo'));
             })
-            ->rawColumns(['action', 'logo_image', 'feedback']);
+            ->rawColumns(['action', 'logo_image']);
     }
 
     public function query(PurchaseVideos $model)
@@ -78,7 +78,13 @@ class PurchaseLessonDataTable extends DataTable
                              <'dataTable-container'<'col-sm-12'tr>>
                              <'dataTable-bottom row'<'col-sm-5'i><'col-sm-7'p>>
                                ",
-
+                'buttons'   => [
+                    ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+                                    window.location = '" . route('purchase.create') . "';
+                               }"],
+                    ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+                    ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+                ],
                 "scrollX" => true,
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
@@ -98,6 +104,15 @@ class PurchaseLessonDataTable extends DataTable
                         return new bootstrap.Toast(toastEl);
                       });
                 }'
+            ])->language([
+                'buttons' => [
+                    'create' => __('Create'),
+                    'print' => __('Print'),
+                    'reset' => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel' => __('Excel'),
+                    'csv' => __('CSV'),
+                ]
             ]);
     }
 
@@ -105,7 +120,8 @@ class PurchaseLessonDataTable extends DataTable
     {
         $columns = [
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('note')->title(__('Note')),
+            Column::make('purchase_id')->title(__('Purchase')),
+            Column::make('influencer_id')->title(__('Instructor Name')),
             Column::make('video')->title(__('Video'))->searchable(false),
             Column::make('feedback')->title(__('Feedback')),
             Column::make('created_at')->title(__('Created At')),
@@ -115,7 +131,6 @@ class PurchaseLessonDataTable extends DataTable
                 ->width(60)
                 ->addClass('text-center')
                 ->width('20%'),
-
         ];
 
         if (Auth::user()->type == Role::ROLE_FOLLOWER) {
