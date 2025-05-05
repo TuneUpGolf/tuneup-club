@@ -21,7 +21,8 @@ class PurchaseLessonDataTable extends DataTable
                 return $purchaseVideo->purchase_id;
             })
             ->editColumn('note', function (PurchaseVideos $purchaseVideo) {
-                return $purchaseVideo->note;
+                $note = $purchaseVideo->note ? nl2br(e($purchaseVideo->note)) : "No note provided";
+                return '<div style="white-space: pre-wrap; word-wrap: break-word; max-width: 400px;">' . $note . '</div>';
             })
             ->editColumn('influencer_id', function () {
                 $instructor_name = User::find($this->purchase->influencer_id);
@@ -42,7 +43,7 @@ class PurchaseLessonDataTable extends DataTable
             ->addColumn('action', function (PurchaseVideos $purchaseVideo) {
                 return view('admin.purchases.purchaseVideoAction', compact('purchaseVideo'));
             })
-            ->rawColumns(['action', 'logo_image', 'feedback']);
+            ->rawColumns(['action', 'logo_image', 'feedback', 'note']);
     }
 
     public function query(PurchaseVideos $model)
