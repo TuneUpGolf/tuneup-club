@@ -39,7 +39,7 @@
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
-                            <a href="{{ route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id]) }}"
+                            <a href="{{ url()->previous() }}"
                                 class="btn btn-secondary">{{ __('Cancel') }}</a>
                             {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                         </div>

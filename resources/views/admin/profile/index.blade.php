@@ -204,6 +204,8 @@
                                 for="avatarCrop">
                                 {{ __('Update Avatar') }}
                                 {{ Form::file('file', ['id' => 'avatarCrop', 'class' => 'd-none', 'accept' => 'image/jpeg, image/png']) }}
+                                {{-- Hidden field to store base64 image --}}
+                                {{ Form::hidden('avatar', null, ['id' => 'avatar-hidden']) }}
                             </label>
                         </div>
                         <div id="avatar-updater" class="col-xs-12 d-none">
@@ -747,6 +749,17 @@
                 icon: 'error',
             });
         });
+    });
+    document.getElementById('avatarCrop').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Set base64 image to hidden input
+            document.getElementById('avatar-hidden').value = e.target.result;
+        };
+        reader.readAsDataURL(file);
     });
     document.addEventListener('DOMContentLoaded', function() {
         var genericExamples = document.querySelectorAll('[data-trigger]');

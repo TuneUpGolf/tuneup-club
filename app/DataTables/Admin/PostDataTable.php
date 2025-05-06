@@ -25,7 +25,7 @@ class PostDataTable extends DataTable
             })
             ->editColumn("photo", function (Post $post) {
                 if ($post->file) {
-                    $imageSrc = asset('/storage' . '/' . tenant('id') . '/' . $post->file);
+                    $imageSrc = $post->file;
                     return "<img src=' " . $imageSrc . " ' width='50'/>";
                 } else {
                     $return = "<img src='" . asset('/storage' . '/' . tenant('id') . '/seeder-image/350x250.png') . "' width='50' />";
