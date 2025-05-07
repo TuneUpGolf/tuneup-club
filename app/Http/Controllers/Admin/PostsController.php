@@ -148,9 +148,14 @@ class PostsController extends Controller
                 // 'short_description' => 'required',
             ]);
             $post   = Post::find($id);
+            $currentDomain = tenant('domains');
+            $currentDomain = $currentDomain[0]->domain;
             if ($request->hasFile('file')) {
-                $path           = $request->file('file')->store('posts');
-                $post->file    = $path;
+                $fileName = $request->file('file');
+                $filePath      = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
+                Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                $post->file = Storage::disk('spaces')->url($filePath);
+                $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             }
             $post->title                = $request->title;
             $post->paid                 = $request?->paid == 'on' ? true : false;
