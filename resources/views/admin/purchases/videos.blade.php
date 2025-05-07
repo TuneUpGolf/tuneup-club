@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('content')
 <div
-    class="flex items-start justify-content-between border-b border-gray-400 pb-5 mb-5">
+    class="flex items-start justify-content-between border-b border-gray-400 pb-4 mb-5">
     <div class="max-w-lg">
         <h2 class="font-bold text-3xl mb-3">Purchase User Details</h2>
 
@@ -15,7 +15,7 @@
 @php
 $purchaseVideo = $purchase->videos->first();
 @endphp
-<div class="flex justify-content-between items-start">
+<div class="flex justify-content-between items-start bg-white p-4 rounded-lg">
     <div class="video-section-col flex gap-4">
         <div class="video-wrap border-r border-gray-400 pr-4">
             <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ asset('storage/'.Auth::user()->tenant_id.'/'.$purchase->videos->first()->video_url) }}" class="w-80 h-60 rounded-lg"></video>
