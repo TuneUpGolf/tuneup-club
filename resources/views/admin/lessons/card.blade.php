@@ -17,7 +17,7 @@
             class="hover:shadow-lg cursor-pointer rounded-xl h-56 w-full object-cover">
         <div class="text-bottom-img">
             <span> By:
-                <a class="text-white" href="{{ route('instructor.profile', ['influencer_id' => $model?->user?->id]) }}">
+                <a class="text-white" href="{{ route('influencer.profile', ['influencer_id' => $model?->user?->id]) }}">
                     {!! \Illuminate\Support\Str::limit(ucfirst($model?->user?->name), 40, '...') !!}
                 </a>
             </span>

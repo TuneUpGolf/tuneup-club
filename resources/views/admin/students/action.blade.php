@@ -27,7 +27,7 @@
     </a>
 @endif --}}
 @can('edit-user')
-    <a class="btn btn-sm small btn btn-warning " href="{{ route('student.edit', $user->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-warning " href="{{ route('follower.edit', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
         <i class="ti ti-edit text-white"></i>
     </a>

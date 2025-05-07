@@ -168,11 +168,11 @@ class InstructorDataTable extends DataTable
                         ",
                 'buttons'        => [
                     ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('instructor.create') . "';
-                   }", ],
+                        window.location = '" . route('influencer.create') . "';
+                   }"],
                     ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('instructor.import') . "';
-                   }", ],
+                        window.location = '" . route('influencer.import') . "';
+                   }"],
                     [
                         'extend'    => 'collection',
                         'className' => 'btn btn-light-secondary me-1 dropdown-toggle',

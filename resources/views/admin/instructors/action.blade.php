@@ -27,7 +27,7 @@
     </a>
 @endif --}}
 @can('edit-user')
-    <a class="btn btn-sm small btn btn-warning " href="{{ route('instructor.edit', $user->id) }}" data-bs-toggle="tooltip"
+    <a class="btn btn-sm small btn btn-warning " href="{{ route('influencer.edit', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
         <i class="ti ti-edit text-white"></i>
     </a>
@@ -36,7 +36,7 @@
     {!! Form::open([
         'method' => 'DELETE',
         'class' => 'd-inline',
-        'route' => ['instructor.destroy', $user->id],
+        'route' => ['influencer.destroy', $user->id],
         'id' => 'delete-form-' . $user->id,
     ]) !!}
     <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm" data-bs-toggle="tooltip"

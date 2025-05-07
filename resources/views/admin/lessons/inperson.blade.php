@@ -121,7 +121,7 @@
 
                         <div class="card-footer">
                             <div class="float-end">
-                                <a href="{{ route('student.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                                <a href="{{ route('follower.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                                 {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                             </div>
                             {!! Form::close() !!}

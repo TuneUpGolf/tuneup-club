@@ -16,8 +16,8 @@ class StudentDataTable extends DataTable
             ->addIndexColumn()
             ->editColumn('name', function (Follower $user) {
                 $imageSrc = $user->dp ?? asset('assets/img/user.png');
-                $userUrl = route('follower.show', $user->id); 
-                $html = '
+                $userUrl  = route('follower.show', $user->id);
+                $html     = '
                 <div class="flex justify-start items-center">
                     <a href="' . $userUrl . '" class="flex items-center text-primary hover:underline">
                         <img src="' . $imageSrc . '" width="20" class="rounded-full" alt="User Image"/>
@@ -169,8 +169,8 @@ class StudentDataTable extends DataTable
                         ",
                 'buttons'        => [
                     ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('student.import') . "';
-                   }"],
+                        window.location = '" . route('follower.import') . "';
+                   }", ],
                     [
                         'extend'    => 'collection',
                         'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
