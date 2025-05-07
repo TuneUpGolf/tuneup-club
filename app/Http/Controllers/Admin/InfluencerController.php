@@ -33,7 +33,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Stancl\Tenancy\Database\Models\Domain;
 
-class InstructorController extends Controller
+class InfluencerController extends Controller
 {
     use ConvertVideos;
 
@@ -88,12 +88,12 @@ class InstructorController extends Controller
         $isFollowing  = $follow->where('follower_id', Auth::user()->id)
             ->where('active_status', 1)
             ->exists();
-        $subscribers  = Follow::where('influencer_id', $instructor->id)->where('active_status', 1)->where('isPaid', true)->count();
-        $plans        = Plan::where('influencer_id', $instructor->id)->get();
-        $isInfluencer = Auth::user()->type === Role::ROLE_INFLUENCER;
+        $subscribers       = Follow::where('influencer_id', $instructor->id)->where('active_status', 1)->where('isPaid', true)->count();
+        $plans             = Plan::where('influencer_id', $instructor->id)->get();
+        $isInfluencer      = Auth::user()->type === Role::ROLE_INFLUENCER;
         $feedEnabledPlanId = Plan::where('influencer_id', $instructor->id)
-                        ->where('is_feed_enabled', true)->pluck('id')->toArray();
-        
+            ->where('is_feed_enabled', true)->pluck('id')->toArray();
+
         $isSubscribed = in_array(Auth::user()->plan_id, $feedEnabledPlanId);
         return view('admin.instructors.profile', compact('instructor', 'totalPosts', 'totalLessons', 'followers', 'subscribers', 'section', 'posts', 'follow', 'plans', 'isInfluencer', 'isSubscribed', 'isFollowing'));
     }
@@ -137,7 +137,7 @@ class InstructorController extends Controller
                 $userPhone = str_replace(['(', ')'], '', $userPhone);
                 SendSMS::dispatch("+" . $userPhone, $message);
             }
-            return redirect()->route('instructor.index')->with('success', __('Influencer created successfully.'));
+            return redirect()->route('influencer.index')->with('success', __('Influencer created successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -355,7 +355,7 @@ class InstructorController extends Controller
                 $user->save();
             }
 
-            return redirect()->route('instructor.index')->with('success', __('User updated successfully.'));
+            return redirect()->route('influencer.index')->with('success', __('User updated successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -370,7 +370,7 @@ class InstructorController extends Controller
             $user->post()->delete();
             $user->delete();
 
-            return redirect()->route('instructor.index')->with('success', __('User deleted successfully.'));
+            return redirect()->route('influencer.index')->with('success', __('User deleted successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -495,7 +495,7 @@ class InstructorController extends Controller
                     SendEmail::dispatch($import['email'], new WelcomeMail($import));
                 }
 
-                return redirect()->route('instructor.index')->with('success', __('Instructors imported successfully.'));
+                return redirect()->route('influencer.index')->with('success', __('Instructors imported successfully.'));
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));

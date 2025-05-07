@@ -15,7 +15,7 @@
         <img class="w-12 h-12 rounded-full" src="{{ $image }}" alt="{{ $image }}" />
         <div class="flex flex-col pl-4 justify-start items-start">
             <div class="text-xl font-medium text-gray-900 dark:text-white"><a class="text-black hover:text-blue-500"
-                    href="{{ route('instructor.profile', ['influencer_id' => $model->id]) }}">{!! \Illuminate\Support\Str::limit(ucfirst($model->name), 40, '...') !!}</a>
+                    href="{{ route('influencer.profile', ['influencer_id' => $model->id]) }}">{!! \Illuminate\Support\Str::limit(ucfirst($model->name), 40, '...') !!}</a>
             </div>
             <span class="text-sm text-gray-500 dark:text-gray-400">Instructor</span>
         </div>
@@ -39,7 +39,7 @@
         @if (!request()->is('purchase*'))
             {!! Form::open([
                 'route' => [
-                    'follow.instructor',
+                    'follow.influencer',
                     [
                         'influencer_id' => $model?->id,
                         'follow' => $follow ? 'unfollow' : 'follow',
@@ -52,7 +52,7 @@
             {!! Form::close() !!}
         @endif
         {{-- <a
-            href="{{ route('instructor.profile', array_filter(['influencer_id' => $model->id, 'section' => request()->is('purchase*') ? 'lessons' : null])) }}"><button
+            href="{{ route('influencer.profile', array_filter(['influencer_id' => $model->id, 'section' => request()->is('purchase*') ? 'lessons' : null])) }}"><button
                 type="button"
                 class="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">{{ __(request()->is('purchase*') ? 'Select Coach' : 'View Profile') }}</button></a> --}}
     </div>

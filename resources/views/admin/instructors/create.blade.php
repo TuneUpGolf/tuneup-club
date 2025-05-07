@@ -2,7 +2,7 @@
 @section('title', __('Create Influencer'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('instructor.index') }}">{{ __('Influencers') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('influencer.index') }}">{{ __('Influencers') }}</a></li>
     <li class="breadcrumb-item">{{ __('Create Influencer') }}</li>
 @endsection
 @section('content')
@@ -21,7 +21,7 @@
                         </div>
                         <div class="card-body">
                             {!! Form::open([
-                                'route' => 'instructor.store',
+                                'route' => 'influencer.store',
                                 'method' => 'Post',
                                 'data-validate',
                                 'file' => true,
@@ -70,7 +70,7 @@
                         </div>
                         <div class="card-footer">
                             <div class="float-end">
-                                <a href="{{ route('instructor.index') }}"
+                                <a href="{{ route('influencer.index') }}"
                                     class="btn btn-secondary">{{ __('Cancel') }}</a>
                                 {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                             </div>

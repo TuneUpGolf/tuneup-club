@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
 use App\Actions\SendSMS;
+use App\DataTables\Admin\FollowerPurchaseDataTable;
 use App\DataTables\Admin\StudentDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
@@ -21,9 +22,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Stancl\Tenancy\Database\Models\Domain;
-use App\DataTables\Admin\FollowerPurchaseDataTable;
 
-class StudentController extends Controller
+class FollowerController extends Controller
 {
 
     public function index(StudentDataTable $dataTable)
@@ -45,7 +45,7 @@ class StudentController extends Controller
 
     public function show($id)
     {
-        $follower = Follower::findOrFail($id);
+        $follower  = Follower::findOrFail($id);
         $dataTable = new FollowerPurchaseDataTable($id); // Pass follower ID to the datatable
         return $dataTable->render('admin.students.show', compact('follower', 'dataTable'));
     }
@@ -95,7 +95,7 @@ class StudentController extends Controller
             // $userPhone = str_replace(array('(', ')'), '', $userPhone);
             // SendSMS::dispatch("+" . $userPhone, $message);
 
-            return redirect()->route('student.index')->with('success', __('Student created successfully.'));
+            return redirect()->route('follower.index')->with('success', __('Student created successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -140,7 +140,7 @@ class StudentController extends Controller
                 $user->save();
             }
 
-            return redirect()->route('student.index')->with('success', __('User updated successfully.'));
+            return redirect()->route('follower.index')->with('success', __('User updated successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -156,7 +156,7 @@ class StudentController extends Controller
             $user->post()->delete();
             $user->delete();
 
-            return redirect()->route('student.index')->with('success', __('User deleted successfully.'));
+            return redirect()->route('follower.index')->with('success', __('User deleted successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -326,7 +326,7 @@ class StudentController extends Controller
                     SendSMS::dispatch($studentPhone, $message);
                 }
 
-                return redirect()->route('student.index')->with('success', __('Students imported successfully.'));
+                return redirect()->route('follower.index')->with('success', __('Students imported successfully.'));
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));

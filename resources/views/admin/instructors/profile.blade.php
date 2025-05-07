@@ -69,7 +69,7 @@
                         <div class="mr-4">
                             {!! Form::open([
                                 'route' => [
-                                    'follow.instructor',
+                                    'follow.influencer',
                                     [
                                         'influencer_id' => $instructor?->id,
                                         'follow' => $follow->where('follower_id', Auth::user()->id)?->first()?->active_status

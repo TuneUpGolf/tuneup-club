@@ -2,7 +2,7 @@
 @section('title', __('Edit Student'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('student.index') }}">{{ __('Student') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('follower.index') }}">{{ __('Student') }}</a></li>
     <li class="breadcrumb-item">{{ __('Edit Student') }}</li>
 @endsection
 @section('content')
@@ -61,7 +61,7 @@
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
-                            <a href="{{ route('student.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                            <a href="{{ route('follower.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                             {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                         </div>
                         {!! Form::close() !!}

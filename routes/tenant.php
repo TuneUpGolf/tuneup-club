@@ -11,8 +11,9 @@ use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\FollowController;
+use App\Http\Controllers\Admin\FollowerController;
 use App\Http\Controllers\Admin\HomeController;
-use App\Http\Controllers\Admin\InstructorController;
+use App\Http\Controllers\Admin\InfluencerController;
 use App\Http\Controllers\Admin\LandingController;
 use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\LanguageController;
@@ -51,7 +52,6 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SmsController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SocialLoginController;
-use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
@@ -59,7 +59,6 @@ use App\Http\Resources\InstructorAPIResource;
 use App\Http\Resources\StudentAPIResource;
 use App\Models\Follower;
 use App\Models\Role;
-use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -142,30 +141,29 @@ Route::middleware([
         Route::get('user-phoneverified/{id}', [UserController::class, 'userPhoneVerified'])->name('user.phone.verified');
         Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
 
-        //instructor
-        Route::get('/instructor/import', [InstructorController::class, 'import'])->name('instructor.import');
-        Route::resource('instructor', InstructorController::class);
-        Route::get('instructor/profile/get', [InstructorController::class, 'viewProfile'])->name('instructor.profile');
-        Route::get('instructor-emailverified/{id}', [InstructorController::class, 'userEmailVerified'])->name('instructor.email.verified');
-        Route::get('instructor-phoneverified/{id}', [InstructorController::class, 'userPhoneVerified'])->name('instructor.phone.verified');
-        ROute::get('instructor/profiles/all', [InstructorController::class, 'instructorProfile'])->name('instructor.profiles');
-        Route::post('instructor-status/{id}', [InstructorController::class, 'userStatus'])->name('instructor.status');
-        Route::post('/import_instructors', [InstructorController::class, 'importfun'])->name('instructor.import_instructors');
+        //influencer
+        Route::get('/influencer/import', [InfluencerController::class, 'import'])->name('influencer.import');
+        Route::resource('influencer', InfluencerController::class);
+        Route::get('influencer/profile/get', [InfluencerController::class, 'viewProfile'])->name('influencer.profile');
+        Route::get('influencer-emailverified/{id}', [InfluencerController::class, 'userEmailVerified'])->name('influencer.email.verified');
+        Route::get('influencer-phoneverified/{id}', [InfluencerController::class, 'userPhoneVerified'])->name('influencer.phone.verified');
+        ROute::get('influencer/profiles/all', [InfluencerController::class, 'instructorProfile'])->name('influencer.profiles');
+        Route::post('influencer-status/{id}', [InfluencerController::class, 'userStatus'])->name('influencer.status');
+        Route::post('/import_influencers', [InfluencerController::class, 'importfun'])->name('influencer.import_influencers');
         Route::get('get-video/{video}', [PurchaseController::class, 'getVideo'])->name('getVideo');
 
+        Route::get('/follower/import', [FollowerController::class, 'import'])->name('follower.import');
+        Route::resource('follower', FollowerController::class);
+        Route::get('follower-emailverified/{id}', [FollowerController::class, 'userEmailVerified'])->name('follower.email.verified');
+        Route::get('follower-phoneverified/{id}', [FollowerController::class, 'userPhoneVerified'])->name('follower.phone.verified');
+        Route::post('follower-status/{id}', [FollowerController::class, 'userStatus'])->name('follower.status');
+        Route::post('/import_followers', [FollowerController::class, 'importfun'])->name('follower.import_followers');
+        Route::get('follower/{id}', [FollowerController::class, 'show'])->name('follower.show');
 
-        Route::get('/student/import', [StudentController::class, 'import'])->name('student.import');
-        Route::resource('student', StudentController::class);
-        Route::get('student-emailverified/{id}', [StudentController::class, 'userEmailVerified'])->name('student.email.verified');
-        Route::get('student-phoneverified/{id}', [StudentController::class, 'userPhoneVerified'])->name('student.phone.verified');
-        Route::post('student-status/{id}', [StudentController::class, 'userStatus'])->name('student.status');
-        Route::post('/import_students', [StudentController::class, 'importfun'])->name('student.import_students');
-        Route::get('follower/{id}', [StudentController::class, 'show'])->name('follower.show');
-        
         Route::resource('lesson', LessonController::class);
         Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
         Route::get('lesson/purchase/all', [LessonController::class, 'availableLessons'])->name('lesson.available');
-        Route::get('get/lesson/instructor/', [LessonController::class, 'getAllByInstructor']);
+        Route::get('get/lesson/influencer/', [LessonController::class, 'getAllByInstructor']);
         Route::get('get/all', [LessonController::class, 'getAll']);
         Route::get('lesson/slot/create', [LessonController::class, 'createSlot'])->name('slot.create');
         Route::post('lesson/slot/add', [LessonController::class, 'addConsectuiveSlots'])->name('slot.add');
@@ -180,9 +178,9 @@ Route::middleware([
         Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
         Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
         Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');
-        Route::get('purchase/get/student', [PurchaseController::class, 'getStudentPurchases']);
+        Route::get('purchase/get/follower', [PurchaseController::class, 'getStudentPurchases']);
         Route::get('purchase/get/video', [PurchaseController::class, 'getPurchaseVideos']);
-        Route::get('purchase/add/student/video', [PurchaseController::class, 'addVideoIndex'])->name('purchase.video.index');
+        Route::get('purchase/add/follower/video', [PurchaseController::class, 'addVideoIndex'])->name('purchase.video.index');
         Route::get('purchase/feedback/all', [PurchaseController::class, 'feedbackIndex'])->name('purchase.feedback.index');
         Route::get('purchase/add/feedback/create', [PurchaseController::class, 'addFeedBackIndex'])->name('purchase.feedback.create');
         Route::post('purchase/add/feedback/add', [PurchaseController::class, 'addFeedBack'])->name('purchase.feedback.add');
@@ -190,12 +188,12 @@ Route::middleware([
         Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
 
         //follow
-        Route::post('follow/instructor', [FollowController::class, 'followInstructor'])->name('follow.instructor');
-        Route::post('follow/subscribe/instructor', [FollowController::class, 'subscribeInst'])->name('follow.sub.instructor');
-        Route::get('follow/subscriptions/student', [FollowController::class, 'mySubscriptions'])->name('follow.subsctiptions');
+        Route::post('follow/influencer', [FollowController::class, 'followInstructor'])->name('follow.influencer');
+        Route::post('follow/subscribe/influencer', [FollowController::class, 'subscribeInst'])->name('follow.sub.influencer');
+        Route::get('follow/subscriptions/follower', [FollowController::class, 'mySubscriptions'])->name('follow.subsctiptions');
 
         //purchasePost
-        Route::post('purchase/post/instructor', [PurchasePostController::class, 'purchasePost'])->name('purchase.post.index');
+        Route::post('purchase/post/influencer', [PurchasePostController::class, 'purchasePost'])->name('purchase.post.index');
         Route::post('purchase/like', [PostsController::class, 'likePost'])->name('purchase.like');
 
         // role
@@ -271,7 +269,6 @@ Route::middleware([
         Route::post('profile/socialmedia/update/', [ProfileController::class, 'SocialMediaUpdate'])->name('update.socialmedia');
         Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
         Route::post('update-banner-image', [ProfileController::class, 'BannerDetails'])->name('update.banner.image');
-
 
         //setting
         Route::get('settings', [SettingsController::class, 'index'])->name('settings');
@@ -453,26 +450,26 @@ Route::middleware([
     ]], function () {
         Route::get('users/get/all', [UserController::class, 'getAllUsers']);
 
-        Route::get('instructor/get/all', [InstructorController::class, 'getAllUsers']);
-        Route::post('instructor/update/bio', [InstructorController::class, 'updateInstructorBio']);
-        Route::post('instructor/update/dp', [InstructorController::class], 'setProfilePicture');
-        Route::get('instructor/get/stats', [InstructorController::class, 'getStats']);
-        Route::post('instructor/delete/{id}', [InstructorController::class, 'deleteAPI']);
-        Route::post('instructor/report', [InstructorController::class, 'reportInstructor']);
-        Route::post('instructor/review', [InstructorController::class, 'addReview']);
-        Route::get('instructor/get/review', [InstructorController::class, 'getReviews']);
-        Route::post('instructor/annotate', [InstructorController::class, 'annotate']);
+        Route::get('influencer/get/all', [InfluencerController::class, 'getAllUsers']);
+        Route::post('influencer/update/bio', [InfluencerController::class, 'updateInstructorBio']);
+        Route::post('influencer/update/dp', [InfluencerController::class], 'setProfilePicture');
+        Route::get('influencer/get/stats', [InfluencerController::class, 'getStats']);
+        Route::post('influencer/delete/{id}', [InfluencerController::class, 'deleteAPI']);
+        Route::post('influencer/report', [InfluencerController::class, 'reportInstructor']);
+        Route::post('influencer/review', [InfluencerController::class, 'addReview']);
+        Route::get('influencer/get/review', [InfluencerController::class, 'getReviews']);
+        Route::post('influencer/annotate', [InfluencerController::class, 'annotate']);
 
-        Route::get('student/get/all', [StudentController::class, 'getAllUsers']);
-        Route::post('student/update/bio', [StudentController::class, 'updateStudentBio']);
-        Route::post('student/update/dp', [StudentController::class, 'updateProfilePicture']);
-        Route::post('student/delete/{id}', [StudentController::class, 'deleteAPI']);
+        Route::get('follower/get/all', [FollowerController::class, 'getAllUsers']);
+        Route::post('follower/update/bio', [FollowerController::class, 'updateStudentBio']);
+        Route::post('follower/update/dp', [FollowerController::class, 'updateProfilePicture']);
+        Route::post('follower/delete/{id}', [FollowerController::class, 'deleteAPI']);
 
         Route::post('profile/password', [ProfileController::class, 'changePasswordAPI']);
         Route::post('profile/update', [ProfileController::class, 'updateProfileAPI']);
 
         Route::get('lesson/get/all', [LessonController::class, 'getAll']);
-        Route::get('lesson/get/instructor', [LessonController::class, 'getInstructorAll']);
+        Route::get('lesson/get/influencer', [LessonController::class, 'getInstructorAll']);
         Route::post('lesson/add', [LessonController::class, 'addLessonApi']);
         Route::post('lesson/add/slot', [LessonController::class, 'addSlot']);
         Route::get('lesson/get/slots', [LessonController::class, 'getSlots']);
@@ -482,23 +479,23 @@ Route::middleware([
         Route::post('lesson/slot/book', [LessonController::class, 'bookSlotApi']);
         Route::post('lesson/slot/complete', [LessonController::class, 'completeSlot']);
         Route::post('lesson/slot/auto', [LessonController::class, "addConsectuiveSlots"]);
-        Route::get('lesson/slot/instructor', [LessonController::class, 'getAllSlotsInstructor']);
+        Route::get('lesson/slot/influencer', [LessonController::class, 'getAllSlotsInstructor']);
 
         Route::get('purchase/get/all', [PurchaseController::class, 'getAll']);
-        Route::get('purchase/get/student', [PurchaseController::class, 'getStudentAll']);
+        Route::get('purchase/get/follower', [PurchaseController::class, 'getStudentAll']);
         Route::get('purchase/all/videos', [PurchaseController::class, 'getAllPurchaseVideos']);
         Route::post('purchase/video/feedback', [PurchaseController::class, 'addFeedbackAPI']);
         Route::post('purchase/add/feedback', [PurchaseController::class, 'addFeedBack']);
         Route::post('purchase/create', [PurchaseController::class, 'addPurchase']);
         Route::post('purchase/confirm', [PurchaseController::class, 'confirmPurchase']);
-        Route::post('purchase/instructor/post', [PurchasePostController::class, 'purchasePost']);
+        Route::post('purchase/influencer/post', [PurchasePostController::class, 'purchasePost']);
         Route::post('purchase/add/video', [PurchaseController::class, 'addVideoAPI']);
 
         Route::post('follow', [FollowController::class, 'followInstructorApi']);
-        Route::get('follow/students', [FollowController::class, 'getStudents']);
+        Route::get('follow/followers', [FollowController::class, 'getStudents']);
 
         Route::get('post', [PostsController::class, 'getAllPosts']);
-        Route::get('post/instructor', [PostsController::class, 'getInstructorPosts']);
+        Route::get('post/influencer', [PostsController::class, 'getInstructorPosts']);
         Route::post('post/report', [PostsController::class, 'reportPost']);
         Route::post('post', [PostsController::class, 'createPost']);
         Route::get('post/like', [PostsController::class, 'getAllLikedPostApi']);
@@ -583,7 +580,7 @@ Route::middleware([
     //Route::middleware('auth:sanctum')->get('users/get/all', [UserController::class, 'getAllUsers']);
 });
 
-//student/instructor/admin login sanctum
+//follower/influencer/admin login sanctum
 Route::middleware([
     InitializeTenancyByDomainOrSubdomain::class,
     PreventAccessFromCentralDomains::class,
@@ -591,28 +588,28 @@ Route::middleware([
 
     try {
         $user = User::where('email', $_REQUEST['email'])->first();
-        if (!isset($user)) {
+        if (! isset($user)) {
             $user = Follower::where('email', $_REQUEST['email'])->where('active_status', true)->first();
         }
 
-        if (!$user || !Hash::check($_REQUEST['password'], $user->password)) {
+        if (! $user || ! Hash::check($_REQUEST['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
     } catch (\Exception $th) {
         return response()->json([
-            'message' => 'Login Failed, ' . $th->getMessage()
+            'message' => 'Login Failed, ' . $th->getMessage(),
         ], 403);
     }
     return $user->createToken($_REQUEST['device_name'])->plainTextToken;
 });
 
-// //student login
+// //follower login
 // Route::middleware([
 //     InitializeTenancyByDomainOrSubdomain::class,
 //     PreventAccessFromCentralDomains::class,
-// ])->post('student/sanctum/token', function () {
+// ])->post('follower/sanctum/token', function () {
 
 //     try {
 //         $user = Follower::where('email', $_REQUEST['email'])->where('active_status', true)->first();
@@ -633,5 +630,5 @@ Route::group(['middleware' => [
     InitializeTenancyByDomainOrSubdomain::class,
     PreventAccessFromCentralDomains::class,
 ]], function () {
-    Route::post('/student/signup', [StudentController::class, 'signup']);
+    Route::post('/follower/signup', [FollowerController::class, 'signup']);
 });

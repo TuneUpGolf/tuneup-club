@@ -234,12 +234,12 @@
                                 @can('manage-user')
                                     <li class="dash-item {{ request()->is('instructor*') ? 'active' : '' }}">
                                         <a class="dash-link"
-                                            href="{{ route('instructor.index') }}">{{ __('Influencer') }}</a>
+                                            href="{{ route('influencer.index') }}">{{ __('Influencer') }}</a>
                                     </li>
                                 @endcan
                                 @can('manage-followers')
                                     <li class="dash-item {{ request()->is('student*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('student.index') }}">{{ __('Follower') }}</a>
+                                        <a class="dash-link" href="{{ route('follower.index') }}">{{ __('Follower') }}</a>
                                     </li>
                                 @endcan
                             </ul>
@@ -310,7 +310,7 @@
                     @endcan
                     @if (Auth::user()->type === 'Follower')
                         <li class="dash-item dash-hasmenu {{ request()->is('instructor*') ? 'active' : '' }}">
-                            <a class="dash-link py-3 px-4" href="{{ route('instructor.profiles') }}">
+                            <a class="dash-link py-3 px-4" href="{{ route('influencer.profiles') }}">
                                 <svg width="21" height="13" viewBox="0 0 21 13" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path

@@ -2,7 +2,7 @@
 @section('title', __('Edit Instructor'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('instructor.index') }}">{{ __('Instructors') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('influencer.index') }}">{{ __('Instructors') }}</a></li>
     <li class="breadcrumb-item">{{ __('Edit Instructors') }}</li>
 @endsection
 @section('content')
@@ -11,11 +11,11 @@
             <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('Edit Instructor') }}</h5>
+                        <h5>{{ __('Edit Influencer') }}</h5>
                     </div>
                     <div class="card-body">
                         {!! Form::model($user, [
-                            'route' => ['instructor.update', $user->id],
+                            'route' => ['influencer.update', $user->id],
                             'method' => 'Put',
                             'data-validate',
                         ]) !!}
@@ -104,7 +104,7 @@
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
-                            <a href="{{ route('instructor.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                            <a href="{{ route('influencer.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                             {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                         </div>
                         {!! Form::close() !!}
