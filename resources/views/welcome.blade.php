@@ -35,67 +35,69 @@
         <p style="color:#718096;" class="text-xl max-w-2xl">{{ $influencerDetails->bio }}</p>
     </div>
     <div class="container-fluid lessions-slider pt-5">
-        @foreach ($influencerDetails->lessons as $lesson)
-            <div class="px-3 py-4">
-                <div class=" bg-white rounded-lg shadow   flex flex-col">
-                    <div class="relative text-center p-3 flex gap-3">
-                        <img src="{{ $influencerDetails->avatar }}"
-                            alt="{{ $influencerDetails->name }}"
-                            class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                        <div class="text-left">
-                            <a class="font-bold text-dark text-xl"
-                                href="{{ route('login') }}">
-                                {{ $influencerDetails->name }}
-                            </a>
-                            <div class="text-lg font-bold tracking-tight text-primary">
-                                {{ $currency}} {{ $lesson->lesson_price }} (USD)
-                            </div>
-                            <div class="text-sm font-medium text-gray-500 italic">
-                                <span class="">({!! \App\Models\Purchase::where('lesson_id', $lesson->id)->where('status', 'complete')->count() !!} Purchased)</span>
+        @if(!$influencerDetails->lessons->isEmpty())
+            @foreach ($influencerDetails->lessons as $lesson)
+                <div class="px-3 py-4">
+                    <div class=" bg-white rounded-lg shadow   flex flex-col">
+                        <div class="relative text-center p-3 flex gap-3">
+                            <img src="{{ $influencerDetails->avatar }}"
+                                alt="{{ $influencerDetails->name }}"
+                                class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+                            <div class="text-left">
+                                <a class="font-bold text-dark text-xl"
+                                    href="{{ route('login') }}">
+                                    {{ $influencerDetails->name }}
+                                </a>
+                                <div class="text-lg font-bold tracking-tight text-primary">
+                                    {{ $currency}} {{ $lesson->lesson_price }} (USD)
+                                </div>
+                                <div class="text-sm font-medium text-gray-500 italic">
+                                    <span class="">({!! \App\Models\Purchase::where('lesson_id', $lesson->id)->where('status', 'complete')->count() !!} Purchased)</span>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+                            <span class="text-xl font-semibold text-dark">{{ $lesson->lesson_name }}</span>
+                            <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
+                                {{ $lesson->lesson_description }}
+                            </p>
+
+                            <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3 flex">
+                                <div class="text-center w-50">
+                                    <span class="text-xl font-bold">{{ $lesson->lesson_quantity }}</span>
+                                    <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
+
+                                </div>
+                                <div class="text-center w-50">
+                                    <span class="text-xl font-bold">{{ $lesson->required_time }} Days</span>
+                                    <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                                </div>
+                            </div>
+                            <div class="w-100 mt-3">
+                                {{-- <form method="POST"
+                                    action="{{ route('login') }}"
+                                    accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
+                                    data-validate="" novalidate="true"><input name="_token" type="hidden"
+                                        value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
+                                    <button type="submit" class="lesson-btn py-2">Purchase</button>
+                                </form> --}}
+                                <a href="{{ route('login') }}">
+                                    <button type="submit" class="lesson-btn py-2">Purchase</button>
+                                </a>
+                            </div>
+                        </div>
+                        <form id="bookingForm" method="POST"
+                            action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
+                            <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
+                                type="hidden" id="slotIdInput" name="slot_id">
+                            <input type="hidden" id="friendNamesInput" name="friend_names">
+
+                        </form>
                     </div>
-
-                    <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                        <span class="text-xl font-semibold text-dark">{{ $lesson->lesson_name }}</span>
-                        <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
-                            {{ $lesson->lesson_description }}
-                        </p>
-
-                        <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3 flex">
-                            <div class="text-center w-50">
-                                <span class="text-xl font-bold">{{ $lesson->lesson_quantity }}</span>
-                                <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
-
-                            </div>
-                            <div class="text-center w-50">
-                                <span class="text-xl font-bold">{{ $lesson->required_time }} Days</span>
-                                <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-                            </div>
-                        </div>
-                        <div class="w-100 mt-3">
-                            {{-- <form method="POST"
-                                action="{{ route('login') }}"
-                                accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
-                                data-validate="" novalidate="true"><input name="_token" type="hidden"
-                                    value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
-                                <button type="submit" class="lesson-btn py-2">Purchase</button>
-                            </form> --}}
-                            <a href="{{ route('login') }}">
-                                <button type="submit" class="lesson-btn py-2">Purchase</button>
-                            </a>
-                        </div>
-                    </div>
-                    <form id="bookingForm" method="POST"
-                        action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
-                        <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
-                            type="hidden" id="slotIdInput" name="slot_id">
-                        <input type="hidden" id="friendNamesInput" name="friend_names">
-
-                    </form>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        @endif
     </div>
 </section>
 
@@ -105,51 +107,53 @@
         <p style="color:#718096;" class="text-xl max-w-2xl">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
             do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="subscription-slider pt-5">
-            @foreach($plans as $plan)
-                <div class="px-3 py-4">
-                    <div class="bg-white rounded-lg shadow popular-wrap position-relative">
-                        @if($plan->is_chat_enabled && $plan->is_feed_enabled)
-                            <div class="rounded-pill px-4 py-2 popular-plan w-auto bg-primary text-white font-bold position-absolute" style="top: -15px; left: 50%; transform: translateX(-50%);">
-                                POPULAR
-                            </div>
-                        @endif
-                        <div class="relative p-3">
-                            
-                            <p class="text-2xl font-semibold mb-2">{{ $plan->name }}</p>
-                            <p class="text-gray-600">
-                                {{ $plan->description }}
-                            </p>
-                            <div class="flex gap-2 items-center my-3">
-                                <h2 class="text-6xl font-bold">{{ $currency . ' ' . $plan->price }}</h2>
-                                <div>
-                                    <p class="text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
+            @if(!$plans->isEmpty())
+                @foreach($plans as $plan)
+                    <div class="px-3 py-4">
+                        <div class="bg-white rounded-lg shadow popular-wrap position-relative">
+                            @if($plan->is_chat_enabled && $plan->is_feed_enabled)
+                                <div class="rounded-pill px-4 py-2 popular-plan w-auto bg-primary text-white font-bold position-absolute" style="top: -15px; left: 50%; transform: translateX(-50%);">
+                                    POPULAR
                                 </div>
+                            @endif
+                            <div class="relative p-3">
+                                
+                                <p class="text-2xl font-semibold mb-2">{{ $plan->name }}</p>
+                                <p class="text-gray-600">
+                                    {{ $plan->description }}
+                                </p>
+                                <div class="flex gap-2 items-center my-3">
+                                    <h2 class="text-6xl font-bold">{{ $currency . ' ' . $plan->price }}</h2>
+                                    <div>
+                                        <p class="text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('login') }}">
+                                    <button type="submit" class="lesson-btn font-bold text-lg">Purchase</button>
+                                </a>
                             </div>
-                            <a href="{{ route('login') }}">
-                                <button type="submit" class="lesson-btn font-bold text-lg">Purchase</button>
-                            </a>
-                        </div>
-                        <div class="border-t border-gray-300"></div>
-                        <div class="p-3">
-                            <p class="font-semibold text-xl">Features</p>
-                            <div class="mt-2 d-flex justify-content-center gap-3">
-                                @if($plan->is_chat_enabled)
-                                    <div class="d-flex align-items-center">
-                                        <i class="ti ti-message-circle text-success me-1"></i>
-                                        <span>{{ __('Free Chat') }}</span>
-                                    </div>
-                                @endif
-                                @if($plan->is_feed_enabled)
-                                    <div class="d-flex align-items-center">
-                                        <i class="ti ti-rss text-success me-1"></i>
-                                        <span>{{ __('Free Feed') }}</span>
-                                    </div>
-                                @endif
+                            <div class="border-t border-gray-300"></div>
+                            <div class="p-3">
+                                <p class="font-semibold text-xl">Features</p>
+                                <div class="mt-2 d-flex justify-content-center gap-3">
+                                    @if($plan->is_chat_enabled)
+                                        <div class="d-flex align-items-center">
+                                            <i class="ti ti-message-circle text-success me-1"></i>
+                                            <span>{{ __('Free Chat') }}</span>
+                                        </div>
+                                    @endif
+                                    @if($plan->is_feed_enabled)
+                                        <div class="d-flex align-items-center">
+                                            <i class="ti ti-rss text-success me-1"></i>
+                                            <span>{{ __('Free Feed') }}</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            @endif
         </div>
     </div>
 </section>
@@ -161,102 +165,104 @@
             do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
 
         <div class="flex flex-wrap gap-5 w-100">
-            @foreach ($influencerDetails->post as $post)
-                <div class="max-w-sm w-full">
-                    <div class="shadow rounded-2 overflow-hidden position-relative">
-                        @if($post->paid && !isset($purchasePost))
-                            <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
-                        @else
-                            <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
-                        @endif
-                        <div class="{{ $cls }}">
-                            <div class="flex justify-between items-center w-full">
-                                <div class="flex items-center gap-3">
-                                    <img class="w-16 h-16 rounded-full"
-                                        src="{{ $influencerDetails->avatar }}"
-                                        alt="Profile">
-                                    <div>
-                                        <p class="text-xl text-white font-bold mb-0 leading-tight">
-                                            {{ $influencerDetails->name }}
-                                        </p>
-                                        <span class="text-md text-white">
-                                            {{ $influencerDetails->type}}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white py-2 px-3 rounded-3xl shadow">
-                                    {{-- <form method="POST"
-                                        action="https://demo.collegegolfrecruitingportal.com/purchase/like?post_id=9"
-                                        accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
-                                            type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
-
-                                        <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
-                                                class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }} Likes</span></button>
-                                    </form> --}}
-                                    <a href="{{ route('login') }}">
-                                        <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
-                                                class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }} Likes</span></button>
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="relative paid-post-wrap">
-                            <img class=" w-full post-thumbnail"
-                                src="{{ $post->file}}"
-                                alt="Post Image">
-                            @if($post->paid)
-                                <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                    <div
-                                        class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                        <i class="ti ti-lock-open"></i>
-                                    </div>
-                                    {{-- <form method="POST"
-                                        action="https://demo.collegegolfrecruitingportal.com/purchase/post/instructor?post_id=9"
-                                        accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
-                                            type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
-
-                                        <div
-                                            class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                            <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                            <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
-                                                {{ $currency . ' ' . $post->price }}</button>
-                                        </div>
-                                    </form> --}}
-                                    <a href="{{ route('login') }}">
-                                        <div
-                                            class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                            <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                            <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
-                                                {{ $currency . ' ' . $post->price }}</button>
-                                        </div>
-                                    </a>
-                                </div>
+            @if(!$influencerDetails->post->isEmpty())
+                @foreach ($influencerDetails->post as $post)
+                    <div class="max-w-sm w-full">
+                        <div class="shadow rounded-2 overflow-hidden position-relative">
+                            @if($post->paid && !isset($purchasePost))
+                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
+                            @else
+                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
                             @endif
-                        </div>
+                            <div class="{{ $cls }}">
+                                <div class="flex justify-between items-center w-full">
+                                    <div class="flex items-center gap-3">
+                                        <img class="w-16 h-16 rounded-full"
+                                            src="{{ $influencerDetails->avatar }}"
+                                            alt="Profile">
+                                        <div>
+                                            <p class="text-xl text-white font-bold mb-0 leading-tight">
+                                                {{ $influencerDetails->name }}
+                                            </p>
+                                            <span class="text-md text-white">
+                                                {{ $influencerDetails->type}}
+                                            </span>
+                                        </div>
+                                    </div>
 
+                                    <div class="bg-white py-2 px-3 rounded-3xl shadow">
+                                        {{-- <form method="POST"
+                                            action="https://demo.collegegolfrecruitingportal.com/purchase/like?post_id=9"
+                                            accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
+                                                type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
 
-                        <div class="px-4 py-2 border-t border-gray-500">
-                            <div class="text-md italic text-gray-500">
-                                {{ $post->created_at }}
+                                            <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
+                                                    class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }} Likes</span></button>
+                                        </form> --}}
+                                        <a href="{{ route('login') }}">
+                                            <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
+                                                    class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }} Likes</span></button>
+                                        </a>
+                                    </div>
+
+                                </div>
                             </div>
-                            <h1 class="text-xl font-bold truncate">
-                                {{ $post->title }}
-                            </h1>
 
-                            @php
-                                $description = strip_tags($post->description);
-                                $shortDescription = \Illuminate\Support\Str::limit($description, 50, '');
-                            @endphp
-                            <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
-                                <span class="short-text">{{ $shortDescription }}</span>
-                            </p>
+                            <div class="relative paid-post-wrap">
+                                <img class=" w-full post-thumbnail"
+                                    src="{{ $post->file}}"
+                                    alt="Post Image">
+                                @if($post->paid)
+                                    <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                        <div
+                                            class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                            <i class="ti ti-lock-open"></i>
+                                        </div>
+                                        {{-- <form method="POST"
+                                            action="https://demo.collegegolfrecruitingportal.com/purchase/post/instructor?post_id=9"
+                                            accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
+                                                type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
+
+                                            <div
+                                                class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
+                                                    {{ $currency . ' ' . $post->price }}</button>
+                                            </div>
+                                        </form> --}}
+                                        <a href="{{ route('login') }}">
+                                            <div
+                                                class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
+                                                    {{ $currency . ' ' . $post->price }}</button>
+                                            </div>
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+
+
+                            <div class="px-4 py-2 border-t border-gray-500">
+                                <div class="text-md italic text-gray-500">
+                                    {{ $post->created_at }}
+                                </div>
+                                <h1 class="text-xl font-bold truncate">
+                                    {{ $post->title }}
+                                </h1>
+
+                                @php
+                                    $description = strip_tags($post->description);
+                                    $shortDescription = \Illuminate\Support\Str::limit($description, 50, '');
+                                @endphp
+                                <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
+                                    <span class="short-text">{{ $shortDescription }}</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            @endif
         </div>
     </div>
 </section>
