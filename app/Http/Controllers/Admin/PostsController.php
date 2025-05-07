@@ -18,6 +18,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\UnauthorizedException;
@@ -102,13 +103,17 @@ class PostsController extends Controller
                     $request->merge(['influencer_id' => Auth::user()->id]);
                     $request->merge(['isFollowerPost' => false]);
                 }
-
+                $currentDomain = tenant('domains');
+                $currentDomain = $currentDomain[0]->domain;
                 $post = Post::create($request->all());
                 $post['paid'] = $request?->paid == 'on' ? true : false;
                 $post['price'] = $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
                 $post['status'] = 'active';
                 if ($request->hasfile('file')) {
-                    $post['file'] = $request->file('file')->store('posts');
+                    $fileName = $request->file('file');
+                    $filePath      = $currentDomain.'/' . Auth::user()->id . '/posts' . $fileName;
+                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                    $post['file'] = Storage::disk('spaces')->url($filePath);
                     $post['file_type'] = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
                 }
                 $post->update();

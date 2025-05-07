@@ -123,12 +123,6 @@ class ProfileController extends Controller
             $user->golf_course = $request?->golf_course;
         }
 
-        if ($request->hasFile('file') && $user->type === Role::ROLE_INFLUENCER) {
-            $user['logo'] = $request->file('file')->store('dp');
-        } else if ($request->hasFile('file')) {
-            $user['dp'] = $request->file('file')->store('dp');
-        }
-
         if (Auth::user()->type == Role::ROLE_FOLLOWER) {
             PushToken::updateOrCreate([
                 'follower_id' => Auth::user()->id,
@@ -139,6 +133,25 @@ class ProfileController extends Controller
             PushToken::updateOrCreate([
                 'influencer_id' => Auth::user()->id,
             ], ['token' => $request->get('push_token')]);
+        }
+        if ($request->filled('avatar')) {
+            $image = $request->avatar;
+            $image = str_replace('data:image/png;base64,', '', $image);
+            $image = str_replace('data:image/jpeg;base64,', '', $image);
+            $image = str_replace(' ', '+', $image);
+            $imageName = time() . '.png';
+            $basePath = tenant('domains')[0]->domain . '/uploads/avatar/' . strtolower($user->type) . '/';
+            $filePath = $basePath . Auth::user()->id . '/' . $imageName;
+        
+            Storage::disk('spaces')->put($filePath, base64_decode($image), 'public');
+            $imagePath = Storage::disk('spaces')->url($filePath);
+        
+            if ($user->type === Role::ROLE_INFLUENCER) {
+                $user->avatar = $imagePath;
+                $user->logo = $imagePath;
+            } else {
+                $user->dp = $imagePath;
+            }
         }
         $user->save();
         return redirect()->back()->with('success', __('Account details updated successfully.'));
@@ -297,6 +310,7 @@ class ProfileController extends Controller
         request()->validate([
             'avatar'    => 'required',
         ]);
+        // dd($request);
         $image          = $request->avatar;
         $image          = str_replace('data:image/png;base64,', '', $image);
         $image          = str_replace(' ', '+', $image);

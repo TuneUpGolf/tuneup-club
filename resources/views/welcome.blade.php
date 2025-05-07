@@ -210,7 +210,7 @@
 
                             <div class="relative paid-post-wrap">
                                 <img class=" w-full post-thumbnail"
-                                    src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file)}}"
+                                    src="{{ $post->file }}"
                                     alt="Post Image">
                                 @if($post->paid)
                                     <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">

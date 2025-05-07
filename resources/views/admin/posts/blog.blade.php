@@ -39,7 +39,7 @@
             @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
                 <div class="relative paid-post-wrap">
                     <img class=" w-full post-thumbnail"
-                        src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}"
+                        src="{{  $post->file }}"
                         alt="Post Image" />
                     <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                         <div
@@ -62,7 +62,7 @@
                 </div>
             @else
                 <img class=" w-full post-thumbnail"
-                    src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->file) }}" alt="Profile" />
+                    src="{{  $post->file }}" alt="Profile" />
             @endif
         @else
             @if ($post->paid && !isset($purchasePost))
