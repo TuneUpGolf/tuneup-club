@@ -45,14 +45,21 @@ class PurchaseDataTable extends DataTable
                 $deletedText = !$lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
                 $lessonName = e($purchase->lesson_name);
                 $truncatedLessonName = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
-                
+
                 $url = route('purchase.show', $purchase->id);
-            
+
+                // Check user role
+                if (Auth::user()->type == 'Influencer') {
+                    $lessonLink = '<a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>';
+                } else {
+                    $lessonLink = '<span class="text-gray-800 mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</span>';
+                }
+
                 return '
-                    <div class="flex justify-between items-center">
-                        <a href="' . $url . '" class="text-blue-600 hover:underline mr-2" title="' . $lessonName . '">' . $truncatedLessonName . '</a>
-                        <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
-                    </div>';
+        <div class="flex justify-between items-center">
+            ' . $lessonLink . '
+            <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
+        </div>';
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->follower->dp

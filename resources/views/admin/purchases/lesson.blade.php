@@ -1,17 +1,11 @@
 @extends('layouts.main')
+@section('title', __('View Lesson'))
+@section('breadcrumb')
+    <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('purchase.index') }}">{{ __('Purchase') }}</a></li>
+    <li class="breadcrumb-item">{{ __('Add Feedback') }}</li>
+@endsection
 @section('content')
-<div
-    class="flex items-start justify-content-between border-b border-gray-400 pb-4 mb-5">
-    <div class="max-w-lg">
-        <h2 class="font-bold text-3xl mb-3">Purchase User Details</h2>
-
-    </div>
-    <a href="#"
-        class="rounded-pill px-3 py-2 w-auto bg-primary text-white text-lg font-bold flex itmes-center gap-1 ">
-        <i class="ti ti-brand-hipchat text-2xl"></i>
-        Chat
-    </a>
-</div>
 @php
 $purchaseVideo = $purchase->videos->first();
 @endphp
@@ -19,19 +13,6 @@ $purchaseVideo = $purchase->videos->first();
     <div class="video-section-col flex gap-4">
         <div class="video-wrap border-r border-gray-400 pr-4">
             <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchase->videos->first()->video_url }}" class="w-80 h-60 rounded-lg"></video>
-            <div class="flex gap-1 mt-3">
-
-                <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
-                    class="rounded-pill px-4 py-2 w-auto text-white font-bold flex itmes-center gap-1  btn btn-warning">
-                    <i class="ti ti-notebook text-2xl"></i>
-                    Feedback
-                </a>
-                <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl='  . $purchase->videos->first()->video_url }}"
-                    class="rounded-pill px-4 py-2 w-auto text-white font-bold flex itmes-center gap-1 btn btn-danger ">
-                    <i class="ti ti-search text-2xl"></i>
-                    Analyze
-                </a>
-            </div>
         </div>
         <div>
             <ul>
@@ -89,26 +70,10 @@ $purchaseVideo = $purchase->videos->first();
                     <div class="modal-content">
                         
                         <video id="videoPlayer" controls>
-                            <source src="{{ $purchase->videos->first()->video_url }}" type="video/mp4">
+                            <source src="{{ asset('storage/'.Auth::user()->tenant_id.'/'.$purchase->videos->first()->video_url) }}" type="video/mp4">
                             Your browser does not support HTML5 video.
                         </video>
                     </div>
-                </div>
-                <div class="flex gap-2">
-                    <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
-                        class="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center gap-1">
-                        <i class="ti ti-pencil text-2xl"></i> Edit
-                    </a>
-
-                    <form action="{{ route('purchase.feedback.delete', $purchaseVideo->id) }}" method="POST"
-                        onsubmit="return confirm('Are you sure you want to delete this feedback?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center gap-1">
-                            <i class="ti ti-trash text-2xl"></i> Delete
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>

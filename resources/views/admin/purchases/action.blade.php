@@ -20,20 +20,12 @@
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.video.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-            data-bs-placement="bottom" data-bs-original-title="{{ __('Add Video') }}">
+            data-bs-placement="bottom" data-bs-original-title="{{ __('View Lesson') }}">
             <i class="ti ti-plus text-white"></i>
         </a>
     @endcan
 @endif
-@if ($purchase->status == 'complete' && Auth::user()->type == 'Follower' && $purchase->lesson->type === 'online')
-    @can('manage-purchases')
-        <a class="btn btn-sm small btn btn-warning "
-            href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-            data-bs-placement="bottom" data-bs-original-title="{{ __('Pending Feedback') }}">
-            <i class="ti ti-eye text-white"></i>
-        </a>
-    @endcan
-@endif
+
 @if ($purchase->status == 'complete' && Auth::user()->type == 'Influencer' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
