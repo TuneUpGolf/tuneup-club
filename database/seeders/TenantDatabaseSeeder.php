@@ -9,6 +9,7 @@ use App\Mail\Admin\PurchaseFeedback;
 use App\Mail\Admin\StudentPaymentLink;
 use App\Mail\Admin\VideoAdded;
 use App\Mail\Admin\WelcomeMail;
+use App\Mail\Admin\WelcomeMailFollower;
 use App\Mail\Admin\WelcomeMailStudent;
 use App\Models\Faq;
 use App\Models\FooterSetting;

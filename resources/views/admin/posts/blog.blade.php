@@ -97,7 +97,7 @@
 
             <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
                 <span class="short-text">{{ $shortDescription }}</span>
-                @if (strlen($description) > 20)
+                @if (strlen($description) > 50)
                 <span class="hidden full-text">{{ $description }}</span>
                 <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold underline" 
                     onclick="toggleDescription(this)">Read More</a>

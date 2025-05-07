@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 use App\Actions\SendEmail;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
-use App\Mail\Admin\WelcomeMailStudent;
+use App\Mail\Admin\WelcomeMailFollower;
 use App\Models\Role;
 use App\Models\Follower;
 use App\Models\User;
@@ -55,7 +55,7 @@ class RegisteredUserController extends Controller
             'active_status' => 1
         ]);
         $user->assignRole(Role::ROLE_FOLLOWER);
-        SendEmail::dispatch($user->email, new WelcomeMailStudent($user, ''));
+        SendEmail::dispatch($user->email, new WelcomeMailFollower($user, ''));
 
         // else {
         //     $user = User::create([

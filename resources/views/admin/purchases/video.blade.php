@@ -11,7 +11,7 @@
             <div class="col-sm-12 col-md-8 m-auto">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('Add detail for your instructor to view') }}</h5>
+                        <h5>{{ __('Add detail for your influencer to view') }}</h5>
                     </div>
                     <div class="card-body">
                         {!! Form::open([
