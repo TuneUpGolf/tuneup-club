@@ -24,8 +24,8 @@ class PurchaseLessonVideoDataTable extends DataTable
                 return $purchaseVideo->purchase_id;
             })
             ->editColumn('influencer_id', function () {
-                $instructor_name = User::find($this->purchase->influencer_id);
-                return $instructor_name->name;
+                $influencer_name = User::find($this->purchase->influencer_id);
+                return $influencer_name->name;
             })
             ->editColumn('video', function (PurchaseVideos $purchaseVideo) {
                 $video = $purchaseVideo;
@@ -121,7 +121,7 @@ class PurchaseLessonVideoDataTable extends DataTable
         $columns = [
             Column::make('No')->title(__('No'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('purchase_id')->title(__('Purchase')),
-            Column::make('influencer_id')->title(__('Instructor Name')),
+            Column::make('influencer_id')->title(__('Influencer Name')),
             Column::make('video')->title(__('Video'))->searchable(false),
             Column::make('feedback')->title(__('Feedback')),
             Column::make('created_at')->title(__('Created At')),

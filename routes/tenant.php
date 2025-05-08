@@ -55,8 +55,8 @@ use App\Http\Controllers\Admin\SocialLoginController;
 use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Resources\InstructorAPIResource;
-use App\Http\Resources\StudentAPIResource;
+use App\Http\Resources\FollowerAPIResource;
+use App\Http\Resources\influencerAPIResource;
 use App\Models\Follower;
 use App\Models\Role;
 use App\Models\User;
@@ -116,7 +116,7 @@ Route::middleware([
         Route::get('pages/{slug}', [LandingPageController::class, 'pageDescription'])->name('description.page');
     });
 
-    Route::group(['middleware' => ['auth:web,student', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
+    Route::group(['middleware' => ['auth:web,follower', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
 
         Route::impersonate();
         // category
@@ -147,7 +147,7 @@ Route::middleware([
         Route::get('influencer/profile/get', [InfluencerController::class, 'viewProfile'])->name('influencer.profile');
         Route::get('influencer-emailverified/{id}', [InfluencerController::class, 'userEmailVerified'])->name('influencer.email.verified');
         Route::get('influencer-phoneverified/{id}', [InfluencerController::class, 'userPhoneVerified'])->name('influencer.phone.verified');
-        ROute::get('influencer/profiles/all', [InfluencerController::class, 'instructorProfile'])->name('influencer.profiles');
+        ROute::get('influencer/profiles/all', [InfluencerController::class, 'influencerProfile'])->name('influencer.profiles');
         Route::post('influencer-status/{id}', [InfluencerController::class, 'userStatus'])->name('influencer.status');
         Route::post('/import_influencers', [InfluencerController::class, 'importfun'])->name('influencer.import_influencers');
         Route::get('get-video/{video}', [PurchaseController::class, 'getVideo'])->name('getVideo');
@@ -163,7 +163,7 @@ Route::middleware([
         Route::resource('lesson', LessonController::class);
         Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
         Route::get('lesson/purchase/all', [LessonController::class, 'availableLessons'])->name('lesson.available');
-        Route::get('get/lesson/influencer/', [LessonController::class, 'getAllByInstructor']);
+        Route::get('get/lesson/influencer/', [LessonController::class, 'getAllByInfluencer']);
         Route::get('get/all', [LessonController::class, 'getAll']);
         Route::get('lesson/slot/create', [LessonController::class, 'createSlot'])->name('slot.create');
         Route::post('lesson/slot/add', [LessonController::class, 'addConsectuiveSlots'])->name('slot.add');
@@ -178,7 +178,7 @@ Route::middleware([
         Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
         Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
         Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');
-        Route::get('purchase/get/follower', [PurchaseController::class, 'getStudentPurchases']);
+        Route::get('purchase/get/follower', [PurchaseController::class, 'getFollowerPurchases']);
         Route::get('purchase/get/video', [PurchaseController::class, 'getPurchaseVideos']);
         Route::get('purchase/add/follower/video', [PurchaseController::class, 'addVideoIndex'])->name('purchase.video.index');
         Route::get('purchase/add/follower/lesson', [PurchaseController::class, 'viewLesson'])->name('purchase.lesson');
@@ -190,7 +190,7 @@ Route::middleware([
         Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
 
         //follow
-        Route::post('follow/influencer', [FollowController::class, 'followInstructor'])->name('follow.influencer');
+        Route::post('follow/influencer', [FollowController::class, 'followInfluencer'])->name('follow.influencer');
         Route::post('follow/subscribe/influencer', [FollowController::class, 'subscribeInst'])->name('follow.sub.influencer');
         Route::get('follow/subscriptions/follower', [FollowController::class, 'mySubscriptions'])->name('follow.subsctiptions');
 
@@ -453,17 +453,17 @@ Route::middleware([
         Route::get('users/get/all', [UserController::class, 'getAllUsers']);
 
         Route::get('influencer/get/all', [InfluencerController::class, 'getAllUsers']);
-        Route::post('influencer/update/bio', [InfluencerController::class, 'updateInstructorBio']);
+        Route::post('influencer/update/bio', [InfluencerController::class, 'updateInfluencerBio']);
         Route::post('influencer/update/dp', [InfluencerController::class], 'setProfilePicture');
         Route::get('influencer/get/stats', [InfluencerController::class, 'getStats']);
         Route::post('influencer/delete/{id}', [InfluencerController::class, 'deleteAPI']);
-        Route::post('influencer/report', [InfluencerController::class, 'reportInstructor']);
+        Route::post('influencer/report', [InfluencerController::class, 'reportInfluencer']);
         Route::post('influencer/review', [InfluencerController::class, 'addReview']);
         Route::get('influencer/get/review', [InfluencerController::class, 'getReviews']);
         Route::post('influencer/annotate', [InfluencerController::class, 'annotate']);
 
         Route::get('follower/get/all', [FollowerController::class, 'getAllUsers']);
-        Route::post('follower/update/bio', [FollowerController::class, 'updateStudentBio']);
+        Route::post('follower/update/bio', [FollowerController::class, 'updateFollowerBio']);
         Route::post('follower/update/dp', [FollowerController::class, 'updateProfilePicture']);
         Route::post('follower/delete/{id}', [FollowerController::class, 'deleteAPI']);
 
@@ -471,7 +471,7 @@ Route::middleware([
         Route::post('profile/update', [ProfileController::class, 'updateProfileAPI']);
 
         Route::get('lesson/get/all', [LessonController::class, 'getAll']);
-        Route::get('lesson/get/influencer', [LessonController::class, 'getInstructorAll']);
+        Route::get('lesson/get/influencer', [LessonController::class, 'getInfluencerAll']);
         Route::post('lesson/add', [LessonController::class, 'addLessonApi']);
         Route::post('lesson/add/slot', [LessonController::class, 'addSlot']);
         Route::get('lesson/get/slots', [LessonController::class, 'getSlots']);
@@ -481,10 +481,10 @@ Route::middleware([
         Route::post('lesson/slot/book', [LessonController::class, 'bookSlotApi']);
         Route::post('lesson/slot/complete', [LessonController::class, 'completeSlot']);
         Route::post('lesson/slot/auto', [LessonController::class, "addConsectuiveSlots"]);
-        Route::get('lesson/slot/influencer', [LessonController::class, 'getAllSlotsInstructor']);
+        Route::get('lesson/slot/influencer', [LessonController::class, 'getAllSlotsInfluencer']);
 
         Route::get('purchase/get/all', [PurchaseController::class, 'getAll']);
-        Route::get('purchase/get/follower', [PurchaseController::class, 'getStudentAll']);
+        Route::get('purchase/get/follower', [PurchaseController::class, 'getFollowerAll']);
         Route::get('purchase/all/videos', [PurchaseController::class, 'getAllPurchaseVideos']);
         Route::post('purchase/video/feedback', [PurchaseController::class, 'addFeedbackAPI']);
         Route::post('purchase/add/feedback', [PurchaseController::class, 'addFeedBack']);
@@ -493,11 +493,11 @@ Route::middleware([
         Route::post('purchase/influencer/post', [PurchasePostController::class, 'purchasePost']);
         Route::post('purchase/add/video', [PurchaseController::class, 'addVideoAPI']);
 
-        Route::post('follow', [FollowController::class, 'followInstructorApi']);
-        Route::get('follow/followers', [FollowController::class, 'getStudents']);
+        Route::post('follow', [FollowController::class, 'followInfluencerApi']);
+        Route::get('follow/followers', [FollowController::class, 'getFollowers']);
 
         Route::get('post', [PostsController::class, 'getAllPosts']);
-        Route::get('post/influencer', [PostsController::class, 'getInstructorPosts']);
+        Route::get('post/influencer', [PostsController::class, 'getInfluencerPosts']);
         Route::post('post/report', [PostsController::class, 'reportPost']);
         Route::post('post', [PostsController::class, 'createPost']);
         Route::get('post/like', [PostsController::class, 'getAllLikedPostApi']);
@@ -508,9 +508,9 @@ Route::middleware([
             try {
                 if (isset(Auth::user()->id)) {
                     if (Auth::user()->type === Role::ROLE_ADMIN || Auth::user()->type === Role::ROLE_INFLUENCER) {
-                        return response(new InstructorAPIResource(Auth::user()), 200);
+                        return response(new influencerAPIResource(Auth::user()), 200);
                     } else {
-                        return response(new StudentAPIResource(Auth::user()), 200);
+                        return response(new FollowerAPIResource(Auth::user()), 200);
                     }
 
                 }

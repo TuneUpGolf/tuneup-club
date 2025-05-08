@@ -32,24 +32,24 @@ class StripeController extends Controller
                 'influencer_id' => 'required',
             ]);
 
-            $instructor = User::find($request->influencer_id);
+            $influencer = User::find($request->influencer_id);
 
             Stripe::setApiKey(config('services.stripe.secret'));
             $stripeClient = new StripeClient(config('services.stripe.secret'));
 
-            if (empty($instructor->stripe_account_id)) {
+            if (empty($influencer->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
                     'type'  => 'standard',
-                    'email' => $instructor->email,
+                    'email' => $influencer->email,
                 ]);
-                $instructor->stripe_account_id = $account->id;
-                $instructor->save();
+                $influencer->stripe_account_id = $account->id;
+                $influencer->save();
             }
 
             $accountLink = $stripeClient->accountLinks->create([
-                'account'     => $instructor->stripe_account_id,
-                'refresh_url' => route('stripe.refresh', ['influencer_id' => $instructor->id]),
-                'return_url'  => route('stripe-redirect-create', ['account_id' => $instructor->stripe_account_id, 'influencer_id' => $instructor->id]),
+                'account'     => $influencer->stripe_account_id,
+                'refresh_url' => route('stripe.refresh', ['influencer_id' => $influencer->id]),
+                'return_url'  => route('stripe-redirect-create', ['account_id' => $influencer->stripe_account_id, 'influencer_id' => $influencer->id]),
                 'type'        => 'account_onboarding',
             ]);
             return redirect($accountLink->url);
@@ -64,23 +64,23 @@ class StripeController extends Controller
             $request->validate([
                 'influencer_id' => 'required',
             ]);
-            $instructor = User::find($request->influencer_id);
+            $influencer = User::find($request->influencer_id);
             Stripe::setApiKey(config('services.stripe.secret'));
             $stripeClient = new StripeClient(config('services.stripe.secret'));
 
-            if (empty($instructor->stripe_account_id)) {
+            if (empty($influencer->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
                     'type'  => 'standard',
-                    'email' => $instructor->email,
+                    'email' => $influencer->email,
                 ]);
-                $instructor->stripe_account_id = $account->id;
-                $instructor->save();
+                $influencer->stripe_account_id = $account->id;
+                $influencer->save();
             }
 
             $accountLink = $stripeClient->accountLinks->create([
-                'account'     => $instructor->stripe_account_id,
-                'refresh_url' => route('stripe.refresh', ['influencer_id' => $instructor->id]),
-                'return_url'  => route('stripe-redirect-create', ['account_id' => $instructor->stripe_account_id, 'influencer_id' => $instructor->id]),
+                'account'     => $influencer->stripe_account_id,
+                'refresh_url' => route('stripe.refresh', ['influencer_id' => $influencer->id]),
+                'return_url'  => route('stripe-redirect-create', ['account_id' => $influencer->stripe_account_id, 'influencer_id' => $influencer->id]),
                 'type'        => 'account_onboarding',
             ]);
             return redirect($accountLink->url);
@@ -96,11 +96,11 @@ class StripeController extends Controller
                 'account_id'    => 'required',
                 'influencer_id' => 'required',
             ]);
-            $instructor = User::where('id', $request->get('influencer_id'))->first();
-            if (! empty($instructor->stripe_account_id)) {
+            $influencer = User::where('id', $request->get('influencer_id'))->first();
+            if (! empty($influencer->stripe_account_id)) {
                 \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
                 $stripeClient = new \Stripe\StripeClient(config('services.stripe.secret'));
-                $account      = $stripeClient->accounts->retrieve($instructor->stripe_account_id);
+                $account      = $stripeClient->accounts->retrieve($influencer->stripe_account_id);
 
                 if ($account && $account->id) {
                     $isVerified = false;
@@ -114,10 +114,10 @@ class StripeController extends Controller
                     }
 
                     // Save the account ID and verification status
-                    $instructor->stripe_account_id   = $instructor->stripe_account_id;
-                    $instructor->is_stripe_connected = $isVerified;
+                    $influencer->stripe_account_id   = $influencer->stripe_account_id;
+                    $influencer->is_stripe_connected = $isVerified;
                 }
-                $instructor->save();
+                $influencer->save();
             }
             return redirect()->route('home')->with('success', __('Stripe Connect Integrated Successfully'));
         } catch (\Exception $e) {

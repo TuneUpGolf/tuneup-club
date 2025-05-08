@@ -1,13 +1,11 @@
 <?php
-
 namespace App\Mail;
 
 namespace App\Mail\Admin;
 
-
 use Spatie\MailTemplates\TemplateMailable;
 
-class StudentPaymentLink extends TemplateMailable
+class FollowerPaymentLink extends TemplateMailable
 {
 
     public $name;

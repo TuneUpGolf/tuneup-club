@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Foundation\Auth\ResetsPasswords;
 
 class PasswordResetLinkController extends Controller
 {
@@ -27,17 +25,17 @@ class PasswordResetLinkController extends Controller
         // Check if the email exists in the `users` table
         $userExists = \App\Models\User::where('email', $request->email)->exists();
 
-        // Check if the email exists in the `students` table
-        $studentExists = \App\Models\Follower::where('email', $request->email)->exists();
+        // Check if the email exists in the `followers` table
+        $followerExists = \App\Models\Follower::where('email', $request->email)->exists();
 
-        if (!$userExists && !$studentExists) {
+        if (! $userExists && ! $followerExists) {
             return back()->withInput($request->only('email'))->withErrors([
                 'email' => 'No account found with this email address.',
             ]);
         }
 
         // Determine which broker to use
-        $broker = $userExists ? 'users' : 'students';
+        $broker = $userExists ? 'users' : 'followers';
 
         // Send the reset link using the appropriate broker
         $status = Password::broker($broker)->sendResetLink(

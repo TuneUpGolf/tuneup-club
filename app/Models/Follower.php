@@ -1,31 +1,30 @@
 <?php
-
 namespace App\Models;
 
 use App\Actions\SendEmail;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Mail\Admin\PasswordResets;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\Config;
-use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\URL;
 use Lab404\Impersonate\Models\Impersonate;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\MailTemplates\Models\MailTemplate;
+use Spatie\Permission\Traits\HasRoles;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Follower extends User implements MustVerifyEmail
 {
     use HasApiTokens, Notifiable, HasRoles;
     use BelongsToTenant, Impersonate;
 
-    protected $table = "followers";
+    protected $table      = "followers";
     protected $guard_name = 'web';
-    protected $fillable = [
+    protected $fillable   = [
         'id',
         'uuid',
         'name',
@@ -48,7 +47,7 @@ class Follower extends User implements MustVerifyEmail
         'social_url_x',
         'isGuest',
         'plan_id',
-        'plan_expired_date'
+        'plan_expired_date',
     ];
     protected $hidden = [
         'password',
@@ -73,7 +72,7 @@ class Follower extends User implements MustVerifyEmail
     }
     public function slots(): BelongsToMany
     {
-        return $this->belongsToMany(Slots::class, 'slot_student', 'follower_id', 'slot_id');
+        return $this->belongsToMany(Slots::class, 'slot_follower', 'follower_id', 'slot_id');
     }
     public function purchasePost(): HasMany
     {
@@ -83,7 +82,7 @@ class Follower extends User implements MustVerifyEmail
     {
         return $this->hasMany(Post::class);
     }
-    public function instructor()
+    public function influencer()
     {
         return $this->belongsToMany(User::class, 'follows');
     }
@@ -93,7 +92,7 @@ class Follower extends User implements MustVerifyEmail
     }
     public function hasVerifiedPhone()
     {
-        return !is_null($this->phone_verified_at);
+        return ! is_null($this->phone_verified_at);
     }
     public function likePost(): HasMany
     {

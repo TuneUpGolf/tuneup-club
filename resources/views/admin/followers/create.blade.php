@@ -1,9 +1,9 @@
 @extends('layouts.main')
-@section('title', __('Create Student'))
+@section('title', __('Create Follower'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('follower.index') }}">{{ __('Students') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Create Students') }}</li>
+    <li class="breadcrumb-item"><a href="{{ route('follower.index') }}">{{ __('Followers') }}</a></li>
+    <li class="breadcrumb-item">{{ __('Create Followers') }}</li>
 @endsection
 @section('content')
     <div class="main-content">
@@ -17,11 +17,11 @@
                 <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5>{{ __('Create Students') }}</h5>
+                            <h5>{{ __('Create Followers') }}</h5>
                         </div>
                         <div class="card-body">
                             {!! Form::open([
-                                'route' => 'student.store',
+                                'route' => 'follower.store',
                                 'method' => 'Post',
                                 'data-validate',
                                 'files' => 'true',

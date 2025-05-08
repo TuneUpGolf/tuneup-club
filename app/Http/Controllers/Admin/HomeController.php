@@ -48,7 +48,7 @@ class HomeController extends Controller
         $supports       = tenancy()->central(fn($tenant) => SupportTicket::where('tenant_id', $tenant->id)->latest()->take(7)->get());
 
         if ($userType == Role::ROLE_FOLLOWER) {
-            return $this->studentDashboard([
+            return $this->followerDashboard([
                 'dataTable'      => $dataTable,
                 'user'           => $user,
                 'paymentTypes'   => $paymentTypes,
@@ -65,9 +65,9 @@ class HomeController extends Controller
         ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()->plan_expired_date)
         : User::where('email', $user->email)->first()->plan_expired_date ?? '';
 
-        // Fetch Instructor Count
-        $instructor = User::where('tenant_id', $tenantId)->where('type', Role::ROLE_INFLUENCER)->count();
-        $students   = Follower::where('tenant_id', $tenantId)->where('active_status', true)->where('isGuest', false)->count();
+        // Fetch influencer Count
+        $influencer = User::where('tenant_id', $tenantId)->where('type', Role::ROLE_INFLUENCER)->count();
+        $followers  = Follower::where('tenant_id', $tenantId)->where('active_status', true)->where('isGuest', false)->count();
 
         // Fetch Lessons Count
         $lessons = ($userType == "Admin")
@@ -81,10 +81,10 @@ class HomeController extends Controller
         ? Purchase::where('influencer_id', $user->id)->where('status', 'complete')->sum('total_amount')
         : Purchase::where('status', 'complete')->sum('total_amount');
 
-        // Fetch Instructor Statistics for Admins (Without Student Count)
-        $instructorStats = [];
+        // Fetch Influencer Statistics for Admins (Without Follower Count)
+        $influencerStats = [];
         if ($userType == "Admin") {
-            $instructorStats = User::where('tenant_id', $tenantId)
+            $influencerStats = User::where('tenant_id', $tenantId)
                 ->where('type', Role::ROLE_INFLUENCER)
                 ->withCount([
                     'lessons as lesson_count',
@@ -101,8 +101,8 @@ class HomeController extends Controller
         return $dataTable->render('admin.dashboard.home', compact(
             'user',
             'userType',
-            'instructor',
-            'students',
+            'influencer',
+            'followers',
             'lessons',
             'planExpiredDate',
             'earning',
@@ -116,7 +116,7 @@ class HomeController extends Controller
             'purchaseInprogress',
             'inPersonCompleted',
             'inPersonPending',
-            'instructorStats'
+            'influencerStats'
         ));
     }
 
@@ -125,7 +125,7 @@ class HomeController extends Controller
     {
         $query = Purchase::whereHas('lesson', fn($q) => $q->where('type', $lessonType));
 
-        if ($user->type == "Instructor") {
+        if ($user->type == "Influencer") {
             $query->where('influencer_id', $user->id);
         }
 
@@ -139,8 +139,8 @@ class HomeController extends Controller
         return [$completed, $inprogress];
     }
 
-    // Student Dashboard
-    private function studentDashboard($data)
+    // Follower Dashboard
+    private function followerDashboard($data)
     {
         $datatable      = $data['dataTable'];
         $user           = $data['user'];

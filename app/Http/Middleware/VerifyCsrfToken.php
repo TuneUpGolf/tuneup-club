@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
@@ -8,13 +7,13 @@ class VerifyCsrfToken extends Middleware
 {
     protected $except = [
         //tenant
-        '/student*',
+        '/follower*',
         '/purchase*',
         '/purchase/successfull',
-        '/instructor*',
+        '/influencer*',
         '/follow*',
         '/post*',
-        '/import_students*',
+        '/import_followers*',
         '/stripe*',
         '/login*',
         // paytm

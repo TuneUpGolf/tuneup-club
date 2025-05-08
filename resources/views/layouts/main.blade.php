@@ -67,7 +67,7 @@
 <div class="dash-container">
     <div class="dash-content">
         <!-- [ breadcrumb ] start -->
-        @if (request()->is('instructor/profile/get*'))
+        @if (request()->is('influencer/profile/get*'))
             <div class="page-header">
                 <div class="page-block">
                     <div class="row align-items-center">

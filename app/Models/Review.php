@@ -1,21 +1,19 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class Review extends Model
 {
     use HasFactory;
 
-    public $table = 'reviews';
+    public $table       = 'reviews';
     protected $fillable = [
         'influencer_id',
         'follower_id',
         'rating',
-        'review'
+        'review',
     ];
     protected $casts = [
         'created_at' => 'datetime',
@@ -26,7 +24,7 @@ class Review extends Model
     {
         return $this->belongsTo(User::class, 'influencer_id');
     }
-    public function student()
+    public function follower()
     {
         return $this->belongsTo(Follower::class);
     }

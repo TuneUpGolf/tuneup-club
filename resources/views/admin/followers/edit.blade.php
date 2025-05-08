@@ -1,9 +1,9 @@
 @extends('layouts.main')
-@section('title', __('Edit Instructor'))
+@section('title', __('Edit Follower'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('influencer.index') }}">{{ __('Instructors') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Edit Instructors') }}</li>
+    <li class="breadcrumb-item"><a href="{{ route('follower.index') }}">{{ __('Follower') }}</a></li>
+    <li class="breadcrumb-item">{{ __('Edit Follower') }}</li>
 @endsection
 @section('content')
     <div class="main-content">
@@ -11,11 +11,11 @@
             <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('Edit Influencer') }}</h5>
+                        <h5>{{ __('Edit Follower') }}</h5>
                     </div>
                     <div class="card-body">
                         {!! Form::model($user, [
-                            'route' => ['influencer.update', $user->id],
+                            'route' => ['follower.update', $user->id],
                             'method' => 'Put',
                             'data-validate',
                         ]) !!}
@@ -58,53 +58,10 @@
                                 value="+{{ $user->dial_code . '0' . $user->phone }}" type="tel"
                                 placeholder="{{ __('Enter phone') }}" required>
                         </div>
-                        <div class="form-group">
-                            {{ Form::label('country', __('Country'), ['class' => 'form-label']) }}
-                            <select class="form-control form-control-inline-block" data-trigger name="country"
-                                id="country">
-                                <option value="">{{ __('Select Country') }}</option>
-                                @foreach ($countries as $val)
-                                    <option value="{{ $val['name'] }}"
-                                        {{ $user->country == $val['name'] ? 'selected' : '' }}>
-                                        {{ $val['name'] }}</option>
-                                @endforeach
-                            </select>
-                            @if ($errors->has('country'))
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $errors->first('country') }}</strong>
-                                </span>
-                            @endif
-                        </div>
-                        <div class="form-group">
-                            {{ Form::label('address', __('Address'), ['class' => 'form-label']) }}
-                            {!! Form::text('address', $user->address, [
-                                'class' => 'form-control',
-                                'id' => 'address',
-                                'placeholder' => __('Address'),
-                                'required',
-                            ]) !!}
-                            @if ($errors->has('address'))
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $errors->first('address') }}</strong>
-                                </span>
-                            @endif
-                        </div>
-
-                        {{-- @if (tenant('id') != null && $user->type != 'Admin')
-                            <div class="form-group">
-                                {{ Form::label('roles', __('Role'), ['class' => 'form-label']) }}
-                                {!! Form::select('roles', $roles, $user->type, [
-                                    'class' => 'form-control',
-                                    'required',
-                                    'data-trigger',
-                                    'id' => 'roles',
-                                ]) !!}
-                            </div>
-                        @endif --}}
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
-                            <a href="{{ route('influencer.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                            <a href="{{ route('follower.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                             {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                         </div>
                         {!! Form::close() !!}

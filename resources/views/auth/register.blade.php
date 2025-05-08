@@ -59,7 +59,7 @@
                 </div>
                 <div class="login-desing-footer">
                     <h2>Master Your Swing, One Lesson at a Time</h2>
-                    <p>Discover the perfect golf instructor tailored to your needs on our dedicated platform.
+                    <p>Discover the perfect golf influencer tailored to your needs on our dedicated platform.
                         With an array
                         of experts at your fingertips, elevate your golf game seamlessly. Start today and embrace the
                         journey towards your best swing.</p>

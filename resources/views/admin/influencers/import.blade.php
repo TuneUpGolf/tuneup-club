@@ -1,9 +1,9 @@
 @extends('layouts.main')
-@section('title', __('Import Followers'))
+@section('title', __('Import Influencers'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('follower.index') }}">{{ __('Students') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Import Followers') }}</li>
+    <li class="breadcrumb-item"><a href="{{ route('influencer.index') }}">{{ __('Influencers') }}</a></li>
+    <li class="breadcrumb-item">{{ __('Import Influencers') }}</li>
 @endsection
 @section('content')
     <div class="main-content">
@@ -11,10 +11,10 @@
             <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('Import Followers') }}</h5>
+                        <h5>{{ __('Import Influencers') }}</h5>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('follower.import_students') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('influencer.import_influencers') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group">
                                 <label for="file" class="form-label">{{ __('Select CSV File') }}</label>
@@ -24,7 +24,7 @@
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
-                            <a href="{{ route('follower.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                            <a href="{{ route('influencer.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                             {{ Form::button(__('Import'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                         </div>
                     </div>
@@ -42,4 +42,5 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+
 @endpush

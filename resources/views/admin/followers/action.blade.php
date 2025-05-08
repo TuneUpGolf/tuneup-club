@@ -1,5 +1,5 @@
 @can('impersonate-user')
-    <a class="btn btn-sm small btn btn-info" href="{{ route('impersonate', ['id' => $user->id, 'guardName' => 'student']) }}"
+    <a class="btn btn-sm small btn btn-info" href="{{ route('impersonate', ['id' => $user->id, 'guardName' => 'follower']) }}"
         data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Impersonate') }}">
         <i class="ti ti-new-section text-white"></i>
     </a>
@@ -36,7 +36,7 @@
     {!! Form::open([
         'method' => 'DELETE',
         'class' => 'd-inline',
-        'route' => ['student.destroy', $user->id],
+        'route' => ['follower.destroy', $user->id],
         'id' => 'delete-form-' . $user->id,
     ]) !!}
     <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm" data-bs-toggle="tooltip"

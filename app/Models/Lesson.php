@@ -1,35 +1,33 @@
 <?php
-
 namespace App\Models;
 
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
 class Lesson extends Model
 {
     use BelongsToTenant;
     //product
-    protected $table = "lessons";
+    protected $table      = "lessons";
     protected $guard_name = 'web';
 
-    const LESSON_TYPE_INPERSON = 'inPerson';
-    const LESSON_TYPE_ONLINE = 'online';
-    const LESSON_PAYMENT_CASH = 'cash';
+    const LESSON_TYPE_INPERSON  = 'inPerson';
+    const LESSON_TYPE_ONLINE    = 'online';
+    const LESSON_PAYMENT_CASH   = 'cash';
     const LESSON_PAYMENT_ONLINE = 'online';
-    const LESSON_PAYMENT_BOTH = 'both';
+    const LESSON_PAYMENT_BOTH   = 'both';
 
     const TYPE_MAPPING = [
-        "inPerson"  => "In-Person",
-        "online" => "Online",
+        "inPerson" => "In-Person",
+        "online"   => "Online",
     ];
-
 
     protected $fillable = [
         'lesson_name',
         'lesson_description',
         'lesson_price',
-        'lesson_quantity', // student can upload video, instructor will provide feedback. This field will decide how many videos will the instructor give feedback on in the given price. 
+        'lesson_quantity', // follower can upload video, influencer will provide feedback. This field will decide how many videos will the influencer give feedback on in the given price.
         'required_time',
         'created_by',
         'detailed_description',
@@ -37,8 +35,8 @@ class Lesson extends Model
         'type',
         'payment_method',
         'lesson_duration',
-        'max_students',
-        'is_package_lesson'
+        'max_followers',
+        'is_package_lesson',
     ];
 
     protected $casts = [

@@ -18,67 +18,67 @@ use Stripe\Stripe;
 trait PurchaseTrait
 {
 
-    public function sendSlotNotification(Slots $slot, string $notificationType, ?string $studentMessageTemplate = null, ?string $instructorMessageTemplate = null, ?Student $specificStudent = null)
+    public function sendSlotNotification(Slots $slot, string $notificationType, ?string $followerMessageTemplate = null, ?string $influencerMessageTemplate = null, ?Follower $specificFollower = null)
     {
-        $slot->load(['student', 'lesson']);
+        $slot->load(['follower', 'lesson']);
         $date = Carbon::createFromFormat('Y-m-d H:i:s', $slot->date_time)->toDayDateTimeString();
 
-        if ($specificStudent) {
+        if ($specificFollower) {
             $personalizedMessage = str_replace(
                 [':name'],
                 [$slot->lesson->user->name],
-                $studentMessageTemplate
+                $followerMessageTemplate
             );
 
-            if (isset($specificStudent->pushToken->token)) {
-                SendPushNotification::dispatch($specificStudent->pushToken->token, $notificationType, $personalizedMessage);
+            if (isset($specificFollower->pushToken->token)) {
+                SendPushNotification::dispatch($specificFollower->pushToken->token, $notificationType, $personalizedMessage);
             }
 
-            $studentPhone = Str::of($specificStudent->dial_code)->append($specificStudent->phone)->value();
-            SendSMS::dispatch($studentPhone, $personalizedMessage);
+            $followerPhone = Str::of($specificFollower->dial_code)->append($specificFollower->phone)->value();
+            SendSMS::dispatch($followerPhone, $personalizedMessage);
         } else {
 
-            $instructor = $slot->lesson->user;
+            $influencer = $slot->lesson->user;
 
-            // Format messages for instructor
-            $messageInstructor = __($instructorMessageTemplate, [
+            // Format messages for influencer
+            $messageinfluencer = __($influencerMessageTemplate, [
                 'date' => $date,
             ]);
 
-            // Notify all students who booked the slot
-            if (isset($studentMessageTemplate)) {
-                foreach ($slot->student as $student) {
-                    $messageStudent = __($studentMessageTemplate, [
-                        'instructor' => $instructor?->name,
+            // Notify all followers who booked the slot
+            if (isset($followerMessageTemplate)) {
+                foreach ($slot->follower as $follower) {
+                    $messageFollower = __($followerMessageTemplate, [
+                        'influencer' => $influencer?->name,
                         'lesson'     => $slot->lesson->lesson_name,
                         'date'       => $date,
                     ]);
 
-                    // Send push notification to students
-                    if (! empty($student->pushToken?->token) && ! $student->pivot->isFriend) {
-                        SendPushNotification::dispatch($student->pushToken->token, $notificationType, $messageStudent);
+                    // Send push notification to followers
+                    if (! empty($follower->pushToken?->token) && ! $follower->pivot->isFriend) {
+                        SendPushNotification::dispatch($follower->pushToken->token, $notificationType, $messageFollower);
                     }
 
-                    // Send SMS to students (if they have valid phone numbers)
-                    if (! empty($student->dial_code) && ! empty($student->phone) && ! $student->pivot->isFriend) {
-                        $userPhone = Str::of($student->dial_code)->append($student->phone)->value();
+                    // Send SMS to followers (if they have valid phone numbers)
+                    if (! empty($follower->dial_code) && ! empty($follower->phone) && ! $follower->pivot->isFriend) {
+                        $userPhone = Str::of($follower->dial_code)->append($follower->phone)->value();
                         $userPhone = str_replace(['(', ')'], '', $userPhone);
-                        SendSMS::dispatch($userPhone, $messageStudent);
+                        SendSMS::dispatch($userPhone, $messageFollower);
                     }
                 }
             }
 
-            if (isset($instructorMessageTemplate)) {
-                // Send push notification to instructor
-                if (! empty($instructor->pushToken?->token)) {
-                    SendPushNotification::dispatch($instructor->pushToken->token, $notificationType, $messageInstructor);
+            if (isset($influencerMessageTemplate)) {
+                // Send push notification to influencer
+                if (! empty($influencer->pushToken?->token)) {
+                    SendPushNotification::dispatch($influencer->pushToken->token, $notificationType, $messageinfluencer);
                 }
 
-                // Send SMS to instructor (if they have a valid phone number)
-                if (! empty($instructor->dial_code) && ! empty($instructor->phone)) {
-                    $instructorPhone = Str::of($instructor->dial_code)->append($instructor->phone)->value();
-                    $instructorPhone = str_replace(['(', ')'], '', $instructorPhone);
-                    SendSMS::dispatch($instructorPhone, $messageInstructor);
+                // Send SMS to influencer (if they have a valid phone number)
+                if (! empty($influencer->dial_code) && ! empty($influencer->phone)) {
+                    $influencerPhone = Str::of($influencer->dial_code)->append($influencer->phone)->value();
+                    $influencerPhone = str_replace(['(', ')'], '', $influencerPhone);
+                    SendSMS::dispatch($influencerPhone, $messageinfluencer);
                 }
             }
         }
@@ -96,19 +96,19 @@ trait PurchaseTrait
                 $application_currency       = $userData?->currency ?? 'usd';
             });
 
-            $instructor      = $purchase?->influencer;
-            $isInstructorUSA = $instructor?->country == 'United States';
+            $influencer      = $purchase?->influencer;
+            $isinfluencerUSA = $influencer?->country == 'United States';
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
-            $accountId = $instructor?->stripe_account_id;
+            $accountId = $influencer?->stripe_account_id;
             $account   = Account::retrieve($accountId);
 
-            $instructorCurrency = $account?->default_currency ?? 'usd';
+            $influencerCurrency = $account?->default_currency ?? 'usd';
             $convertedAmount    = $purchase?->total_amount * 100;
 
-            if ($instructorCurrency !== $application_currency) {
-                $exchangeRates   = \Stripe\ExchangeRate::retrieve($instructorCurrency);
+            if ($influencerCurrency !== $application_currency) {
+                $exchangeRates   = \Stripe\ExchangeRate::retrieve($influencerCurrency);
                 $conversionRate  = $exchangeRates['rates'][$application_currency] ?? 1;
                 $convertedAmount = round($convertedAmount / $conversionRate);
             }
@@ -136,7 +136,7 @@ trait PurchaseTrait
             $sessionData = [
                 'line_items'          => [[
                     'price_data' => [
-                        'currency'     => $instructorCurrency,
+                        'currency'     => $influencerCurrency,
                         'product_data' => [
                             'name' => "$purchase->id " . "$purchase->influencer_id" . "$purchase->lesson_id",
                         ],
@@ -154,12 +154,12 @@ trait PurchaseTrait
                 'cancel_url'          => route('purchase-cancel', $cancel_params),
             ];
 
-            if (! $isInstructorUSA) {
+            if (! $isinfluencerUSA) {
                 $sessionData['payment_intent_data']['on_behalf_of'] = $accountId;
             }
 
             if (
-                $instructor?->active_status &&
+                $influencer?->active_status &&
                 ! empty($account->id) &&
                 $account->charges_enabled &&
                 ! empty($account->capabilities['card_payments']) &&
@@ -167,7 +167,7 @@ trait PurchaseTrait
             ) {
                 $session = Session::create($sessionData);
             } else {
-                throw new Exception('There is a problem with booking lessons for this instructor. Kindly contact admin.');
+                throw new Exception('There is a problem with booking lessons for this influencer. Kindly contact admin.');
             }
 
             if (! empty($session?->id)) {
