@@ -1,0 +1,9 @@
+.overlay-black {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0.9;
+  background-color: #000;
+}
