@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Mail;
 
 namespace App\Mail\Admin;
@@ -7,13 +6,13 @@ namespace App\Mail\Admin;
 use App\Models\Purchase;
 use Spatie\MailTemplates\TemplateMailable;
 
-class PurchaseCreatedInsructor extends TemplateMailable
+class PurchaseCreatedInfluencer extends TemplateMailable
 {
 
     public $name;
     public $amount;
     public $lesson;
-    public $studentName;
+    public $followerName;
     /**
      * Create a new message instance.
      *
@@ -22,17 +21,16 @@ class PurchaseCreatedInsructor extends TemplateMailable
     public function __construct(Purchase $purchase)
     {
         //
-        $this->name = $purchase->instructor->name;
-        $this->studentName = $purchase->follower->name;
-        $this->lesson = $purchase->lesson->id;
-        $this->amount = $purchase->total_amount;
+        $this->name         = $purchase->influencer->name;
+        $this->followerName = $purchase->follower->name;
+        $this->lesson       = $purchase->lesson->id;
+        $this->amount       = $purchase->total_amount;
     }
 
     public function build()
     {
         return $this->html($this->buildView()); // Ensure HTML is sent
     }
-
 
     public function getHtmlLayout(): string
     {

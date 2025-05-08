@@ -13,10 +13,10 @@
                         alt="Profile" />
                     <div>
                         <p class="text-xl text-white font-bold mb-0 leading-tight">
-                            {{ ucfirst($post->isStudentPost ? $post?->follower->name : $post?->influencer?->name) }}
+                            {{ ucfirst($post->isFollowerPost ? $post?->follower->name : $post?->influencer?->name) }}
                         </p>
                         <span class="text-md text-white">
-                            {{ $post->isStudentPost ? 'Follower' : 'Influencer' }}
+                            {{ $post->isFollowerPost ? 'Follower' : 'Influencer' }}
                         </span>
                     </div>
                 </div>

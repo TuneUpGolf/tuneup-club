@@ -25,9 +25,9 @@
 @section('content')
     <div class="login-content-inner">
         <div class="login-title">
-            <h3>{{ __('Students Sign In') }}</h3>
+            <h3>{{ __('Followers Sign In') }}</h3>
         </div>
-        {{ Form::open(['route' => ['login-student'], 'method' => 'POST', 'data-validate', 'class' => 'needs-validation']) }}
+        {{ Form::open(['route' => ['login-follower'], 'method' => 'POST', 'data-validate', 'class' => 'needs-validation']) }}
         @csrf
         <div class="form-group">
             <label class="form-label" for="email">{{ __('Email Address') }}</label>

@@ -11,7 +11,7 @@
 
                  <div class="card card-width-manageSlots">
                      <div class="flex justify-between items-center card-header  w-100 ">
-                         @if (Auth::user()->type === 'Student')
+                         @if (Auth::user()->type === 'Follower')
                              <h5>{{ __('Book Slot') }}</h5>
                              <p>{{ __('Click on an avaialble slot to book') }}</p>
                          @else
@@ -86,7 +86,7 @@
          var calendarEl = document.getElementById('calendar');
          var type = @json($type);
          var authId = @json($authId);
-         var students = @json($students);
+         var followers = @json($followers);
          var isMobile = window.innerWidth <= 768;
          var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
          var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -102,12 +102,12 @@
                  const paymentMethod = slot.lesson.payment_method;
                  const isFullyBooked = info?.event?.extendedProps?.isFullyBooked;
                  const availableSeats = info.event.extendedProps.available_seats;
-                 const student = info?.event?.extendedProps?.student;
+                 const follower = info?.event?.extendedProps?.follower;
                  const lesson = slot.lesson;
-                 const instructor = info.event.extendedProps.instructor;
-                 const isBooked = !!info?.event?.extendedProps?.is_student_assigned;
+                 const influencer = info.event.extendedProps.influencer;
+                 const isBooked = !!info?.event?.extendedProps?.is_follower_assigned;
                  const isCompleted = !!info.event?.extendedProps?.is_completed;
-                 const isAuthStudentBooked = !!(student.some(obj => obj.id == authId));
+                 const isAuthFollowerBooked = !!(follower.some(obj => obj.id == authId));
                  const isPackageLesson = !!lesson.is_package_lesson;
 
                  const formattedTime = new Date(slot.date_time.replace(/-/g, "/"))
@@ -121,7 +121,7 @@
                          hour12: true // 12-hour format with AM/PM
                      });
 
-                 if (type == 'Instructor' && !isBooked && !isCompleted) {
+                 if (type == 'influencer' && !isBooked && !isCompleted) {
                      const swalWithBootstrapButtons = Swal.mixin({
                          customClass: {
                              confirmButton: "btn btn-success",
@@ -132,7 +132,7 @@
 
                      if (!!lesson.is_package_lesson) {
                          Swal.fire('Error',
-                             'Instructors can\'t book package lesson slots for students.',
+                             'influencers can\'t book package lesson slots for followers.',
                              'error');
                          return; // Stop further execution
                      }
@@ -145,27 +145,27 @@
                         <div class="flex justify-start mb-1">
                         <span>Available Spots: <strong>${availableSeats}</strong></span>
                         </div>
-                        <div class="form-group" id="student-form">
+                        <div class="form-group" id="follower-form">
                              <div class="flex justify-start">
-                            <label class="mb-1">Select Students</label>
+                            <label class="mb-1">Select Followers</label>
                             </div>
                             <select name="follower_id[]" id="follower_id" class="form-select w-full" multiple>
-                                @foreach ($students as $student)
-                                    <option value="{{ $student->id }}">
-                                        {{ ucfirst($student->name) }}
+                                @foreach ($followers as $follower)
+                                    <option value="{{ $follower->id }}">
+                                        {{ ucfirst($follower->name) }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         </form>`,
                              preConfirm: () => {
-                                 const studentSelect = document.getElementById('follower_id');
-                                 const follower_ids = [...studentSelect.selectedOptions].map(
+                                 const followerSelect = document.getElementById('follower_id');
+                                 const follower_ids = [...followerSelect.selectedOptions].map(
                                      opt => opt.value);
 
                                  if (follower_ids.length > availableSeats)
                                      Swal.showValidationMessage(
-                                         `You can only select up to ${availableSeats} students.`
+                                         `You can only select up to ${availableSeats} followers.`
                                      );
 
                                  return {
@@ -206,7 +206,7 @@
 
                          });
                  }
-                 if (type == 'Instructor' && isBooked && !isCompleted) {
+                 if (type == 'influencer' && isBooked && !isCompleted) {
                      const swalWithBootstrapButtons = Swal.mixin({
                          customClass: {
                              confirmButton: "btn btn-success",
@@ -216,31 +216,31 @@
                      });
 
                      if (isPackageLesson) {
-                         // Extract list of booked students
-                         let bookedStudentsHtml =
-                             "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Students:</strong>";
-                         bookedStudentsHtml += "<ol style='text-align: left; padding-left: 20px;'>";
+                         // Extract list of booked followers
+                         let bookedFollowersHtml =
+                             "<strong style='display: block; text-align: left; margin-bottom: 5px;'>📋 Booked Followers:</strong>";
+                         bookedFollowersHtml += "<ol style='text-align: left; padding-left: 20px;'>";
 
-                         if (slot.student.length > 0) {
-                             slot.student.forEach((student, index) => {
-                                 let studentName = student.pivot.isFriend ?
-                                     `${student.pivot.friend_name} (Friend: ${student.name})` :
-                                     student.name;
+                         if (slot.follower.length > 0) {
+                             slot.follower.forEach((follower, index) => {
+                                 let followerName = follower.pivot.isFriend ?
+                                     `${follower.pivot.friend_name} (Friend: ${follower.name})` :
+                                     follower.name;
 
-                                 bookedStudentsHtml +=
-                                     `<li>${index + 1}. ${studentName}</li>`;
+                                 bookedFollowersHtml +=
+                                     `<li>${index + 1}. ${followerName}</li>`;
                              });
                          } else {
-                             bookedStudentsHtml += "<li>No students booked yet.</li>";
+                             bookedFollowersHtml += "<li>No followers booked yet.</li>";
                          }
 
-                         bookedStudentsHtml += "</ol>";
+                         bookedFollowersHtml += "</ol>";
 
                          Swal.fire({
                              title: "Confirm Slot Completion",
                              html: `
             <p style="text-align: left;">Are you sure you want to complete this lesson slot?</p>
-            ${bookedStudentsHtml}
+            ${bookedFollowersHtml}
         `,
                              icon: "warning",
                              showCancelButton: true,
@@ -281,17 +281,17 @@
                      }
 
 
-                     let studentsHtml = `
-                     <label for="unbookStudents"><strong>Select Students to Unbook:</strong></label>
-                     <select id="unbookStudents" class="form-select w-full" multiple>
+                     let followersHtml = `
+                     <label for="unbookFollowers"><strong>Select Followers to Unbook:</strong></label>
+                     <select id="unbookFollowers" class="form-select w-full" multiple>
                     `;
 
-                     if (Array.isArray(student) && student.length > 0) {
-                         studentsHtml += student.map(student =>
-                             `<option value="${student.id}">${student.isGuest ? `${student.name} (Guest)` : student.name}</option>`
+                     if (Array.isArray(follower) && follower.length > 0) {
+                         followersHtml += follower.map(follower =>
+                             `<option value="${follower.id}">${follower.isGuest ? `${follower.name} (Guest)` : follower.name}</option>`
                          ).join('');
                      }
-                     studentsHtml += `</select>`;
+                     followersHtml += `</select>`;
                      swalWithBootstrapButtons
                          .fire({
                              title: "Manage Slot",
@@ -299,10 +299,10 @@
                     <div style="text-align: left; font-size: 14px;">
                     <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
                     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-                    <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                    <span><strong>influencer:</strong> ${influencer.name}</span><br/>
                     <span><strong>Location:</strong> ${slot.location}</span><br/>
                     <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-                    ${studentsHtml}<br/>
+                    ${followersHtml}<br/>
                      </div>
                             `,
                              showCancelButton: true,
@@ -323,7 +323,7 @@
                                      buttonsStyling: false,
                                  });
                                  if (paymentMethod == 'both') {
-                                     console.log(instructor.is_stripe_connected);
+                                     console.log(influencer.is_stripe_connected);
                                      swalWithBootstrapButtons
                                          .fire({
                                              title: "Choose Payment Method",
@@ -336,7 +336,7 @@
                                          })
                                          .then((result) => {
                                              if (result.isConfirmed) {
-                                                 if (instructor.is_stripe_connected) {
+                                                 if (influencer.is_stripe_connected) {
                                                      $("#slot_id").val(slot_id);
                                                      $("#payment_method").val('online');
                                                      $("#form").submit()
@@ -366,14 +366,14 @@
                                      $("#form").submit()
                                  }
                              } else if (result.dismiss == 'cancel') {
-                                 const selectedStudents = Array.from(document
+                                 const selectedFollowers = Array.from(document
                                          .getElementById(
-                                             'unbookStudents').selectedOptions)
+                                             'unbookFollowers').selectedOptions)
                                      .map(option => option.value);
 
-                                 if (selectedStudents.length === 0) {
+                                 if (selectedFollowers.length === 0) {
                                      Swal.showValidationMessage(
-                                         "Please select at least one student to unbook."
+                                         "Please select at least one follower to unbook."
                                      );
                                  }
                                  $.ajax({
@@ -384,7 +384,7 @@
                                              'content'),
                                          unbook: 1,
                                          slot_id: slot_id,
-                                         follower_ids: selectedStudents,
+                                         follower_ids: selectedFollowers,
                                          redirect: 1,
                                      },
                                      success: function(response) {
@@ -404,10 +404,10 @@
                              }
                          });
                  }
-                 if (type == 'Student' && !isAuthStudentBooked && !isFullyBooked && !isCompleted) {
-                     let studentsHtml = `
-        <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-        <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+                 if (type == 'Follower' && !isAuthFollowerBooked && !isFullyBooked && !isCompleted) {
+                     let followersHtml = `
+        <label for="followerFriends"><strong>Book for Friends (Optional):</strong></label>
+        <input type="text" id="followerFriends" class="form-control" placeholder="Enter friend names, separated by commas">
     `;
                      Swal.fire({
                          title: "Slot Details",
@@ -416,9 +416,9 @@
                     <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
                     <span><strong>Location:</strong> ${slot.location}</span><br/>
                     <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-                    <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                    <span><strong>influencer:</strong> ${influencer.name}</span><br/>
                     <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-                         ${studentsHtml}
+                         ${followersHtml}
                     </div>
                          `,
                          showCancelButton: true,
@@ -426,7 +426,7 @@
                          cancelButtonText: "Cancel",
                          preConfirm: () => {
                              const friendNames = document.getElementById(
-                                 'studentFriends')?.value.trim();
+                                 'followerFriends')?.value.trim();
                              const friendNamesArray = friendNames ? friendNames
                                  .split(',').map(name => name.trim()) : [];
                              return {
@@ -469,7 +469,7 @@
                          }
                      });
                  }
-                 if (type == 'Student' && isAuthStudentBooked) {
+                 if (type == 'Follower' && isAuthFollowerBooked) {
                      Swal.fire({
                          title: "Unbook Slot",
                          text: "Are you sure you want to unbook this slot?",

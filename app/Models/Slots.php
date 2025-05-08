@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -10,11 +9,11 @@ class Slots extends Model
 {
     use BelongsToTenant;
 
-    protected $table = 'slots';
+    protected $table      = 'slots';
     protected $guard_name = 'web';
-    public $timestamps = false;
-    protected $date_time = ['datetime_column'];
-    protected $with = ['student'];
+    public $timestamps    = false;
+    protected $date_time  = ['datetime_column'];
+    protected $with       = ['follower'];
 
     protected $fillable = [
         'lesson_id',
@@ -23,17 +22,17 @@ class Slots extends Model
         'location',
         'is_completed',
         'is_active',
-        'cancelled'
+        'cancelled',
     ];
 
     public function lesson()
     {
         return $this->belongsTo(\App\Models\Lesson::class, 'lesson_id');
     }
-    // Relationship with students
-    public function student(): BelongsToMany
+    // Relationship with followers
+    public function follower(): BelongsToMany
     {
-        return $this->belongsToMany(Follower::class, 'student_slots', 'slot_id', 'follower_id')
+        return $this->belongsToMany(Follower::class, 'follower_slots', 'slot_id', 'follower_id')
             ->withPivot(['isFriend', 'friend_name', 'created_at', 'updated_at'])
             ->withTimestamps();
     }
@@ -41,11 +40,11 @@ class Slots extends Model
     // Check if the slot is fully booked
     public function isFullyBooked(): bool
     {
-        return $this->student()->count() >= $this->lesson->max_students;
+        return $this->follower()->count() >= $this->lesson->max_followers;
     }
 
     public function availableSeats(): int
     {
-        return $this->lesson->max_students - $this->student()->count();
+        return $this->lesson->max_followers - $this->follower()->count();
     }
 }

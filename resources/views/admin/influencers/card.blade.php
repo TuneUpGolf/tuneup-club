@@ -17,7 +17,7 @@
             <div class="text-xl font-medium text-gray-900 dark:text-white"><a class="text-black hover:text-blue-500"
                     href="{{ route('influencer.profile', ['influencer_id' => $model->id]) }}">{!! \Illuminate\Support\Str::limit(ucfirst($model->name), 40, '...') !!}</a>
             </div>
-            <span class="text-sm text-gray-500 dark:text-gray-400">Instructor</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Influencer</span>
         </div>
     </div>
     <hr class="h-px bg-gray-200 border-0 dark:bg-gray-700">

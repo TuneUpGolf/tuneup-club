@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-xl-12">
             <div class="card px-4">
-                <livewire:instructor-grid-view />
+                <livewire:influencer-grid-view />
             </div>
         </div>
     @endsection

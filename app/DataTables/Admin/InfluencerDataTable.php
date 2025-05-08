@@ -2,11 +2,11 @@
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
-use App\Models\Follower;
+use App\Models\User;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class StudentDataTable extends DataTable
+class InfluencerDataTable extends DataTable
 {
     public function dataTable($query)
     {
@@ -14,22 +14,22 @@ class StudentDataTable extends DataTable
         $data = datatables()
             ->eloquent($query)
             ->addIndexColumn()
-            ->editColumn('name', function (Follower $user) {
-                $imageSrc = $user->dp ?? asset('assets/img/user.png');
-                $userUrl  = route('follower.show', $user->id);
-                $html     = '
-                <div class="flex justify-start items-center">
-                    <a href="' . $userUrl . '" class="flex items-center text-primary hover:underline">
-                        <img src="' . $imageSrc . '" width="20" class="rounded-full" alt="User Image"/>
-                        <span class="pl-2">' . e($user->name) . '</span>
-                    </a>
-                </div>';
-                return $html;
-            })
             ->editColumn('created_at', function ($request) {
                 return UtilityFacades::date_time_format($request->created_at);
             })
-            ->editColumn('email_verified_at', function (Follower $user) {
+            ->editColumn('name', function (User $user) {
+                $imageSrc = $user->dp ?? asset('assets/img/logo/logo.png');
+                $html     =
+                '
+                <div class="flex justify-start items-center">'
+                .
+                "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
+                .
+                "<span class='pl-2'>" . $user->name . " </span>" .
+                    '</div>';
+                return $html;
+            })
+            ->editColumn('email_verified_at', function (User $user) {
                 if ($user->email_verified_at) {
                     $html = '
                     <div class="flex justify-center items-center">
@@ -70,7 +70,7 @@ class StudentDataTable extends DataTable
                     return $html;
                 }
             })
-            ->editColumn('phone_verified_at', function (Follower $user) {
+            ->editColumn('phone_verified_at', function (User $user) {
                 if ($user->phone_verified_at) {
                     $html = '
                     <div class="flex justify-center items-center">
@@ -111,35 +111,34 @@ class StudentDataTable extends DataTable
                     return $html;
                 }
             })
-            ->editColumn('active_status', function (Follower $user) {
+            ->editColumn('active_status', function (User $user) {
                 $checked = ($user->active_status == 1) ? 'checked' : '';
                 $status  = '<label class="form-switch">
                              <input class="form-check-input chnageStatus" name="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
                              </label>';
                 return $status;
             })
-            ->rawColumns(['role', 'email_verified_at', 'phone_verified_at', 'active_status', 'name']);
+            ->addColumn('action', function (User $user) {
+                return view('admin.influencers.action', compact('user'));
+            })
+            ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name']);
         return $data;
     }
 
-    public function query(Follower $model)
+    public function query(User $model)
     {
         if (tenant('id') == null) {
-            return $model->newQuery()->select(['followers.*', 'domains.domain'])
-                ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Admin');
+            return $model->newQuery()->select(['users.*', 'domains.domain'])
+                ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Influencer');
         } else {
-            $query = $model->newQuery()
-                ->where('type', 'Follower')
-                ->where('isGuest', false);
-
-            return $query;
+            return $model->newQuery()->where('type', '=', 'Influencer');
         }
     }
 
     public function html()
     {
         return $this->builder()
-            ->setTableId('students-table')
+            ->setTableId('influencers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
@@ -168,9 +167,12 @@ class StudentDataTable extends DataTable
                         <'col-sm-7'p>>
                         ",
                 'buttons'        => [
+                    ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
+                        window.location = '" . route('influencer.create') . "';
+                   }"],
                     ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('follower.import') . "';
-                   }", ],
+                        window.location = '" . route('influencer.import') . "';
+                   }"],
                     [
                         'extend'    => 'collection',
                         'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
@@ -218,6 +220,7 @@ class StudentDataTable extends DataTable
                 }',
             ])->language([
             'buttons' => [
+                'create' => __('Create'),
                 'export' => __('Export'),
                 'print'  => __('Print'),
                 'reload' => __('Import'),
@@ -238,11 +241,17 @@ class StudentDataTable extends DataTable
             Column::make('phone_verified_at')->title(__('Phone Verified Status')),
             Column::make('created_at')->title(__('Created At')),
             Column::make('active_status')->title(__('Status')),
+            Column::computed('action')->title(__('Action'))
+                ->exportable(false)
+                ->printable(false)
+                ->width(60)
+                ->addClass('text-center')
+                ->width('20%'),
         ];
     }
 
     protected function filename(): string
     {
-        return 'Students_' . date('YmdHis');
+        return 'Influencers_' . date('YmdHis');
     }
 }

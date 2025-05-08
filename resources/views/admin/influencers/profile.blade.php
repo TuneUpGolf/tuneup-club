@@ -28,15 +28,15 @@
             <div class="flex flex-col">
                 <div class="profile-backdrop">
                     <div class="profile-info-container flex">
-                        <img alt="{{ $instructor->name }}"
-                            src="{{ $instructor?->logo }}"
+                        <img alt="{{ $influencer->name }}"
+                            src="{{ $influencer?->logo }}"
                             class="rounded-full align-middle border-1 profile-image">
                         <div class="flex flex-col">
-                            <span class="font-medium text-3xl mb-2">{{ $instructor->name }}</span>
+                            <span class="font-medium text-3xl mb-2">{{ $influencer->name }}</span>
                             <div class="flex justify-center items-center divide-x divide-solid w-100 gap-2 text-gray-600">
                                 <div class="text-sm leading-normal text-gray-600 uppercase">
                                     <i class="fas fa-map-marker-alt"></i>
-                                    {{ $instructor->country }}
+                                    {{ $influencer->country }}
                                 </div>
                                 <div class="text-sm leading-normal text-gray-600 uppercase">
                                     <i class="fas fa-user"></i>
@@ -71,7 +71,7 @@
                                 'route' => [
                                     'follow.influencer',
                                     [
-                                        'influencer_id' => $instructor?->id,
+                                        'influencer_id' => $influencer?->id,
                                         'follow' => $follow->where('follower_id', Auth::user()->id)?->first()?->active_status
                                             ? 'unfollow'
                                             : 'follow',

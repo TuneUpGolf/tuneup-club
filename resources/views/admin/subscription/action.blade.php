@@ -1,8 +1,8 @@
 {!! Form::open([
     'route' => [
-        'follow.sub.instructor',
+        'follow.sub.influencer',
         [
-            'influencer_id' => $follow->instructor->id,
+            'influencer_id' => $follow->influencer->id,
         ],
     ],
     'method' => 'Post',

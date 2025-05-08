@@ -10,7 +10,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use LaravelViews\Views\GridView;
 
-class InstructorGridView extends GridView
+class InfluencerGridView extends GridView
 {
 
     /**
@@ -30,7 +30,7 @@ class InstructorGridView extends GridView
      *
      * @param $model Current model for each card
      */
-    public $cardComponent = 'admin.instructors.card';
+    public $cardComponent = 'admin.influencers.card';
 
     public function card($model)
     {

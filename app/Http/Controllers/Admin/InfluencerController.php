@@ -3,12 +3,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
 use App\Actions\SendSMS;
-use App\DataTables\Admin\InstructorDataTable;
+use App\DataTables\Admin\InfluencerDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AnnotationVideoApiResource;
-use App\Http\Resources\InstructorAPIResource;
-use App\Imports\InstructorsImport;
+use App\Http\Resources\InfluencerAPIResource;
+use App\Imports\InfluencersImport;
 use App\Mail\Admin\WelcomeMail;
 use App\Models\AnnotationVideos;
 use App\Models\Follow;
@@ -43,10 +43,10 @@ class InfluencerController extends Controller
         $this->countries = json_decode(file_get_contents($path), true);
     }
 
-    public function index(InstructorDataTable $dataTable)
+    public function index(InfluencerDataTable $dataTable)
     {
         if (Auth::user()->can('manage-influencers')) {
-            return $dataTable->render('admin.instructors.index');
+            return $dataTable->render('admin.influencers.index');
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -56,7 +56,7 @@ class InfluencerController extends Controller
     {
 
         if (Auth::user()->can('create-influencers')) {
-            return view('admin.instructors.create');
+            return view('admin.influencers.create');
         }
         return redirect()->back()->with('failed', __('Permission denied.'));
     }
@@ -64,38 +64,38 @@ class InfluencerController extends Controller
     {
 
         if (Auth::user()->can('create-influencers')) {
-            return view('admin.instructors.import');
+            return view('admin.influencers.import');
         }
         return redirect()->back()->with('failed', __('Permission denied.'));
     }
 
-    public function instructorProfile()
+    public function influencerProfile()
     {
-        $instructors = User::where('type', Role::ROLE_INFLUENCER)->get();
-        return view('admin.instructors.profiles', compact('instructors'));
+        $influencers = User::where('type', Role::ROLE_INFLUENCER)->get();
+        return view('admin.influencers.profiles', compact('influencers'));
     }
 
     public function viewProfile(Request $request)
     {
-        $instructor   = User::where('type', Role::ROLE_INFLUENCER)->where('id', request()->query('influencer_id'))->first();
-        $posts        = Post::where('influencer_id', $instructor->id);
+        $influencer   = User::where('type', Role::ROLE_INFLUENCER)->where('id', request()->query('influencer_id'))->first();
+        $posts        = Post::where('influencer_id', $influencer->id);
         $totalLessons = Lesson::where('created_by', request()->query('influencer_id'))->count();
         $totalPosts   = $posts->count();
         $posts        = $posts->orderBy('created_at', 'desc')->paginate(6);
         $section      = $request->section;
-        $follow       = Follow::where('influencer_id', $instructor->id);
+        $follow       = Follow::where('influencer_id', $influencer->id);
         $followers    = $follow->count();
         $isFollowing  = $follow->where('follower_id', Auth::user()->id)
             ->where('active_status', 1)
             ->exists();
-        $subscribers       = Follow::where('influencer_id', $instructor->id)->where('active_status', 1)->where('isPaid', true)->count();
-        $plans             = Plan::where('influencer_id', $instructor->id)->get();
+        $subscribers       = Follow::where('influencer_id', $influencer->id)->where('active_status', 1)->where('isPaid', true)->count();
+        $plans             = Plan::where('influencer_id', $influencer->id)->get();
         $isInfluencer      = Auth::user()->type === Role::ROLE_INFLUENCER;
-        $feedEnabledPlanId = Plan::where('influencer_id', $instructor->id)
+        $feedEnabledPlanId = Plan::where('influencer_id', $influencer->id)
             ->where('is_feed_enabled', true)->pluck('id')->toArray();
 
         $isSubscribed = in_array(Auth::user()->plan_id, $feedEnabledPlanId);
-        return view('admin.instructors.profile', compact('instructor', 'totalPosts', 'totalLessons', 'followers', 'subscribers', 'section', 'posts', 'follow', 'plans', 'isInfluencer', 'isSubscribed', 'isFollowing'));
+        return view('admin.influencers.profile', compact('influencer', 'totalPosts', 'totalLessons', 'followers', 'subscribers', 'section', 'posts', 'follow', 'plans', 'isInfluencer', 'isSubscribed', 'isFollowing'));
     }
 
     public function store(Request $request)
@@ -155,13 +155,13 @@ class InfluencerController extends Controller
                 $domains = Domain::pluck('domain', 'domain')->all();
             }
             $countries = $this->countries;
-            return view('admin.instructors.edit', compact('user', 'roles', 'domains', 'countries'));
+            return view('admin.influencers.edit', compact('user', 'roles', 'domains', 'countries'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
 
-    public function reportInstructor()
+    public function reportInfluencer()
     {
         try {
             request()->validate([
@@ -169,12 +169,12 @@ class InfluencerController extends Controller
                 'commnet'       => 'max:255',
             ]);
 
-            $instructor = User::findOrFail(request()->get('influencer_id'));
+            $influencer = User::findOrFail(request()->get('influencer_id'));
 
-            if (! ! $instructor) {
+            if (! ! $influencer) {
 
                 $reportUser                = new ReportUser();
-                $reportUser->influencer_id = $instructor->id;
+                $reportUser->influencer_id = $influencer->id;
 
                 if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                     $reportUser->follower_id = Auth::user()->id;
@@ -188,7 +188,7 @@ class InfluencerController extends Controller
 
                 $reportUser->save();
 
-                return response('Instructor Successfully Reported', 200);
+                return response('Influencer Successfully Reported', 200);
             }
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error', 'message' => $e->getMessage()], 500);
@@ -204,11 +204,11 @@ class InfluencerController extends Controller
                 'rating'        => 'required|gte:1|lte:5',
             ]);
 
-            $instructor = User::findOrFail(request()->get('influencer_id'));
+            $influencer = User::findOrFail(request()->get('influencer_id'));
 
-            if (! ! $instructor && Auth::user()->type === Role::ROLE_FOLLOWER) {
+            if (! ! $influencer && Auth::user()->type === Role::ROLE_FOLLOWER) {
 
-                $review = Review::firstOrCreate(['follower_id' => Auth::user()->id, 'influencer_id' => $instructor->id]);
+                $review = Review::firstOrCreate(['follower_id' => Auth::user()->id, 'influencer_id' => $influencer->id]);
 
                 if (isset(request()->review)) {
                     $review->review = request()->review;
@@ -218,12 +218,12 @@ class InfluencerController extends Controller
 
                 $review->save();
 
-                $instructor->avg_rate = DB::table('reviews')
+                $influencer->avg_rate = DB::table('reviews')
                     ->where('influencer_id', request()->get('influencer_id'))
                     ->groupBy('influencer_id')
                     ->avg('rating');
 
-                $instructor->save();
+                $influencer->save();
 
                 return response(['message' => 'Success', 'review' => $review], 200);
             }
@@ -238,15 +238,15 @@ class InfluencerController extends Controller
             $request->validate([
                 'influencer_id' => 'required',
             ]);
-            $instructor = User::findOrFail(request()->get('influencer_id'));
+            $influencer = User::findOrFail(request()->get('influencer_id'));
 
-            if (! ! $instructor) {
+            if (! ! $influencer) {
                 $reviews = Review::where('influencer_id', $request->get('influencer_id'))->orderBy(request()->get('sortKey', 'updated_at'), request()->get('sortOrder', 'desc'))->paginate(request()->get('perPage'));
                 return response()->json([
                     'reviews' => $reviews,
                 ]);
             } else {
-                throw new Exception('instructor not found', 404);
+                throw new Exception('influencer not found', 404);
             }
 
         } catch (\Exception $e) {
@@ -254,7 +254,7 @@ class InfluencerController extends Controller
         }
     }
 
-    public function updateInstructorBio()
+    public function updateInfluencerBio()
     {
         request()->validate([
             'influencer_id' => 'required',
@@ -262,13 +262,13 @@ class InfluencerController extends Controller
         ]);
         try {
             if (Auth::user()->type = Role::ROLE_INFLUENCER) {
-                $instructor = User::where('type', Role::ROLE_INFLUENCER)->find(request()->influencer_id);
-                if ($instructor->active_status == true) {
-                    $instructor['bio'] = request()?->bio;
-                    $instructor->update();
-                    return response(new InstructorAPIResource($instructor));
+                $influencer = User::where('type', Role::ROLE_INFLUENCER)->find(request()->influencer_id);
+                if ($influencer->active_status == true) {
+                    $influencer['bio'] = request()?->bio;
+                    $influencer->update();
+                    return response(new InfluencerAPIResource($influencer));
                 } else {
-                    return response()->json(['error' => 'Instructor is currently disabled, please contact administror', 419]);
+                    return response()->json(['error' => 'Influencer is currently disabled, please contact administror', 419]);
                 }
             } else {
                 return response()->json(['error' => 'Unauthorized', 401]);
@@ -314,11 +314,11 @@ class InfluencerController extends Controller
                 'dp' => 'required',
             ]);
             if ($request->hasFile('dp') && Auth::user()->type === Role::ROLE_INFLUENCER) {
-                $instructor         = User::find(Auth::user()?->id);
-                $instructor['logo'] = $request->file('dp')->store('dp/');
-                $instructor->update();
+                $influencer         = User::find(Auth::user()?->id);
+                $influencer['logo'] = $request->file('dp')->store('dp/');
+                $influencer->update();
                 return response()->json([
-                    'instructor' => $instructor,
+                    'influencer' => $influencer,
                     'message'    => 'Profile Picture has been successfully updated',
                 ], 201);
             }
@@ -406,15 +406,15 @@ class InfluencerController extends Controller
 
     public function getStats(Request $request)
     {
-        // Total Students, Total Lessons Pending, Total Lessons Completed, Lesson Revenue.
+        // Total Followers, Total Lessons Pending, Total Lessons Completed, Lesson Revenue.
         $request->validate([
             'influencer_id' => 'required',
         ]);
-        $instructor = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request->influencer_id)->first();
-        if ($instructor) {
+        $influencer = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request->influencer_id)->first();
+        if ($influencer) {
             try {
                 return response()->json([
-                    'students'           => Follower::where('active_status', 1)->where('isGuest', false)->count(),
+                    'followers'          => Follower::where('active_status', 1)->where('isGuest', false)->count(),
                     'lessons_pending'    => Purchase::where('influencer_id', $request->influencer_id)->where('status', Purchase::STATUS_COMPLETE)->whereHas('lesson', function ($query) {
                         $query->where('type', Lesson::LESSON_TYPE_ONLINE);
                     })->where('isFeedbackComplete', false)->count(),
@@ -433,7 +433,7 @@ class InfluencerController extends Controller
                 return throw new Exception($e->getMessage());
             }
         }
-        return response()->json('Instructor not found', 419);
+        return response()->json('Influencer not found', 419);
     }
 
     public function userStatus(Request $request, $id)
@@ -453,8 +453,8 @@ class InfluencerController extends Controller
     {
         try {
             if (Auth::user()->active_status == true) {
-                $instructors = User::where('type', Role::ROLE_INFLUENCER)->where('active_status', 1)->orderBy(request()->get('sortKey', 'created_at'), request()->get('sortOrder', 'desc'));
-                return InstructorAPIResource::collection($instructors->paginate(request()->get('perPage')));
+                $influencers = User::where('type', Role::ROLE_INFLUENCER)->where('active_status', 1)->orderBy(request()->get('sortKey', 'created_at'), request()->get('sortOrder', 'desc'));
+                return InfluencerAPIResource::collection($influencers->paginate(request()->get('perPage')));
             } else {
                 return response()->json(['error' => 'Unauthorized', 401]);
             }
@@ -475,7 +475,7 @@ class InfluencerController extends Controller
                     $user->lessons()->delete();
                     $user->delete();
                 }
-                return response()->json(['message' => 'Instructor successfully deleted '], 200);
+                return response()->json(['message' => 'Influencer successfully deleted '], 200);
             } else {
                 response()->json(['message' => 'unsuccessful'], 419);
             }
@@ -488,14 +488,14 @@ class InfluencerController extends Controller
     {
         if (Auth::user()->can('create-influencers')) {
             if (Auth::user()->type == 'Admin') {
-                Excel::import(new InstructorsImport, $request->file('file'));
+                Excel::import(new InfluencersImport, $request->file('file'));
 
-                $imported = Excel::toArray(new InstructorsImport(), $request->file('file'));
+                $imported = Excel::toArray(new InfluencersImport(), $request->file('file'));
                 foreach ($imported[0] as $import) {
                     SendEmail::dispatch($import['email'], new WelcomeMail($import));
                 }
 
-                return redirect()->route('influencer.index')->with('success', __('Instructors imported successfully.'));
+                return redirect()->route('influencer.index')->with('success', __('Influencers imported successfully.'));
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));

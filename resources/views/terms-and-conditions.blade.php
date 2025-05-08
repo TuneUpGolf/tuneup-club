@@ -30,7 +30,7 @@
             <p class="text-gray-700 mt-2">Welcome to TuneUp LLC (“we,” “our,” or “us”). These Terms and Conditions (“Terms”)
                 govern your use of our application (the “App”), which is designed to streamline communication between
                 golfers
-                and instructors for lesson bookings and instruction. By accessing or using our App, you agree to these
+                and influencers for lesson bookings and instruction. By accessing or using our App, you agree to these
                 Terms.
                 If you do not agree, please do not use our App.</p>
 

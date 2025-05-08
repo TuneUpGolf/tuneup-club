@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 use App\Models\Follow;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class InstructorAPIResource extends JsonResource
+class InfluencerAPIResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

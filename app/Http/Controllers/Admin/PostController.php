@@ -14,7 +14,7 @@ class PostController extends Controller
     {
         try {
             if (Auth::user()->can('manage-posts')) {
-                $posts = Post::with('instructor')->paginate(request()->get('per_page', 10));
+                $posts = Post::with('influencer')->paginate(request()->get('per_page', 10));
                 return response()->json(['posts' => $posts], 200);
             } else {
                 return response()->json(['error' => 'Unauthorized'], 401);
@@ -24,7 +24,7 @@ class PostController extends Controller
         }
     }
 
-    public function getInstructorPosts(Request $request)
+    public function getInfluencerPosts(Request $request)
     {
         try {
             $this->validate($request, [
@@ -32,7 +32,7 @@ class PostController extends Controller
             ]);
 
             if (Auth::user()->can('manage-posts')) {
-                $posts = Post::with('instructor')->where('influencer_id', $request?->influencer_id)->paginate(request()->get('per_page', 10));
+                $posts = Post::with('influencer')->where('influencer_id', $request?->influencer_id)->paginate(request()->get('per_page', 10));
                 return response()->json(['posts' => $posts], 200);
             }
         } catch (\Exception $e) {

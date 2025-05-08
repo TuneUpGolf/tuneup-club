@@ -16,7 +16,7 @@ Route::middleware('guest', 'Setting', 'xss')->group(function () {
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::post('login-student', [AuthenticatedSessionController::class, 'storeStudent'])->name('login-student');
+    Route::post('login-follower', [AuthenticatedSessionController::class, 'storeFollower'])->name('login-follower');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

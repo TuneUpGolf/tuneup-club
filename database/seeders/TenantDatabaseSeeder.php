@@ -1,19 +1,16 @@
 <?php
-
 namespace Database\Seeders;
 
+use App\Mail\Admin\FollowerPaymentLink;
 use App\Mail\Admin\PurchaseCompleted;
 use App\Mail\Admin\PurchaseCreated;
 use App\Mail\Admin\PurchaseCreatedInsructor;
 use App\Mail\Admin\PurchaseFeedback;
-use App\Mail\Admin\StudentPaymentLink;
 use App\Mail\Admin\VideoAdded;
 use App\Mail\Admin\WelcomeMail;
 use App\Mail\Admin\WelcomeMailFollower;
-use App\Mail\Admin\WelcomeMailStudent;
 use App\Models\Faq;
 use App\Models\FooterSetting;
-use Illuminate\Database\Seeder;
 use App\Models\Module;
 use App\Models\NotificationsSetting;
 use App\Models\PageSetting;
@@ -22,11 +19,12 @@ use App\Models\Setting;
 use App\Models\SmsTemplate;
 use App\Models\Testimonial;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MailTemplates\Models\MailTemplate;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Artisan;
 
 class TenantDatabaseSeeder extends Seeder
 {
@@ -39,28 +37,28 @@ class TenantDatabaseSeeder extends Seeder
     public function run()
     {
         Artisan::call('cache:clear');
-        $allpermissions  = [
-            'role'                  => ['manage', 'create', 'edit', 'delete', 'show'],
-            'user'                  => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'lessons'               => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'influencers'           => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'followers'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'setting'               => ['manage'],
-            'transaction'           => ['manage'],
-            'landingpage'           => ['manage'],
-            'chat'                  => ['manage'],
-            'plan'                  => ['manage', 'create', 'edit', 'delete'],
-            'blog'                  => ['manage', 'create', 'edit', 'delete'],
-            'category'              => ['manage', 'create', 'edit', 'delete'],
-            'email-template'        => ['manage', 'edit'],
-            'sms-template'          => ['manage', 'edit'],
-            'testimonial'           => ['manage', 'create', 'edit', 'delete'],
-            'event'                 => ['manage', 'create', 'edit', 'delete'],
-            'faqs'                  => ['manage', 'create', 'edit', 'delete'],
-            'coupon'                => ['manage', 'create', 'edit', 'delete', 'show', 'mass-create', 'upload'],
-            'document'              => ['manage', 'create', 'edit', 'delete'],
-            'page-setting'          => ['manage', 'create', 'edit', 'delete'],
-            'support-ticket'        => ['manage', 'create', 'edit', 'delete'],
+        $allpermissions = [
+            'role'           => ['manage', 'create', 'edit', 'delete', 'show'],
+            'user'           => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'lessons'        => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'influencers'    => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'followers'      => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'setting'        => ['manage'],
+            'transaction'    => ['manage'],
+            'landingpage'    => ['manage'],
+            'chat'           => ['manage'],
+            'plan'           => ['manage', 'create', 'edit', 'delete'],
+            'blog'           => ['manage', 'create', 'edit', 'delete'],
+            'category'       => ['manage', 'create', 'edit', 'delete'],
+            'email-template' => ['manage', 'edit'],
+            'sms-template'   => ['manage', 'edit'],
+            'testimonial'    => ['manage', 'create', 'edit', 'delete'],
+            'event'          => ['manage', 'create', 'edit', 'delete'],
+            'faqs'           => ['manage', 'create', 'edit', 'delete'],
+            'coupon'         => ['manage', 'create', 'edit', 'delete', 'show', 'mass-create', 'upload'],
+            'document'       => ['manage', 'create', 'edit', 'delete'],
+            'page-setting'   => ['manage', 'create', 'edit', 'delete'],
+            'support-ticket' => ['manage', 'create', 'edit', 'delete'],
         ];
 
         app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
@@ -70,42 +68,41 @@ class TenantDatabaseSeeder extends Seeder
             }
         }
 
-        $adminpermissions  = [
-            'role'                  => ['manage', 'create', 'edit', 'delete', 'show'],
-            'user'                  => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'influencers'           => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'followers'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'lessons'               => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'purchases'             => ['manage', 'create', 'edit', 'delete'],
-            'setting'               => ['manage'],
-            'transaction'           => ['manage'],
-            'landingpage'           => ['manage'],
-            'chat'                  => ['manage'],
-            'plan'                  => ['manage', 'create', 'edit', 'delete'],
-            'blog'                  => ['manage', 'create', 'edit', 'delete'],
-            'category'              => ['manage', 'create', 'edit', 'delete'],
-            'email-template'        => ['manage', 'edit'],
-            'sms-template'          => ['manage', 'edit'],
-            'testimonial'           => ['manage', 'create', 'edit', 'delete'],
-            'event'                 => ['manage', 'create', 'edit', 'delete'],
-            'faqs'                  => ['manage', 'create', 'edit', 'delete'],
-            'coupon'                => ['manage', 'create', 'edit', 'delete', 'show', 'mass-create', 'upload'],
-            'document'              => ['manage', 'create', 'edit', 'delete'],
-            'page-setting'          => ['manage', 'create', 'edit', 'delete'],
-            'support-ticket'        => ['manage', 'create', 'edit', 'delete'],
+        $adminpermissions = [
+            'role'           => ['manage', 'create', 'edit', 'delete', 'show'],
+            'user'           => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'influencers'    => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'followers'      => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'lessons'        => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'purchases'      => ['manage', 'create', 'edit', 'delete'],
+            'setting'        => ['manage'],
+            'transaction'    => ['manage'],
+            'landingpage'    => ['manage'],
+            'chat'           => ['manage'],
+            'plan'           => ['manage', 'create', 'edit', 'delete'],
+            'blog'           => ['manage', 'create', 'edit', 'delete'],
+            'category'       => ['manage', 'create', 'edit', 'delete'],
+            'email-template' => ['manage', 'edit'],
+            'sms-template'   => ['manage', 'edit'],
+            'testimonial'    => ['manage', 'create', 'edit', 'delete'],
+            'event'          => ['manage', 'create', 'edit', 'delete'],
+            'faqs'           => ['manage', 'create', 'edit', 'delete'],
+            'coupon'         => ['manage', 'create', 'edit', 'delete', 'show', 'mass-create', 'upload'],
+            'document'       => ['manage', 'create', 'edit', 'delete'],
+            'page-setting'   => ['manage', 'create', 'edit', 'delete'],
+            'support-ticket' => ['manage', 'create', 'edit', 'delete'],
         ];
 
         $adminRole = Role::firstOrCreate([
-            'name' => 'Admin'
+            'name' => 'Admin',
         ]);
 
         $influencerRole = Role::firstOrCreate([
-            'name' => 'influencer'
+            'name' => 'influencer',
         ]);
-        $studentRole = Role::firstOrCreate([
-            'name' => 'Follower'
+        $followerRole = Role::firstOrCreate([
+            'name' => 'Follower',
         ]);
-
 
         foreach ($adminpermissions as $adminmodule => $adminpermissions) {
             Module::firstOrCreate(['name' => $adminmodule]);
@@ -114,26 +111,26 @@ class TenantDatabaseSeeder extends Seeder
                 $adminRole->givePermissionTo($temp1);
             }
         }
-        $influencerpermissions  = [
-            'followers'              => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'lessons'               => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'purchases'             => ['manage'],
-            'setting'               => ['manage'],
-            'transaction'           => ['manage'],
-            'landingpage'           => ['manage'],
-            'chat'                  => ['manage'],
-            'plan'                  => ['manage', 'create', 'edit', 'delete'],
-            'blog'                  => ['manage', 'create', 'edit', 'delete'],
-            'category'              => ['manage', 'create', 'edit', 'delete'],
-            'email-template'        => ['manage', 'edit'],
-            'sms-template'          => ['manage', 'edit'],
-            'testimonial'           => ['manage', 'create', 'edit', 'delete'],
-            'event'                 => ['manage', 'create', 'edit', 'delete'],
-            'faqs'                  => ['manage', 'create', 'edit', 'delete'],
-            'coupon'                => ['manage', 'create', 'edit', 'delete', 'show', 'mass-create', 'upload'],
-            'document'              => ['manage', 'create', 'edit', 'delete'],
-            'page-setting'          => ['manage', 'create', 'edit', 'delete'],
-            'support-ticket'        => ['manage', 'create', 'edit', 'delete'],
+        $influencerpermissions = [
+            'followers'      => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'lessons'        => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            'purchases'      => ['manage'],
+            'setting'        => ['manage'],
+            'transaction'    => ['manage'],
+            'landingpage'    => ['manage'],
+            'chat'           => ['manage'],
+            'plan'           => ['manage', 'create', 'edit', 'delete'],
+            'blog'           => ['manage', 'create', 'edit', 'delete'],
+            'category'       => ['manage', 'create', 'edit', 'delete'],
+            'email-template' => ['manage', 'edit'],
+            'sms-template'   => ['manage', 'edit'],
+            'testimonial'    => ['manage', 'create', 'edit', 'delete'],
+            'event'          => ['manage', 'create', 'edit', 'delete'],
+            'faqs'           => ['manage', 'create', 'edit', 'delete'],
+            'coupon'         => ['manage', 'create', 'edit', 'delete', 'show', 'mass-create', 'upload'],
+            'document'       => ['manage', 'create', 'edit', 'delete'],
+            'page-setting'   => ['manage', 'create', 'edit', 'delete'],
+            'support-ticket' => ['manage', 'create', 'edit', 'delete'],
         ];
 
         foreach ($influencerpermissions as $influencerModule => $influencerPermissions) {
@@ -144,25 +141,25 @@ class TenantDatabaseSeeder extends Seeder
             }
         }
 
-        $studentpermissions  = [
-            'setting'               => ['manage'],
-            'transaction'           => ['manage'],
-            'landingpage'           => ['manage'],
-            'chat'                  => ['manage'],
-            'purchases'             => ['create', 'manage', 'edit'],
-            'blog'                  => ['create', 'manage'],
-            'category'              => ['manage', 'create', 'edit', 'delete'],
-            'testimonial'           => ['manage', 'create', 'edit', 'delete'],
-            'faqs'                  => ['manage', 'create', 'edit', 'delete'],
-            'lessons'               => ['manage'],
-            'follow'                => ['manage', 'create', 'delete'],
+        $followerpermissions = [
+            'setting'     => ['manage'],
+            'transaction' => ['manage'],
+            'landingpage' => ['manage'],
+            'chat'        => ['manage'],
+            'purchases'   => ['create', 'manage', 'edit'],
+            'blog'        => ['create', 'manage'],
+            'category'    => ['manage', 'create', 'edit', 'delete'],
+            'testimonial' => ['manage', 'create', 'edit', 'delete'],
+            'faqs'        => ['manage', 'create', 'edit', 'delete'],
+            'lessons'     => ['manage'],
+            'follow'      => ['manage', 'create', 'delete'],
         ];
 
-        foreach ($studentpermissions as $instructorModule => $studentpermissions) {
+        foreach ($followerpermissions as $influencerModule => $followerpermissions) {
             Module::firstOrCreate(['name' => $adminmodule]);
-            foreach ($studentpermissions as $instructorPermission) {
-                $temp2 = Permission::firstOrCreate(['name' => $instructorPermission . '-' . $instructorModule]);
-                $studentRole->givePermissionTo($temp2);
+            foreach ($followerpermissions as $influencerPermission) {
+                $temp2 = Permission::firstOrCreate(['name' => $influencerPermission . '-' . $influencerModule]);
+                $followerRole->givePermissionTo($temp2);
             }
         }
 
@@ -171,17 +168,17 @@ class TenantDatabaseSeeder extends Seeder
         });
 
         $role = Role::firstOrCreate([
-            'name' => 'User'
+            'name' => 'User',
         ], ['tenant_id' => $centralUser->tenant_id]);
 
-        $user = User::firstOrCreate(['email' =>  $centralUser->email], [
-            'name' => $centralUser->name,
-            'email' =>  $centralUser->email,
-            'password' =>  $centralUser->password,
-            'avatar' => 'avatar/avatar.png',
-            'type' => 'Admin',
-            'lang' => 'en',
-            'plan_id' => 3,
+        $user = User::firstOrCreate(['email' => $centralUser->email], [
+            'name'              => $centralUser->name,
+            'email'             => $centralUser->email,
+            'password'          => $centralUser->password,
+            'avatar'            => 'avatar/avatar.png',
+            'type'              => 'Admin',
+            'lang'              => 'en',
+            'plan_id'           => 3,
             'plan_expired_date' => null,
             'email_verified_at' => $centralUser->email_verified_at,
             'phone_verified_at' => $centralUser->phone_verified_at,
@@ -207,12 +204,12 @@ class TenantDatabaseSeeder extends Seeder
             ['key' => 'transparent_layout', 'value' => '1'],
             ['key' => 'landing_page_status', 'value' => '1'],
             ['key' => 'roles', 'value' => 'User'],
-            ['key' => 'plan_setting', 'value' =>  json_encode([
-                'name' => 'Free',
-                'price' => '0',
-                'duration' => '1',
-                'durationtype' => 'Year',
-                'max_users' => '10',
+            ['key' => 'plan_setting', 'value' => json_encode([
+                'name'            => 'Free',
+                'price'           => '0',
+                'duration'        => '1',
+                'durationtype'    => 'Year',
+                'max_users'       => '10',
                 'max_influencers' => '10',
             ])],
             ['key' => 'apps_setting_enable', 'value' => 'on'],
@@ -222,7 +219,7 @@ class TenantDatabaseSeeder extends Seeder
             ['key' => 'apps_image', 'value' => 'logo/app-logo.png'],
             ['key' => 'apps_multiple_image_setting', 'value' => '[
                 {"apps_multiple_image":"logo/app-logo.png"},
-            ]'],
+            ]', ],
             ['key' => 'enable_sms_notification', 'value' => 'on'],
             ['key' => 'enable_email_notification', 'value' => 'on'],
             ['key' => 'feature_setting_enable', 'value' => 'off'],
@@ -234,7 +231,7 @@ class TenantDatabaseSeeder extends Seeder
                 {"feature_image":"seeder-image/security.svg","feature_name":"Two Factor","feature_bold_name":"Authentication","feature_detail":"Security is our priority. With our robust two-factor authentication (2FA) feature, you can add an extra layer of protection to your Full Tenancy Form"},
                 {"feature_image":"seeder-image/secretary.svg","feature_name":"Multi Users With","feature_bold_name":"Role & permission","feature_detail":"Assign roles and permissions to different users based on their responsibilities and requirements. Admins can manage user accounts, define access level"},
                 {"feature_image":"seeder-image/documents.svg","feature_name":"Document builder","feature_bold_name":"Easy and fast","feature_detail":"Template Library: Offer a selection of pre-designed templates for various document types (e.g., contracts, reports).Template Creation: Allow users to create custom templates with placeholders for dynamic content.\r\n\r\nTemplate Library: Offer a selection of pre-designed templates for various document types (e.g., contracts, reports).Template Creation: Allow users to create custom templates with placeholders for dynamic content."}
-            ]'],
+            ]', ],
 
             ['key' => 'menu_setting_section1_enable', 'value' => 'off'],
             ['key' => 'menu_name_section1', 'value' => 'Dashboard'],
@@ -264,7 +261,7 @@ class TenantDatabaseSeeder extends Seeder
                 {"business_growth_view_name":"Positive Reviews","business_growth_view_amount":"20 k+"},
                 {"business_growth_view_name":"Total Sales","business_growth_view_amount":"300 +"},
                 {"business_growth_view_name":"Happy Users","business_growth_view_amount":"100 k+"}
-            ]'],
+            ]', ],
             ['key' => 'business_growth_setting', 'value' => '[
                 {"business_growth_title":"User Friendly"},
                 {"business_growth_title":"Products Analytic"},
@@ -280,7 +277,7 @@ class TenantDatabaseSeeder extends Seeder
                 {"business_growth_title":"Store Swap Link"},
                 {"business_growth_title":"Manufacturers"},
                 {"business_growth_title":"Order Status Tracking"}
-            ]'],
+            ]', ],
 
             ['key' => 'contactus_setting_enable', 'value' => 'off'],
             ['key' => 'contactus_name', 'value' => 'Enterprise'],
@@ -350,84 +347,84 @@ class TenantDatabaseSeeder extends Seeder
 
         Faq::firstOrCreate(['quetion' => 'How do I sign up for a tenant account?'], [
             'answer' => 'To sign up for a tenant account, click the Sign Up button on the homepage, fill out the required information, and follow the on-screen instructions.',
-            'order' => '1',
+            'order'  => '1',
         ]);
         Faq::firstOrCreate(['quetion' => 'What types of subscription plans do you offer?'], [
             'answer' => 'We offer a range of subscription plans to accommodate various needs. Our plans include Basic, Pro, and Enterprise tiers, each with different features and pricing.',
-            'order' => '2',
+            'order'  => '2',
         ]);
         Faq::firstOrCreate(['quetion' => 'How can I customize the appearance of my dashboard?'], [
             'answer' => 'To customize your dashboard, navigate to the "Settings" section in your dashboard.',
-            'order' => '3'
+            'order'  => '3',
         ]);
         Faq::firstOrCreate(['quetion' => 'What is Full Tenancy Laravel Saas?'], [
             'answer' => 'Full Tenancy Laravel Saas is a software-as-a-service (SaaS) solution built on the Laravel framework. It is designed to provide a multi-tenant architecture for Laravel applications, allowing you to easily create and manage multiple independent instances of your application within a single codebase.',
-            'order' => '4'
+            'order'  => '4',
         ]);
 
         Testimonial::firstOrCreate(['name' => 'Jeny'], [
-            'title' => 'Customer Support Specialist',
+            'title'       => 'Customer Support Specialist',
             'description' => 'As a Customer Support Specialist for Full Tenancy Laravel Admin Saas, I have had the incredible opportunity to assist our valued customers in their journey of utilizing this revolutionary form-building solution.',
             'designation' => 'Support Specialist',
-            'image' => 'seeder-image/13.png',
-            'rating' => 5.0,
-            'status' => 1,
+            'image'       => 'seeder-image/13.png',
+            'rating'      => 5.0,
+            'status'      => 1,
         ]);
         Testimonial::firstOrCreate(['name' => 'Johnsi'], [
-            'title' => 'A Journey of Growth and Transformation',
+            'title'       => 'A Journey of Growth and Transformation',
             'description' => 'As the Lead Developer for Full Tenancy Laravel Admin Saas, I have had the privilege of being at the forefront of developing a cutting-edge product that revolutionizes form-building.',
             'designation' => 'Lead Developer',
-            'image' => 'seeder-image/14.png',
-            'rating' => 5.0,
-            'status' => 1,
+            'image'       => 'seeder-image/14.png',
+            'rating'      => 5.0,
+            'status'      => 1,
         ]);
         Testimonial::firstOrCreate(['name' => 'Trisha'], [
-            'title' => 'Customer Support Specialist',
+            'title'       => 'Customer Support Specialist',
             'description' => 'As a Customer Support Specialist for Full Tenancy Laravel Admin Saas, I have had the incredible opportunity to assist our valued customers in their journey of utilizing this revolutionary form-building solution.',
             'designation' => 'Support Specialist',
-            'image' => 'seeder-image/15.png',
-            'rating' => 5.0,
-            'status' => 1,
+            'image'       => 'seeder-image/15.png',
+            'rating'      => 5.0,
+            'status'      => 1,
         ]);
         Testimonial::firstOrCreate(['name' => 'Trusha'], [
-            'title' => 'A Remarkable Journey of Collaboration and Success',
+            'title'       => 'A Remarkable Journey of Collaboration and Success',
             'description' => 'As a Project Manager, my primary responsibility has been to ensure that projects are delivered on time, within budget. I have had the opportunity to work closely with cross-functional teams, marketers, and stakeholders, initiation to completion.',
             'designation' => 'Project Manager',
-            'image' => 'seeder-image/16.png',
-            'rating' => 5.0,
-            'status' => 1,
+            'image'       => 'seeder-image/16.png',
+            'rating'      => 5.0,
+            'status'      => 1,
         ]);
 
         $parent_id1 = FooterSetting::firstOrCreate(['menu' => 'Company'], [
-            'slug' => 'company',
+            'slug'      => 'company',
             'parent_id' => 0,
-            'page_id' => null,
+            'page_id'   => null,
         ]);
 
         $parent_id2 = FooterSetting::firstOrCreate(['menu' => 'Product'], [
-            'slug' => 'product',
+            'slug'      => 'product',
             'parent_id' => 0,
-            'page_id' => null,
+            'page_id'   => null,
         ]);
 
         $parent_id3 = FooterSetting::firstOrCreate(['menu' => 'Download'], [
-            'slug' => 'download',
+            'slug'      => 'download',
             'parent_id' => 0,
-            'page_id' => null,
+            'page_id'   => null,
         ]);
 
         $parent_id4 = FooterSetting::firstOrCreate(['menu' => 'Support'], [
-            'slug' => 'support',
+            'slug'      => 'support',
             'parent_id' => 0,
-            'page_id' => null,
+            'page_id'   => null,
         ]);
 
         $PageSetting1 = PageSetting::firstOrCreate(['title' => 'About Us'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'At Full Tenancy Laravel Admin Saas, we understand the importance of data privacy and security. Thats why we offer robust privacy settings
+            'description'  => 'At Full Tenancy Laravel Admin Saas, we understand the importance of data privacy and security. Thats why we offer robust privacy settings
             to ensure the protection of your sensitive information. Here&#39;s how our privacy settings work:\r\n\r\n\r\n\r\nData Encryption: We employ industry-standard
             encryption protocols to safeguard your data during transit and storage. Your form submissions and user information are encrypted, making it extremely difficult
             for unauthorized parties to access or tamper with the data.\r\n\r\n\r\nUser Consent Management: Our privacy settings include options for managing user consents.
@@ -442,200 +439,200 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'About Us'], [
-            'slug' => 'about-us',
+            'slug'      => 'about-us',
             'parent_id' => $parent_id1->id,
-            'page_id' => $PageSetting1->id,
+            'page_id'   => $PageSetting1->id,
         ]);
 
         $PageSetting2 = PageSetting::firstOrCreate(['title' => 'Our Team'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'Meet Our Team provides a grid layout to show all the team members into single page. To display the members information for more attractive by
+            'description'  => 'Meet Our Team provides a grid layout to show all the team members into single page. To display the members information for more attractive by
             using jQuery effects. The viewers can easily identify the hierarchical structure of organization and who are all involved in which designation and their names.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Our Team'], [
-            'slug' => 'our-team',
+            'slug'      => 'our-team',
             'parent_id' => $parent_id1->id,
-            'page_id' => $PageSetting2->id,
+            'page_id'   => $PageSetting2->id,
         ]);
 
         $PageSetting3 = PageSetting::firstOrCreate(['title' => 'Products'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'The Products module is a catalogue of the products and services you are offering. Users have the possibility to create an enumerated database
+            'description'  => 'The Products module is a catalogue of the products and services you are offering. Users have the possibility to create an enumerated database
             with descriptions and prices or to synchronize this with Pohoda (the accounting system).',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Products'], [
-            'slug' => 'products',
+            'slug'      => 'products',
             'parent_id' => $parent_id1->id,
-            'page_id' => $PageSetting3->id,
+            'page_id'   => $PageSetting3->id,
         ]);
 
         $PageSetting4 = PageSetting::firstOrCreate(['title' => 'Contact'], [
-            'type' => 'link',
-            'url_type' => 'internal link',
-            'page_url' => url('contactus'),
+            'type'         => 'link',
+            'url_type'     => 'internal link',
+            'page_url'     => url('contactus'),
             'friendly_url' => url('contactus'),
-            'description' => null,
+            'description'  => null,
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Contact'], [
-            'slug' => 'contact',
+            'slug'      => 'contact',
             'parent_id' => $parent_id1->id,
-            'page_id' => $PageSetting4->id,
+            'page_id'   => $PageSetting4->id,
         ]);
 
-        $PageSetting5 =  PageSetting::firstOrCreate(['title' => 'Feature'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting5 = PageSetting::firstOrCreate(['title' => 'Feature'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'A feature module delivers a cohesive set of functionality focused on a specific application need such as a user workflow, routing, or forms.
+            'description'  => 'A feature module delivers a cohesive set of functionality focused on a specific application need such as a user workflow, routing, or forms.
             While you can do everything within the root module, feature modules help you partition the application into focused areas.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Feature'], [
-            'slug' => 'feature',
+            'slug'      => 'feature',
             'parent_id' => $parent_id2->id,
-            'page_id' => $PageSetting5->id,
+            'page_id'   => $PageSetting5->id,
         ]);
 
-        $PageSetting6 =  PageSetting::firstOrCreate(['title' => 'Pricing'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting6 = PageSetting::firstOrCreate(['title' => 'Pricing'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'The prices module, also called Pricing, is a system responsible for the creation, editing and storing of your SKU pricing data. For a product
+            'description'  => 'The prices module, also called Pricing, is a system responsible for the creation, editing and storing of your SKU pricing data. For a product
             to be sold, your customer needs to know the cost of each item displayed in your store.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Pricing'], [
-            'slug' => 'pricing',
+            'slug'      => 'pricing',
             'parent_id' => $parent_id2->id,
-            'page_id' => $PageSetting6->id,
+            'page_id'   => $PageSetting6->id,
         ]);
 
         $PageSetting7 = PageSetting::firstOrCreate(['title' => 'Credit'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'One credit is typically described as being equal to 10 hours of notional learning. A module that involves 150 notional hours of learning will
+            'description'  => 'One credit is typically described as being equal to 10 hours of notional learning. A module that involves 150 notional hours of learning will
             be assigned 15 credits. One that involves 400 notional hours of learning will be assigned 40 credits.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Credit'], [
-            'slug' => 'Credit',
+            'slug'      => 'Credit',
             'parent_id' => $parent_id2->id,
-            'page_id' => $PageSetting7->id,
+            'page_id'   => $PageSetting7->id,
         ]);
 
         $PageSetting8 = PageSetting::firstOrCreate(['title' => 'News'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'The News module allows you to feature timely content on your website, such as announcements, special messages, or even your own blog articles.
+            'description'  => 'The News module allows you to feature timely content on your website, such as announcements, special messages, or even your own blog articles.
             Before adding plain text to your homepage using the Text/HTML module, consider using the News module instead!',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'News'], [
-            'slug' => 'news',
+            'slug'      => 'news',
             'parent_id' => $parent_id2->id,
-            'page_id' => $PageSetting8->id,
+            'page_id'   => $PageSetting8->id,
         ]);
 
-        $PageSetting9 =  PageSetting::firstOrCreate(['title' => 'iOS'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting9 = PageSetting::firstOrCreate(['title' => 'iOS'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'iOS Module Project
+            'description'  => 'iOS Module Project
             Provides in-depth information about the structure of a module project as well as using Studio and the CLI to manage the projects. Also provides information about
             adding assets and third-party frameworks to the module.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'iOS'], [
-            'slug' => 'ios',
+            'slug'      => 'ios',
             'parent_id' => $parent_id3->id,
-            'page_id' => $PageSetting9->id,
+            'page_id'   => $PageSetting9->id,
         ]);
 
         $PageSetting10 = PageSetting::firstOrCreate(['title' => 'Android'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'Modules provide a container for your apps source code, resource files, and app level settings, such as the module-level build file and Android
+            'description'  => 'Modules provide a container for your apps source code, resource files, and app level settings, such as the module-level build file and Android
             manifest file. Each module can be independently built, tested, and debugged. Android Studio uses modules to make it easy to add new devices to your project.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Android'], [
-            'slug' => 'android',
+            'slug'      => 'android',
             'parent_id' => $parent_id3->id,
-            'page_id' => $PageSetting10->id,
+            'page_id'   => $PageSetting10->id,
         ]);
 
-        $PageSetting11 =  PageSetting::firstOrCreate(['title' => 'Microsoft'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting11 = PageSetting::firstOrCreate(['title' => 'Microsoft'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'This article presents an overview of the Microsoft Dynamics 365 Commerce module library. The Dynamics 365 Commerce module library is a collection
+            'description'  => 'This article presents an overview of the Microsoft Dynamics 365 Commerce module library. The Dynamics 365 Commerce module library is a collection
              of modules that can be used to build an e-Commerce website. Modules have both user interface (UI) aspects and functional behavior aspects.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Microsoft'], [
-            'slug' => 'microsoft',
+            'slug'      => 'microsoft',
             'parent_id' => $parent_id3->id,
-            'page_id' => $PageSetting11->id,
+            'page_id'   => $PageSetting11->id,
         ]);
 
-        $PageSetting12 =   PageSetting::firstOrCreate(['title' => 'Desktop'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting12 = PageSetting::firstOrCreate(['title' => 'Desktop'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'A module is a distinct assembly of components that can be easily added, removed or replaced in a larger system. Generally, a module is not
+            'description'  => 'A module is a distinct assembly of components that can be easily added, removed or replaced in a larger system. Generally, a module is not
             functional on its own. In computer hardware, a module is a component that is designed for easy replacement. In computer software, a module is an extension to
             a main program dedicated to a specific function. In programming, a module is a section of code that is added in as a whole or is designed for easy reusability.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Desktop'], [
-            'slug' => 'desktop',
+            'slug'      => 'desktop',
             'parent_id' => $parent_id3->id,
-            'page_id' => $PageSetting12->id,
+            'page_id'   => $PageSetting12->id,
         ]);
 
-        $PageSetting13 =  PageSetting::firstOrCreate(['title' => 'Help'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting13 = PageSetting::firstOrCreate(['title' => 'Help'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'Help, aid, assist, succor agree in the idea of furnishing another with something needed, especially when the need comes at a particular time.
+            'description'  => 'Help, aid, assist, succor agree in the idea of furnishing another with something needed, especially when the need comes at a particular time.
             Help implies furnishing anything that furthers ones efforts or relieves ones wants or necessities. Aid and assist, somewhat more formal, imply especially a
             furthering or seconding of anothers efforts. Aid implies a more active helping; assist implies less need and less help. To succor, still more formal and literary,
              is to give timely help and relief in difficulty or distress: Succor him in his hour of need.',
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Help'], [
-            'slug' => 'help',
+            'slug'      => 'help',
             'parent_id' => $parent_id4->id,
-            'page_id' => $PageSetting13->id,
+            'page_id'   => $PageSetting13->id,
         ]);
 
-        $PageSetting14 =   PageSetting::firstOrCreate(['title' => 'Terms'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting14 = PageSetting::firstOrCreate(['title' => 'Terms'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => 'Full Tenancy Laravel Admin SaasTerms and Conditions
+            'description'  => 'Full Tenancy Laravel Admin SaasTerms and Conditions
                 Acceptance of Terms By accessing and using [Full Tenancy Laravel Admin Saas] (the &quot;Service&quot;), you agree to be bound by these terms and conditions.
                 If you do not agree with any part of these terms, please refrain from using the Service.
                 Intellectual Property Rights All content and materials provided on the Service are the property of [Full Tenancy Laravel Admin Saas- Saas]&nbsp;and protected
@@ -658,31 +655,31 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Terms'], [
-            'slug' => 'terms',
+            'slug'      => 'terms',
             'parent_id' => $parent_id4->id,
-            'page_id' => $PageSetting14->id,
+            'page_id'   => $PageSetting14->id,
         ]);
 
-        $PageSetting15 =   PageSetting::firstOrCreate(['title' => 'FAQ'], [
-            'type' => 'link',
-            'url_type' => 'internal link',
-            'page_url' => url('all/faqs'),
+        $PageSetting15 = PageSetting::firstOrCreate(['title' => 'FAQ'], [
+            'type'         => 'link',
+            'url_type'     => 'internal link',
+            'page_url'     => url('all/faqs'),
             'friendly_url' => url('all/faqs'),
-            'description' => null,
+            'description'  => null,
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'FAQ'], [
-            'slug' => 'fAQ',
+            'slug'      => 'fAQ',
             'parent_id' => $parent_id4->id,
-            'page_id' => $PageSetting15->id,
+            'page_id'   => $PageSetting15->id,
         ]);
 
-        $PageSetting16 =    PageSetting::firstOrCreate(['title' => 'Privacy'], [
-            'type' => 'desc',
-            'url_type' => null,
-            'page_url' => null,
+        $PageSetting16 = PageSetting::firstOrCreate(['title' => 'Privacy'], [
+            'type'         => 'desc',
+            'url_type'     => null,
+            'page_url'     => null,
             'friendly_url' => null,
-            'description' => '
+            'description'  => '
                 Acceptance of Terms By accessing and using [Full Tenancy Laravel Admin Saas] (the &quot;Service&quot;), you agree to be bound by these terms and conditions. If you do not agree with any part of these terms, please refrain from using the Service.
                 Intellectual Property Rights All content and materials provided on the Service are the property of [Full Tenancy Laravel Admin Saas- Saas]&nbsp;and protected by applicable intellectual property laws. You may not use, reproduce, distribute, or modify any content from the Service without prior written consent from [Full Tenancy Laravel Admin Saas].
                 User Responsibilities a. You are solely responsible for any content you submit or upload on the Service. You agree not to post, transmit, or share any material that is unlawful, harmful, defamatory, obscene, or infringes upon the rights of others. b. You agree not to interfere with or disrupt the Service or its associated servers and networks. c. You are responsible for maintaining the confidentiality of your account information and agree to notify [Full Tenancy Laravel Admin Saas- Saas] immediately of any unauthorized use of your account.
@@ -694,94 +691,93 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         FooterSetting::firstOrCreate(['menu' => 'Privacy'], [
-            'slug' => 'privacy',
+            'slug'      => 'privacy',
             'parent_id' => $parent_id4->id,
-            'page_id' => $PageSetting16->id,
+            'page_id'   => $PageSetting16->id,
         ]);
 
         Plan::firstOrCreate(['name' => 'Free'], [
-            'name' => 'Free',
-            'price' => '0',
-            'duration' => '1',
-            'durationtype' => 'Year',
-            'max_users' => '10',
+            'name'            => 'Free',
+            'price'           => '0',
+            'duration'        => '1',
+            'durationtype'    => 'Year',
+            'max_users'       => '10',
             'max_influencers' => '10',
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => PurchaseCreated::class,
-            'subject' => 'Purchase created for {{ name }}',
+            'mailable'      => PurchaseCreated::class,
+            'subject'       => 'Purchase created for {{ name }}',
             'html_template' => '<p>Hello, {{ name }}, a purchase has been created for {{ammount}} against your account.</p>',
-            'text_template' => 'Hello, {{ name }}.'
+            'text_template' => 'Hello, {{ name }}.',
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => StudentPaymentLink::class,
-            'subject' => 'Purchase created for {{ name }}',
+            'mailable'      => FollowerPaymentLink::class,
+            'subject'       => 'Purchase created for {{ name }}',
             'html_template' => '<p>Hi,  {{ name }},  I hope you enjoyed your lesson with {{influencerName}}. Please click on the link to complete the payment process : {{ link }}.</p>',
-            'text_template' => 'Hi,  {{ name }},  I hope you enjoyed your lesson with {{influencerName}}. Please click on the link to complete the payment process : {{ link }}.'
-        ]);
-
-
-        MailTemplate::firstOrCreate([
-            'mailable' => VideoAdded::class,
-            'subject' => 'Video added by {{student_name}}.',
-            'html_template' => '<p>Hello, {{ name }}, <br> {{student_name}} added video for their purchase for your lesson. Please click the link below to add feedback {{link}}.</p>',
-            'text_template' => 'Hello, {{ name }}.'
+            'text_template' => 'Hi,  {{ name }},  I hope you enjoyed your lesson with {{influencerName}}. Please click on the link to complete the payment process : {{ link }}.',
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => PurchaseCreatedInsructor::class,
-            'subject' => 'Purchase created for lesson id : {{ id }}',
+            'mailable'      => VideoAdded::class,
+            'subject'       => 'Video added by {{follower_name}}.',
+            'html_template' => '<p>Hello, {{ name }}, <br> {{follower_name}} added video for their purchase for your lesson. Please click the link below to add feedback {{link}}.</p>',
+            'text_template' => 'Hello, {{ name }}.',
+        ]);
+
+        MailTemplate::firstOrCreate([
+            'mailable'      => PurchaseCreatedInsructor::class,
+            'subject'       => 'Purchase created for lesson id : {{ id }}',
             'html_template' => '<p>Hello, {{ name }}, a purchase has been created for {{ammount}} for your lesson id : {{id}}.</p>',
-            'text_template' => 'Hello, {{ name }}.'
+            'text_template' => 'Hello, {{ name }}.',
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => PurchaseFeedback::class,
-            'subject' => 'Feedback for your purchase is added by the influencer',
+            'mailable'      => PurchaseFeedback::class,
+            'subject'       => 'Feedback for your purchase is added by the influencer',
             'html_template' => '<p>Hello, {{ name }}, feedback for your purchase {{id}} has has been added by the influencer.</p>',
-            'text_template' => 'Hello, {{ name }}.'
+            'text_template' => 'Hello, {{ name }}.',
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => PurchaseCompleted::class,
-            'subject' => 'Feedback for your purchase is completed',
+            'mailable'      => PurchaseCompleted::class,
+            'subject'       => 'Feedback for your purchase is completed',
             'html_template' => '<p>Hello, {{ name }}, Payment was successful against your purchase : {{id}}, please proceed to add videos to recieve feedback by the influencer via app or portal.<br>Regards, Tuneup Management.</p>',
-            'text_template' => 'Hello, {{ name }}.'
+            'text_template' => 'Hello, {{ name }}.',
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => WelcomeMail::class,
-            'subject' => 'Welcome, {{ name }}',
+            'mailable'      => WelcomeMail::class,
+            'subject'       => 'Welcome, {{ name }}',
             'html_template' => '<p>Hello, {{ name }}. We are excited to welcome you to TuneUp! Our platform is designed to help you streamline your operation, grow your brand, and maximize your earnings. You can login with your credentials at : {{ link }} with your password : {{password}}.</p>',
-            'text_template' => 'Hello, {{ name }}.'
+            'text_template' => 'Hello, {{ name }}.',
         ]);
 
         MailTemplate::firstOrCreate([
-            'mailable' => WelcomeMailFollower::class,
-            'subject' => 'Welcome, {{ name }}',
+            'mailable'      => WelcomeMailFollower::class,
+            'subject'       => 'Welcome, {{ name }}',
             'html_template' => '<p>Hello, {{ name }}. Welcome to tuneup. You can login in  with your password : {{password}} at {{link}} </p>',
-            'text_template' => 'Hello, {{ name }}.'
+            'text_template' => 'Hello, {{ name }}.',
         ]);
 
         SmsTemplate::firstOrCreate(['event' => 'verification code sms'], [
-            'event' => 'verification code sms',
-            'template' => 'Hello :name, Your verification code is :code',
-            'variables' => 'name,code'
+            'event'     => 'verification code sms',
+            'template'  => 'Hello :name, Your verification code is :code',
+            'variables' => 'name,code',
         ]);
 
         MailTemplate::firstOrCreate(['mailable' => \App\Mail\Admin\TestMail::class], [
-            'mailable' => \App\Mail\Admin\TestMail::class,
-            'subject' => 'Mail send for testing purpose',
+            'mailable'      => \App\Mail\Admin\TestMail::class,
+            'subject'       => 'Mail send for testing purpose',
             'html_template' => '<p><strong>This Mail For Testing</strong></p>
             <p><strong>Thanks</strong></p>',
             'text_template' => null,
         ]);
 
         MailTemplate::firstOrCreate(['mailable' => \App\Mail\Admin\ApproveOfflineMail::class], [
-            'mailable' => \App\Mail\Admin\ApproveOfflineMail::class,
-            'subject' => 'Offline Payment Request Verified',
+            'mailable'      => \App\Mail\Admin\ApproveOfflineMail::class,
+            'subject'       => 'Offline Payment Request Verified',
             'html_template' => '<p><strong>Hi&nbsp;&nbsp;{{ name }}</strong></p>
             <p><strong>Your Plan Update Request {{ email }}&nbsp;is Verified By Super Admin</strong></p>
             <p><strong>Please Check</strong></p>
@@ -791,8 +787,8 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         MailTemplate::firstOrCreate(['mailable' => \App\Mail\Admin\OfflineMail::class], [
-            'mailable' => \App\Mail\Admin\OfflineMail::class,
-            'subject' => 'Offline Payment Request Unverified',
+            'mailable'      => \App\Mail\Admin\OfflineMail::class,
+            'subject'       => 'Offline Payment Request Unverified',
             'html_template' => '<p><strong>Hi&nbsp;{{ name }}</strong></p>
             <p><strong>Your Request Payment {{ email }}&nbsp;Is Disapprove By Super Admin</strong></p>
             <p><strong>Because&nbsp;{{ disapprove_reason }}</strong></p>
@@ -801,8 +797,8 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         MailTemplate::firstOrCreate(['mailable' => \App\Mail\Admin\ConatctMail::class], [
-            'mailable' => \App\Mail\Admin\ConatctMail::class,
-            'subject' => 'New Enquiry Details',
+            'mailable'      => \App\Mail\Admin\ConatctMail::class,
+            'subject'       => 'New Enquiry Details',
             'html_template' => '<p><strong>Name : {{name}}</strong></p>
             <p><strong>Email : </strong><strong>{{email}}</strong></p>
             <p><strong>Contact No : {{ contact_no }}&nbsp;</strong></p>
@@ -811,15 +807,15 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         MailTemplate::firstOrCreate(['mailable' => \App\Mail\Admin\PasswordResets::class], [
-            'mailable' => \App\Mail\Admin\PasswordResets::class,
-            'subject' => 'Reset Password Notification',
+            'mailable'      => \App\Mail\Admin\PasswordResets::class,
+            'subject'       => 'Reset Password Notification',
             'html_template' => '<p><strong>Hello!</strong></p><p>You are receiving this email because we received a password reset request for your account. To proceed with the password reset please click on the link below:</p><p><a href="{{url}}">Reset Password</a></p><p>This password reset link will expire in 60 minutes.&nbsp;<br>If you did not request a password reset, no further action is required.</p>',
             'text_template' => null,
         ]);
 
         MailTemplate::firstOrCreate(['mailable' => \App\Mail\Admin\RegisterMail::class], [
-            'mailable' => \App\Mail\Admin\RegisterMail::class,
-            'subject' => 'Register Mail',
+            'mailable'      => \App\Mail\Admin\RegisterMail::class,
+            'subject'       => 'Register Mail',
             'html_template' => '<p><strong>Hi {{name}}</strong></p>
             <p><strong>Email {{email}}</strong></p>
             <p><strong>Register Successfully</strong></p>',
@@ -827,51 +823,51 @@ class TenantDatabaseSeeder extends Seeder
         ]);
 
         NotificationsSetting::firstOrCreate(['title' => 'Testing Purpose'], [
-            'title' => 'Testing Purpose',
+            'title'              => 'Testing Purpose',
             'email_notification' => '1',
-            'sms_notification' => '0',
-            'notify' => '0',
-            'status' => '2',
+            'sms_notification'   => '0',
+            'notify'             => '0',
+            'status'             => '2',
         ]);
 
         NotificationsSetting::firstOrCreate(['title' => 'Register Mail'], [
-            'title' => 'Register Mail',
+            'title'              => 'Register Mail',
             'email_notification' => '1',
-            'sms_notification' => '2',
-            'notify' => '1',
-            'status' => '1',
+            'sms_notification'   => '2',
+            'notify'             => '1',
+            'status'             => '1',
         ]);
 
         NotificationsSetting::firstOrCreate(['title' => 'New Enquiry Details'], [
-            'title' => 'New Enquiry Details',
+            'title'              => 'New Enquiry Details',
             'email_notification' => '1',
-            'sms_notification' => '2',
-            'notify' => '1',
-            'status' => '2',
+            'sms_notification'   => '2',
+            'notify'             => '1',
+            'status'             => '2',
         ]);
 
         NotificationsSetting::firstOrCreate(['title' => 'Send Ticket Reply'], [
-            'title' => 'Send Ticket Reply',
+            'title'              => 'Send Ticket Reply',
             'email_notification' => '1',
-            'sms_notification' => '2',
-            'notify' => '1',
-            'status' => '2',
+            'sms_notification'   => '2',
+            'notify'             => '1',
+            'status'             => '2',
         ]);
 
         NotificationsSetting::firstOrCreate(['title' => 'Offline Payment Request Verified'], [
-            'title' => 'Offline Payment Request Verified',
+            'title'              => 'Offline Payment Request Verified',
             'email_notification' => '1',
-            'sms_notification' => '2',
-            'notify' => '1',
-            'status' => '2',
+            'sms_notification'   => '2',
+            'notify'             => '1',
+            'status'             => '2',
         ]);
 
         NotificationsSetting::firstOrCreate(['title' => 'Offline Payment Request Unverified'], [
-            'title' => 'Offline Payment Request Unverified',
+            'title'              => 'Offline Payment Request Unverified',
             'email_notification' => '1',
-            'sms_notification' => '2',
-            'notify' => '1',
-            'status' => '2',
+            'sms_notification'   => '2',
+            'notify'             => '1',
+            'status'             => '2',
         ]);
     }
 }

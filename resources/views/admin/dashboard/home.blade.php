@@ -103,7 +103,7 @@
                                     <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
                                     <span class="font-roboto font-semibold"> {{ __('Followers') }} </span>
                                 </div>
-                                <p class="mb-0 font-sans font-thin bg-card2-text text-xl"> {{ $students }} </p>
+                                <p class="mb-0 font-sans font-thin bg-card2-text text-xl"> {{ $followers }} </p>
                             </div>
                         </div>
                     </div>
@@ -206,19 +206,19 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($instructorStats as $instructor)
+                                    @forelse ($influencerStats as $influencer)
                                         <tr>
-                                            <td>{{ $instructor->name }}</td>
-                                            <td>${{ number_format($instructor->purchase->where('status', 'complete')->sum('total_amount'), 2) }}
+                                            <td>{{ $influencer->name }}</td>
+                                            <td>${{ number_format($influencer->purchase->where('status', 'complete')->sum('total_amount'), 2) }}
                                             </td>
-                                            <td>{{ $instructor->completed_inperson_lessons }}</td>
-                                            <td>{{ $instructor->completed_online_lessons }}</td>
-                                            <td>{{ $instructor->pending_inperson_lessons }}</td>
-                                            <td>{{ $instructor->pending_online_lessons }}</td>
+                                            <td>{{ $influencer->completed_inperson_lessons }}</td>
+                                            <td>{{ $influencer->completed_online_lessons }}</td>
+                                            <td>{{ $influencer->pending_inperson_lessons }}</td>
+                                            <td>{{ $influencer->pending_online_lessons }}</td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center">{{ __('No instructors available') }}
+                                            <td colspan="5" class="text-center">{{ __('No influencers available') }}
                                             </td>
                                         </tr>
                                     @endforelse

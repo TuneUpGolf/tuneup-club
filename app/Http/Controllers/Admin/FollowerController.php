@@ -3,14 +3,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
 use App\Actions\SendSMS;
+use App\DataTables\Admin\FollowerDataTable;
 use App\DataTables\Admin\FollowerPurchaseDataTable;
-use App\DataTables\Admin\StudentDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\StudentAPIResource;
-use App\Imports\StudentsImport;
+use App\Http\Resources\FollowerAPIResource;
+use App\Imports\FollowersImport;
 use App\Mail\Admin\WelcomeMail;
-use App\Mail\Admin\WelcomeMailStudent;
+use App\Mail\Admin\WelcomeMailFollower;
 use App\Models\Follower;
 use App\Models\Role;
 use Carbon\Carbon;
@@ -26,10 +26,10 @@ use Stancl\Tenancy\Database\Models\Domain;
 class FollowerController extends Controller
 {
 
-    public function index(StudentDataTable $dataTable)
+    public function index(FollowerDataTable $dataTable)
     {
         if (Auth::user()->can('manage-followers')) {
-            return $dataTable->render('admin.students.index');
+            return $dataTable->render('admin.followers.index');
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -38,7 +38,7 @@ class FollowerController extends Controller
     public function create()
     {
         if (Auth::user()->can('create-followers')) {
-            return view('admin.students.create');
+            return view('admin.followers.create');
         }
         return redirect()->back()->with('failed', __('Permission denied.'));
     }
@@ -47,13 +47,13 @@ class FollowerController extends Controller
     {
         $follower  = Follower::findOrFail($id);
         $dataTable = new FollowerPurchaseDataTable($id); // Pass follower ID to the datatable
-        return $dataTable->render('admin.students.show', compact('follower', 'dataTable'));
+        return $dataTable->render('admin.followers.show', compact('follower', 'dataTable'));
     }
     public function import()
     {
 
         if (Auth::user()->can('create-followers')) {
-            return view('admin.students.import');
+            return view('admin.followers.import');
         }
         return redirect()->back()->with('failed', __('Permission denied.'));
     }
@@ -85,7 +85,7 @@ class FollowerController extends Controller
                 $user['dp'] = $request->file('dp')->store('dp');
             }
             $user->update();
-            SendEmail::dispatch($userData['email'], new WelcomeMailStudent($user, $randomPassword));
+            SendEmail::dispatch($userData['email'], new WelcomeMailFollower($user, $randomPassword));
             $message = __('Welcome, :name, you have successfully signed up!, Please login with password :password at :link', [
                 'name'     => $userData['name'],
                 'password' => $randomPassword,
@@ -95,7 +95,7 @@ class FollowerController extends Controller
             // $userPhone = str_replace(array('(', ')'), '', $userPhone);
             // SendSMS::dispatch("+" . $userPhone, $message);
 
-            return redirect()->route('follower.index')->with('success', __('Student created successfully.'));
+            return redirect()->route('follower.index')->with('success', __('Follower created successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -112,7 +112,7 @@ class FollowerController extends Controller
                 $roles   = Role::where('name', '!=', 'Admin')->where('name', Auth::user()->type)->pluck('name', 'name');
                 $domains = Domain::pluck('domain', 'domain')->all();
             }
-            return view('admin.students.edit', compact('user', 'roles', 'domains'));
+            return view('admin.followers.edit', compact('user', 'roles', 'domains'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -172,7 +172,7 @@ class FollowerController extends Controller
                 $user->follows()->delete();
                 $user->post()->delete();
                 $user->delete();
-                return response()->json(['message' => 'Student successfully deleted '], 200);
+                return response()->json(['message' => 'Follower successfully deleted '], 200);
             } else {
                 response()->json(['message' => 'unsuccessful'], 419);
             }
@@ -188,7 +188,7 @@ class FollowerController extends Controller
 
             request()->validate([
                 'name'         => 'required|max:50',
-                'email'        => 'required|email|unique:students,email|unique:users,email',
+                'email'        => 'required|email|unique:followers,email|unique:users,email',
                 'password'     => 'same:confirm-password',
                 'country_code' => 'required',
                 'dial_code'    => 'required',
@@ -216,7 +216,7 @@ class FollowerController extends Controller
             $user->save();
             $newUserData = ['name' => $request->name, 'unhashedPass' => $request->password];
             //$newUserData
-            // $studentPhone = Str::of($userData['country_code'])->append($userData['dial_code'])->append($userData['phone'])->value();
+            // $followerPhone = Str::of($userData['country_code'])->append($userData['dial_code'])->append($userData['phone'])->value();
 
             SendEmail::dispatch($request->email, new WelcomeMail($newUserData));
 
@@ -224,7 +224,7 @@ class FollowerController extends Controller
                 'name' => $userData['name'],
                 'link' => route('login'),
             ]);
-            // SendSMS::dispatch($studentPhone, $message);
+            // SendSMS::dispatch($followerPhone, $message);
             return response(["user" => $user], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -233,20 +233,20 @@ class FollowerController extends Controller
         }
     }
 
-    public function updateStudentBio()
+    public function updateFollowerBio()
     {
         request()->validate([
             'bio' => 'required|max:250',
         ]);
         try {
             if (Auth::user()->type === Role::ROLE_FOLLOWER) {
-                $student = Follower::find(Auth::user()->id);
-                if ($student->active_status == true) {
-                    $student['bio'] = request()?->bio;
-                    $student->update();
-                    return response(new StudentAPIResource($student));
+                $follower = Follower::find(Auth::user()->id);
+                if ($follower->active_status == true) {
+                    $follower['bio'] = request()?->bio;
+                    $follower->update();
+                    return response(new FollowerAPIResource($follower));
                 } else {
-                    return response()->json(['error' => 'Student is currently disabled, please contact admin.', 419]);
+                    return response()->json(['error' => 'Follower is currently disabled, please contact admin.', 419]);
                 }
             } else {
                 return response()->json(['error' => 'Unauthorized', 401]);
@@ -301,7 +301,7 @@ class FollowerController extends Controller
     {
         try {
             if (Auth::user()->active_status == true) {
-                return StudentAPIResource::collection(Follower::where('active_status', true)->orderBy(request()->get('sortKey', 'created_at'), request()->get('sortOrder', 'desc'))->paginate(request()->get('perPage')));
+                return FollowerAPIResource::collection(Follower::where('active_status', true)->orderBy(request()->get('sortKey', 'created_at'), request()->get('sortOrder', 'desc'))->paginate(request()->get('perPage')));
             } else {
                 return response()->json(['error' => 'Unauthorized', 401]);
             }
@@ -313,20 +313,20 @@ class FollowerController extends Controller
     {
         if (Auth::user()->can('create-influencers')) {
             if (Auth::user()->type == 'Admin') {
-                Excel::import(new StudentsImport(), $request->file('file'));
+                Excel::import(new FollowersImport(), $request->file('file'));
 
-                $imported = Excel::toArray(new StudentsImport(), $request->file('file'));
+                $imported = Excel::toArray(new FollowersImport(), $request->file('file'));
                 foreach ($imported[0] as $import) {
                     SendEmail::dispatch($import['email'], new WelcomeMail($import));
                     $message = __('Welcome, :name, you have successfully signed up!, Please login at :link', [
                         'name' => $import['name'],
                         'link' => route('login'),
                     ]);
-                    $studentPhone = Str::of($import['country_code'])->append($import['dial_code'])->append($import['phone'])->value();
-                    SendSMS::dispatch($studentPhone, $message);
+                    $followerPhone = Str::of($import['country_code'])->append($import['dial_code'])->append($import['phone'])->value();
+                    SendSMS::dispatch($followerPhone, $message);
                 }
 
-                return redirect()->route('follower.index')->with('success', __('Students imported successfully.'));
+                return redirect()->route('follower.index')->with('success', __('Followers imported successfully.'));
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -340,12 +340,12 @@ class FollowerController extends Controller
                 'dp' => 'required',
             ]);
             if ($request->hasFile('dp') && Auth::user()->type === Role::ROLE_INFLUENCER) {
-                $student       = Follower::find(Auth::user()?->id);
-                $student['dp'] = $request->file('dp')->store('dp');
-                $student->update();
+                $follower       = Follower::find(Auth::user()?->id);
+                $follower['dp'] = $request->file('dp')->store('dp');
+                $follower->update();
                 return response()->json([
-                    'student' => $student,
-                    'message' => 'Profile Picture has been successfully updated',
+                    'follower' => $follower,
+                    'message'  => 'Profile Picture has been successfully updated',
                 ], 201);
             }
         } catch (ValidationException $e) {

@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,28 +16,28 @@ class NewPasswordController extends Controller
     {
         $lang = UtilityFacades::getActiveLanguage();
         \App::setLocale($lang);
-        return view('auth.reset-password', ['request' => $request,  'token' => $request->route('token'), 'lang' => $lang]);
+        return view('auth.reset-password', ['request' => $request, 'token' => $request->route('token'), 'lang' => $lang]);
     }
 
     public function store(Request $request)
     {
 
         request()->validate([
-            'token' => 'required',
-            'email' => 'required|email',
+            'token'    => 'required',
+            'email'    => 'required|email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $userExists = \App\Models\User::where('email', $request->email)->exists();
-        $studentExists = \App\Models\Follower::where('email', $request->email)->exists();
+        $userExists     = \App\Models\User::where('email', $request->email)->exists();
+        $followerExists = \App\Models\Follower::where('email', $request->email)->exists();
 
-        if (!$userExists && !$studentExists) {
+        if (! $userExists && ! $followerExists) {
             return back()->withInput($request->only('email'))->withErrors([
                 'email' => 'No account found with this email address.',
             ]);
         }
 
-        $broker = $userExists ? 'users' : 'students';
+        $broker = $userExists ? 'users' : 'followers';
 
         $status = Password::broker($broker)->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
@@ -48,12 +46,12 @@ class NewPasswordController extends Controller
                     event(new PasswordReset($user));
                     tenancy()->initialize($user->tenant_id);
                     $user->forceFill([
-                        'password' => Hash::make($request->password),
+                        'password'       => Hash::make($request->password),
                         'remember_token' => Str::random(60),
                     ])->save();
                 } else {
                     $user->forceFill([
-                        'password' => Hash::make($request->password),
+                        'password'       => Hash::make($request->password),
                         'remember_token' => Str::random(60),
                     ])->save();
                 }

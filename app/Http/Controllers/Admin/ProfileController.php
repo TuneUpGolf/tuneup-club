@@ -1,20 +1,18 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Facades\UtilityFacades;
-use App\Http\Resources\InstructorAPIResource;
-use App\Http\Resources\StudentAPIResource;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\FollowerAPIResource;
+use App\Http\Resources\InfluencerAPIResource;
+use App\Models\Follower;
 use App\Models\PushToken;
 use App\Models\Role;
-use App\Models\Follower;
-use Illuminate\Http\Request;
 use App\Models\User;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use File;
-use Illuminate\Support\Facades\File as FacadesFile;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -28,58 +26,56 @@ class ProfileController extends Controller
             $this->user = Auth::user();
             return $next($request);
         });
-        $path               = storage_path() . "/json/country.json";
-        $this->countries    = json_decode(file_get_contents($path), true);
+        $path            = storage_path() . "/json/country.json";
+        $this->countries = json_decode(file_get_contents($path), true);
     }
 
     public function index()
     {
-        $role       = Auth::user()->roles->first();
-        $tenantId   = tenant('id');
-        $countries  = $this->countries;
+        $role      = Auth::user()->roles->first();
+        $tenantId  = tenant('id');
+        $countries = $this->countries;
         return view('admin.profile.index', [
-            'user' => Auth::user(),
-            'role' => $role,
+            'user'      => Auth::user(),
+            'role'      => $role,
             'tenant_id' => $tenantId,
             'countries' => $countries,
         ]);
     }
 
-
-
     private function activeTwoFactor()
     {
-        $user           = Auth::user();
-        $google2faUrl   = "";
-        $secretKey      = "";
+        $user         = Auth::user();
+        $google2faUrl = "";
+        $secretKey    = "";
 
         if ($user->loginSecurity()->exists()) {
-            $google2fa      = (new \PragmaRX\Google2FAQRCode\Google2FA());
-            $google2faUrl   = $google2fa->getQRCodeInline(
+            $google2fa    = (new \PragmaRX\Google2FAQRCode\Google2FA());
+            $google2faUrl = $google2fa->getQRCodeInline(
                 @UtilityFacades::getsettings('app_name'),
                 $user->name,
                 $user->loginSecurity->google2fa_secret
             );
             $secretKey = $user->loginSecurity->google2fa_secret;
         }
-        $user       = auth()->user();
-        $role       = $user->roles->first();
-        $tenantId   = tenant('id');
-        $countries  = $this->countries;
-        $data       = array(
+        $user      = auth()->user();
+        $role      = $user->roles->first();
+        $tenantId  = tenant('id');
+        $countries = $this->countries;
+        $data      = [
             'user'          => $user,
             'secret'        => $secretKey,
             'google2fa_url' => $google2faUrl,
             'tenant_id'     => $tenantId,
             'countries'     => $countries,
-        );
+        ];
         return view('admin.profile.index', [
             'user'          => $user,
             'role'          => $role,
             'secret'        => $secretKey,
             'google2fa_url' => $google2faUrl,
             'tenant_id'     => $tenantId,
-            'countries'     => $countries
+            'countries'     => $countries,
         ]);
     }
 
@@ -117,7 +113,7 @@ class ProfileController extends Controller
         $user->bio          = $request?->bio;
 
         if ($user->type === Role::ROLE_INFLUENCER) {
-            $user->address     = $request?->address;
+            $user->address = $request?->address;
             // $user->country     = $request?->country;
             $user->sub_price   = $request?->sub_price;
             $user->golf_course = $request?->golf_course;
@@ -135,20 +131,20 @@ class ProfileController extends Controller
             ], ['token' => $request->get('push_token')]);
         }
         if ($request->filled('avatar')) {
-            $image = $request->avatar;
-            $image = str_replace('data:image/png;base64,', '', $image);
-            $image = str_replace('data:image/jpeg;base64,', '', $image);
-            $image = str_replace(' ', '+', $image);
+            $image     = $request->avatar;
+            $image     = str_replace('data:image/png;base64,', '', $image);
+            $image     = str_replace('data:image/jpeg;base64,', '', $image);
+            $image     = str_replace(' ', '+', $image);
             $imageName = time() . '.png';
-            $basePath = tenant('domains')[0]->domain . '/uploads/avatar/' . strtolower($user->type) . '/';
-            $filePath = $basePath . Auth::user()->id . '/' . $imageName;
-        
+            $basePath  = tenant('domains')[0]->domain . '/uploads/avatar/' . strtolower($user->type) . '/';
+            $filePath  = $basePath . Auth::user()->id . '/' . $imageName;
+
             Storage::disk('spaces')->put($filePath, base64_decode($image), 'public');
             $imagePath = Storage::disk('spaces')->url($filePath);
-        
+
             if ($user->type === Role::ROLE_INFLUENCER) {
                 $user->avatar = $imagePath;
-                $user->logo = $imagePath;
+                $user->logo   = $imagePath;
             } else {
                 $user->dp = $imagePath;
             }
@@ -174,7 +170,7 @@ class ProfileController extends Controller
                 'twitter'   => 'social_url_x',
                 'youtube'   => 'social_url_yt',
             ];
-            
+
             foreach ($socialFields as $requestKey => $attribute) {
                 if ($request->filled($requestKey)) {
                     $user->$attribute = $request->$requestKey;
@@ -191,30 +187,29 @@ class ProfileController extends Controller
             'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $userDetail = Auth::user();
-        $user = User::findOrFail($userDetail['id']);
+        $userDetail    = Auth::user();
+        $user          = User::findOrFail($userDetail['id']);
         $currentDomain = tenant('domains');
         $currentDomain = $currentDomain[0]->domain;
 
         if ($request->hasFile('banner_image')) {
-            $file = $request->file('banner_image');
+            $file     = $request->file('banner_image');
             $fileName = time() . '_' . $file->getClientOriginalName();
 
-            $filePath      = $currentDomain.'/' . "uploads/banner/" . Auth::user()->id . '/' . $fileName;
+            $filePath = $currentDomain . '/' . "uploads/banner/" . Auth::user()->id . '/' . $fileName;
             Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
             $relativePath = Storage::disk('spaces')->url($filePath);
             // Save relative path in DB
             $user->update([
                 'banner_image' => $relativePath,
             ]);
-    
+
             return redirect()->back()->with('success', __('Banner image updated successfully.'));
         }
 
         return redirect()->back()->with('error', __('No image file selected.'));
     }
-    
-    
+
     public function LoginDetails(Request $request)
     {
         $userDetail = Auth::user();
@@ -225,9 +220,9 @@ class ProfileController extends Controller
             $user = User::findOrFail($userDetail['id']);
         }
         request()->validate([
-            'email'     => 'email|unique:users,email,' . $userDetail['id'],
-            'avatar'    => 'image|mimes:jpeg,png,jpg,svg|max:3072',
-            'password'  => 'same:password_confirmation',
+            'email'    => 'email|unique:users,email,' . $userDetail['id'],
+            'avatar'   => 'image|mimes:jpeg,png,jpg,svg|max:3072',
+            'password' => 'same:password_confirmation',
         ]);
         if ($request->hasFile('avatar')) {
             $filenameWithExt = $request->file('avatar')->getClientOriginalName();
@@ -239,23 +234,23 @@ class ProfileController extends Controller
             if (File::exists($imagePath)) {
                 //File::delete($imagePath);
             }
-            if (!file_exists($dir)) {
+            if (! file_exists($dir)) {
                 mkdir($dir, 0777, true);
             }
-            $path   = $request->file('avatar')->storeAs('avatar/', $fileNameToStore);
+            $path = $request->file('avatar')->storeAs('avatar/', $fileNameToStore);
         }
-        if (!empty($request->avatar)) {
+        if (! empty($request->avatar)) {
             $user['avatar'] = 'avatar/' . $fileNameToStore;
         }
-        if (!empty($request->password)) {
+        if (! empty($request->password)) {
             $user->password = bcrypt($request->password);
         }
         $user->save();
         if (\Auth::user()->type == 'Admin') {
-            $order      = tenancy()->central(function ($tenant) use ($request, $userDetail) {
-                $users  = User::where('tenant_id', $userDetail->tenant_id)->first();
-                if (!empty($request->password)) {
-                    $users->password    = bcrypt($request->password);
+            $order = tenancy()->central(function ($tenant) use ($request, $userDetail) {
+                $users = User::where('tenant_id', $userDetail->tenant_id)->first();
+                if (! empty($request->password)) {
+                    $users->password = bcrypt($request->password);
                 }
                 $users->save();
             });
@@ -269,19 +264,20 @@ class ProfileController extends Controller
             $userDetail = Auth::user();
 
             request()->validate([
-                'password'  => 'same:password_confirmation',
+                'password' => 'same:password_confirmation',
             ]);
 
-            if (Auth::user()->type == Role::ROLE_FOLLOWER)
+            if (Auth::user()->type == Role::ROLE_FOLLOWER) {
                 $user = Follower::findOrFail($userDetail['id']);
+            }
 
-
-            if (Auth::user()->type !== Role::ROLE_FOLLOWER)
+            if (Auth::user()->type !== Role::ROLE_FOLLOWER) {
                 $user = User::findOrFail($userDetail['id']);
+            }
 
-
-            if (!empty($request->password))
+            if (! empty($request->password)) {
                 $user->password = bcrypt($request->password);
+            }
 
             $user->save();
             return response()->json(['message' => 'Password Successfully Changed']);
@@ -294,33 +290,33 @@ class ProfileController extends Controller
     {
         $currentDomain = tenant('domains');
         $currentDomain = $currentDomain[0]->domain;
-        $logo = false;
+        $logo          = false;
 
-        if(auth()->user()->type == 'Influencer'){
-            $user = User::find(auth()->id());
-            $basePath = $currentDomain.'/' . "uploads/avatar/influencer/";
-            $column = 'avatar';
-            $logo = true;
-        }else{
-            $user = Follower::find(auth()->id());
-            $basePath = $currentDomain.'/' . "uploads/avatar/follower/";
-            $column = 'dp';
+        if (auth()->user()->type == 'Influencer') {
+            $user     = User::find(auth()->id());
+            $basePath = $currentDomain . '/' . "uploads/avatar/influencer/";
+            $column   = 'avatar';
+            $logo     = true;
+        } else {
+            $user     = Follower::find(auth()->id());
+            $basePath = $currentDomain . '/' . "uploads/avatar/follower/";
+            $column   = 'dp';
         }
 
         request()->validate([
-            'avatar'    => 'required',
+            'avatar' => 'required',
         ]);
         // dd($request);
-        $image          = $request->avatar;
-        $image          = str_replace('data:image/png;base64,', '', $image);
-        $image          = str_replace(' ', '+', $image);
-        $imageName      = time() . '.' . 'png';
-        $filePath      = $basePath . Auth::user()->id . '/' . $imageName;
+        $image     = $request->avatar;
+        $image     = str_replace('data:image/png;base64,', '', $image);
+        $image     = str_replace(' ', '+', $image);
+        $imageName = time() . '.' . 'png';
+        $filePath  = $basePath . Auth::user()->id . '/' . $imageName;
         Storage::disk('spaces')->put($filePath, base64_decode($image), 'public');
         $imagePath = Storage::disk('spaces')->url($filePath);
 
-        $user->$column   = $imagePath;
-        if($logo){
+        $user->$column = $imagePath;
+        if ($logo) {
             $user->logo = $imagePath;
         }
         if ($user->save()) {
@@ -331,13 +327,13 @@ class ProfileController extends Controller
 
     public function profileStatus()
     {
-        $user   = tenancy()->central(function ($tenant) {
+        $user = tenancy()->central(function ($tenant) {
             $centralUser                = User::find($tenant->id);
             $centralUser->active_status = 0;
             $centralUser->save();
         });
-        $user                   = User::find(Auth::user()->id);
-        $user->active_status    = 0;
+        $user                = User::find(Auth::user()->id);
+        $user->active_status = 0;
         $user->save();
         auth()->logout();
         return redirect()->route('home');
@@ -371,7 +367,7 @@ class ProfileController extends Controller
                 }
                 $user->update($request->all());
                 $user->save();
-                return response(new InstructorAPIResource($user), 200);
+                return response(new InfluencerAPIResource($user), 200);
             } else if (Auth::user()->type === Role::ROLE_FOLLOWER && Auth::user()->active_status == true) {
                 $user = Follower::find(Auth::user()->id);
                 if ($request->hasFile('dp')) {
@@ -379,9 +375,9 @@ class ProfileController extends Controller
                 }
                 $user->update($request->only(['name', 'bio', 'dial_code', 'phone', 'country', 'country_code', 'social_url_ig', 'social_url_fb', 'social_url_x']));
                 $user->save();
-                return response(new StudentAPIResource($user), 200);
+                return response(new FollowerAPIResource($user), 200);
             }
-            return response()->json(['error' => 'Student is currently disabled, please contact admin.', 419]);
+            return response()->json(['error' => 'Follower is currently disabled, please contact admin.', 419]);
         } catch (\Exception $e) {
             return throw new Exception($e->getMessage());
         }
@@ -405,7 +401,7 @@ class ProfileController extends Controller
         try {
             \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
             $stripeClient = new \Stripe\StripeClient(config('services.stripe.secret'));
-            $account = $stripeClient->accounts->retrieve($stripeAccountId);
+            $account      = $stripeClient->accounts->retrieve($stripeAccountId);
 
             if ($account && $account->id) {
                 $isVerified = false;
@@ -419,7 +415,7 @@ class ProfileController extends Controller
                 }
 
                 // Save the account ID and verification status
-                $user->stripe_account_id = $stripeAccountId;
+                $user->stripe_account_id   = $stripeAccountId;
                 $user->is_stripe_connected = $isVerified;
                 $user->save();
 

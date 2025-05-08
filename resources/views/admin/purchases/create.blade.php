@@ -14,7 +14,7 @@
                         <h5>{{ __('Create Purchase') }}</h5>
                     </div>
                     <div class="card-body ">
-                        <livewire:instructor-grid-view />
+                        <livewire:influencer-grid-view />
                     </div>
                     <div class="card-footer">
                         <div class="float-end">

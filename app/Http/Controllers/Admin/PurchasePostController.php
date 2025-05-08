@@ -1,31 +1,30 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Models\Follower;
 use App\Models\Post;
 use App\Models\PurchasePost;
-use App\Models\Follower;
-use App\Http\Controllers\Controller;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Stripe\Stripe;
 use Stripe\Checkout\Session;
+use Stripe\Stripe;
 
 class PurchasePostController extends Controller
 {
     public function purchasePost(Request $request)
     {
         $request->validate([
-            'post_id' => 'required'
+            'post_id' => 'required',
         ]);
 
         try {
-            $post = Post::where('paid', true)->where('id', $request->post_id)->where('status', 'active')->first();
+            $post         = Post::where('paid', true)->where('id', $request->post_id)->where('status', 'active')->first();
             $purchasePost = PurchasePost::firstOrCreate(
                 [
                     'follower_id' => Auth::user()->id,
-                    'post_id' => $post->id,
+                    'post_id'     => $post->id,
                 ],
                 [
                     'active_status' => false,
@@ -36,27 +35,27 @@ class PurchasePostController extends Controller
 
             $session = Session::create(
                 [
-                    'line_items'            => [[
-                        'price_data'    => [
-                            'currency'      => config('services.stripe.currency'),
-                            'product_data'  => [
-                                'name'      => "$post->title",
+                    'line_items'  => [[
+                        'price_data' => [
+                            'currency'     => config('services.stripe.currency'),
+                            'product_data' => [
+                                'name' => "$post->title",
                             ],
-                            'unit_amount'   => $post->price * 100,
+                            'unit_amount'  => $post->price * 100,
                         ],
-                        'quantity'      => 1,
+                        'quantity'   => 1,
                     ]],
-                    'customer' => Auth::user()?->stripe_cus_id,
-                    'mode' => 'payment',
+                    'customer'    => Auth::user()?->stripe_cus_id,
+                    'mode'        => 'payment',
                     'success_url' => route('purchase-post-success', [
                         'purchase_post_id' => $purchasePost?->id,
-                        'follower_id' => Auth::user()->id,
-                        'redirect' => $request->redirect
+                        'follower_id'      => Auth::user()->id,
+                        'redirect'         => $request->redirect,
                     ]),
-                    'cancel_url' => route('subscription-unsuccess'),
+                    'cancel_url'  => route('subscription-unsuccess'),
                 ]
             );
-            if (!empty($session?->id)) {
+            if (! empty($session?->id)) {
                 $purchasePost->session_id = $session?->id;
                 $purchasePost->save();
             }
@@ -73,18 +72,18 @@ class PurchasePostController extends Controller
     {
         $purchasePost = PurchasePost::find($request->query('purchase_post_id'));
         try {
-            if (!!$purchasePost) {
+            if (! ! $purchasePost) {
                 Stripe::setApiKey(config('services.stripe.secret'));
-                $session  = Session::retrieve($purchasePost->session_id);
+                $session = Session::retrieve($purchasePost->session_id);
 
                 if ($session->payment_status == "paid") {
                     $purchasePost->active_status = true;
-                    $purchasePost->session_id = $session->id;
+                    $purchasePost->session_id    = $session->id;
                     $purchasePost->save();
-                    $student = Follower::find($request->query('follower_id'));
-                    if (!isset($student->stripe_cus_id)) {
-                        $student->stripe_cus_id = $session->customer;
-                        $student->save();
+                    $follower = Follower::find($request->query('follower_id'));
+                    if (! isset($follower->stripe_cus_id)) {
+                        $follower->stripe_cus_id = $session->customer;
+                        $follower->save();
                     }
                 }
 
@@ -96,6 +95,6 @@ class PurchasePostController extends Controller
             }
         } catch (\Exception $e) {
             return redirect(route('purchase.index'))->with('errors', $e->getMessage());
-        };
+        }
     }
 }
