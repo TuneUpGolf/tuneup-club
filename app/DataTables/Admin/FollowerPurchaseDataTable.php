@@ -65,7 +65,7 @@ class FollowerPurchaseDataTable extends DataTable
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->follower->dp
-                ? asset('/storage' . '/' . tenant('id') . '/' . $purchase->follower->dp)
+                ? $purchase->follower->dp
                 : asset('assets/img/logo/logo.png');
 
                 return '
