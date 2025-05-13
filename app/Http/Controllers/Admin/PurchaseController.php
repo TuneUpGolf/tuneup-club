@@ -609,11 +609,15 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->can('create-purchases')) {
             $purchase = Purchase::find($request->purchase_id);
-            if (Auth::user()->type == 'Influencer') {
-                return view('admin.purchases.video', ['purchase' => $purchase]);
-            } else {
+            return view('admin.purchases.video', ['purchase' => $purchase]);
+        }
+    }
+    public function viewLesson(Request $request)
+    {
+        if (Auth::user()->can('create-purchases')) {
+            $purchase = Purchase::find($request->purchase_id);
+           
                 return view('admin.purchases.lesson', ['purchase' => $purchase]);
-            }
         }
     }
 
