@@ -7,7 +7,6 @@
 .env.backup
 /public/assets/installer
 /public/assets/vendor
-/public/assets/js
 /public/assets/images/dashboard.svg
 .phpunit.result.cache
 docker-compose.override.yml
