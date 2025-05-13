@@ -530,7 +530,7 @@
                             </ul>
                         </li>
                     @endif
-                    @if(Auth::user()->type == "Follower")
+                    @if(Auth::user()->type == "Follower" && Auth::user()->group_id)
                         <li class="dash-item dash-hasmenu {{ request()->is('chat*') ? 'active' : '' }}">
                             <a class="dash-link py-3 px-4" href="{{ route('follower.chat') }}">
                                 <svg width="21" height="13" viewBox="0 0 21 13" fill="none"
