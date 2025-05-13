@@ -103,7 +103,7 @@
             token : "{{ $token }}",
         }
     </script>
-    <script src="{{ asset('assets/js/chat.js') }}"></script>
+    <script src="{{ asset('assets/custom-js/chat.js') }}"></script>
 
     {{-- Profile cropper and phone logic --}}
     <script>

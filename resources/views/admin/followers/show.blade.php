@@ -175,5 +175,5 @@
             token : "{{ $token }}",
         }
     </script>
-    <script src="{{ asset('assets/js/chat.js') }}"></script>
+    <script src="{{ asset('assets/custom-js/chat.js') }}"></script>
 @endpush
