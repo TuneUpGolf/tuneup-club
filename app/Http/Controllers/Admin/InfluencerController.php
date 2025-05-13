@@ -29,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
@@ -128,7 +129,14 @@ class InfluencerController extends Controller
                 $user                          = User::create($userData);
                 $user->assignRole('Influencer');
                 if ($request->hasFile('file')) {
-                    $user['logo'] = $request->file('file')->store('dp');
+                    $currentDomain = tenant('domains');
+                    $currentDomain = $currentDomain[0]->domain;
+                    $fileName = $request->file('file');
+                    $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
+                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                    $imageUrl      = Storage::disk('spaces')->url($filePath);
+                    $user['logo']      = $imageUrl;
+                    $user['avatar']      = $imageUrl;
                 }
                 $user->update();
                 $chatUserDetails = $this->chatService->getUserProfile($request->email);
