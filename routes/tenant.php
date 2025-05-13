@@ -141,6 +141,9 @@ Route::middleware([
         Route::get('user-phoneverified/{id}', [UserController::class, 'userPhoneVerified'])->name('user.phone.verified');
         Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
 
+        //chat
+        Route::get('follower-chat', [FollowerCOntroller::class, 'followerChat'])->name('follower.chat');
+
         //influencer
         Route::get('/influencer/import', [InfluencerController::class, 'import'])->name('influencer.import');
         Route::resource('influencer', InfluencerController::class);

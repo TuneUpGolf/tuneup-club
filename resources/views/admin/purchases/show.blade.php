@@ -43,6 +43,11 @@
         </div>
     </div>
 </div>
+
+{{-- Chat Section --}}
+@if($isSubscribed)
+    @include('admin.chat.chat')
+@endif
 @endsection
 
 @push('css')
@@ -52,11 +57,21 @@
     {{-- Purchases table styles --}}
     @include('layouts.includes.datatable_css')
 
-    <!-- <style>
-    .dt-buttons {
-        display: none !important;
-    }
-</style> -->
+    <style>
+        .chat-box .rounded-circle {
+            min-width: 40px;
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+        .card-body{
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .upload-files {
+            width:105px;
+        }
+    </style>
 @endpush
 
 @push('javascript')
@@ -66,6 +81,8 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     {{-- Purchases table JS --}}
     @include('layouts.includes.datatable_js')
@@ -77,6 +94,16 @@
             );
         });
     </script>
+    <script>
+        window.chatConfig = {
+            senderId : "{{ auth()->user()->chat_user_id }}",
+            senderImage : "{{ auth()->user()->avatar }}",
+            groupId : "{{ $purchase->follower->group_id }}",
+            recieverImage : "{{ $purchase->follower->dp }}",
+            token : "{{ $token }}",
+        }
+    </script>
+    <script src="{{ asset('assets/custom-js/chat.js') }}"></script>
 
     {{-- Profile cropper and phone logic --}}
     <script>

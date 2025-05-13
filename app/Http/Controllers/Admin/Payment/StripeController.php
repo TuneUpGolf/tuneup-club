@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\UserCoupon;
+use App\Services\ChatService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,6 +20,13 @@ use Stripe\StripeClient;
 
 class StripeController extends Controller
 {
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
+
     public function stripe()
     {
         $view = view('payment.PaymentStripe');
@@ -433,6 +441,13 @@ class StripeController extends Controller
                 $user->plan_expired_date = Carbon::now()->addYears($plan->duration)->isoFormat('YYYY-MM-DD');
             } else {
                 $user->plan_expired_date = null;
+            }
+            if($plan->is_chat_enabled){
+                $this->chatService->updateUser($user->chat_user_id, 'tenant_id', '3', $user->email);
+                $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->influencer->chat_user_id);
+                if($groupId){
+                    $user->group_id = $groupId;
+                }
             }
             $user->save();
         }

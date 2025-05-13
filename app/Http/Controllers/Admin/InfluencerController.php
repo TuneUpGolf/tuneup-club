@@ -21,6 +21,7 @@ use App\Models\ReportUser;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\ChatService;
 use App\Traits\ConvertVideos;
 use Carbon\Carbon;
 use Exception;
@@ -37,10 +38,13 @@ class InfluencerController extends Controller
 {
     use ConvertVideos;
 
-    public function __construct()
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
     {
         $path            = storage_path() . "/json/country.json";
         $this->countries = json_decode(file_get_contents($path), true);
+        $this->chatService = $chatService;
     }
 
     public function index(InfluencerDataTable $dataTable)
@@ -123,11 +127,20 @@ class InfluencerController extends Controller
                 $userData['phone']             = str_replace(' ', '', $request->phone);
                 $user                          = User::create($userData);
                 $user->assignRole('Influencer');
-
                 if ($request->hasFile('file')) {
                     $user['logo'] = $request->file('file')->store('dp');
                 }
                 $user->update();
+                $chatUserDetails = $this->chatService->getUserProfile($request->email);
+                if (! empty($chatUserDetails['data'])) {
+                    $existingTenantId = $this->chatService->fetchExistingTenantIds($chatUserDetails['data']);
+                    $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', $existingTenantId);
+                    $user->update([
+                        'chat_user_id' => $chatUserDetails['data']['_id'],
+                    ]);
+                } else {
+                    $this->chatService->createUser($user);
+                }
                 SendEmail::dispatch($userData['email'], new WelcomeMail($userData));
                 $message = __('Welcome, :name, you have successfully signed up!, Please login at :link', [
                     'name' => $userData['name'],

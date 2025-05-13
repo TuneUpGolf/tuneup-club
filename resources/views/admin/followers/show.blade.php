@@ -43,6 +43,11 @@
         </div>
     </div>
 </div>
+
+{{-- Chat Section --}}
+@if($isSubscribed)
+    @include('admin.chat.chat')
+@endif
 @endsection
 
 @push('css')
@@ -61,6 +66,8 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     {{-- Purchases table JS --}}
     @include('layouts.includes.datatable_js')
@@ -159,4 +166,14 @@
             });
         });
     </script>
+    <script>
+        window.chatConfig = {
+            senderId : "{{ auth()->user()->chat_user_id }}",
+            senderImage : "{{ auth()->user()->avatar }}",
+            groupId : "{{ $follower->group_id }}",
+            recieverImage : "{{ $follower->dp }}",
+            token : "{{ $token }}",
+        }
+    </script>
+    <script src="{{ asset('assets/custom-js/chat.js') }}"></script>
 @endpush
