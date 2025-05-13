@@ -46,26 +46,7 @@
 
 {{-- Chat Section --}}
 @if($isSubscribed)
-    <div class="row mt-4">
-        <div class="col-xl-12">
-            <div class="card shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Chat</h5>
-                </div>
-                <div class="card-body chat-box p-4" style="height: 400px; overflow-y: auto;">
-                </div>
-
-                <div class="card-footer">
-                    <form id="chatForm" class="d-flex align-items-center">
-                        <input type="file" id="mediaInput" accept="image/*,video/*,audio/*" class="form-control me-2" />
-                        <input type="text" id="chatInput" class="form-control me-2" placeholder="Type your message..." />
-                        <button type="button" id="emoji-toggle" class="btn btn-light me-2">😊</button>
-                        <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i></button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('admin.chat.chat')
 @endif
 @endsection
 
