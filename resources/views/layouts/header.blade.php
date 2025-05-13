@@ -5,8 +5,8 @@
 @endphp
 <header class="dash-header border-search {{ Utility::getsettings('transparent_layout') == 1 ? 'transprent-bg' : '' }}">
     <div class="header-wrapper">
-        <div class="flex justify-between items-center">
-            <div
+        <div class="flex justify-end items-center position-relative">
+            <!-- <div
                 class="flex pl-3 py-2 pr-24 w-100 rounded-3xl border-search overflow-hidden max-w-md mx-auto font-sans search-bg ">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="16px"
                     class="fill-gray-600 mr-3 rotate-90">
@@ -16,10 +16,9 @@
                 </svg>
                 <input type="text" placeholder="Search"
                     class="w-full outline-none bg-transparent border-0 text-gray-600 text-sm" />
-            </div>
-            <div class="flex justify-center items-center">
-                <div class="me-auto dash-mob-drp">
-                    <ul class="list-unstyled">
+            </div> -->               
+                <div class=" dash-mob-drp">
+                    <ul class="list-unstyled items-center">
                         <li class="dash-h-item mob-hamburger">
                             <a href="#!" class="dash-head-link" id="mobile-collapse">
                                 <div class="hamburger hamburger--arrowturn">
@@ -28,35 +27,26 @@
                                     </div>
                                 </div>
                             </a>
-                        </li>
-                        <li class="dropdown dash-h-item drp-company">
-                            <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                                href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
-                                <span>
-                                    <img alt="image" src="{{  Auth::user()->avatar ?? Auth::user()->dp }}"
-                                        class="rounded-circle mr-1">
-                                </span>
-                                <span class="hide-mob ms-2">{{ __('Hi,') }} {{ Auth::user()->name }}</span>
-                                <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
+                        
+                        <div class="m-header justify-content-center header-set">
+                            <a href="{{ route('home') }}" class="text-center b-brand header-brand-logo">
+                                <!-- ========   change your logo hear   ============ -->
+                                @if ($users->dark_layout == 1)
+                                    <img src="{{ Utility::getsettings('app_logo') ? Utility::getpath('logo/app-logo.png') : asset('assets/images/app-logo.png') }}"
+                                        alt="footer-logo" class="footer-light-logo">
+                                @else
+                                    <img src="{{ Utility::getsettings('app_dark_logo') ? Utility::getpath('logo/app-dark-logo.png') : asset('assets/images/app-dark-logo.png') }}"
+                                        alt="footer-logo" class="footer-dark-logo">
+                                @endif
                             </a>
-                            <div class="dropdown-menu dash-h-dropdown">
-                                <a href="{{ route('profile.view') }}" class="dropdown-item">
-                                    <i class="ti ti-user"></i>
-                                    <span>{{ __('Profile') }}</span>
-                                </a>
-                                <a href="javascript:void(0)" class="dropdown-item"
-                                    onclick="document.getElementById('logout-form').submit()">
-                                    <i class="ti ti-power"></i>
-                                    <span>{{ __('Logout') }}</span>
-                                    <form action="{{ route('logout') }}" method="POST" id="logout-form"> @csrf </form>
-                                </a>
-                            </div>
+                        </div>
                         </li>
+                        
                     </ul>
                 </div>
-                <div class="ms-auto">
+                <div class="">
                     <ul class="list-unstyled">
-                        <li class="dropdown dash-h-item drp-language">
+                    <li class="dropdown dash-h-item drp-language">
                             <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
                                 href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
                                 <i class="ti ti-world nocolor"></i>
@@ -298,9 +288,36 @@
                                 </div>
                             </div>
                         </li>
+                        <li class="dropdown dash-h-item drp-company">
+                            <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
+                                href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
+                                <span>
+                                    <img alt="image" src="{{  Auth::user()->avatar ?? Auth::user()->dp }}"
+
+                                        class="rounded-circle mr-1">
+                                    
+                                </span>
+                                <span class="hide-mob ms-2">{{ __('Hi,') }} {{ Auth::user()->name }}</span>
+                                <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
+                            </a>
+                            <div class="dropdown-menu dash-h-dropdown">
+                                <a href="{{ route('profile.view') }}" class="dropdown-item">
+                                    <i class="ti ti-user"></i>
+                                    <span>{{ __('Profile') }}</span>
+                                </a>
+                                <a href="javascript:void(0)" class="dropdown-item"
+                                    onclick="document.getElementById('logout-form').submit()">
+                                    <i class="ti ti-power"></i>
+                                    <span>{{ __('Logout') }}</span>
+                                    <form action="{{ route('logout') }}" method="POST" id="logout-form"> @csrf </form>
+                                </a>
+                            </div>
+                        </li>
+                        
+                        
                         @impersonating($guard = null)
-                            <li class="dropdown dash-h-item drp-company">
-                                <a class="btn btn-primary btn-active-color-primary btn-outline-secondary me-3"
+                            <li class="dropdown dash-h-item drp-company exit-btn">
+                                <a class="btn btn-primary btn-active-color-primary btn-outline-secondary me-0 ml-2"
                                     href="{{ route('impersonate.leave') }}"><i class="ti ti-ban"></i>
                                     {{ __('Exit Impersonation') }}
                                 </a>
@@ -309,8 +326,6 @@
                     </ul>
                 </div>
             </div>
-        </div>
-
     </div>
 </header>
 @push('javascript')
