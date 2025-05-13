@@ -625,11 +625,11 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->can('create-purchases')) {
             $purchase = Purchase::find($request->purchase_id);
-
-            return view('admin.purchases.lesson', ['purchase' => $purchase]);
+                return view('admin.purchases.lesson', ['purchase' => $purchase]);
         }
     }
 
+    
     public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
