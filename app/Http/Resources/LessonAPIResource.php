@@ -1,8 +1,6 @@
 <?php
-
 namespace App\Http\Resources;
 
-use App\Models\Instructor;
 use App\Models\Purchase;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,30 +18,30 @@ class LessonAPIResource extends JsonResource
         $purchaseQuantity = Purchase::where('lesson_id', $this->id);
 
         return [
-            "lesson_id" => $this->id,
-            "lesson_name" => $this->lesson_name,
-            "lesson_price" => $this->lesson_price,
-            "lesson_quantity" => $this->lesson_quantity,
-            "required_time" => $this->required_time,
-            "duration" => $this->lesson_duration,
-            "lesson_type" => $this->type,
-            "is_package_lesson" => (bool)$this->is_package_lesson,
-            "payment_method" => $this->payment_method,
-            'totalPurchases' => $purchaseQuantity->count(),
+            "lesson_id"          => $this->id,
+            "lesson_name"        => $this->lesson_name,
+            "lesson_price"       => $this->lesson_price,
+            "lesson_quantity"    => $this->lesson_quantity,
+            "required_time"      => $this->required_time,
+            "duration"           => $this->lesson_duration,
+            "lesson_type"        => $this->type,
+            "is_package_lesson"  => (bool) $this->is_package_lesson,
+            "payment_method"     => $this->payment_method,
+            'totalPurchases'     => $purchaseQuantity->count(),
             'completedPurchases' => $purchaseQuantity->where('status', Purchase::STATUS_COMPLETE)->count(),
-            "instructor" => $this->when(
-                request()->has('include_instructor'),
-                fn() => new InstructorAPIResource(User::find($this->created_by)),
+            "influencer"         => $this->when(
+                request()->has('include_influencer'),
+                fn() => new influencerAPIResource(User::find($this->created_by)),
             ),
-            "logo" => asset('/storage' . '/' . tenant('id') . '/' . $this->logo_image),
-            "banner" => asset('/storage' . '/' . tenant('id') . '/' . $this->banner_image),
+            "logo"               => asset('/storage' . '/' . tenant('id') . '/' . $this->logo_image),
+            "banner"             => asset('/storage' . '/' . tenant('id') . '/' . $this->banner_image),
             "lesson_description" => $this->lesson_description,
-            "slots" => $this->when(
+            "slots"              => $this->when(
                 request()->has('include_slots'),
                 fn() => SlotAPIResource::collection($this->slots),
             ),
-            "max_students" => $this->max_students,
-            "created_at" => $this->created_at,
+            "max_followers"      => $this->max_followers,
+            "created_at"         => $this->created_at,
         ];
     }
 }

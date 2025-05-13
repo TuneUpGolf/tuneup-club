@@ -5,23 +5,27 @@ use App\Actions\SendEmail;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Mail\Admin\WelcomeMailFollower;
-use App\Models\Role;
 use App\Models\Follower;
-use App\Models\User;
+use App\Models\Role;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Services\ChatService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
 {
     use RegistersUsers;
     protected $redirectTo = RouteServiceProvider::HOME;
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function create()
     {
@@ -34,27 +38,37 @@ class RegisteredUserController extends Controller
     public function store(Request $request)
     {
         request()->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
+            'name'     => 'required|max:255',
+            'email'    => 'required|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
         $user = Follower::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'uuid' => Str::uuid(),
-            'password' => Hash::make($request->password),
-            'tenant_id' => tenant('id'),
-            'type' => Role::ROLE_FOLLOWER,
-            'created_by' => 'signup',
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'uuid'              => Str::uuid(),
+            'password'          => Hash::make($request->password),
+            'tenant_id'         => tenant('id'),
+            'type'              => Role::ROLE_FOLLOWER,
+            'created_by'        => 'signup',
             'email_verified_at' => (UtilityFacades::getsettings('email_verification') == '1') ? null : Carbon::now()->toDateTimeString(),
-            'country_code' => $request->country_code,
-            'dial_code' => $request->dial_code,
-            'phone' => str_replace(' ', '', $request->phone),
+            'country_code'      => $request->country_code,
+            'dial_code'         => $request->dial_code,
+            'phone'             => str_replace(' ', '', $request->phone),
             'phone_verified_at' => Carbon::now(),
-            'lang' => 'en',
-            'active_status' => 1
+            'lang'              => 'en',
+            'active_status'     => 1,
         ]);
         $user->assignRole(Role::ROLE_FOLLOWER);
+        $chatUserDetails = $this->chatService->getUserProfile($request->email);
+        if (! empty($chatUserDetails['data'])) {
+            $existingTenantId = $this->chatService->fetchExistingTenantIds($chatUserDetails['data']);
+            $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', $existingTenantId);
+            $user->update([
+                'chat_user_id' => $chatUserDetails['data']['_id'],
+            ]);
+        } else {
+            $this->chatService->createUser($user);
+        }
         SendEmail::dispatch($user->email, new WelcomeMailFollower($user, ''));
 
         // else {

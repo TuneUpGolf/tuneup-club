@@ -1,16 +1,14 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class ReportUser extends Model
 {
     use HasFactory;
 
-    public $table = 'report_user';
+    public $table       = 'report_user';
     protected $fillable = [
         'influencer_id',
         'follower_id',
@@ -25,7 +23,7 @@ class ReportUser extends Model
     {
         return $this->belongsTo(User::class, 'influencer_id');
     }
-    public function student()
+    public function follower()
     {
         return $this->belongsTo(Follower::class);
     }

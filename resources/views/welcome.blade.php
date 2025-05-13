@@ -219,7 +219,7 @@
                                             <i class="ti ti-lock-open"></i>
                                         </div>
                                         {{-- <form method="POST"
-                                            action="https://demo.collegegolfrecruitingportal.com/purchase/post/instructor?post_id=9"
+                                            action="https://demo.collegegolfrecruitingportal.com/purchase/post/influencer?post_id=9"
                                             accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
                                                 type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
 
@@ -274,7 +274,7 @@
         </div>
 
         <p class="mt-3 fot-golf word-spacing-5">
-            Trusted by Industry leading Golf Club, Instructors, Acadmies, and
+            Trusted by Industry leading Golf Club, influencers, Acadmies, and
             Teaching Professionals.
         </p>
     </div>

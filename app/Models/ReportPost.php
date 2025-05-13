@@ -24,7 +24,7 @@ class ReportPost extends Model
     {
         return $this->belongsTo(User::class, 'influencer_id');
     }
-    public function student()
+    public function follower()
     {
         return $this->belongsTo(Follower::class);
     }

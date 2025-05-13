@@ -8,13 +8,13 @@ use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LessonAPIResource;
 use App\Http\Resources\SlotAPIResource;
-use App\Mail\Admin\StudentPaymentLink;
+use App\Mail\Admin\FollowerPaymentLink;
+use App\Models\Follower;
 use App\Models\Influencer;
 use App\Models\Lesson;
 use App\Models\Purchase;
 use App\Models\Role;
 use App\Models\Slots;
-use App\Models\Follower;
 use App\Models\User;
 use App\Traits\PurchaseTrait;
 use Carbon\Carbon;
@@ -46,7 +46,7 @@ class LessonController extends Controller
     public function create()
     {
         if (Auth::user()->can('create-lessons')) {
-            if (Auth::user()->type == 'Admin' || Auth::user()->type == 'Instructor') {
+            if (Auth::user()->type == 'Admin' || Auth::user()->type == 'influencer') {
                 $roles   = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
                 $domains = Domain::pluck('domain', 'domain')->all();
             } else {
@@ -78,22 +78,22 @@ class LessonController extends Controller
             ]);
         }
 
-        // Assuming 'created_by' is the ID of the currently authenticated instructor
+        // Assuming 'created_by' is the ID of the currently authenticated influencer
         $validatedData['created_by']     = Auth::user()->id;
         $validatedData['type']           = $request->type;
         $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
         $validatedData['tenant_id']      = Auth::user()->tenant_id;
         $lesson                          = Lesson::create($validatedData);
-        $students                        = Follower::whereHas('pushToken')
+        $followers                       = Follower::whereHas('pushToken')
             ->with('pushToken')
             ->get()
             ->pluck('pushToken.token')
             ->toArray();
 
-        if (! empty($students)) {
+        if (! empty($followers)) {
             $title = "New Lesson Available!";
             $body  = Auth::user()->name . " has created a new lesson: " . $lesson->lesson_name;
-            SendPushNotification::dispatch($students, $title, $body);
+            SendPushNotification::dispatch($followers, $title, $body);
         }
 
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson created successfully.');
@@ -111,10 +111,10 @@ class LessonController extends Controller
             'required_time'      => 'integer',
             'lesson_duration'    => 'numeric',
             'payment_method'     => 'in:online,cash,both',
-            'max_students'       => 'integer|min:1',
+            'max_followers'      => 'integer|min:1',
         ]);
 
-        // Assuming 'created_by' is the ID of the currently authenticated instructor
+        // Assuming 'created_by' is the ID of the currently authenticated influencer
         $validatedData['created_by'] = Auth::user()->id;
 
         $lesson->update($validatedData);
@@ -162,11 +162,11 @@ class LessonController extends Controller
             $slots          = Slots::where('is_active', true)->get();
             $payment_method = Lesson::find(request()->get('lesson_id'))?->payment_method;
             $events         = [];
-            $instructorId   = request()->get('influencer_id');
+            $influencerId   = request()->get('influencer_id');
 
-            if (! ! $instructorId && $instructorId !== "-1") {
-                $slots = Slots::whereHas('lesson', function ($query) use ($instructorId) {
-                    $query->where('created_by', $instructorId);
+            if (! ! $influencerId && $influencerId !== "-1") {
+                $slots = Slots::whereHas('lesson', function ($query) use ($influencerId) {
+                    $query->where('created_by', $influencerId);
                 })->where('is_active', true)->get();
             }
 
@@ -178,30 +178,30 @@ class LessonController extends Controller
                 $fraction       = $n - $whole;
                 $intervalString = $whole . ' hours' . ' + ' . $fraction * 60 . ' minutes';
 
-                $students = $appointment->student;
-                $colors   = $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
+                $followers = $appointment->follower;
+                $colors    = $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
                     '#f7e50a' : '#0071ce');
                 array_push($events, [
-                    'title'               => substr($appointment->lesson->lesson_name, 0, 10) . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
-                    'start'               => $appointment->date_time,
-                    'end'                 => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
-                    'slot_id'             => $appointment->id,
-                    'color'               => $colors,
-                    'is_completed'        => $appointment->is_completed,
-                    'is_student_assigned' => $students->isNotEmpty(),
-                    'student'             => $students,
-                    'slot'                => $appointment,
-                    'available_seats'     => $appointment->availableSeats(),
-                    'lesson'              => $appointment->lesson,
-                    'instructor'          => $appointment->lesson->user,
-                    'className'           => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
+                    'title'                => substr($appointment->lesson->lesson_name, 0, 10) . ' (' . $appointment->lesson->max_followers - $appointment->availableSeats() . '/' . $appointment->lesson->max_followers . ')',
+                    'start'                => $appointment->date_time,
+                    'end'                  => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
+                    'slot_id'              => $appointment->id,
+                    'color'                => $colors,
+                    'is_completed'         => $appointment->is_completed,
+                    'is_follower_assigned' => $followers->isNotEmpty(),
+                    'follower'             => $followers,
+                    'slot'                 => $appointment,
+                    'available_seats'      => $appointment->availableSeats(),
+                    'lesson'               => $appointment->lesson,
+                    'influencer'           => $appointment->lesson->user,
+                    'className'            => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
                 ]);
             }
 
             $lesson_id   = request()->get('lesson_id');
-            $instructors = User::where('type', Role::ROLE_INFLUENCER)->get();
-            $students    = Follower::where('active_status', true)->where('isGuest', false)->get();
-            return view('admin.lessons.manageSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'instructors', 'students'));
+            $influencers = User::where('type', Role::ROLE_INFLUENCER)->get();
+            $followers   = Follower::where('active_status', true)->where('isGuest', false)->get();
+            return view('admin.lessons.manageSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'influencers', 'followers'));
         }
         if (Auth::user()->type === Role::ROLE_INFLUENCER) {
             $slots = Slots::whereHas('lesson', function ($query) {
@@ -226,30 +226,30 @@ class LessonController extends Controller
                 $fraction       = $n - $whole;
                 $intervalString = $whole . ' hours' . ' + ' . $fraction * 60 . ' minutes';
 
-                $students = $appointment->student;
-                $colors   = $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
+                $followers = $appointment->follower;
+                $colors    = $appointment->is_completed ? '#41d85f' : ($appointment->isFullyBooked() ?
                     '#f7e50a' : '#0071ce');
                 array_push($events, [
-                    'title'               => $appointment->lesson->lesson_name . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
-                    'start'               => $appointment->date_time,
-                    'end'                 => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
-                    'slot_id'             => $appointment->id,
-                    'color'               => $appointment->is_completed ? '#41d85f' : ($students->isNotEmpty() ? '#f7e50a' : '#0071ce'),
-                    'is_completed'        => $appointment->is_completed,
-                    'is_student_assigned' => $students->isNotEmpty(),
-                    'student'             => $students,
-                    'slot'                => $appointment,
-                    'available_seats'     => $appointment->availableSeats(),
-                    'lesson'              => $appointment->lesson,
-                    'instructor'          => $appointment->lesson->user,
-                    'className'           => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
+                    'title'                => $appointment->lesson->lesson_name . ' (' . $appointment->lesson->max_followers - $appointment->availableSeats() . '/' . $appointment->lesson->max_followers . ')',
+                    'start'                => $appointment->date_time,
+                    'end'                  => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
+                    'slot_id'              => $appointment->id,
+                    'color'                => $appointment->is_completed ? '#41d85f' : ($followers->isNotEmpty() ? '#f7e50a' : '#0071ce'),
+                    'is_completed'         => $appointment->is_completed,
+                    'is_follower_assigned' => $followers->isNotEmpty(),
+                    'follower'             => $followers,
+                    'slot'                 => $appointment,
+                    'available_seats'      => $appointment->availableSeats(),
+                    'lesson'               => $appointment->lesson,
+                    'influencer'           => $appointment->lesson->user,
+                    'className'            => ($appointment->is_completed ? 'custom-completed-class' : ($appointment->isFullyBooked() ? 'custom-book-class' : 'custom-available-class')) . ' custom-event-class',
                 ]);
             }
 
             $lesson_id = request()->get('lesson_id');
             $lessons   = Lesson::where('created_by', Auth::user()->id)->where('type', Lesson::LESSON_TYPE_INPERSON)->get();
-            $students  = Follower::where('active_status', true)->where('isGuest', false)->get();
-            return view('admin.lessons.instructorSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'lessons', 'students'));
+            $followers = Follower::where('active_status', true)->where('isGuest', false)->get();
+            return view('admin.lessons.influencerSlots', compact('events', 'lesson_id', 'type', 'payment_method', 'lessons', 'followers'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -277,36 +277,36 @@ class LessonController extends Controller
                 $fraction       = $n - $whole;
                 $intervalString = $whole . ' hours' . ' + ' . $fraction * 60 . ' minutes';
 
-                $students = $appointment->student;
+                $followers = $appointment->follower;
 
                 $colors = $appointment->is_completed ? '#41d85f' : (($type == Role::ROLE_INFLUENCER && $appointment->isFullyBooked() ||
-                    $type == Role::ROLE_FOLLOWER && $students->contains('id', Auth::user()->id)) ?
+                    $type == Role::ROLE_FOLLOWER && $followers->contains('id', Auth::user()->id)) ?
                     '#f7e50a' : '#0071ce');
                 $className = $appointment->is_completed ? 'custom-completed-class' : (($type == Role::ROLE_INFLUENCER && $appointment->isFullyBooked() ||
-                    $type == Role::ROLE_FOLLOWER && $students->contains('id', Auth::user()->id))
+                    $type == Role::ROLE_FOLLOWER && $followers->contains('id', Auth::user()->id))
                     ? 'custom-book-class' : 'custom-available-class') . ' custom-event-class';
 
                 array_push($events, [
-                    'title'               => $appointment->lesson->lesson_name . ' (' . $appointment->lesson->max_students - $appointment->availableSeats() . '/' . $appointment->lesson->max_students . ')',
-                    'start'               => $appointment->date_time,
-                    'end'                 => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
-                    'slot_id'             => $appointment->id,
-                    'color'               => $colors,
-                    'is_completed'        => $appointment->is_completed,
-                    'is_student_assigned' => $students->isNotEmpty(),
-                    'student'             => $students,
-                    'slot'                => $appointment,
-                    'isFullyBooked'       => $appointment->isFullyBooked(),
-                    'available_seats'     => $appointment->availableSeats(),
-                    'instructor'          => $appointment->lesson->user,
-                    'className'           => $className,
+                    'title'                => $appointment->lesson->lesson_name . ' (' . $appointment->lesson->max_followers - $appointment->availableSeats() . '/' . $appointment->lesson->max_followers . ')',
+                    'start'                => $appointment->date_time,
+                    'end'                  => date("Y-m-d H:i:s", strtotime($appointment->date_time . " +" . $intervalString)),
+                    'slot_id'              => $appointment->id,
+                    'color'                => $colors,
+                    'is_completed'         => $appointment->is_completed,
+                    'is_follower_assigned' => $followers->isNotEmpty(),
+                    'follower'             => $followers,
+                    'slot'                 => $appointment,
+                    'isFullyBooked'        => $appointment->isFullyBooked(),
+                    'available_seats'      => $appointment->availableSeats(),
+                    'influencer'           => $appointment->lesson->user,
+                    'className'            => $className,
                 ]);
             }
 
             $lesson_id = request()->get('lesson_id');
             $authId    = Auth::user()->id;
-            $students  = Follower::where('active_status', true)->where('isGuest', false)->get();
-            return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'students', 'lesson'));
+            $followers = Follower::where('active_status', true)->where('isGuest', false)->get();
+            return view('admin.lessons.viewSlots', compact('events', 'lesson_id', 'type', 'authId', 'followers', 'lesson'));
         }
     }
 
@@ -328,7 +328,7 @@ class LessonController extends Controller
                     'type'               => ['required', 'in:online,inPerson'],
                     'payment_method'     => ['required', 'in:online,cash,both'],
                     'slots'              => 'array',
-                    'max_students'       => 'integer|min:1',
+                    'max_followers'      => 'integer|min:1',
                     'is_package_lesson'  => 'boolean',
                 ]);
 
@@ -339,8 +339,8 @@ class LessonController extends Controller
                     $validatedData['lesson_quantity'] = 1;
                     $validatedData['required_time']   = 0;
 
-                    if (empty($validatedData['max_students'])) {
-                        $validatedData['max_students'] = 1;
+                    if (empty($validatedData['max_followers'])) {
+                        $validatedData['max_followers'] = 1;
                     }
 
                     if (! empty($validatedData['is_package_lesson'])) {
@@ -354,16 +354,16 @@ class LessonController extends Controller
                         Slots::create(['lesson_id' => $lesson->id, 'date_time' => Carbon::parse($slot)]);
                     }
                 }
-                $students = Follower::whereHas('pushToken')
+                $followers = Follower::whereHas('pushToken')
                     ->with('pushToken')
                     ->get()
                     ->pluck('pushToken.token')
                     ->toArray();
 
-                if (! empty($students)) {
+                if (! empty($followers)) {
                     $title = "New Lesson Available!";
                     $body  = Auth::user()->name . " has created a new lesson: " . $lesson->lesson_name;
-                    SendPushNotification::dispatch($students, $title, $body);
+                    SendPushNotification::dispatch($followers, $title, $body);
                 }
             } catch (\Exception $e) {
                 return throw new Exception($e->getMessage());
@@ -386,7 +386,7 @@ class LessonController extends Controller
             'lesson_duration'      => 'numeric|between:0,99.99',
             'required_time'        => 'integer',
             'detailed_description' => 'string',
-            'max_students'         => 'integer|min:1',
+            'max_followers'        => 'integer|min:1',
         ]);
 
         if (Auth::user()->type == Role::ROLE_INFLUENCER && Auth::user()->active_status == 1) {
@@ -520,16 +520,16 @@ class LessonController extends Controller
             }
 
             // Send push notifications for new lessons
-            $students = Follower::whereHas('pushToken')
+            $followers = Follower::whereHas('pushToken')
                 ->with('pushToken')
                 ->get()
                 ->pluck('pushToken.token')
                 ->toArray();
 
-            if (! empty($students)) {
+            if (! empty($followers)) {
                 $title = "New Lessons Available!";
                 $body  = "{$lesson->user->name} has created new lesson opportunities: {$lesson->lesson_name}. Check now!";
-                SendPushNotification::dispatch($students, $title, $body);
+                SendPushNotification::dispatch($followers, $title, $body);
             }
 
             // Return based on redirect parameter
@@ -554,16 +554,16 @@ class LessonController extends Controller
                 'slot_id' => 'required',
             ]);
 
-            $slot       = Slots::where('id', $request->slot_id)->first();
-            $studentIds = [];
+            $slot        = Slots::where('id', $request->slot_id)->first();
+            $followerIds = [];
 
             if ($request->isGuest != "false") {
                 // Check if a guest with the same email already exists
                 $existingGuest = Follower::where('email', $request->guestEmail)->first();
 
                 if ($existingGuest) {
-                    // Guest already exists, use existing student ID
-                    $studentIds[] = $existingGuest->id;
+                    // Guest already exists, use existing follower ID
+                    $followerIds[] = $existingGuest->id;
                 } else {
                     // Create a new guest
                     $randomPassword = Str::random(10);
@@ -582,22 +582,22 @@ class LessonController extends Controller
 
                     $user = Follower::create($userData);
                     $user->assignRole(Role::ROLE_FOLLOWER);
-                    $studentIds[] = $user->id;
+                    $followerIds[] = $user->id;
                 }
             } else {
-                // If not a guest, use provided student IDs
-                $studentIds = $request->get('follower_Ids', []);
+                // If not a guest, use provided follower IDs
+                $followerIds = $request->get('follower_Ids', []);
             }
 
-            $alreadyBookedStudents = $slot->student()->pluck('students.id')->toArray();
-            $newStudentIds         = array_diff($studentIds, $alreadyBookedStudents);
+            $alreadyBookedFollowers = $slot->follower()->pluck('followers.id')->toArray();
+            $newFollowerIds         = array_diff($followerIds, $alreadyBookedFollowers);
 
-            if (! empty($newStudentIds)) {
-                $slot->student()->attach($newStudentIds);
+            if (! empty($newFollowerIds)) {
+                $slot->follower()->attach($newFollowerIds);
 
-                foreach ($newStudentIds as $studentId) {
+                foreach ($newFollowerIds as $followerId) {
                     Purchase::create([
-                        'follower_id'    => $studentId,
+                        'follower_id'   => $followerId,
                         'influencer_id' => $slot->lesson->created_by,
                         'lesson_id'     => $slot->lesson_id,
                         'slot_id'       => $slot->id,
@@ -608,12 +608,12 @@ class LessonController extends Controller
                         'lessons_used'  => 0,
                     ]);
 
-                    // Send notification for each new student
+                    // Send notification for each new follower
                     $this->sendSlotNotification(
                         $slot,
                         'Slot Booked',
-                        'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
-                        'A slot has been booked for :date with student ID ' . $studentId . ' for the in-person lesson :lesson.'
+                        'A slot has been booked for :date with :influencer for the in-person lesson :lesson.',
+                        'A slot has been booked for :date with follower ID ' . $followerId . ' for the in-person lesson :lesson.'
                     );
                 }
             }
@@ -638,27 +638,27 @@ class LessonController extends Controller
 
             request()->validate([
                 'slot_id'        => 'required|exists:slots,id',
-                'follower_ids'    => 'array',
-                'follower_ids.*'  => 'integer|exists:students,id',
+                'follower_ids'   => 'array',
+                'follower_ids.*' => 'integer|exists:followers,id',
                 'friend_names'   => 'array',
                 'friend_names.*' => 'string|max:255',
             ]);
 
             // Convert JSON string to array (just in case)
 
-            $slot = Slots::with('lesson', 'student')->findOrFail(request()->slot_id);
+            $slot = Slots::with('lesson', 'follower')->findOrFail(request()->slot_id);
 
             if (Auth::user()->type == Role::ROLE_FOLLOWER && Auth::user()->active_status == 1 && ! ! $slot) {
 
-                return $this->handleStudentBookingAPI($slot);
+                return $this->handleFollowerBookingAPI($slot);
             }
 
             if (Auth::user()->type == Role::ROLE_INFLUENCER && Auth::user()->active_status == 1 && ! ! $slot && $slot->lesson->created_by == Auth::user()->id) {
                 if ($slot->lesson->is_package_lesson) {
-                    return request()->redirect == 1 ? redirect()->back()->with('errors', 'Instructors cannot book package lesson slots') :
-                    response()->json(['error' => 'Instructors cannot book package lesson slots.'], 422);
+                    return request()->redirect == 1 ? redirect()->back()->with('errors', 'Influencer cannot book package lesson slots') :
+                    response()->json(['error' => 'Influencers cannot book package lesson slots.'], 422);
                 }
-                return $this->handleInstructorBookingAPI($slot);
+                return $this->handleInfluencerBookingAPI($slot);
             }
 
             return response('Unauthorized', 401);
@@ -667,10 +667,10 @@ class LessonController extends Controller
         }
     }
 
-    private function handleStudentBookingAPI($slot)
+    private function handleFollowerBookingAPI($slot)
     {
 
-        $bookingStudentId = Auth::user()->id;
+        $bookingFollowerId = Auth::user()->id;
 
         $friendNames = request()->friend_names ?? [];
         if (! is_array($friendNames)) {
@@ -678,24 +678,24 @@ class LessonController extends Controller
         }
         $totalNewBookings = count($friendNames) + 1;
 
-        if ($slot->student()->count() + $totalNewBookings > $slot->lesson->max_students) {
+        if ($slot->follower()->count() + $totalNewBookings > $slot->lesson->max_followers) {
             return request()->redirect == 1
             ? redirect()->back()->with('error', 'Sorry, the number of booked slots exceeds the limit.')
             : response()->json(['error' => 'Sorry, the number of booked slots exceeds the limit.'], 422);
         }
 
-        if ($slot->student()->where('students.id', $bookingStudentId)->exists()) {
+        if ($slot->follower()->where('followers.id', $bookingFollowerId)->exists()) {
             return request()->redirect == 1
             ? redirect()->back()->with('error', 'You have already booked this slot')
             : response()->json(['error' => 'You have already booked this slot.'], 422);
         }
 
-        // Calculate total price for student and friends
+        // Calculate total price for follower and friends
         $totalAmount = $slot->lesson->lesson_price * $totalNewBookings;
 
         // Create purchase entry
         $newPurchase = new Purchase([
-            'follower_id'    => $bookingStudentId,
+            'follower_id'   => $bookingFollowerId,
             'influencer_id' => $slot->lesson->created_by,
             'lesson_id'     => $slot->lesson_id,
             'slot_id'       => $slot->id,
@@ -716,8 +716,8 @@ class LessonController extends Controller
             $this->confirmPurchaseWithRedirect(request(), true);
         }
 
-        // Attach main student to the slot
-        $slot->student()->attach($bookingStudentId, [
+        // Attach main follower to the slot
+        $slot->follower()->attach($bookingFollowerId, [
             'isFriend'    => false,
             'friend_name' => null,
             'created_at'  => now(),
@@ -726,7 +726,7 @@ class LessonController extends Controller
 
         // Attach friends to the slot
         foreach ($friendNames as $friendName) {
-            $slot->student()->attach($bookingStudentId, [
+            $slot->follower()->attach($bookingFollowerId, [
                 'isFriend'    => true,
                 'friend_name' => $friendName,
                 'created_at'  => now(),
@@ -738,8 +738,8 @@ class LessonController extends Controller
         $this->sendSlotNotification(
             $slot,
             'Slot Booked',
-            'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
-            'A slot has been booked for :date with :student for the in-person lesson :lesson.'
+            'A slot has been booked for :date with :influencer for the in-person lesson :lesson.',
+            'A slot has been booked for :date with :follower for the in-person lesson :lesson.'
         );
 
         return false
@@ -751,29 +751,29 @@ class LessonController extends Controller
         ], 200);
     }
 
-    private function handleInstructorBookingAPI($slot)
+    private function handleInfluencerBookingAPI($slot)
     {
-        $studentIds = request()->input('follower_ids', []);
+        $followerIds = request()->input('follower_ids', []);
 
-        if (empty($studentIds)) {
-            return response()->json(['error' => 'At least one student ID is required for instructor booking.'], 422);
+        if (empty($followerIds)) {
+            return response()->json(['error' => 'At least one follower ID is required for influencer booking.'], 422);
         }
 
-        $alreadyBookedStudents = $slot->student()->whereIn('students.id', $studentIds)->pluck('students.id')->toArray();
-        $studentsToBook        = array_diff($studentIds, $alreadyBookedStudents);
+        $alreadyBookedFollowers = $slot->follower()->whereIn('followers.id', $followerIds)->pluck('followers.id')->toArray();
+        $followersToBook        = array_diff($followerIds, $alreadyBookedFollowers);
 
-        if (empty($studentsToBook)) {
-            return response()->json(['error' => 'All selected students have already booked this slot.'], 422);
+        if (empty($followersToBook)) {
+            return response()->json(['error' => 'All selected followers have already booked this slot.'], 422);
         }
 
-        if ($slot->student()->count() + count($studentsToBook) > $slot->lesson->max_students) {
+        if ($slot->follower()->count() + count($followersToBook) > $slot->lesson->max_followers) {
             throw new \Exception('Sorry, the number of booked slots exceeds the limit.');
         }
 
-        foreach ($studentsToBook as $studentId) {
-            $slot->student()->attach($studentId);
+        foreach ($followersToBook as $followerId) {
+            $slot->follower()->attach($followerId);
             Purchase::create([
-                'follower_id'    => $studentId,
+                'follower_id'   => $followerId,
                 'influencer_id' => $slot->lesson->created_by,
                 'lesson_id'     => $slot->lesson_id,
                 'slot_id'       => $slot->id,
@@ -788,13 +788,13 @@ class LessonController extends Controller
         $this->sendSlotNotification(
             $slot,
             'Slot Booked',
-            'A slot has been booked for :date with :instructor for the in-person lesson :lesson.',
-            'A slot has been booked for :date with :student for the in-person lesson :lesson.'
+            'A slot has been booked for :date with :influencer for the in-person lesson :lesson.',
+            'A slot has been booked for :date with :follower for the in-person lesson :lesson.'
         );
 
         return request()->redirect == 1
         ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
-        : response()->json(['message' => 'Slot successfully booked for students.', 'slot' => new SlotAPIResource($slot)], 200);
+        : response()->json(['message' => 'Slot successfully booked for followers.', 'slot' => new SlotAPIResource($slot)], 200);
     }
 
     public function completeSlot()
@@ -814,7 +814,7 @@ class LessonController extends Controller
                 : response()->json(['error' => 'Unauthorized'], 403);
             }
 
-            $students = $slot->student;
+            $followers = $slot->follower;
 
             if ($slot->lesson->is_package_lesson) {
                 $hasIncompletePurchases = Purchase::where('slot_id', $slot->id)
@@ -838,24 +838,24 @@ class LessonController extends Controller
             }
 
             if (($slot->lesson->payment_method === Lesson::LESSON_PAYMENT_BOTH && request()->payment_method === Lesson::LESSON_PAYMENT_CASH)
-                || $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_CASH || $students->isEmpty()
+                || $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_CASH || $followers->isEmpty()
             ) {
                 $slot->is_completed = true;
                 $slot->save();
                 $this->sendSlotNotification(
                     $slot,
                     'Slot Completed',
-                    'Your Slot with :instructor for the in-person lesson :lesson at :date has been completed.',
+                    'Your Slot with :influencer for the in-person lesson :lesson at :date has been completed.',
                     'Your Slot for the in-person lesson :lesson at :date has been completed.'
                 );
             }
 
-            foreach ($students as $student) {
-                if ((bool) $student->pivot->isFriend) {
+            foreach ($followers as $follower) {
+                if ((bool) $follower->pivot->isFriend) {
                     continue;
                 }
 
-                $purchase = Purchase::where('follower_id', $student->id)
+                $purchase = Purchase::where('follower_id', $follower->id)
                     ->where('slot_id', $slot->id)
                     ->first();
 
@@ -869,7 +869,7 @@ class LessonController extends Controller
                     $session    = $this->createSessionForPayment($purchase, false, $slot->id);
                     $response   = redirect()->route('slot.manage', ['lesson_id' => $purchase->lesson_id]);
                     $sessionUrl = $response->getTargetUrl();
-                    SendEmail::dispatch($student->email, new StudentPaymentLink($purchase, $sessionUrl));
+                    SendEmail::dispatch($follower->email, new FollowerPaymentLink($purchase, $sessionUrl));
                 } else {
                     $purchase->status             = Purchase::STATUS_COMPLETE;
                     $purchase->isFeedbackComplete = true;
@@ -880,10 +880,10 @@ class LessonController extends Controller
                 || $slot->lesson->payment_method === Lesson::LESSON_PAYMENT_ONLINE
             ) {
                 if (request()->get('redirect') == 1) {
-                    return redirect()->back()->with('success', 'Checkout link sent to all booked students via email, slot will complete once all payments are complete.');
+                    return redirect()->back()->with('success', 'Checkout link sent to all booked followers via email, slot will complete once all payments are complete.');
                 }
 
-                return response()->json(['message' => 'Checkout link sent to all booked students via email, slot will complete once all payments are complete.']);
+                return response()->json(['message' => 'Checkout link sent to all booked followers via email, slot will complete once all payments are complete.']);
             }
             if (request()->get('redirect') == 1) {
                 return redirect()->back()->with('success', 'Slot Successfully Completed.');
@@ -914,7 +914,7 @@ class LessonController extends Controller
                 ->where('lesson_id', $request->lesson_id)
                 ->where(function ($query) use ($now) {
                     $query->whereDate('date_time', '>=', $now->toDateString()) // Future slots including today
-                        ->orWhereHas('student');                                   // Include past slots that are booked
+                        ->orWhereHas('follower');                                  // Include past slots that are booked
                 })
                 ->orderBy('date_time') // Order by date_time
                 ->get();
@@ -925,7 +925,7 @@ class LessonController extends Controller
         }
     }
 
-    public function getAllSlotsInstructor(Request $request)
+    public function getAllSlotsInfluencer(Request $request)
     {
         try {
             $validatedData = $request->validate([
@@ -955,13 +955,13 @@ class LessonController extends Controller
                     $query->whereDate('date_time', '>=', $today)
                         ->orWhere(function ($q) use ($today) {
                             $q->whereDate('date_time', '<', $today)
-                                ->whereHas('student');
+                                ->whereHas('follower');
                         });
                 })
                 ->orderBy('date_time', 'asc')
                 ->get();
 
-            $slots->load('lesson', 'student');
+            $slots->load('lesson', 'follower');
 
             return response()->json([
                 'slots' => SlotAPIResource::collection($slots),
@@ -976,15 +976,15 @@ class LessonController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'slot_id'       => 'required|integer',
-                'date_time'     => 'date',
-                'location'      => 'string',
-                'is_completed'  => 'boolean',
-                'is_active'     => 'boolean',
-                'cancelled'     => 'boolean',
-                'unbook'        => 'boolean',
+                'slot_id'        => 'required|integer',
+                'date_time'      => 'date',
+                'location'       => 'string',
+                'is_completed'   => 'boolean',
+                'is_active'      => 'boolean',
+                'cancelled'      => 'boolean',
+                'unbook'         => 'boolean',
                 'follower_ids'   => 'array',
-                'follower_ids.*' => 'integer|exists:students,id',
+                'follower_ids.*' => 'integer|exists:followers,id',
             ]);
 
             $slot = Slots::find($request->slot_id);
@@ -994,9 +994,9 @@ class LessonController extends Controller
             }
 
             $user                = Auth::user();
-            $isInstructorOrAdmin = ($user->type === Role::ROLE_INFLUENCER && $slot->lesson->created_by === $user->id) || $user->type === Role::ROLE_ADMIN;
+            $isInfluencerOrAdmin = ($user->type === Role::ROLE_INFLUENCER && $slot->lesson->created_by === $user->id) || $user->type === Role::ROLE_ADMIN;
 
-            if ($isInstructorOrAdmin) {
+            if ($isInfluencerOrAdmin) {
                 $slot->update($validatedData);
 
                 if ($slot->cancelled) {
@@ -1005,39 +1005,39 @@ class LessonController extends Controller
                     $this->sendSlotNotification(
                         $slot,
                         'Slot Cancelled',
-                        'Your Slot with :instructor for the in-person lesson :lesson scheduled on :date has been cancelled.',
+                        'Your Slot with :influencer for the in-person lesson :lesson scheduled on :date has been cancelled.',
                         'Your Slot for the in-person lesson :lesson scheduled on :date has been cancelled.'
                     );
                 }
 
                 if ($request->unbook == '1' && $request->filled('follower_ids')) {
-                    $unbookedStudents = $slot->student()->whereIn('students.id', $request->follower_ids)->get();
-                    $slot->student()->detach($request->follower_ids);
+                    $unbookedFollowers = $slot->follower()->whereIn('followers.id', $request->follower_ids)->get();
+                    $slot->follower()->detach($request->follower_ids);
 
-                    foreach ($unbookedStudents as $student) {
-                        Purchase::where('slot_id', $slot->id)->where('follower_id', $student->id)->delete();
-                        if (! $student->pivot->isFriend) {
+                    foreach ($unbookedFollowers as $follower) {
+                        Purchase::where('slot_id', $slot->id)->where('follower_id', $follower->id)->delete();
+                        if (! $follower->pivot->isFriend) {
                             $this->sendSlotNotification(
                                 $slot,
                                 'Slot Unbooked',
                                 ':name has cancelled your lesson.',
-                                null,    // No instructor notification needed
-                                $student // Send notification only to this student
+                                null,     // No influencer notification needed
+                                $follower // Send notification only to this follower
                             );
                         }
 
                     }
                 }
 
-                $changes     = $slot->getChanges();
-                $hasStudents = $slot->student()->exists();
+                $changes      = $slot->getChanges();
+                $hasFollowers = $slot->follower()->exists();
 
                 // Send Reschedule Notification
-                if (isset($changes['date_time']) && $slot->is_active && $hasStudents) {
+                if (isset($changes['date_time']) && $slot->is_active && $hasFollowers) {
                     $this->sendSlotNotification(
                         $slot,
                         'Slot Rescheduled',
-                        'Your Slot with :instructor for the in-person lesson :lesson has been rescheduled to :date.',
+                        'Your Slot with :influencer for the in-person lesson :lesson has been rescheduled to :date.',
                         'Your Slot for the in-person lesson :lesson has been rescheduled to :date.'
                     );
                 }
@@ -1048,9 +1048,9 @@ class LessonController extends Controller
                 return response()->json(new SlotAPIResource($slot), 200);
             }
 
-            // // If the user is a student and is unbooking themselves
+            // // If the user is a follower and is unbooking themselves
             if ($slot->follower->contains($user->id)) {
-                $slot->student()->detach($user->id);
+                $slot->follower()->detach($user->id);
                 Purchase::where('slot_id', $slot->id)->where('follower_id', $user->id)->delete();
                 $this->sendSlotNotification(
                     $slot,
@@ -1071,15 +1071,15 @@ class LessonController extends Controller
         }
     }
 
-    public function getAllByInstructor(Request $request)
+    public function getAllByInfluencer(Request $request)
     {
         $request->validate([
             'influencer_id' => 'required',
         ]);
-        $instructor = User::where('type', Role::ROLE_INFLUENCER)->find($request?->influencer_id);
-        if ($instructor && Auth::user->can('manage-lessons')) {
+        $influencer = User::where('type', Role::ROLE_INFLUENCER)->find($request?->influencer_id);
+        if ($influencer && Auth::user->can('manage-lessons')) {
             try {
-                return Lesson::where('created_by', $instructor?->id);
+                return Lesson::where('created_by', $influencer?->id);
             } catch (\Exception $e) {
                 return redirect()->back()->with('errors', $e->getMessage());
             }
@@ -1102,7 +1102,7 @@ class LessonController extends Controller
         }
     }
 
-    public function getInstructorAll()
+    public function getInfluencerAll()
     {
         request()->validate([
             'id' => 'required',
@@ -1119,11 +1119,11 @@ class LessonController extends Controller
     }
 
     // Other CRUD methods (edit, update, delete, etc.) go here
-    public function showByInstructor($instructorId)
+    public function showByInfluencer($influencerId)
     {
-        $instructor = Influencer::findOrFail($instructorId);
-        $lessons    = $instructor->lessons;
-        return view('lessons.instructor_lessons', compact('lessons')); // Assuming you have a view named 'lessons.instructor_lessons'
+        $influencer = Influencer::findOrFail($influencerId);
+        $lessons    = $influencer->lessons;
+        return view('lessons.influencer_lessons', compact('lessons')); // Assuming you have a view named 'lessons.influencer_lessons'
     }
     public function destroy($lessonId)
     {

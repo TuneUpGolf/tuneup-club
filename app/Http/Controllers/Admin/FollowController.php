@@ -17,7 +17,7 @@ use Stripe\StripeClient;
 
 class FollowController extends Controller
 {
-    public function followInstructorApi(Request $request)
+    public function followInfluencerApi(Request $request)
     {
         $request->validate([
             'influencer_id' => 'required',
@@ -25,30 +25,30 @@ class FollowController extends Controller
 
         try {
 
-            $instructorId = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->first()?->id;
+            $influencerId = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->first()?->id;
 
-            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::FOLLOW)->where('influencer_id', $instructorId)->exists()) {
-                return response()->json(['message' => 'Student already follows this instructor'], 422);
+            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::FOLLOW)->where('influencer_id', $influencerId)->exists()) {
+                return response()->json(['message' => 'Follower already follows this influencer'], 422);
             }
 
-            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::SUBSCRIPTION)->where('influencer_id', $instructorId)->exists()) {
-                return response()->json(['message' => 'Student is already subscribed to this instructor'], 422);
+            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::SUBSCRIPTION)->where('influencer_id', $influencerId)->exists()) {
+                return response()->json(['message' => 'Follower is already subscribed to this influencer'], 422);
             }
 
             Follow::create([
                 'follower_id' => Auth::user()->id,
-                'influencer_id' => $instructorId,
+                'influencer_id' => $influencerId,
                 'isPaid' => 0,
                 'active_status' => 1,
             ]);
 
-            return response()->json(['message' => 'Student is now following the instructor'], 200);
+            return response()->json(['message' => 'Follower is now following the influencer'], 200);
         } catch (Error $e) {
             return response($e, 419);
         }
     }
 
-    public function followInstructor(Request $request)
+    public function followInfluencer(Request $request)
     {
         $request->validate([
             'influencer_id' => 'required',
@@ -56,13 +56,13 @@ class FollowController extends Controller
 
         try {
 
-            $instructorId = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->first()?->id;
+            $influencerId = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->first()?->id;
 
             if ($request?->follow === "follow") {
                 Follow::updateOrCreate(
                     [
                         'follower_id'    => Auth::user()->id,
-                        'influencer_id' => $instructorId,
+                        'influencer_id' => $influencerId,
                     ],
                     [
                         'active_status' => true,
@@ -73,16 +73,16 @@ class FollowController extends Controller
                 Follow::updateOrCreate(
                     [
                         'follower_id'    => Auth::user()->id,
-                        'influencer_id' => $instructorId,
+                        'influencer_id' => $influencerId,
                     ],
                     [
                         'active_status' => false,
                         'isPaid'        => false,
                     ]
                 );
-                return redirect()->back()->with('success', __('Instructor successfully unfollowed'));
+                return redirect()->back()->with('success', __('Influencer successfully unfollowed'));
             }
-            return redirect()->back()->with('success', __('Instructor successfully followed'));
+            return redirect()->back()->with('success', __('Influencer successfully followed'));
         } catch (Error $e) {
             return response($e, 419);
         }
@@ -94,12 +94,12 @@ class FollowController extends Controller
             'influencer_id' => 'required',
         ]);
         try {
-            $instructor = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->where('active_status', true)->first();
-            if (isset($instructor)) {
+            $influencer = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->where('active_status', true)->first();
+            if (isset($influencer)) {
                 $follow = Follow::firstOrCreate(
                     [
                         'follower_id'    => Auth::user()->id,
-                        'influencer_id' => $instructor->id,
+                        'influencer_id' => $influencer->id,
                     ],
                     [
                         'isPaid'        => false,
@@ -114,10 +114,10 @@ class FollowController extends Controller
                                 'price_data'    => [
                                     'currency'      => config('services.stripe.currency'),
                                     'product_data'  => [
-                                        'name'      => "$instructor->name",
+                                        'name'      => "$influencer->name",
                                     ],
                                     'recurring' => ['interval' => 'month'],
-                                    'unit_amount'   => $instructor->sub_price * 100,
+                                    'unit_amount'   => $influencer->sub_price * 100,
                                 ],
                                 'quantity'      => 1,
                             ]],
@@ -145,7 +145,7 @@ class FollowController extends Controller
                     if ($subscription->status === 'canceled') {
                         $follow->isPaid = false;
                         $follow->save();
-                        return redirect()->back()->with('success', __('Instructor Successfully Unsubscribed'));
+                        return redirect()->back()->with('success', __('Influencer Successfully Unsubscribed'));
                     }
                 }
             } else {
@@ -168,9 +168,9 @@ class FollowController extends Controller
                     $follow->isPaid = true;
                     $follow->subscription_id = $session->subscription;
                     $follow->save();
-                    $student = Follower::find($request->query('follower_id'));
-                    $student->stripe_cus_id = $session->customer;
-                    $student->save();
+                    $follower = Follower::find($request->query('follower_id'));
+                    $follower->stripe_cus_id = $session->customer;
+                    $follower->save();
                 }
                 if ($request->redirect == 1) {
                     return response('Subscription Successfully Started');
@@ -194,73 +194,73 @@ class FollowController extends Controller
         }
     }
 
-    public function unfollowInstructor(Request $request)
+    public function unfollowInfluencer(Request $request)
     {
         $request->validate([
             'influencer_id' => 'required',
         ]);
         try {
-            $studentId    = Auth::user()->id;
-            $instructorId = $request?->influencer_id;
+            $followerId    = Auth::user()->id;
+            $influencerId = $request?->influencer_id;
 
-            Follow::where('follower_id', $studentId)->where('influencer_id', $instructorId)->delete();
+            Follow::where('follower_id', $followerId)->where('influencer_id', $influencerId)->delete();
 
-            return response()->json(['message' => 'Student has unfollowed the instructor'], 200);
+            return response()->json(['message' => 'Follower has unfollowed the influencer'], 200);
         } catch (Error $e) {
             return response($e->getMessage(), 419);
         }
     }
 
-    public function getInstructors()
+    public function getInfluencers()
     {
         try {
-            $studentId = Auth::user()->id;
-            return  Follow::where('follower_id', $studentId)->get();
+            $followerId = Auth::user()->id;
+            return  Follow::where('follower_id', $followerId)->get();
         } catch (Error $e) {
             return response($e, 419);
         }
     }
 
-    public function subscribeInstructor(Request $request)
+    public function subscribeInfluencer(Request $request)
     {
         $request->validate([
             'influencer_id' => 'required',
         ]);
 
-        $instructorId = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->first()?->id;
+        $influencerId = User::where('type', Role::ROLE_INFLUENCER)->where('id', $request?->influencer_id)->first()?->id;
 
         try {
-            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::FOLLOW)->where('influencer_id', $instructorId)->exists()) {
-                $follow           = Follow::where('follower_id', Auth::user()->id)->where('influencer_id', $instructorId)->first();
+            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::FOLLOW)->where('influencer_id', $influencerId)->exists()) {
+                $follow           = Follow::where('follower_id', Auth::user()->id)->where('influencer_id', $influencerId)->first();
                 $follow['isPaid'] = Follow::SUBSCRIPTION;
                 $follow->update();
-                return response()->json(['message' => 'Student is now subscribed to this instructor'], 200);
+                return response()->json(['message' => 'Follower is now subscribed to this influencer'], 200);
             }
-            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::SUBSCRIPTION)->where('influencer_id', $instructorId)->exists()) {
-                return response()->json(['message' => 'Student is already subscribed to this instructor'], 422);
+            if (Follow::where('follower_id', Auth::user()->id)->where('isPaid', Follow::SUBSCRIPTION)->where('influencer_id', $influencerId)->exists()) {
+                return response()->json(['message' => 'Follower is already subscribed to this influencer'], 422);
             }
             Follow::create([
                 'follower_id'    => Auth::user()->id,
-                'influencer_id' => $instructorId,
+                'influencer_id' => $influencerId,
                 'isPaid'        => Follow::SUBSCRIPTION,
             ]);
-            return response()->json(['message' => 'Student is now subscribed to this instructor'], 200);
+            return response()->json(['message' => 'Follower is now subscribed to this influencer'], 200);
         } catch (Error $e) {
             return response($e, 419);
         }
     }
 
-    public function getSubscribedInstructors()
+    public function getSubscribedInfluencer()
     {
         try {
-            $studentId = Auth::user()->id;
-            return  Follow::where('follower_id', $studentId)->where('isPaid', Follow::SUBSCRIPTION)->get();
+            $followerId = Auth::user()->id;
+            return  Follow::where('follower_id', $followerId)->where('isPaid', Follow::SUBSCRIPTION)->get();
         } catch (Error $e) {
             return response($e, 419);
         }
     }
 
-    public function getStudents()
+    public function getFollowers()
     {
         try {
             if (Auth::user()->type === Role::ROLE_INFLUENCER && Auth::user()->active_status == 1) {

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +8,7 @@ class LikePost extends Model
 {
     use HasFactory;
 
-    public $table = 'like_posts';
+    public $table       = 'like_posts';
     protected $fillable = [
         'influencer_id',
         'follower_id',
@@ -25,7 +24,7 @@ class LikePost extends Model
     {
         return $this->belongsTo(User::class, 'influencer_id');
     }
-    public function student()
+    public function follower()
     {
         return $this->belongsTo(Follower::class);
     }

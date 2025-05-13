@@ -20,10 +20,10 @@ class SubscriptionsDataTable extends DataTable
             ->eloquent($query)
             ->addIndexColumn()
             ->editColumn('influencer_id', function (Follow $follow) {
-                return $follow->instructor->name;
+                return $follow->influencer->name;
             })
             ->editColumn('sub_price', function (Follow $follow) {
-                return '$' . $follow->instructor->sub_price;
+                return '$' . $follow->influencer->sub_price;
             })
             ->editColumn('billing_date', function (Follow $follow) {
                 return UtilityFacades::date_time_format($follow->updated_at);

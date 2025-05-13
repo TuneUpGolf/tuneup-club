@@ -28,7 +28,7 @@
                         <a class="nav-item nav-link item-custom anker" href="/" aria-current="page">Why
                             TuneUp?</a>
                         <a class="nav-item nav-link item-custom anker" href="./Course.html">Golf Course Benefits</a>
-                        <a class="nav-item nav-link item-custom anker" href="./Instructor.html">Instructors</a>
+                        <a class="nav-item nav-link item-custom anker" href="./influencer.html">influencers</a>
                         <a class="nav-item nav-link item-custom anker" href="./Golfer.html">Golfers</a>
                         <!-- <a class="nav-item nav-link  item-custom anker" href="./">Our Partners</a> -->
                         <a class="nav-item nav-link item-custom anker" href="./About.html">About Us</a>

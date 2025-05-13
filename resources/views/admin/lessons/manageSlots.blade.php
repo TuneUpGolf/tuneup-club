@@ -15,12 +15,12 @@
                             <form>
                                 <select name="influencer_id" id="influencer_id" class="form-select w-full"
                                     onchange="this.form.submit()">
-                                    <option value="" disabled selected>Select Instructor</option>
+                                    <option value="" disabled selected>Select influencer</option>
                                     <option value="-1">All</option>
-                                    @foreach ($instructors as $instructor)
-                                        <option value="{{ $instructor->id }}"
-                                            {{ request()->input('influencer_id') == $instructor->id ? 'selected' : '' }}>
-                                            {{ ucfirst($instructor->name) }}</option>
+                                    @foreach ($influencers as $influencer)
+                                        <option value="{{ $influencer->id }}"
+                                            {{ request()->input('influencer_id') == $influencer->id ? 'selected' : '' }}>
+                                            {{ ucfirst($influencer->name) }}</option>
                                     @endforeach
                                 </select>
                             </form>
@@ -77,7 +77,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var type = @json($type);
-        var students = @json($students);
+        var followers = @json($followers);
         var payment_method = @json($payment_method);
         var isMobile = window.innerWidth <= 768;
         var initialCalendarView = isMobile ? 'listWeek' : 'timeGridWeek';
@@ -89,13 +89,13 @@
             events: @json($events),
             eventClick: function(info) {
                 const slot_id = info?.event?.extendedProps?.slot_id;
-                const isBooked = !!info?.event?.extendedProps?.is_student_assigned;
+                const isBooked = !!info?.event?.extendedProps?.is_follower_assigned;
                 const isCompleted = !!info.event?.extendedProps?.is_completed;
                 const slot = info.event.extendedProps.slot;
                 const availableSeats = info.event.extendedProps.available_seats;
-                const student = info.event.extendedProps.student;
+                const follower = info.event.extendedProps.follower;
                 const lesson = info.event.extendedProps.lesson;
-                const instructor = info.event.extendedProps.instructor;
+                const influencer = info.event.extendedProps.influencer;
                 const formattedTime = new Date(slot.date_time.replace(/-/g, "/"))
                     .toLocaleTimeString([], {
                         weekday: 'long', // Full day name
@@ -118,22 +118,22 @@
 
                     if (!!lesson.is_package_lesson) {
                         Swal.fire('Error',
-                            'Sorry, admins can\'t book package lesson slots for students.',
+                            'Sorry, admins can\'t book package lesson slots for followers.',
                             'error');
                         return; // Stop further execution
                     }
 
 
-                    let bookedStudentsHtml = student.length ?
-                        `<ul>${student.map(student => 
-        `<li>${student?.pivot.friend_name ? student.pivot.friend_name : student.name} ${student.isGuest ? "(Guest)" : ""}</li>`
+                    let bookedFollowersHtml = follower.length ?
+                        `<ul>${follower.map(follower => 
+        `<li>${follower?.pivot.friend_name ? follower.pivot.friend_name : follower.name} ${follower.isGuest ? "(Guest)" : ""}</li>`
     ).join('')}</ul>` :
-                        "<p class='text-muted'>No students booked yet.</p>";
+                        "<p class='text-muted'>No followers booked yet.</p>";
 
                     let unbookButtonHtml = "";
                     if (isBooked) {
                         unbookButtonHtml =
-                            `<button id="unbookBtn" type="button" class="swal2-confirm btn btn-warning">Unbook Students</button>`;
+                            `<button id="unbookBtn" type="button" class="swal2-confirm btn btn-warning">Unbook Followers</button>`;
                     }
                     swalWithBootstrapButtons
                         .fire({
@@ -152,16 +152,16 @@
                         </div>
                         <div class="flex justify-start text-left text-sm">
                         <div>
-                            <label><strong>Booked Students:</strong></label><br/>
-                             ${bookedStudentsHtml}
+                            <label><strong>Booked Followers:</strong></label><br/>
+                             ${bookedFollowersHtml}
                         </div>
                          </div>
-                        <div class="form-group" id="student-form">
-                            <label class="mb-1">Select Students</label>
+                        <div class="form-group" id="follower-form">
+                            <label class="mb-1">Select Followers</label>
                             <select name="follower_id[]" id="follower_id" class="form-select w-full" multiple>
-                                @foreach ($students as $student)
-                                    <option value="{{ $student->id }}">
-                                        {{ ucfirst($student->name) }}
+                                @foreach ($followers as $follower)
+                                    <option value="{{ $follower->id }}">
+                                        {{ ucfirst($follower->name) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -180,16 +180,16 @@
                                 document.getElementById("unbookBtn")?.addEventListener(
                                     "click",
                                     function() {
-                                        openManageSlotPopup(slot_id, student,
-                                            formattedTime, lesson, instructor, slot,
+                                        openManageSlotPopup(slot_id, follower,
+                                            formattedTime, lesson, influencer, slot,
                                             availableSeats);
                                     });
                             },
                             preConfirm: () => {
                                 const isGuest = document.getElementById('guestBooking')
                                     .checked;
-                                const studentSelect = document.getElementById('follower_id');
-                                const follower_ids = [...studentSelect.selectedOptions].map(
+                                const followerSelect = document.getElementById('follower_id');
+                                const follower_ids = [...followerSelect.selectedOptions].map(
                                     opt => opt.value);
                                 const guestName = document.getElementById('guestName')
                                     ?.value;
@@ -207,7 +207,7 @@
 
                                 if (follower_ids.length > availableSeats) {
                                     Swal.showValidationMessage(
-                                        `You can only select up to ${availableSeats} students.`
+                                        `You can only select up to ${availableSeats} followers.`
                                     );
                                     return false;
                                 }
@@ -267,17 +267,17 @@
                         });
                 }
                 if (isCompleted && type == 'Admin') {
-                    let studentsHtml = "<strong>Students Attended:</strong><br/>";
+                    let followersHtml = "<strong>Followers Attended:</strong><br/>";
 
-                    if (Array.isArray(student) && student.length > 0) {
-                        studentsHtml += "<ol style='margin-left: 8px;'>";
-                        studentsHtml += student.map((student, index) =>
-                            `<li> - ${student.isGuest ? `${student.name} (Guest)` : student.name}</li>`
+                    if (Array.isArray(follower) && follower.length > 0) {
+                        followersHtml += "<ol style='margin-left: 8px;'>";
+                        followersHtml += follower.map((follower, index) =>
+                            `<li> - ${follower.isGuest ? `${follower.name} (Guest)` : follower.name}</li>`
                         ).join('');
-                        studentsHtml += "</ol>";
+                        followersHtml += "</ol>";
                     } else {
-                        studentsHtml +=
-                            "<span style='margin-left: 20px;'>No students attended this slot.</span>";
+                        followersHtml +=
+                            "<span style='margin-left: 20px;'>No followers attended this slot.</span>";
                     }
 
                     Swal.fire({
@@ -286,9 +286,9 @@
             <div style="text-align: left; font-size: 14px;">
                 <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
                 <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-                <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                <span><strong>influencer:</strong> ${influencer.name}</span><br/>
                 <span><strong>Location:</strong> ${slot.location}</span><br/>
-                ${studentsHtml}
+                ${followersHtml}
             </div>
         `,
                         confirmButtonText: "Close",
@@ -316,12 +316,12 @@
         calendar.render();
         window.toggleGuestBooking = function() {
             const isGuest = document.getElementById('guestBooking').checked;
-            document.getElementById('student-form').style.display = isGuest ? 'none' : 'block';
+            document.getElementById('follower-form').style.display = isGuest ? 'none' : 'block';
             document.getElementById('guestFields').style.display = isGuest ? 'block' : 'none';
         };
     });
 
-    function openManageSlotPopup(slot_id, student, formattedTime, lesson, instructor, slot, availableSeats) {
+    function openManageSlotPopup(slot_id, follower, formattedTime, lesson, influencer, slot, availableSeats) {
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
                 confirmButton: "btn btn-success",
@@ -330,17 +330,17 @@
             buttonsStyling: false,
         });
 
-        let studentsHtml = `
-        <label for="unbookStudents"><strong>Select Students to Unbook:</strong></label>
-        <select id="unbookStudents" class="form-select w-full" multiple>
+        let followersHtml = `
+        <label for="unbookFollowers"><strong>Select Followers to Unbook:</strong></label>
+        <select id="unbookFollowers" class="form-select w-full" multiple>
     `;
 
-        if (Array.isArray(student) && student.length > 0) {
-            studentsHtml += student.map(s =>
+        if (Array.isArray(follower) && follower.length > 0) {
+            followersHtml += follower.map(s =>
                 `<option value="${s.id}">${s.isGuest ? `${s.name} (Guest)` : s.name}</option>`
             ).join('');
         }
-        studentsHtml += `</select>`;
+        followersHtml += `</select>`;
 
         swalWithBootstrapButtons.fire({
             title: "Manage Slot",
@@ -348,10 +348,10 @@
             <div style="text-align: left; font-size: 14px;">
                 <span><strong>Slot Start Time:</strong> ${formattedTime}</span><br/>
                 <span><strong>Lesson:</strong> ${lesson.lesson_name}</span><br/>
-                <span><strong>Instructor:</strong> ${instructor.name}</span><br/>
+                <span><strong>influencer:</strong> ${influencer.name}</span><br/>
                 <span><strong>Location:</strong> ${slot.location}</span><br/>
                 <span><strong>Available Spots:</strong> ${availableSeats}</span><br/>
-                ${studentsHtml}<br/>
+                ${followersHtml}<br/>
             </div>
         `,
             showCancelButton: true,
@@ -361,11 +361,11 @@
             showCloseButton: true,
         }).then((result) => {
             if (result.isConfirmed) {
-                const selectedStudents = Array.from(document.getElementById('unbookStudents').selectedOptions)
+                const selectedFollowers = Array.from(document.getElementById('unbookFollowers').selectedOptions)
                     .map(option => option.value);
 
-                if (selectedStudents.length === 0) {
-                    Swal.showValidationMessage("Please select at least one student to unbook.");
+                if (selectedFollowers.length === 0) {
+                    Swal.showValidationMessage("Please select at least one follower to unbook.");
                     return false;
                 }
 
@@ -376,11 +376,11 @@
                         _token: $('meta[name="csrf-token"]').attr('content'),
                         unbook: 1,
                         slot_id: slot_id,
-                        follower_ids: selectedStudents,
+                        follower_ids: selectedFollowers,
                         redirect: 1,
                     },
                     success: function(response) {
-                        Swal.fire('Success', 'Students unbooked successfully!', 'success');
+                        Swal.fire('Success', 'Followers unbooked successfully!', 'success');
                         window.location.reload();
                     },
                     error: function(error) {

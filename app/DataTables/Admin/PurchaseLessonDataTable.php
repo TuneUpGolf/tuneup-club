@@ -25,8 +25,8 @@ class PurchaseLessonDataTable extends DataTable
                 return '<div style="white-space: pre-wrap; word-wrap: break-word; max-width: 400px;">' . $note . '</div>';
             })
             ->editColumn('influencer_id', function () {
-                $instructor_name = User::find($this->purchase->influencer_id);
-                return $instructor_name->name;
+                $influencer_name = User::find($this->purchase->influencer_id);
+                return $influencer_name->name;
             })
             ->editColumn('video', function (PurchaseVideos $purchaseVideo) {
                 $video = $purchaseVideo->video_url;

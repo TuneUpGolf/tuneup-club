@@ -17,7 +17,7 @@
             class="hover:shadow-lg cursor-pointer rounded-xl h-56 w-full object-cover">
         <div class="text-bottom-img">
             <span> By:
-                <a class="text-white" href="{{ route('instructor.profile', ['influencer_id' => $model?->user?->id]) }}">
+                <a class="text-white" href="{{ route('influencer.profile', ['influencer_id' => $model?->user?->id]) }}">
                     {!! \Illuminate\Support\Str::limit(ucfirst($model?->user?->name), 40, '...') !!}
                 </a>
             </span>
@@ -127,7 +127,7 @@
             const firstSlot = allSlots[0]; // Extract first slot dynamically
             document.getElementById('slotIdInput').value = firstSlot.id;
 
-            const availableSeats = firstSlot.lesson.max_students - firstSlot.student.length;
+            const availableSeats = firstSlot.lesson.max_followers - firstSlot.follower.length;
             const lesson = firstSlot.lesson;
 
             // Format All Slots' Date & Time
@@ -160,15 +160,15 @@
                 <h6 class="mt-2"><strong>Slots Available:</strong></h6>
                 ${slotDetailsHtml}
             </div>
-            <label for="studentFriends"><strong>Book for Friends (Optional):</strong></label>
-            <input type="text" id="studentFriends" class="form-control" placeholder="Enter friend names, separated by commas">
+            <label for="followerFriends"><strong>Book for Friends (Optional):</strong></label>
+            <input type="text" id="followerFriends" class="form-control" placeholder="Enter friend names, separated by commas">
         </div>
         `,
                 showCancelButton: true,
                 confirmButtonText: "Book Slot",
                 cancelButtonText: "Cancel",
                 preConfirm: () => {
-                    const friendNames = document.getElementById('studentFriends')?.value.trim();
+                    const friendNames = document.getElementById('followerFriends')?.value.trim();
                     const friendNamesArray = friendNames ? friendNames.split(',').map(name => name.trim()) : [];
 
                     // Ensure it's passed as an array

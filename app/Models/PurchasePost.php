@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +11,7 @@ class PurchasePost extends Model
 
     protected $fillable = ['follower_id', 'post_id', 'active_status', 'session_id'];
 
-    public function student()
+    public function follower()
     {
         return $this->belongsTo(Follower::class);
     }

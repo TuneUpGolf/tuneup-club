@@ -38,13 +38,13 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
-                $s = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
-                $lesson_type = $purchase->lesson->type ?? null;
+                $s                    = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
+                $lesson_type          = $purchase->lesson->type ?? null;
                 $lesson_active_status = $purchase->lesson->active_status;
-                $badgeClass = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
-                $deletedText = !$lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
-                $lessonName = e($purchase->lesson_name);
-                $truncatedLessonName = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
+                $badgeClass           = $lesson_type == Lesson::LESSON_TYPE_ONLINE ? 'bg-green-600' : 'bg-cyan-500';
+                $deletedText          = ! $lesson_active_status ? ' <span class="text-gray-500 italic"> deleted</span>' : '';
+                $lessonName           = e($purchase->lesson_name);
+                $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
                 $url = route('purchase.show', $purchase->id);
 
@@ -95,11 +95,11 @@ class PurchaseDataTable extends DataTable
             ->select([
                 'purchases.*',                         // Select all purchase fields
                 'lessons.lesson_name as lesson_name',  // Get lesson name
-                'instructors.name as influencer_name', // Get instructor name
-                'followers.name as follower_name',     // Get student name
+                'influencers.name as influencer_name', // Get influencer name
+                'followers.name as follower_name',     // Get follower name
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
-            ->join('users as instructors', 'purchases.influencer_id', '=', 'instructors.id')
+            ->join('users as influencers', 'purchases.influencer_id', '=', 'influencers.id')
             ->join('followers as followers', 'purchases.follower_id', '=', 'followers.id')
             ->orderBy('purchases.created_at', 'desc'); // Order by creation date in descending order
 

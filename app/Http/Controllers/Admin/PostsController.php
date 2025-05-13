@@ -1,27 +1,24 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Admin\PostDataTable;
 use App\DataTables\Admin\ReportedPostDataTable;
 use App\Facades\UtilityFacades;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\PostAPIResource;
 use App\Models\Category;
-use App\Models\Lesson;
 use App\Models\LikePost;
 use App\Models\Plan;
 use App\Models\Post;
-use App\Models\PostLesson;
 use App\Models\ReportPost;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\UnauthorizedException;
+use Illuminate\Validation\ValidationException;
 
 class PostsController extends Controller
 {
@@ -30,14 +27,14 @@ class PostsController extends Controller
         if (Auth::user()->can('manage-blog')) {
             $isInfluencer = Auth::user()->type === Role::ROLE_INFLUENCER;
             $isSubscribed = true;
-            $isFollowing = true;
+            $isFollowing  = true;
 
-            if(Auth::user()->type === Role::ROLE_FOLLOWER) {
-                $follow = Auth::user()->follows->first();
-                $isFollowing = $follow ? $follow->active_status : false;
-                $influencerId = $follow?->influencer_id;
+            if (Auth::user()->type === Role::ROLE_FOLLOWER) {
+                $follow            = Auth::user()->follows->first();
+                $isFollowing       = $follow ? $follow->active_status : false;
+                $influencerId      = $follow?->influencer_id;
                 $feedEnabledPlanId = Plan::where('influencer_id', $influencerId)
-                        ->where('is_feed_enabled', true)->pluck('id')->toArray();
+                    ->where('is_feed_enabled', true)->pluck('id')->toArray();
                 $isSubscribed = in_array(Auth::user()->plan_id, $feedEnabledPlanId);
             }
             $posts = Post::where('status', 'active');
@@ -48,7 +45,7 @@ class PostsController extends Controller
                 case ('paid'):
                     $posts = $posts->where('paid', true);
                     break;
-                case ('instructor'):
+                case ('influencer'):
                     $posts = $posts->where('isFollowerPost', false);
             }
             $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
@@ -76,8 +73,8 @@ class PostsController extends Controller
 
     public function create()
     {
-        $settingData    = UtilityFacades::getsettings('plan_setting');
-        $plans          = json_decode($settingData, true);
+        $settingData = UtilityFacades::getsettings('plan_setting');
+        $plans       = json_decode($settingData, true);
 
         if (Auth::user()->can('create-blog')) {
             $category = Category::where('status', 1)->pluck('name', 'id');
@@ -92,7 +89,7 @@ class PostsController extends Controller
         if (Auth::user()->can('create-blog')) {
             try {
                 request()->validate([
-                    'title' => 'required|string',
+                    'title'       => 'required|string',
                     'description' => 'required|string',
                 ]);
 
@@ -103,17 +100,17 @@ class PostsController extends Controller
                     $request->merge(['influencer_id' => Auth::user()->id]);
                     $request->merge(['isFollowerPost' => false]);
                 }
-                $currentDomain = tenant('domains');
-                $currentDomain = $currentDomain[0]->domain;
-                $post = Post::create($request->all());
-                $post['paid'] = $request?->paid == 'on' ? true : false;
-                $post['price'] = $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
+                $currentDomain  = tenant('domains');
+                $currentDomain  = $currentDomain[0]->domain;
+                $post           = Post::create($request->all());
+                $post['paid']   = $request?->paid == 'on' ? true : false;
+                $post['price']  = $request?->paid == 'on' && ! empty($request?->price) ? $request?->price : 0;
                 $post['status'] = 'active';
                 if ($request->hasfile('file')) {
                     $fileName = $request->file('file');
-                    $filePath      = $currentDomain.'/' . Auth::user()->id . '/posts' . $fileName;
+                    $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
                     Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
-                    $post['file'] = Storage::disk('spaces')->url($filePath);
+                    $post['file']      = Storage::disk('spaces')->url($filePath);
                     $post['file_type'] = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
                 }
                 $post->update();
@@ -131,9 +128,9 @@ class PostsController extends Controller
     public function edit($id)
     {
         if (Auth::user()->can('edit-blog')) {
-            $posts      = Post::find($id);
-            $category   = Category::where('status', 1)->pluck('name', 'id');
-            return  view('admin.posts.edit', compact('posts', 'category'));
+            $posts    = Post::find($id);
+            $category = Category::where('status', 1)->pluck('name', 'id');
+            return view('admin.posts.edit', compact('posts', 'category'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -143,24 +140,24 @@ class PostsController extends Controller
     {
         if (Auth::user()->can('edit-blog')) {
             request()->validate([
-                'title'         => 'required|max:50',
-                'description'   => 'required',
+                'title'       => 'required|max:50',
+                'description' => 'required',
                 // 'short_description' => 'required',
             ]);
-            $post   = Post::find($id);
+            $post          = Post::find($id);
             $currentDomain = tenant('domains');
             $currentDomain = $currentDomain[0]->domain;
             if ($request->hasFile('file')) {
                 $fileName = $request->file('file');
-                $filePath      = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
+                $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
                 Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
-                $post->file = Storage::disk('spaces')->url($filePath);
+                $post->file      = Storage::disk('spaces')->url($filePath);
                 $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             }
-            $post->title                = $request->title;
-            $post->paid                 = $request?->paid == 'on' ? true : false;
-            $post->price                = $request?->paid == 'on' ? $request?->price : 0;
-            $post->description          = $request->description;
+            $post->title       = $request->title;
+            $post->paid        = $request?->paid == 'on' ? true : false;
+            $post->price       = $request?->paid == 'on' ? $request?->price : 0;
+            $post->description = $request->description;
             // $post->short_description    = $request->short_description;
 
             $post->save();
@@ -184,15 +181,15 @@ class PostsController extends Controller
     public function upload(Request $request)
     {
         if ($request->hasFile('upload')) {
-            $originName         = $request->file('upload')->getClientOriginalName();
-            $fileName           = pathinfo($originName, PATHINFO_FILENAME);
-            $extension          = $request->file('upload')->getClientOriginalExtension();
-            $fileName           = $fileName . '_' . time() . '.' . $extension;
+            $originName = $request->file('upload')->getClientOriginalName();
+            $fileName   = pathinfo($originName, PATHINFO_FILENAME);
+            $extension  = $request->file('upload')->getClientOriginalExtension();
+            $fileName   = $fileName . '_' . time() . '.' . $extension;
             $request->file('upload')->move(public_path('images'), $fileName);
-            $CKEditorFuncNum    = $request->input('CKEditorFuncNum');
-            $url                = asset('images/' . $fileName);
-            $msg                = 'Image uploaded successfully';
-            $response           = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
+            $CKEditorFuncNum = $request->input('CKEditorFuncNum');
+            $url             = asset('images/' . $fileName);
+            $msg             = 'Image uploaded successfully';
+            $response        = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
             @header('Content-type: text/html; charset=utf-8');
             echo $response;
         }
@@ -200,38 +197,38 @@ class PostsController extends Controller
 
     public function allPost()
     {
-        $categories     = Category::all();
-        $category       = [];
-        $category['0']  = __('Select category');
+        $categories    = Category::all();
+        $category      = [];
+        $category['0'] = __('Select category');
         foreach ($categories as $cate) {
             $category[$cate->id] = $cate->name;
         }
-        $posts  = Post::all();
+        $posts = Post::all();
         return view('admin.posts.view', compact('posts', 'category'));
     }
 
     public function viewBlog($slug)
     {
-        $lang       = UtilityFacades::getActiveLanguage();
+        $lang = UtilityFacades::getActiveLanguage();
         \App::setLocale($lang);
-        $blog       =  Post::where('slug', $slug)->first();
-        $allBlogs   =  Post::all();
+        $blog     = Post::where('slug', $slug)->first();
+        $allBlogs = Post::all();
         return view('admin.posts.view-blog', compact('blog', 'allBlogs', 'lang'));
     }
 
     public function seeAllBlogs(Request $request)
     {
-        $lang           = UtilityFacades::getActiveLanguage();
+        $lang = UtilityFacades::getActiveLanguage();
         \App::setLocale($lang);
         if ($request->category_id != '') {
-            $allBlogs   = Post::where('category_id', $request->category_id)->paginate(3);
+            $allBlogs = Post::where('category_id', $request->category_id)->paginate(3);
             return response()->json(['all_blogs' => $allBlogs]);
         } else {
-            $allBlogs   = Post::paginate(3);
+            $allBlogs = Post::paginate(3);
         }
-        $recentBlogs    = Post::latest()->take(3)->get();
-        $lastBlog       = Post::latest()->first();
-        $categories     = Category::all();
+        $recentBlogs = Post::latest()->take(3)->get();
+        $lastBlog    = Post::latest()->first();
+        $categories  = Category::all();
         return view('admin.posts.view-all-blogs', compact('allBlogs', 'recentBlogs', 'lastBlog', 'categories', 'lang'));
     }
 
@@ -239,10 +236,10 @@ class PostsController extends Controller
     {
         try {
             $post = Post::find(request()->post_id);
-            if (!!$post) {
+            if (! ! $post) {
                 $postLike = Auth::user()->likePost->firstWhere('post_id', $post->id);
 
-                if (!!$postLike) {
+                if (! ! $postLike) {
                     $postLike->delete();
                     return redirect()->back()->with('success', __('Unliked'));
                 }
@@ -272,22 +269,26 @@ class PostsController extends Controller
         try {
             $post = Post::find($id);
             $user = Auth::user();
-            if (!!$post && $user->post->firstWhere('id', $post->id)) {
+            if (! ! $post && $user->post->firstWhere('id', $post->id)) {
                 request()->validate([
-                    'title' => 'string|max:255',
+                    'title'       => 'string|max:255',
                     'description' => 'string|max:255',
-                    'paid' => 'boolean',
-                    'price' => 'string|max:6',
-                    'status' => 'in:active,inactive',
+                    'paid'        => 'boolean',
+                    'price'       => 'string|max:6',
+                    'status'      => 'in:active,inactive',
                 ]);
                 if ($post->isFollowerPost) {
                     $post->update(request()->only('title', 'description', 'short_description', 'status'));
-                } else
+                } else {
                     $post->update(request()->all());
+                }
+
                 $post->save();
                 return response()->json(new PostAPIResource($post), 200);
-            } else
+            } else {
                 return response()->json(['error' => 'Post does not exist for logged in user'], 404);
+            }
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -298,10 +299,10 @@ class PostsController extends Controller
         try {
             $post = Post::find($id);
 
-            if (!!$post) {
+            if (! ! $post) {
                 $postLike = Auth::user()->likePost->firstWhere('post_id', $post->id);
 
-                if (!!$postLike) {
+                if (! ! $postLike) {
                     $postLike->delete();
                     return response()->json(['message' => 'unliked successfully'], 200);
                 }
@@ -351,7 +352,10 @@ class PostsController extends Controller
                 $reportPost->save();
 
                 return response()->json(['message' => 'post reported successfully'], 200);
-            } else  return response()->json(['error' => 'Post does not exist'], 404);
+            } else {
+                return response()->json(['error' => 'Post does not exist'], 404);
+            }
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -362,7 +366,7 @@ class PostsController extends Controller
         try {
 
             $likedPosts = new Collection();
-            $posts = Auth::user()->likePost;
+            $posts      = Auth::user()->likePost;
 
             foreach ($posts as $item) {
                 $post = $item->post;
@@ -387,10 +391,10 @@ class PostsController extends Controller
                     case ('paid'):
                         $posts = $posts->where('paid', true);
                         break;
-                    case ('student'):
+                    case ('follower'):
                         $posts = $posts->where('isFollowerPost', true);
                         break;
-                    case ('instructor'):
+                    case ('influencer'):
                         $posts = $posts->where('isFollowerPost', false);
                         break;
                     case ('myPosts'):
@@ -405,7 +409,7 @@ class PostsController extends Controller
                             $ids   = Auth::user()->follows->where('active_status', true)->where('isPaid', true)->implode('influencer_id', ',');
                             $posts = $posts->whereIn('influencer_id', explode(',', $ids));
                         } else {
-                            throw new UnauthorizedException('This filter is only valid for students', 404);
+                            throw new UnauthorizedException('This filter is only valid for followers', 404);
                         }
                         break;
                     case ('followed'):
@@ -413,7 +417,7 @@ class PostsController extends Controller
                             $ids   = Auth::user()->follows->where('active_status', true)->implode('influencer_id', ',');
                             $posts = $posts->whereIn('influencer_id', explode(',', $ids));
                         } else {
-                            throw new UnauthorizedException('This filter is only valid for students', 404);
+                            throw new UnauthorizedException('This filter is only valid for followers', 404);
                         }
                         break;
                 }
@@ -426,7 +430,7 @@ class PostsController extends Controller
         }
     }
 
-    public function getInstructorPosts(Request $request)
+    public function getInfluencerPosts(Request $request)
     {
         try {
             $this->validate($request, [
@@ -434,7 +438,7 @@ class PostsController extends Controller
             ]);
 
             if (Auth::user()->can('manage-blog')) {
-                $posts = PostAPIResource::collection(Post::with('instructor')
+                $posts = PostAPIResource::collection(Post::with('influencer')
                         ->where('influencer_id', $request?->influencer_id)
                         ->orderBy(request()->get('sortKey', 'updated_at'), request()->get('sortOrder', 'desc'))
                         ->paginate(request()->get('per_page', 10)));
@@ -466,11 +470,11 @@ class PostsController extends Controller
 
             $post = Post::create($request->all());
 
-            $post['paid'] = $request?->paid ?? false;
+            $post['paid']  = $request?->paid ?? false;
             $post['price'] = $request?->paid ? $request?->price : 0;
 
             if ($request->hasfile('file')) {
-                $post['file'] = $request->file('file')->store('posts');
+                $post['file']      = $request->file('file')->store('posts');
                 $post['file_type'] = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             }
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -8,9 +7,8 @@ use Illuminate\Support\Facades\Gate;
 class AuthServiceProvider extends ServiceProvider
 {
 
-
-    public const STUDENT_TYPE = 'Student';
-    public const ADMIN_TYPE = 'Admin';
+    public const FOLLOWER_TYPE = 'Follower';
+    public const ADMIN_TYPE   = 'Admin';
     /**
      * The model to policy mappings for the application.
      *

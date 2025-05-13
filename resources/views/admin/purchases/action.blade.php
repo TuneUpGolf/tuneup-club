@@ -19,7 +19,7 @@
         $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
-            href="{{ route('purchase.video.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+            href="{{ route('purchase.lesson', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
             data-bs-placement="bottom" data-bs-original-title="{{ __('View Lesson') }}">
             <i class="ti ti-plus text-white"></i>
         </a>

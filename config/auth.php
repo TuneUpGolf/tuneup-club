@@ -13,8 +13,8 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard' => 'web',
+    'defaults'         => [
+        'guard'     => 'web',
         'passwords' => 'users',
     ],
 
@@ -35,18 +35,18 @@ return [
     |
     */
 
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
+    'guards'           => [
+        'web'         => [
+            'driver'   => 'session',
             'provider' => 'users',
         ],
-        'student' => [
-            'driver' => 'session',
-            'provider' => 'students',
+        'follower'    => [
+            'driver'   => 'session',
+            'provider' => 'followers',
         ],
-        'instructors' => [
-            'driver' => 'session',
-            'provider' => 'instructors',
+        'influencers' => [
+            'driver'   => 'session',
+            'provider' => 'influencers',
         ],
     ],
 
@@ -67,19 +67,19 @@ return [
     |
     */
 
-    'providers' => [
-        'users' => [
+    'providers'        => [
+        'users'       => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model'  => App\Models\User::class,
         ],
-        'instructors' => [
+        'influencers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Instructor::class,
+            'model'  => App\Models\influencer::class,
         ],
-        'students' => [
+        'followers'   => [
             'driver' => 'eloquent',
-            'model' => App\Models\Follower::class,
-        ]
+            'model'  => App\Models\Follower::class,
+        ],
     ],
 
     /*
@@ -97,17 +97,17 @@ return [
     |
     */
 
-    'passwords' => [
-        'users' => [
+    'passwords'        => [
+        'users'     => [
             'provider' => 'users',
-            'table' => 'password_resets',
-            'expire' => 60,
+            'table'    => 'password_resets',
+            'expire'   => 60,
             'throttle' => 60,
         ],
-        'students' => [
-            'provider' => 'students',
-            'table' => 'password_resets',
-            'expire' => 60,
+        'followers' => [
+            'provider' => 'followers',
+            'table'    => 'password_resets',
+            'expire'   => 60,
             'throttle' => 60,
         ],
     ],

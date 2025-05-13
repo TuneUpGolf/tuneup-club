@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\SendEmail;
 use App\Actions\SendPushNotification;
 use App\DataTables\Admin\PurchaseDataTable;
+use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseAPIResource;
@@ -15,11 +16,13 @@ use App\Models\Coupon;
 use App\Models\FeedbackContent;
 use App\Models\Follower;
 use App\Models\Lesson;
+use App\Models\Plan;
 use App\Models\Purchase;
 use App\Models\PurchaseVideos;
 use App\Models\Role;
 use App\Models\Slots;
 use App\Models\User;
+use App\Services\ChatService;
 use App\Traits\ConvertVideos;
 use App\Traits\PurchaseTrait;
 use Error;
@@ -32,12 +35,18 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
-use App\DataTables\Admin\PurchaseLessonDataTable;
 
 class PurchaseController extends Controller
 {
     use PurchaseTrait;
     use ConvertVideos;
+
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function index(PurchaseDataTable $dataTable)
     {
@@ -49,7 +58,7 @@ class PurchaseController extends Controller
 
     public function view($id)
     {
-        $lesson = Lesson::findOrFail($id);
+        $lesson    = Lesson::findOrFail($id);
         $dataTable = new LessonDataTable($id); // Pass follower ID to the datatable
         return $dataTable->render('admin.purchases.show', compact('lesson', 'dataTable'));
     }
@@ -60,7 +69,7 @@ class PurchaseController extends Controller
         ]);
 
         try {
-            $student      = Auth::user();
+            $follower     = Auth::user();
             $lesson       = Lesson::find($request->lesson_id);
             $total_amount = $lesson->lesson_price;
             $coupon       = Coupon::find($request->coupon_id ?? null);
@@ -71,10 +80,10 @@ class PurchaseController extends Controller
                 $total_amount           = $lesson->lesson_price - ($coupon_discount_amount >= $coupon->limit ? $coupon->limit : $coupon_discount_amount);
             }
 
-            if ($student && $lesson && ! empty($lesson->user) && Auth::user()->can('create-purchases')) {
+            if ($follower && $lesson && ! empty($lesson->user) && Auth::user()->can('create-purchases')) {
                 try {
                     $newPurchase = new Purchase([
-                        'follower_id'   => $student->id,
+                        'follower_id'   => $follower->id,
                         'influencer_id' => $lesson->user->id,
                         'lesson_id'     => $lesson->id,
                         'coupon_id'     => $coupon,
@@ -86,7 +95,7 @@ class PurchaseController extends Controller
                     $newPurchase->lessons_used = 0;
                     $newPurchase->save();
 
-                    $newPurchase = $newPurchase->load('student', 'instructor', 'lesson');
+                    $newPurchase = $newPurchase->load('follower', 'influencer', 'lesson');
                 } catch (\Illuminate\Database\QueryException $e) {
                     echo 'Database exception: ', $e->getMessage(), "\n";
                 } catch (\Exception $e) {
@@ -96,12 +105,12 @@ class PurchaseController extends Controller
                 // SendEmail::run($newPurchase->follower->email, new PurchaseCreated($newPurchase));
 
                 // $message = __('Hello, :name, a purchase has been created for :ammount against your account.', [
-                //     'name' => $student['name'],
+                //     'name' => $follower['name'],
                 //     'ammount' => $newPurchase->total_amount,
                 // ]);
-                // if (isset($newPurchase?->student?->pushToken?->token))
-                //     SendPushNotification::dispatch($newPurchase?->student?->pushToken?->token, 'New Purchase Created', $message);
-                // $userPhone = Str::of($student['dial_code'])->append($student['phone'])->value();
+                // if (isset($newPurchase?->follower?->pushToken?->token))
+                //     SendPushNotification::dispatch($newPurchase?->follower?->pushToken?->token, 'New Purchase Created', $message);
+                // $userPhone = Str::of($follower['dial_code'])->append($follower['phone'])->value();
                 // $userPhone = str_replace(array('(', ')'), '', $userPhone);
                 // SendSMS::dispatch($userPhone, $message);
 
@@ -116,11 +125,11 @@ class PurchaseController extends Controller
 
     public function edit($id)
     {
-        $students    = Follower::all(); // Adjust as needed
-        $instructors = User::all();
+        $followers   = Follower::all(); // Adjust as needed
+        $influencers = User::all();
         $lessons     = Lesson::all();
         $purchase    = Purchase::find($id);
-        return view('admin.purchases.edit', compact('purchase', 'students', 'instructors', 'lessons'));
+        return view('admin.purchases.edit', compact('purchase', 'followers', 'influencers', 'lessons'));
     }
 
     public function create()
@@ -140,7 +149,7 @@ class PurchaseController extends Controller
             ]);
 
             if (Auth::user()->type == Role::ROLE_FOLLOWER) {
-                $student      = Auth::user();
+                $follower     = Auth::user();
                 $lesson       = Lesson::find($request->lesson_id);
                 $total_amount = $lesson->lesson_price;
                 $coupon       = Coupon::find($request->coupon_id ?? null);
@@ -151,11 +160,11 @@ class PurchaseController extends Controller
                     $total_amount           = $lesson->lesson_price - ($coupon_discount_amount >= $coupon->limit ? $coupon->limit : $coupon_discount_amount);
                 }
 
-                if ($student && $lesson && ! empty($lesson->user) && $student->active_status == true) {
+                if ($follower && $lesson && ! empty($lesson->user) && $follower->active_status == true) {
 
                     try {
                         $newPurchase = new Purchase([
-                            'follower_id'   => $student->id,
+                            'follower_id'   => $follower->id,
                             'influencer_id' => $lesson->user->id,
                             'lesson_id'     => $lesson->id,
                             'coupon_id'     => $coupon,
@@ -168,19 +177,19 @@ class PurchaseController extends Controller
                         $newPurchase->save();
                         // SendEmail::dispatch($newPurchase->follower->email, new PurchaseCreated($newPurchase));
                         // $message = __('Hello, :name, a purchase has been created for :ammount against your account.', [
-                        //     'name' => $student['name'],
+                        //     'name' => $follower['name'],
                         //     'ammount' => $newPurchase->total_amount,
                         // ]);
-                        // $userPhone = Str::of($student['dial_code'])->append($student['phone'])->value();
+                        // $userPhone = Str::of($follower['dial_code'])->append($follower['phone'])->value();
                         // $userPhone = str_replace(array('(', ')'), '', $userPhone);
                         // SendSMS::dispatch($userPhone, $message);
-                        // SendPushNotification::dispatch($newPurchase?->student?->pushToken?->token, 'New Purchase Created', $message);
+                        // SendPushNotification::dispatch($newPurchase?->follower?->pushToken?->token, 'New Purchase Created', $message);
                     } catch (\Illuminate\Database\QueryException $e) {
                         echo 'Database exception: ', $e->getMessage(), "\n";
                     } catch (\Exception $e) {
                         echo 'Caught exception: ', $e->getMessage(), "\n";
                     }
-                    $newPurchase = $newPurchase->load('student', 'instructor', 'lesson');
+                    $newPurchase = $newPurchase->load('follower', 'influencer', 'lesson');
                     return response(new PurchaseAPIResource($newPurchase));
                 } else {
                     return response("User disabled, kindly contact admin.", 419);
@@ -210,7 +219,7 @@ class PurchaseController extends Controller
                     return new Error("Purchase can't be confirmed");
                 }
             } else {
-                return response()->json(['error' => 'Student is currently disabled, please contact admin.', 419]);
+                return response()->json(['error' => 'Follower is currently disabled, please contact admin.', 419]);
             }
         } catch (\Exception $e) {
             return throw new Exception($e->getMessage());
@@ -235,13 +244,13 @@ class PurchaseController extends Controller
                     $purchase->save();
 
                     if (isset($slot)) {
-                        // If the slot is a package lesson, attach student and their friends
+                        // If the slot is a package lesson, attach follower and their friends
                         if (! ! $slot->lesson->is_package_lesson) {
                             $slots = $slot->lesson->slots; // Fetch all slots of the lesson
 
                             foreach ($slots as $lessonSlot) {
-                                // Attach student to all slots
-                                $lessonSlot->student()->attach($purchase->follower_id, [
+                                // Attach follower to all slots
+                                $lessonSlot->follower()->attach($purchase->follower_id, [
                                     'isFriend'    => false,
                                     'friend_name' => null,
                                     'created_at'  => now(),
@@ -251,7 +260,7 @@ class PurchaseController extends Controller
                                 // Attach friends if any were included in the purchase
                                 $friendNames = json_decode($purchase->friend_names, true) ?? [];
                                 foreach ($friendNames as $friendName) {
-                                    $lessonSlot->student()->attach($purchase->follower_id, [
+                                    $lessonSlot->follower()->attach($purchase->follower_id, [
                                         'isFriend'    => true,
                                         'friend_name' => $friendName,
                                         'created_at'  => now(),
@@ -272,7 +281,7 @@ class PurchaseController extends Controller
                             $this->sendSlotNotification(
                                 $slot,
                                 'Slot Payment Completed',
-                                'Your lesson with :instructor, for :date has been marked as completed.',
+                                'Your lesson with :influencer, for :date has been marked as completed.',
                                 null,
                             );
                         }
@@ -295,7 +304,7 @@ class PurchaseController extends Controller
                             'name'    => $purchase->follower->name,
                             'ammount' => $purchase->total_amount,
                         ]);
-                        SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Purchase Confirmed', $message);
+                        SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Purchase Confirmed', $message);
                     }
                 }
 
@@ -329,7 +338,7 @@ class PurchaseController extends Controller
             'video_2'     => 'mimetypes:mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
             'purchase_id' => 'required',
         ]);
-        $purchase = Purchase::with('lesson')->find($request?->purchase_id);
+        $purchase      = Purchase::with('lesson')->find($request?->purchase_id);
         $currentDomain = tenant('domains');
         $currentDomain = $currentDomain[0]->domain;
         if (isset($purchase) && Auth::user()->type == Role::ROLE_FOLLOWER) {
@@ -343,17 +352,17 @@ class PurchaseController extends Controller
                     if ($request?->hasFile('video')) {
                         $file = $request->file('video');
                         if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
-                            $localPath =$request->file('video')->store('purchaseVideos');
-                            $path = $this->convertSingleVideo($localPath);
-                        }  else {
+                            $localPath = $request->file('video')->store('purchaseVideos');
+                            $path      = $this->convertSingleVideo($localPath);
+                        } else {
                             // Digital Ocean space storage
-                           $file = $request->file('video');
-                           $extension = $file->getClientOriginalExtension();
-                           $randomFileName = Str::random(25) . '.' . $extension;
-                           $filePath = $currentDomain.'/'.$purchase->lesson_id.'/'.$purchase->follower_id.'/'.$randomFileName;
-                           Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
-                           $path = Storage::disk('spaces')->url($filePath);
-                       }
+                            $file           = $request->file('video');
+                            $extension      = $file->getClientOriginalExtension();
+                            $randomFileName = Str::random(25) . '.' . $extension;
+                            $filePath       = $currentDomain . '/' . $purchase->lesson_id . '/' . $purchase->follower_id . '/' . $randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
+                        }
 
                         $purchase_video->video_url = $path;
                         $purchase_video->save();
@@ -363,12 +372,12 @@ class PurchaseController extends Controller
                         $file2 = $request->file('video_2');
                         if (Str::endsWith($file2->getClientOriginalName(), '.mov')) {
                             $localPath = $request->file('video_2')->store('purchaseVideos');
-                            $path = $this->convertSingleVideo($localPath);
+                            $path      = $this->convertSingleVideo($localPath);
                         } else {
-                             // Digital Ocean space storage
-                            $extension = $file2->getClientOriginalExtension();
+                            // Digital Ocean space storage
+                            $extension      = $file2->getClientOriginalExtension();
                             $randomFileName = Str::random(25) . '.' . $extension;
-                            $filePath = $currentDomain.'/'.$purchase->lesson_id.'/'.$purchase->follower_id.'/'.$randomFileName;
+                            $filePath       = $currentDomain . '/' . $purchase->lesson_id . '/' . $purchase->follower_id . '/' . $randomFileName;
                             Storage::disk('spaces')->put($filePath, file_get_contents($file2), 'public');
                             $path = Storage::disk('spaces')->url($filePath);
                         }
@@ -543,7 +552,7 @@ class PurchaseController extends Controller
                         ]);
 
                         if (isset($purchase->follower->pushToken->token)) {
-                            SendPushNotification::dispatch($purchase?->student?->pushToken?->token, 'Feedback Recieved', $message);
+                            SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Feedback Recieved', $message);
                         }
 
                     }
@@ -571,8 +580,8 @@ class PurchaseController extends Controller
             if (Auth::user()->can('manage-purchases')) {
                 if (Auth::user()->active_status == true) {
                     if (Auth::user()->type == Role::ROLE_INFLUENCER) {
-                        $purchases                 = Purchase::where('influencer_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
-                        request()->student_request = true;
+                        $purchases                  = Purchase::where('influencer_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
+                        request()->follower_request = true;
                     } else if (Auth::user()->type == Role::ROLE_FOLLOWER) {
                         $purchases = Purchase::where('follower_id', Auth::user()->id)->where('status', Purchase::STATUS_COMPLETE);
                     }
@@ -589,7 +598,7 @@ class PurchaseController extends Controller
         }
     }
 
-    public function getStudentAll(Request $request)
+    public function getFollowerAll(Request $request)
     {
 
         try {
@@ -609,11 +618,15 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->can('create-purchases')) {
             $purchase = Purchase::find($request->purchase_id);
-            if (Auth::user()->type == 'Influencer'){
             return view('admin.purchases.video', ['purchase' => $purchase]);
-            } else{
-                return view('admin.purchases.lesson', ['purchase' => $purchase]);
-            }
+        }
+    }
+    public function viewLesson(Request $request)
+    {
+        if (Auth::user()->can('create-purchases')) {
+            $purchase = Purchase::find($request->purchase_id);
+
+            return view('admin.purchases.lesson', ['purchase' => $purchase]);
         }
     }
 
@@ -623,7 +636,6 @@ class PurchaseController extends Controller
             $purchase = Purchase::with(['videos', 'lesson', 'follower', 'influencer'])
                 ->find(request()->purchase_id);
             return view('admin.purchases.videos', compact('purchase'));
-            
         }
     }
     public function addFeedBack(Request $request)
@@ -696,20 +708,20 @@ class PurchaseController extends Controller
             // Clear the feedback field (if stored as a string)
             $purchaseVideo->feedback = null;
             $purchaseVideo->save();
-    
+
             return redirect()->back()->with('success', 'Feedback deleted successfully.');
         }
-    
+
     }
-    public function getStudentPurchases(Request $request)
+    public function getFollowerPurchases(Request $request)
     {
 
         if (Auth::user()->can('manage-purchases')) {
             $request->validate([
                 'follower_id' => 'required',
             ]);
-            if ($student = Follower::find($request?->follower_id)) {
-                return Purchase::where('follower_id', $student?->id);
+            if ($follower = Follower::find($request?->follower_id)) {
+                return Purchase::where('follower_id', $follower?->id);
             }
         }
     }
@@ -739,7 +751,7 @@ class PurchaseController extends Controller
     {
         $validatedData = $request->validate([
             'follower_id'    => 'required|exists:users,id',
-            'influencer_id'  => 'required|exists:instructors,id',
+            'influencer_id'  => 'required|exists:influencers,id',
             'lesson_id'      => 'required|exists:lessons,id',
             'payment_method' => 'required|string',
             'payment_date'   => 'required|date',
@@ -758,9 +770,13 @@ class PurchaseController extends Controller
     }
     public function showLesson(PurchaseLessonDataTable $dataTable, $lessonId)
     {
-        $purchase = Purchase::with('follower')->findOrFail($lessonId);
-        $video = Purchase::with('videos')->find(request()->purchase_id);
-        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video'));
+        $purchase          = Purchase::with('follower')->findOrFail($lessonId);
+        $video             = Purchase::with('videos')->find(request()->purchase_id);
+        $chatEnabledPlanId = Plan::where('influencer_id', $purchase->influencer_id)
+            ->where('is_chat_enabled', true)->pluck('id')->toArray();
+        $isSubscribed = in_array($purchase->follower->plan_id, $chatEnabledPlanId);
+        $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video', 'token', 'isSubscribed'));
     }
     public function destroy($id)
     {
