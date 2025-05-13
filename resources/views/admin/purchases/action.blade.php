@@ -48,3 +48,4 @@
     </a>
     {!! Form::close() !!}
 @endcan
+

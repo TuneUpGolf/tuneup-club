@@ -186,6 +186,7 @@ Route::middleware([
         Route::get('purchase/add/follower/video', [PurchaseController::class, 'addVideoIndex'])->name('purchase.video.index');
         Route::get('purchase/add/follower/lesson', [PurchaseController::class, 'viewLesson'])->name('purchase.lesson');
 
+        
         Route::get('purchase/feedback/all', [PurchaseController::class, 'feedbackIndex'])->name('purchase.feedback.index');
         Route::get('purchase/add/feedback/create', [PurchaseController::class, 'addFeedBackIndex'])->name('purchase.feedback.create');
         Route::post('purchase/add/feedback/add', [PurchaseController::class, 'addFeedBack'])->name('purchase.feedback.add');
