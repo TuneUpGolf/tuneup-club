@@ -43,6 +43,30 @@
         </div>
     </div>
 </div>
+
+{{-- Chat Section --}}
+@if($isSubscribed)
+    <div class="row mt-4">
+        <div class="col-xl-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Chat</h5>
+                </div>
+                <div class="card-body chat-box p-4" style="height: 400px; overflow-y: auto;">
+                </div>
+
+                <div class="card-footer">
+                    <form id="chatForm" class="d-flex align-items-center">
+                        <input type="file" id="mediaInput" accept="image/*,video/*,audio/*" class="form-control me-2" />
+                        <input type="text" id="chatInput" class="form-control me-2" placeholder="Type your message..." />
+                        <button type="button" id="emoji-toggle" class="btn btn-light me-2">😊</button>
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 @endsection
 
 @push('css')
@@ -66,6 +90,8 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     {{-- Purchases table JS --}}
     @include('layouts.includes.datatable_js')
@@ -77,6 +103,16 @@
             );
         });
     </script>
+    <script>
+        window.chatConfig = {
+            senderId : "{{ auth()->user()->chat_user_id }}",
+            senderImage : "{{ auth()->user()->avatar }}",
+            groupId : "{{ $purchase->follower->group_id }}",
+            recieverImage : "{{ $purchase->follower->dp }}",
+            token : "{{ $token }}",
+        }
+    </script>
+    <script src="{{ asset('assets/js/chat.js') }}"></script>
 
     {{-- Profile cropper and phone logic --}}
     <script>

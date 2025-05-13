@@ -16,11 +16,13 @@ use App\Models\Coupon;
 use App\Models\FeedbackContent;
 use App\Models\Follower;
 use App\Models\Lesson;
+use App\Models\Plan;
 use App\Models\Purchase;
 use App\Models\PurchaseVideos;
 use App\Models\Role;
 use App\Models\Slots;
 use App\Models\User;
+use App\Services\ChatService;
 use App\Traits\ConvertVideos;
 use App\Traits\PurchaseTrait;
 use Error;
@@ -38,6 +40,13 @@ class PurchaseController extends Controller
 {
     use PurchaseTrait;
     use ConvertVideos;
+
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function index(PurchaseDataTable $dataTable)
     {
@@ -616,8 +625,8 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->can('create-purchases')) {
             $purchase = Purchase::find($request->purchase_id);
-           
-                return view('admin.purchases.lesson', ['purchase' => $purchase]);
+
+            return view('admin.purchases.lesson', ['purchase' => $purchase]);
         }
     }
 
@@ -627,7 +636,6 @@ class PurchaseController extends Controller
             $purchase = Purchase::with(['videos', 'lesson', 'follower', 'influencer'])
                 ->find(request()->purchase_id);
             return view('admin.purchases.videos', compact('purchase'));
-            
         }
     }
     public function addFeedBack(Request $request)
@@ -762,9 +770,13 @@ class PurchaseController extends Controller
     }
     public function showLesson(PurchaseLessonDataTable $dataTable, $lessonId)
     {
-        $purchase = Purchase::with('follower')->findOrFail($lessonId);
-        $video    = Purchase::with('videos')->find(request()->purchase_id);
-        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video'));
+        $purchase          = Purchase::with('follower')->findOrFail($lessonId);
+        $video             = Purchase::with('videos')->find(request()->purchase_id);
+        $chatEnabledPlanId = Plan::where('influencer_id', $purchase->influencer_id)
+            ->where('is_chat_enabled', true)->pluck('id')->toArray();
+        $isSubscribed = in_array($purchase->follower->plan_id, $chatEnabledPlanId);
+        $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+        return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video', 'token', 'isSubscribed'));
     }
     public function destroy($id)
     {

@@ -48,6 +48,8 @@ class Follower extends User implements MustVerifyEmail
         'isGuest',
         'plan_id',
         'plan_expired_date',
+        'chat_user_id',
+        'group_id',
     ];
     protected $hidden = [
         'password',

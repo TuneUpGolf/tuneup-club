@@ -12,7 +12,10 @@ use App\Imports\FollowersImport;
 use App\Mail\Admin\WelcomeMail;
 use App\Mail\Admin\WelcomeMailFollower;
 use App\Models\Follower;
+use App\Models\Plan;
 use App\Models\Role;
+use App\Models\User;
+use App\Services\ChatService;
 use Carbon\Carbon;
 use Dotenv\Exception\ValidationException;
 use Exception;
@@ -25,6 +28,12 @@ use Stancl\Tenancy\Database\Models\Domain;
 
 class FollowerController extends Controller
 {
+    protected $chatService;
+
+    public function __construct(ChatService $chatService)
+    {
+        $this->chatService = $chatService;
+    }
 
     public function index(FollowerDataTable $dataTable)
     {
@@ -45,9 +54,11 @@ class FollowerController extends Controller
 
     public function show($id)
     {
-        $follower  = Follower::findOrFail($id);
-        $dataTable = new FollowerPurchaseDataTable($id); // Pass follower ID to the datatable
-        return $dataTable->render('admin.followers.show', compact('follower', 'dataTable'));
+        $follower     = Follower::findOrFail($id);
+        $dataTable    = new FollowerPurchaseDataTable($id); // Pass follower ID to the datatable
+        $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+        $isSubscribed = $this->isSubscribed($follower);
+        return $dataTable->render('admin.followers.show', compact('follower', 'dataTable', 'token', 'isSubscribed'));
     }
     public function import()
     {
@@ -334,7 +345,7 @@ class FollowerController extends Controller
     }
 
     public function updateProfilePicture(Request $request)
-    {{
+    {
         try {
             $request->validate([
                 'dp' => 'required',
@@ -353,5 +364,25 @@ class FollowerController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error', 'message' => $e->getMessage()], 500);
         }
-    }}
+    }
+
+    public function followerChat()
+    {
+        $user         = Auth::user();
+        $influencer   = User::where('tenant_id', tenant('id'))->where('id', $user->follows->first()->influencer_id)->first();
+        $isSubscribed = $this->isSubscribed($user);
+        $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+        return view('admin.followers.chat', compact('isSubscribed', 'influencer', 'token'));
+    }
+
+    public function isSubscribed($user)
+    {
+        $influencer = User::where('tenant_id', tenant('id'))->where('id', $user->follows?->first()?->influencer_id)->first();
+        if ($influencer) {
+            $chatEnabledPlanId = Plan::where('influencer_id', $influencer->id)
+                ->where('is_chat_enabled', true)->pluck('id')->toArray();
+            return in_array($user->plan_id, $chatEnabledPlanId);
+        }
+        return false;
+    }
 }
