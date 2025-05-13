@@ -28,6 +28,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
 
+    //fetch intial messages
+    loadMessages();
+
     socket.on("connect_error", (err) => {
         console.error("❌ Connection failed:", err.message);
         console.error("Full error:", err);
@@ -70,34 +73,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     socket.on("received", (newMessage) => {
-        appendMessage(newMessage);
+        const msgHtml = createMessageHTML(newMessage);
+        chatBox.insertAdjacentHTML("beforeend", msgHtml);
+        chatBox.scrollTop = chatBox.scrollHeight;
     });
 
-    // 🔹 Fetch initial chat messages
-    const response = await fetch("https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/chat/list", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            groupId,
-            userType: "onetoone",
-            perPage: 15,
-            page: 1
-        })
-    });
+    // 🔹 load chat messages as per page
+    async function loadMessages(page = 1) {
+        const response = await fetch("https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/chat/list", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                groupId,
+                userType: "onetoone",
+                perPage: 15,
+                page: page
+            })
+        });
+    
+        if (!response.ok) return;
+    
+        const data = await response.json();
+    
+        if (data.status === 'Success' && Array.isArray(data.data) && data.data[0]?.data) {
+            let messages = data.data[0].data;
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        return;
-    }
+            if (page === 1) {
+                messages = messages.reverse();
+            }
 
-    const data = await response.json();
-
-    if (data.status === 'Success' && Array.isArray(data.data) && data.data[0]?.data) {
-        const messages = data.data[0].data.reverse();
-        renderMessages(messages);
+            renderMessages(messages, page !== 1);
+        }
     }
 
     // 🔹 Emoji picker initialization
@@ -152,16 +161,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         event.target.value = "";
     });
 
-    // 🔹 Append message to chat box
-    function appendMessage(message) {
-        const chatBox = document.querySelector(".chat-box");
+    // 🔹 create message to addd in chat box
+    function createMessageHTML(message) {
         const isSender = message.senderId === senderId;
-
+    
         let mediaContent = "";
         if (message.isFile && message.fileName && message.filePath && message.fileType) {
             const fileUrl = `https://tuneup-club-staging.nyc3.digitaloceanspaces.com/${message.fileName}`;
             const ext = message.fileType.toLowerCase();
-
+    
             if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext)) {
                 mediaContent = `<img src="${fileUrl}" alt="sent image" style="max-width: 200px; border-radius: 8px;" />`;
             } else if (['.mp4', '.webm', '.ogg'].includes(ext)) {
@@ -178,8 +186,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 mediaContent = `<a href="${fileUrl}" target="_blank" download>${message.fileName}</a>`;
             }
         }
-
-        const msgHtml = `
+    
+        return `
             <div class="d-flex mb-3 ${isSender ? "flex-row-reverse" : ""}">
                 <img src="${isSender ? senderImage : recieverImage}"
                     alt="avatar" class="rounded-circle ${isSender ? 'ms-2' : 'me-2'}" width="40" height="40">
@@ -192,15 +200,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             </div>
         `;
-        chatBox.insertAdjacentHTML("beforeend", msgHtml);
-        chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     // 🔹 Render all messages (initial load)
-    function renderMessages(messages) {
+    function renderMessages(messages, prepend = false) {
         const chatBox = document.querySelector(".chat-box");
-        chatBox.innerHTML = "";
-        messages.forEach(appendMessage);
+    
+        messages.forEach(message => {
+            const msgHtml = createMessageHTML(message);
+            if (prepend) {
+                chatBox.insertAdjacentHTML("afterbegin", msgHtml);
+            } else {
+                chatBox.insertAdjacentHTML("beforeend", msgHtml);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
     }
 
     // 🔹 Upload media to server
@@ -229,4 +243,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Error uploading media:", error);
         }
     }
+
+    let currentPage = 1;
+    let isLoading = false;
+
+    const chatBox = document.querySelector(".chat-box");
+
+    chatBox.addEventListener("scroll", async function () {
+        if (chatBox.scrollTop === 0 && !isLoading) {
+            isLoading = true;
+            currentPage++;
+
+            const oldScrollHeight = chatBox.scrollHeight;
+
+            await loadMessages(currentPage);
+
+            const newScrollHeight = chatBox.scrollHeight;
+            chatBox.scrollTop = newScrollHeight - oldScrollHeight;
+
+            isLoading = false;
+        }
+    });
 });
