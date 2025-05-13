@@ -132,7 +132,8 @@ class InfluencerController extends Controller
                 }
                 $user->update();
                 $chatUserDetails = $this->chatService->getUserProfile($request->email);
-                if (! empty($chatUserDetails['data'])) {
+
+                if ($chatUserDetails['status'] == 'success') {
                     $existingTenantId = $this->chatService->fetchExistingTenantIds($chatUserDetails['data']);
                     $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', $existingTenantId);
                     $user->update([
@@ -148,7 +149,7 @@ class InfluencerController extends Controller
                 ]);
                 $userPhone = Str::of($userData['dial_code'])->append($userData['phone'])->value();
                 $userPhone = str_replace(['(', ')'], '', $userPhone);
-                SendSMS::dispatch("+" . $userPhone, $message);
+                // SendSMS::dispatch("+" . $userPhone, $message);
             }
             return redirect()->route('influencer.index')->with('success', __('Influencer created successfully.'));
         } else {

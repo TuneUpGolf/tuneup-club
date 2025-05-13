@@ -26,7 +26,7 @@
 
 <section class="landing-hero">
     <div class="hero-sec">
-        <img class="w-full" src="{{ $influencerDetails->banner_image }}" alt="hero-banner">
+        <img class="w-full" src="{{ $influencerDetails->banner_image ?? asset('assets/images/landing-page-images/banner1.png') }}" alt="hero-banner">
     </div>
 </section>
 <section class="lession-sec">
