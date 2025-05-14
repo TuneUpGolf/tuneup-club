@@ -55,7 +55,7 @@ class ChatService
         ];
     }
 
-    public function updateUser(string $chatUserId, string $columnName, $value, $email = null)
+    public function updateUser(string $chatUserId, string $columnName, $value, $email)
     {
         $token             = $this->getChatToken($chatUserId);
         $chatUser          = $this->getUserProfile($email);
