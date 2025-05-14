@@ -33,7 +33,7 @@
                                 </div>
                             </div>
                             <div class="">
-                                <div class="focus:outline-none mt-5 mb-5 lg:mt-24">
+                                <div class="focus:outline-none mt-3 mb-5 lg:mt-24">
                                     <div class="infinity">
                                         <div class="flex flex-wrap w-100">
                                             @if ($posts->count() > 0)

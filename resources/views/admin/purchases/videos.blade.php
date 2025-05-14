@@ -58,9 +58,9 @@ $purchaseVideo = $purchase->videos->first();
                 <li>
                     <p class="text-gray-500">Payment Status</p>
                     <div
-                        class="rounded-pill px-4 py-2 w-auto text-white text-md font-bold inline-flex itmes-center gap-1 btn btn-success ">
+                        class="rounded-pill px-4 py-2 w-auto text-white text-md font-bold inline-flex items-center gap-1 btn btn-success ">
                         <i class="ti ti-check text-2xl"></i>
-                        {{ $purchase->lesson->payment_method }}
+                        <span>{{ $purchase->lesson->payment_method }}</span>
                     </div>
                 </li>
             </ul>
