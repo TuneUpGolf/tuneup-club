@@ -4,3 +4,4 @@
 <script src="{{ asset('vendor/datatable/buttons.bootstrap.min.js') }}"></script>
 <script src="{{ asset('vendor/datatable/buttons.colVis.min.js') }}"></script>
 <script src="{{ asset('vendor/datatable/buttons.server-side.js') }}"></script>
+<script src="{{ asset('vendor/datatable/dataTables.responsive.min.js') }}"></script>

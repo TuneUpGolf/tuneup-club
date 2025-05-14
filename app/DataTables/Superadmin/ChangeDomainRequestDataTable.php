@@ -53,6 +53,7 @@ class ChangeDomainRequestDataTable extends DataTable
     {
         return $this->builder()
             ->setTableId('changedomainrequest-table')
+            ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
@@ -90,6 +91,27 @@ class ChangeDomainRequestDataTable extends DataTable
                     ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
                 ],
                 "scrollX" => true,
+                "responsive" => [
+                    "scrollX"=> false,
+                    "details" => [
+                        "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
+                        "renderer" => "function (api, rowIdx, columns) {
+                            var data = $('<table/>').addClass('vertical-table');
+                            $.each(columns, function (i, col) {
+                                data.append(
+                                    '<tr>' +
+                                        '<td><strong>' + col.title + '</strong></td>' +
+                                        '<td>' + col.data + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                            return data;
+                        }"
+                    ]
+                ],
+                "rowCallback" => 'function(row, data, index) {
+                    $(row).addClass("custom-parent-row"); 
+                }',
                 "drawCallback" => 'function( settings ) {
                     var tooltipTriggerList = [].slice.call(
                         document.querySelectorAll("[data-bs-toggle=tooltip]")

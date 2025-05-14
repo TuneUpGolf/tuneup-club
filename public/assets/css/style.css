@@ -13071,8 +13071,7 @@ fieldset:disabled .btn {
 
   .mx-xxl-3 {
     margin-right: 1rem !important;
-    margin-left: 1rem !impo
-rtant;
+    margin-left: 1rem !important;
   }
 
   .mx-xxl-4 {
@@ -25313,8 +25312,7 @@ body.theme-7 .conversations-list .list-group-item .btn-link {
   color: #922c88;
 }
 
-body.theme-7 .conversations
--list .list-group-item.active,
+body.theme-7 .conversations-list .list-group-item.active,
 body.theme-7 .conversations-list .list-group-item:hover {
   background: linear-gradient(141.55deg, #922c88 3.46%, #922c88 99.86%), #922c88;
 }
@@ -25887,10 +25885,7 @@ body.theme-10 .team-lists img {
   border: 1px solid #f9f9f9;
 }
 
-.fc-scroller {
-  overflow: visible !important;
-  height: auto !important;
-}
+
 
 @media (max-width: 575.98px) {
 
@@ -28329,6 +28324,12 @@ body.anim-slip-from-top.modal-open .dash-header {
   .daterangepicker .ranges ul {
     width: 160px;
   }
+
+  .fc-scroller {
+    /* overflow: visible !important; */
+    height: auto !important;
+  }
+
 }
 
 .daterangepicker .ranges ul li {
@@ -30234,9 +30235,10 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 /* joolee css */
 @media (min-width:575px) {
   .lessions-slider .slick-list {
-    padding:0 20% 0 0 !important;
+    padding: 0 20% 0 0 !important;
   }
 }
+
 @media (min-width:1025px) {
   .header-brand-logo {
     display: none;
@@ -30302,16 +30304,13 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   object-fit: cover;
 }
 
+video.post-thumbnail {
+  object-fit: contain;
+}
+
 .ctm-min-h {
   min-height: 40px;
 }
-
-.hero-sec img{
- height: 700px;
- object-fit: cover;
-}
-
-
 
 .ctm-container {
   max-width: 1440px !important;
@@ -30339,7 +30338,7 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
   font-size: 20px;
   background-color: #0071CE;
   color: white;
-cursor: pointer;
+  cursor: pointer;
 }
 
 .ctm-slick-left {
@@ -30354,7 +30353,8 @@ cursor: pointer;
   height: auto !important;
 }
 
-.lessions-slider .slick-list , .subscription-sec .slick-list {
+.lessions-slider .slick-list,
+.subscription-sec .slick-list {
   margin: 0 -16px;
 }
 
@@ -30368,6 +30368,7 @@ cursor: pointer;
   top: -20px;
   transform: translateX(-50%);
 }
+
 .popular-wrap {
   border: 2px solid #0071CE;
 }
@@ -30375,15 +30376,18 @@ cursor: pointer;
 .subscription-sec {
   background-color: #EEF7FF;
 }
+
 .chat-wrap {
   background-color: #EEF7FF;
   color: #0071CE;
 }
+
 button.lesson-btn.btn-border {
   background-color: transparent;
   border: 1px solid #0071CE;
   color: #0071CE;
 }
+
 button.lesson-btn.btn-border:hover {
   background-color: #0071CE;
   color: #fff;
@@ -30391,8 +30395,8 @@ button.lesson-btn.btn-border:hover {
 
 
 .feedback-sec {
- max-width: 730px;
- 
+  max-width: 730px;
+
 }
 
 .video-wrap video {
@@ -30406,6 +30410,7 @@ button.lesson-btn.btn-border:hover {
   position: relative;
   padding-left: 30px;
 }
+
 .timeline::before {
   content: '';
   position: absolute;
@@ -30415,11 +30420,13 @@ button.lesson-btn.btn-border:hover {
   width: 2px;
   background: #cfd8dc;
 }
+
 .event {
   position: relative;
   margin-bottom: 20px;
   cursor: pointer;
 }
+
 .event .dot {
   position: absolute;
   left: -30px;
@@ -30431,23 +30438,27 @@ button.lesson-btn.btn-border:hover {
   box-shadow: 0 0 0 3px #2196f3;
   top: 4px;
 }
+
 .event.active .dot {
   background: #4caf50;
   box-shadow: 0 0 0 2px #4caf50;
 }
+
 .content-box {
   background: white;
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   margin-left: 10px;
   margin-top: 20px;
   display: none;
 }
+
 .content-box.open {
-display: block;
+  display: block;
 }
-.date::before{
+
+.date::before {
   content: '';
   border-top: 1px solid #BCBCBC;
   width: auto;
@@ -30456,21 +30467,22 @@ display: block;
   top: 20px;
   right: 0;
 }
-.event.active .ti-chevron-down::before{
-content: "\ea62";
+
+.event.active .ti-chevron-down::before {
+  content: "\ea62";
 }
 
-.event.active .toggle>span.bg-primary{
+.event.active .toggle>span.bg-primary {
   background: #42A439 !important;
 }
+
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
   }
 
   .post-thumbnail {
-    max-height: 100%;
-    height:100%;
+    height: 335px;
   }
 }
 
@@ -30486,7 +30498,24 @@ content: "\ea62";
   .ctm-post-card {
     background-color: transparent;
   }
+
   .lession-sec {
     padding: 60px 10px;
   }
+
+  .order-3.order-sm-2 {
+    width: 100%;
+  }
+
+  .custom-event-class {
+    display: table-row !important;
+  }
+}
+
+.fc .fc-list-event:hover td {
+  background-color: transparent;
+}
+
+div#calendar .fc-list-table {
+  overflow-y: auto;
 }
