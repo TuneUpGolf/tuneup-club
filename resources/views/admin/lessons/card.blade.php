@@ -35,9 +35,9 @@
 
     <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
         <div class="flex flex-row justify-between">
-            <div class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+            <!-- <div class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
                 {!! $subtitle !!}
-            </div>
+            </div> -->
             @if ($model->is_package_lesson)
             <div class="bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-full">
                 Package
