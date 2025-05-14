@@ -10,7 +10,7 @@
             <button id='onlineTab' class="tablinks active">Online</button>
             </hr>
         </div>
-        <div class="flex flex-col justify-center items-center w-100">
+        <div class="flex flex-col items-center w-100">
             <livewire:lessons-grid-view />
         </div>
     </div>
