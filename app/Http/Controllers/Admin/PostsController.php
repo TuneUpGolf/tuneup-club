@@ -51,6 +51,7 @@ class PostsController extends Controller
             $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
             $posts->load('influencer');
             $posts->load('follower');
+            $posts->load('purchasePost');
             return view('admin.posts.infinite', compact('posts', 'isInfluencer', 'isSubscribed', 'isFollowing'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
