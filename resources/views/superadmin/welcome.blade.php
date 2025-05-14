@@ -159,9 +159,9 @@
             <div class="d-flex flex-column gap-4">
                 <div>
 
-                    <img src="{{ asset('assets/images/landing-page-images/logo (5).png') }}" alt="" />
+                    <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" alt="" />
                 </div>
-                <p class="text-white fot-golf word-spacing-5">
+                <p class=" fot-golf word-spacing-5">
                     Trusted by Industry leading Golf Club, Instructors, Acadmies, and
                     Teaching Professionals.
                 </p>
