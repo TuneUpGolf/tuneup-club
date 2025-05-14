@@ -65,4 +65,12 @@ class Lesson extends Model
             ->withPivot('created_by', 'type')
             ->withTimestamps();
     }
+
+    public function pendingOnlinePurchases()
+    {
+        return $this->hasMany(Purchase::class, 'lesson_id')
+            ->where('status', Purchase::STATUS_COMPLETE)
+            ->where('isFeedbackComplete', false)
+            ->whereHas('lesson', fn($q) => $q->where('type', self::LESSON_TYPE_ONLINE));
+    }
 }

@@ -3,6 +3,7 @@ namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
 use App\Models\Lesson;
+use App\Models\Purchase;
 use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Html\Column;
@@ -51,14 +52,21 @@ class UpcomingLessonDataTable extends DataTable
 
     public function query(Lesson $model)
     {
-        if (tenant('id') == null) {
-            return $model->newQuery()->select(['lessons.*', 'domains.domain'])
-                ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Admin')->where('created_at', '>', now());
-        } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_FOLLOWER) {
-            return $model->newQuery()->where('tenant_id', '=', tenant('id'))->where('active_status', true)->where('created_at', '>', now());
-        } else {
-            return $model->newQuery()->where('created_by', '=', Auth::user()->id)->where('created_at', '>', now());
-        }
+
+        $user = auth()->user();
+
+        return $model->newQuery()
+            ->where('type', Lesson::LESSON_TYPE_ONLINE)
+            ->whereHas('purchases', function ($query) use ($user) {
+                $query->where('status', Purchase::STATUS_COMPLETE)
+                    ->where('isFeedbackComplete', false)
+                    ->when($user->type == Role::ROLE_INFLUENCER, function ($q) use ($user) {
+                        $q->where('influencer_id', $user->id);
+                    })
+                    ->when($user->type == Role::ROLE_FOLLOWER, function ($q) use ($user) {
+                        $q->where('follower_id', $user->id);
+                    });
+            });
     }
 
     public function html()
@@ -140,13 +148,15 @@ class UpcomingLessonDataTable extends DataTable
             Column::make('lesson_quantity')->title(__('quantity')),
             Column::make('created_at')->title(__('Created At')),
             Column::make('type')->title(__('Type')),
-            Column::computed('action')->title(__('Action'))
+        ];
+        if (auth()->user()->type !== Role::ROLE_FOLLOWER) {
+            $columns[] = Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)
                 ->addClass('text-center')
-                ->width('20%'),
-        ];
+                ->width('20%');
+        }
     }
 
     protected function filename(): string
