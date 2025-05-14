@@ -29,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
@@ -128,13 +129,20 @@ class InfluencerController extends Controller
                 $user                          = User::create($userData);
                 $user->assignRole('Influencer');
                 if ($request->hasFile('file')) {
-                    $user['logo'] = $request->file('file')->store('dp');
+                    $currentDomain = tenant('domains');
+                    $currentDomain = $currentDomain[0]->domain;
+                    $fileName = $request->file('file');
+                    $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
+                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                    $imageUrl      = Storage::disk('spaces')->url($filePath);
+                    $user['logo']      = $imageUrl;
+                    $user['avatar']      = $imageUrl;
                 }
                 $user->update();
                 $chatUserDetails = $this->chatService->getUserProfile($request->email);
-                if (! empty($chatUserDetails['data'])) {
-                    $existingTenantId = $this->chatService->fetchExistingTenantIds($chatUserDetails['data']);
-                    $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', $existingTenantId);
+
+                if ($chatUserDetails['status'] == 'success') {
+                    $this->chatService->updateUser($chatUserDetails-['data']['_id'], 'tenant_id', tenant('id'), $chatUserDetails['data']['email']);
                     $user->update([
                         'chat_user_id' => $chatUserDetails['data']['_id'],
                     ]);
@@ -148,7 +156,7 @@ class InfluencerController extends Controller
                 ]);
                 $userPhone = Str::of($userData['dial_code'])->append($userData['phone'])->value();
                 $userPhone = str_replace(['(', ')'], '', $userPhone);
-                SendSMS::dispatch("+" . $userPhone, $message);
+                // SendSMS::dispatch("+" . $userPhone, $message);
             }
             return redirect()->route('influencer.index')->with('success', __('Influencer created successfully.'));
         } else {

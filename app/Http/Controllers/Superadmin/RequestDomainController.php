@@ -43,31 +43,7 @@ class RequestDomainController extends Controller
                 header('location:install');
                 die;
             }
-            $lang                           = UtilityFacades::getActiveLanguage();
-            \App::setLocale($lang);
-            $appsMultipleImageSettings      = json_decode(UtilityFacades::getsettings('apps_multiple_image_setting'));
-            $features                       = json_decode(UtilityFacades::getsettings('feature_setting'));
-            $businessGrowthsSettings        = json_decode(UtilityFacades::getsettings('business_growth_setting'));
-            $businessGrowthsViewSettings    = json_decode(UtilityFacades::getsettings('business_growth_view_setting'));
-            $testimonials                   = Testimonial::where('status', 1)->get();
-            $plans                          = Plan::where('active_status', 1)->get();
-            $faqs                           = Faq::orderBy('order')->take(4)->get();
-            $footerMainMenus                = FooterSetting::where('parent_id', 0)->get();
-            if (UtilityFacades::getsettings('landing_page_status') == '1') {
-                return view('welcome', compact(
-                    'plans',
-                    'features',
-                    'faqs',
-                    'testimonials',
-                    'businessGrowthsSettings',
-                    'businessGrowthsViewSettings',
-                    'appsMultipleImageSettings',
-                    'footerMainMenus',
-                    'lang'
-                ));
-            } else {
-                return redirect()->route('home');
-            }
+                return view('superadmin.welcome');
         } else {
             $lang                           = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);

@@ -93,7 +93,7 @@ class LessonController extends Controller
         if (! empty($followers)) {
             $title = "New Lesson Available!";
             $body  = Auth::user()->name . " has created a new lesson: " . $lesson->lesson_name;
-            SendPushNotification::dispatch($followers, $title, $body);
+            // SendPushNotification::dispatch($followers, $title, $body);
         }
 
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson created successfully.');
@@ -363,7 +363,7 @@ class LessonController extends Controller
                 if (! empty($followers)) {
                     $title = "New Lesson Available!";
                     $body  = Auth::user()->name . " has created a new lesson: " . $lesson->lesson_name;
-                    SendPushNotification::dispatch($followers, $title, $body);
+                    // SendPushNotification::dispatch($followers, $title, $body);
                 }
             } catch (\Exception $e) {
                 return throw new Exception($e->getMessage());
@@ -529,7 +529,7 @@ class LessonController extends Controller
             if (! empty($followers)) {
                 $title = "New Lessons Available!";
                 $body  = "{$lesson->user->name} has created new lesson opportunities: {$lesson->lesson_name}. Check now!";
-                SendPushNotification::dispatch($followers, $title, $body);
+                // SendPushNotification::dispatch($followers, $title, $body);
             }
 
             // Return based on redirect parameter

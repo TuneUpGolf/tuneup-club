@@ -304,7 +304,7 @@ class PurchaseController extends Controller
                             'name'    => $purchase->follower->name,
                             'ammount' => $purchase->total_amount,
                         ]);
-                        SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Purchase Confirmed', $message);
+                        // SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Purchase Confirmed', $message);
                     }
                 }
 
@@ -399,7 +399,7 @@ class PurchaseController extends Controller
                             'name' => $purchase->follower->name,
                         ]);
 
-                        SendPushNotification::dispatch($purchase?->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
+                        // SendPushNotification::dispatch($purchase?->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
                     }
 
                     if ($request->checkout == 1) {
@@ -473,7 +473,7 @@ class PurchaseController extends Controller
                             'name' => $purchase->follower->name,
                         ]);
 
-                        SendPushNotification::dispatch($purchase->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
+                        // SendPushNotification::dispatch($purchase->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
                     }
                     return response()->json(['message' => 'Lesson Video Added Successfully', 'lessons_used' => $purchase->lessons_used, 'lessons_remaing' => $purchase->lesson->lesson_quantity - $purchase->lessons_used], 200);
                 } else {
@@ -552,7 +552,7 @@ class PurchaseController extends Controller
                         ]);
 
                         if (isset($purchase->follower->pushToken->token)) {
-                            SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Feedback Recieved', $message);
+                            // SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Feedback Recieved', $message);
                         }
 
                     }
@@ -673,7 +673,7 @@ class PurchaseController extends Controller
                     'name' => $purchaseVideo->purchase->lesson->user->name,
                 ]);
 
-                SendPushNotification::dispatch($purchaseVideo->purchase->follower->pushToken->token, 'Feedback Recieved', $message);
+                // SendPushNotification::dispatch($purchaseVideo->purchase->follower->pushToken->token, 'Feedback Recieved', $message);
 
                 if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
                     $purchase                     = Purchase::find($purchaseVideo->purchase_id);

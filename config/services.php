@@ -57,4 +57,12 @@ return [
         ],
         'currency' => env('STRIPE_CURRENCY'),
     ],
+
+    'chat' => [
+        'base_url' => env('CHAT_BASE_URL'),
+    ],
+
+    'aws' => [
+        'base_url' => env('AWS_S3_URL'),
+    ],
 ];
