@@ -66,6 +66,7 @@ class UpcomingLessonDataTable extends DataTable
 
         return $this->builder()
             ->setTableId('lessons-table')
+            ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
@@ -94,7 +95,28 @@ class UpcomingLessonDataTable extends DataTable
                         <'col-sm-7'p>>
                         ",
                 'buttons'        => [],
-                "scrollX"        => true,
+                "scrollX" => true,
+                "responsive" => [
+                    "scrollX"=> false,
+                    "details" => [
+                        "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
+                        "renderer" => "function (api, rowIdx, columns) {
+                            var data = $('<table/>').addClass('vertical-table');
+                            $.each(columns, function (i, col) {
+                                data.append(
+                                    '<tr>' +
+                                        '<td><strong>' + col.title + '</strong></td>' +
+                                        '<td>' + col.data + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                            return data;
+                        }"
+                    ]
+                ],
+                "rowCallback" => 'function(row, data, index) {
+                    $(row).addClass("custom-parent-row"); 
+                }',
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
