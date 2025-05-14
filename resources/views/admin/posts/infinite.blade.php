@@ -38,7 +38,10 @@
                                         <div class="flex flex-wrap w-100">
                                             @if ($posts->count() > 0)
                                                 @foreach ($posts as $post)
-                                                    @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed])
+                                                    @php
+                                                        $purchasePost = $post->purchasePost->firstWhere('follower_id', Auth::id());
+                                                    @endphp
+                                                    @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed, 'purchasePost' => $purchasePost])
                                                 @endforeach
 
                                                 {{ $posts->links('pagination::bootstrap-4') }}

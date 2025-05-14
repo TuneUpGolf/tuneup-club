@@ -83,7 +83,7 @@ class HomeController extends Controller
 
         // Fetch Influencer Statistics for Admins (Without Follower Count)
         $influencerStats = [];
-        if ($userType == "Admin") {
+        if ($userType == "Admin" ||  $userType == "Influencer") {
             $influencerStats = User::where('tenant_id', $tenantId)
                 ->where('type', Role::ROLE_INFLUENCER)
                 ->withCount([
@@ -93,8 +93,12 @@ class HomeController extends Controller
                     'purchase as pending_online_lessons'     => fn($query)     => $query->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE)),
                     'purchase as pending_inperson_lessons'   => fn($query)   => $query->where('isFeedbackComplete', false)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON)),
                 ])
+                ->with([
+                    'pendingOnlinePurchases' => fn($query) => $query->with('lesson'),
+                ])
                 ->get();
         }
+        // dd($influencerStats);
 
         [$purchaseComplete, $purchaseInprogress] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_ONLINE);
         [$inPersonCompleted, $inPersonPending]   = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_INPERSON);
