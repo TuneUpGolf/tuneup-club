@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         token
     } = window.chatConfig;
 
-    const socket = io("https://tuneupchatapp.node.brainvire.dev", {
+    const socket = io(`${window.chatBaseUrl}`, {
         query: { senderid: senderId },
         transports: ["polling", "websocket"],
         forceNew: true,
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 🔹 load chat messages as per page
     async function loadMessages(page = 1) {
-        const response = await fetch("https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/chat/list", {
+        const response = await fetch(`${window.chatBaseUrl}/brainvire-chat-base-app/api/v1/chat/list`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
         let mediaContent = "";
         if (message.isFile && message.fileName && message.filePath && message.fileType) {
-            const fileUrl = `https://tuneup-club-staging.nyc3.digitaloceanspaces.com/${message.fileName}`;
+            const fileUrl = `${window.s3BaseUrl}${message.fileName}`;
             const ext = message.fileType.toLowerCase();
     
             if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext)) {
@@ -225,7 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         formData.append("image", file);
 
         try {
-            const response = await fetch("https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/chat/image", {
+            const response = await fetch(`${window.chatBaseUrl}/brainvire-chat-base-app/api/v1/chat/image`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`

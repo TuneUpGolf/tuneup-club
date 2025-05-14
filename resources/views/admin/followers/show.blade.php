@@ -174,6 +174,8 @@
             recieverImage : "{{ $follower->dp }}",
             token : "{{ $token }}",
         }
+        window.chatBaseUrl = "{{ config('services.chat.base_url') }}";
+        window.s3BaseUrl = "{{ config('services.aws.base_url') }}";
     </script>
     <script src="{{ asset('assets/custom-js/chat.js') }}"></script>
 @endpush

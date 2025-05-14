@@ -9,7 +9,7 @@ class ChatService
     public function createUser($user)
     {
 
-        $response = Http::post('https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/user/create', [
+        $response = Http::post(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/user/create', [
             'name'              => $user->name,
             'email'             => $user->email,
             'country'           => ! empty($user->country_code) ? $user->country_code : 'in',
@@ -40,7 +40,7 @@ class ChatService
     {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-        ])->post('https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/user/get-profile', [
+        ])->post(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/user/get-profile', [
             'email' => $email,
         ]);
 
@@ -75,7 +75,7 @@ class ChatService
         $response = Http::withHeaders([
             'Content-Type'  => 'application/json',
             'Authorization' => 'Bearer ' . $token,
-        ])->patch('https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/user/update', $payload);
+        ])->patch(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/user/update', $payload);
 
         return $response->json();
     }
@@ -96,7 +96,7 @@ class ChatService
     {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-        ])->post('https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/user/token', [
+        ])->post(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/user/token', [
             'userId' => $chatUserId,
         ]);
 
@@ -115,7 +115,7 @@ class ChatService
         $response = Http::withHeaders([
             'Content-Type'  => 'application/json',
             'Authorization' => 'Bearer ' . $token,
-        ])->post('https://tuneupchatapp.node.brainvire.dev/brainvire-chat-base-app/api/v1/group/create', $payload);
+        ])->post(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/group/create', $payload);
 
         $responseData = $response->json();
 
