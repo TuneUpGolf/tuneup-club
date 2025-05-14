@@ -43,7 +43,7 @@ class RequestDomainController extends Controller
                 header('location:install');
                 die;
             }
-                return redirect()->route('home');
+                return view('superadmin.welcome');
         } else {
             $lang                           = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
