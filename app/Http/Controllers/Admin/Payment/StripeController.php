@@ -436,14 +436,16 @@ class StripeController extends Controller
             $plan          = Plan::find($data['plan_id']);
             $user->plan_id = $plan->id;
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
-                $user->plan_expired_date = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
+                $planExpiredDate = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
+                $user->plan_expired_date = $planExpiredDate;
             } elseif ($plan->durationtype == 'Year' && $plan->id != '1') {
-                $user->plan_expired_date = Carbon::now()->addYears($plan->duration)->isoFormat('YYYY-MM-DD');
+                $planExpiredDate = Carbon::now()->addYears($plan->duration)->isoFormat('YYYY-MM-DD');
+                $user->plan_expired_date = $planExpiredDate;
             } else {
                 $user->plan_expired_date = null;
             }
             if($plan->is_chat_enabled){
-                $this->chatService->updateUser($user->chat_user_id, 'tenant_id', '3', $user->email);
+                $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
                 $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->influencer->chat_user_id);
                 if($groupId){
                     $user->group_id = $groupId;

@@ -61,8 +61,7 @@ class RegisteredUserController extends Controller
         $user->assignRole(Role::ROLE_FOLLOWER);
         $chatUserDetails = $this->chatService->getUserProfile($request->email);
         if ($chatUserDetails['status'] == 'success') {
-            $existingTenantId = $this->chatService->fetchExistingTenantIds($chatUserDetails['data']);
-            $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', $existingTenantId);
+            $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
             $user->update([
                 'chat_user_id' => $chatUserDetails['data']['_id'],
             ]);
