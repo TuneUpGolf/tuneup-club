@@ -291,4 +291,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(PushToken::class, 'influencer_id');
     }
+    public function pendingOnlinePurchases()
+    {
+        return $this->hasMany(Purchase::class, 'influencer_id') // specify foreign key
+            ->where('status', Purchase::STATUS_COMPLETE)
+            ->where('isFeedbackComplete', false)
+            ->whereHas('lesson', function ($q) {
+                $q->where('type', Lesson::LESSON_TYPE_ONLINE);
+            });
+    }
 }
