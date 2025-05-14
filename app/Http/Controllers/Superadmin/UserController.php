@@ -83,6 +83,10 @@ class UserController extends Controller
                 $user->application_fee_percentage = 10;
 
                 $user->assignRole('Admin');
+                $actualDomain = $request->domains . '.' . env('APP_URL');
+                $domain = env('FULL_DOMAIN')
+                    ? $request->domains . '.' . env('APP_URL')
+                    : $request->domains;
 
                 if ($request->hasFile('logo')) {
                     $user['logo'] = $request->file('logo')->store('logo/');
@@ -93,8 +97,8 @@ class UserController extends Controller
                         'id'    => $user->id,
                     ]);
                     $domain     = Domain::create([
-                        'domain'        => $request->domains,
-                        'actual_domain' => $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST),
+                        'domain'        => $domain,
+                        'actual_domain' => $actualDomain,
                         'tenant_id'     => $tenant->id,
                     ]);
                     $user->tenant_id   = $tenant->id;
@@ -149,8 +153,8 @@ class UserController extends Controller
                         'tenancy_db_password'   => $request->db_password,
                     ]);
                     $domain = Domain::create([
-                        'domain'        => $request->domains,
-                        'actual_domain' => $request->domains,
+                        'domain'        => $domain,
+                        'actual_domain' => $actualDomain,
                         'tenant_id'     => $tenant->id,
                     ]);
                     $user->tenant_id    = $tenant->id;
