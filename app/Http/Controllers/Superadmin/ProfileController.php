@@ -104,6 +104,7 @@ class ProfileController extends Controller
         if ($request->filled('avatar')) {
             $image     = $request->avatar;
             $image     = str_replace('data:image/png;base64,', '', $image);
+            $image     = str_replace('data:image/jpeg;base64,', '', $image);
             $image     = str_replace(' ', '+', $image);
             $imageName = time() . '.' . 'png';
             $filePath  = "uploads/avatar/superAdmin/" . Auth::user()->id . '/' . $imageName;
