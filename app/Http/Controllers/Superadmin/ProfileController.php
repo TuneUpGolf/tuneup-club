@@ -101,6 +101,17 @@ class ProfileController extends Controller
         $user->country_code = $request->country_code;
         $user->dial_code    = $request->dial_code;
         $user->phone        = str_replace(' ', '', $request->phone);
+        if ($request->filled('avatar')) {
+            $image     = $request->avatar;
+            $image     = str_replace('data:image/png;base64,', '', $image);
+            $image     = str_replace(' ', '+', $image);
+            $imageName = time() . '.' . 'png';
+            $filePath  = "uploads/avatar/superAdmin/" . Auth::user()->id . '/' . $imageName;
+            Storage::disk('spaces')->put($filePath, base64_decode($image), 'public');
+            $imagePath = Storage::disk('spaces')->url($filePath);
+            $user->logo = $imagePath;
+            $user->avatar = $imagePath;
+        }
         $user->save();
         return redirect()->back()->with('success',  __('Account details updated successfully.'));
     }
@@ -142,18 +153,19 @@ class ProfileController extends Controller
 
     public function updateAvatar(Request $request)
     {
-        $disk   = Storage::disk();
         $user   = User::find(auth()->id());
         request()->validate([
             'avatar' => 'required',
         ]);
-        $image          = $request->avatar;
-        $image          = str_replace('data:image/png;base64,', '', $image);
-        $image          = str_replace(' ', '+', $image);
-        $imageName      = time() . '.' . 'png';
-        $imagePath      = "uploads/avatar/" . $imageName;
-        $disk->put($imagePath, base64_decode($image));
-        $user->avatar   = $imagePath;
+        $image     = $request->avatar;
+        $image     = str_replace('data:image/png;base64,', '', $image);
+        $image     = str_replace(' ', '+', $image);
+        $imageName = time() . '.' . 'png';
+        $filePath  = "uploads/avatar/superAdmin/" . Auth::user()->id . '/' . $imageName;
+        Storage::disk('spaces')->put($filePath, base64_decode($image), 'public');
+        $imagePath = Storage::disk('spaces')->url($filePath);
+        $user->logo = $imagePath;
+        $user->avatar = $imagePath;
         if ($user->save()) {
             return __("Avatar updated successfully.");
         }
