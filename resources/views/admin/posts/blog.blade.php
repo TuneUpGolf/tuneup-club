@@ -85,7 +85,7 @@ body.modal-open .dash-container {
         @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
             <img class=" w-full post-thumbnail"
-                src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                src="{{  $post->file }}"
                 alt="Post Image" />
             <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                 <div
@@ -110,7 +110,7 @@ body.modal-open .dash-container {
         @else
 
         <img class=" w-full post-thumbnail open-full-thumbnail"
-            src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg" alt="Profile" />
+            src="{{  $post->file }}" alt="Profile" />
         <div id="imageModal" class="modal">
             <span class="close" id="closeBtn">&times;</span>
             <img class="modal-content" id="fullImage">
@@ -120,7 +120,7 @@ body.modal-open .dash-container {
         @if ($post->paid && !isset($purchasePost))
         <div class="relative paid-post-wrap">
             <img class=" w-full post-thumbnail"
-                src="https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg"
+                src="{{  $post->file }}"
                 alt="Post Image" />
             <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                 <div
