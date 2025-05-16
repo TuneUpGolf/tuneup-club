@@ -65,4 +65,7 @@ return [
     'aws' => [
         'base_url' => env('AWS_S3_URL'),
     ],
+    'env' => [
+        'app_url' => env('APP_URL'),
+    ]
 ];
