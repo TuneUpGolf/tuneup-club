@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CouponController extends Controller
 {
@@ -103,18 +104,13 @@ class CouponController extends Controller
     {
         if (Auth::user()->can('edit-coupon')) {
             request()->validate([
-                'icon_input' => 'required',
-            ]);
-            if ($request->icon_input == 'manual') {
-                $request->merge(['code' => $request->manualCode]);
-            } else {
-                $request->merge(['code' => $request->autoCode]);
-            }
-            request()->validate([
                 'discount' => 'required',
                 'discount_type' => 'required',
                 'limit' => 'required',
-                'code' => 'required|unique:coupons,code',
+                'code'           => [
+                'required',
+                Rule::unique('coupons', 'code')->ignore($id),
+            ],
             ]);
             $coupon                 = Coupon::find($id);
             $coupon->discount       = $request->discount;
