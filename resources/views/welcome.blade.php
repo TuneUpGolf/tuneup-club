@@ -8,7 +8,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.css" />
-<link rel="stylesheet" href="http://parth.tc.localhost/projects/tuneup_club/vendor/tailwind.css" />
+<link rel="stylesheet" href={{ asset('vendor/tailwind.css') }} />
 <link rel="stylesheet" href="https://demo.collegegolfrecruitingportal.com/assets/css/customizer.css">
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
