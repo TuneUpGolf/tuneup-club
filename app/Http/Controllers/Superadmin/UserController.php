@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Stancl\Tenancy\Database\Models\Domain;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -55,8 +56,8 @@ class UserController extends Controller
     public function store(Request $request)
     {
         if (Auth::user()->can('create-user')) {
+            \DB::beginTransaction();
             try {
-                \DB::beginTransaction();
                 if (UtilityFacades::getsettings('domain_config') == 'on') {
                     $request->merge(['domains' => $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST)]);
                 }
@@ -83,9 +84,19 @@ class UserController extends Controller
                 $user->application_fee_percentage = 10;
 
                 $user->assignRole('Admin');
+                $actualDomain = $request->domains . '.' . parse_url(config('services.env.app_url'), PHP_URL_HOST);
+                $domain = env('FULL_DOMAIN')
+                    ? $request->domains . '.' . parse_url(config('services.env.app_url'), PHP_URL_HOST)
+                    : $request->domains;
 
                 if ($request->hasFile('logo')) {
-                    $user['logo'] = $request->file('logo')->store('logo/');
+                    $fileName = $request->file('logo');
+                    $filePath = $request->domains . '/' . Auth::user()->id . '/posts' . $fileName;
+                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                    $imageUrl      = Storage::disk('spaces')->url($filePath);
+                    $user->logo      = $imageUrl;
+                    $user->avatar      = $imageUrl;
+                    $user->save();
                 }
 
                 if (UtilityFacades::getsettings('database_permission') == '1') {
@@ -93,8 +104,8 @@ class UserController extends Controller
                         'id'    => $user->id,
                     ]);
                     $domain     = Domain::create([
-                        'domain'        => $request->domains,
-                        'actual_domain' => $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST),
+                        'domain'        => $domain,
+                        'actual_domain' => $actualDomain,
                         'tenant_id'     => $tenant->id,
                     ]);
                     $user->tenant_id   = $tenant->id;
@@ -138,7 +149,7 @@ class UserController extends Controller
                     ]);
                     $userPhone = Str::of($users['dial_code'])->append($users['phone'])->value();
                     $userPhone = str_replace(array('(', ')'), '', $userPhone);
-                    SendSMS::dispatch("+" . $userPhone, $message);
+                    // SendSMS::dispatch("+" . $userPhone, $message);
 
                     tenancy()->end();
                 } else {
@@ -149,19 +160,19 @@ class UserController extends Controller
                         'tenancy_db_password'   => $request->db_password,
                     ]);
                     $domain = Domain::create([
-                        'domain'        => $request->domains,
-                        'actual_domain' => $request->domains,
+                        'domain'        => $domain,
+                        'actual_domain' => $actualDomain,
                         'tenant_id'     => $tenant->id,
                     ]);
                     $user->tenant_id    = $tenant->id;
                     $user->created_by   = Auth::user()->id;
                     $user->save();
+                    \DB::commit();
                 }
-                \DB::commit();
-
                 // tenant database setting store
                 return redirect()->route('users.index')->with('success', __('User created successfully.'));
             } catch (\Exception $e) {
+                \DB::rollback();
                 echo $e->getMessage();
                 return redirect()->back()->with('errors', 'Please check database name, database user name and database password.' . $e->getMessage());
             }

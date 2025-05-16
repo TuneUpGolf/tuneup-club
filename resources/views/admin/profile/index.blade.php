@@ -52,7 +52,8 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="avatar me-3">
-                        <img src="{{ $user->avatar ?? $user->dp }}" class="img-user wid-80 rounded-circle">
+                        <img src="{{ $user->avatar ?? $user->dp }}" class="img-user rounded-circle"
+                        style="width: 80px; height: 70px; object-fit: cover;" alt="Avatar">
                     </div>
                     <div class="d-block d-sm-flex align-items-center justify-content-between w-100">
                         <div class="mb-3 mb-sm-0">

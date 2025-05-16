@@ -180,12 +180,12 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
     });
 
     //profile
-    Route::get('profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('profile/edit', [ProfileController::class, 'index'])->name('profile.view');
     Route::delete('/profile-destroy/delete', [ProfileController::class, 'destroy'])->name('profile.delete');
     Route::get('profile-status', [ProfileController::class, 'profileStatus'])->name('profile.status');
     Route::post('update-avatar', [ProfileController::class, 'updateAvatar'])->name('update.avatar');
     Route::post('profile/basicinfo/update/', [ProfileController::class, 'BasicInfoUpdate'])->name('profile.update.basicinfo');
-    Route::post('update-login-details', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
+    Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
 
     //setting
     Route::get('settings', [SettingsController::class, 'index'])->name('settings');

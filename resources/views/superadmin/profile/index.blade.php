@@ -41,8 +41,8 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-3">
-                                    <img id="avatar-img" class="img-user wid-80 rounded-circle"
-                                        src="{{ $user->avatar_image }}">
+                                    <img id="avatar-img" class="img-user rounded-circle" src="{{ $user->avatar }}"
+                                        style="width: 80px; height: 70px; object-fit: cover;" alt="Avatar">
                                 </div>
                                 <div class="d-block d-sm-flex align-items-center justify-content-between w-100">
                                     <div class="mb-3 mb-sm-0">
@@ -127,6 +127,8 @@
                                             for="avatarCrop">
                                             {{ __('Update Avatar') }}
                                             {{ Form::file('file', ['id' => 'avatarCrop', 'class' => 'd-none', 'accept' => 'image/jpeg, image/png']) }}
+                                            {{-- Hidden field to store base64 image --}}
+                                            {{ Form::hidden('avatar', null, ['id' => 'avatar-hidden']) }}
                                         </label>
                                     </div>
                                     <div id="avatar-updater" class="col-xs-12 d-none">
@@ -443,6 +445,7 @@
                 $("#avatar-holder").addClass("d-none"), $("#avatar-updater").removeClass("d-none");
                 var e = new FileReader;
                 e.onload = function(e) {
+                    document.getElementById('avatar-hidden').value = e.target.result;
                     $image_crop.croppie("bind", {
                         url: e.target.result
                     })

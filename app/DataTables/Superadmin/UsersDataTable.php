@@ -38,7 +38,7 @@ class UsersDataTable extends DataTable
                 return $status;
             })
             ->editColumn('logo', function (User $user) {
-                $imageSrc = $user->logo ?  asset('/storage' . '/' . $user->logo) : asset('assets/img/logo/logo.png');
+                $imageSrc = $user->logo ?  $user->logo : asset('assets/img/logo/logo.png');
                 return "<a href= ' " . route('users.impersonate', $user->id) . " '><img src=' " . $imageSrc . " ' width='50' /></a>";
             })
             ->rawColumns(['role', 'action', 'active_status', 'logo']);
