@@ -84,9 +84,9 @@ class UserController extends Controller
                 $user->application_fee_percentage = 10;
 
                 $user->assignRole('Admin');
-                $actualDomain = $request->domains . '.' . env('APP_URL');
+                $actualDomain = $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST);
                 $domain = env('FULL_DOMAIN')
-                    ? $request->domains . '.' . env('APP_URL')
+                    ? $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST)
                     : $request->domains;
 
                 if ($request->hasFile('logo')) {
