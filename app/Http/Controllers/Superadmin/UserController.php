@@ -167,9 +167,8 @@ class UserController extends Controller
                     $user->tenant_id    = $tenant->id;
                     $user->created_by   = Auth::user()->id;
                     $user->save();
+                    \DB::commit();
                 }
-                \DB::commit();
-
                 // tenant database setting store
                 return redirect()->route('users.index')->with('success', __('User created successfully.'));
             } catch (\Exception $e) {
