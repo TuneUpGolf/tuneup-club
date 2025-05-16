@@ -56,8 +56,8 @@ class UserController extends Controller
     public function store(Request $request)
     {
         if (Auth::user()->can('create-user')) {
+            \DB::beginTransaction();
             try {
-                \DB::beginTransaction();
                 if (UtilityFacades::getsettings('domain_config') == 'on') {
                     $request->merge(['domains' => $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST)]);
                 }
@@ -172,6 +172,7 @@ class UserController extends Controller
                 // tenant database setting store
                 return redirect()->route('users.index')->with('success', __('User created successfully.'));
             } catch (\Exception $e) {
+                \DB::rollback();
                 echo $e->getMessage();
                 return redirect()->back()->with('errors', 'Please check database name, database user name and database password.' . $e->getMessage());
             }
