@@ -775,7 +775,7 @@ class PurchaseController extends Controller
         $chatEnabledPlanId = Plan::where('influencer_id', $purchase->influencer_id)
             ->where('is_chat_enabled', true)->pluck('id')->toArray();
         $isSubscribed = in_array($purchase->follower->plan_id, $chatEnabledPlanId);
-        $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+        $token        = $this->chatService->getChatToken($purchase->follower->chat_user_id);
         return $dataTable->with('purchase', $purchase)->render('admin.purchases.show', compact('purchase', 'video', 'token', 'isSubscribed'));
     }
     public function destroy($id)

@@ -56,7 +56,7 @@ class FollowerController extends Controller
     {
         $follower     = Follower::findOrFail($id);
         $dataTable    = new FollowerPurchaseDataTable($id); // Pass follower ID to the datatable
-        $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
+        $token        = $this->chatService->getChatToken($follower->chat_user_id);
         $isSubscribed = $this->isSubscribed($follower);
         return $dataTable->render('admin.followers.show', compact('follower', 'dataTable', 'token', 'isSubscribed'));
     }

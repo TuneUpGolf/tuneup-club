@@ -87,7 +87,7 @@ class ProfileController extends Controller
     public function BasicInfoUpdate(Request $request)
     {
         $userDetail = Auth::user();
-        if ($userDetail->type === Role::ROLE_INFLUENCER) {
+        if ($userDetail->type !== Role::ROLE_FOLLOWER) {
             $user = User::find(Auth::id());
         } else {
             $user = Follower::find(Auth::id());
@@ -142,7 +142,7 @@ class ProfileController extends Controller
             Storage::disk('spaces')->put($filePath, base64_decode($image), 'public');
             $imagePath = Storage::disk('spaces')->url($filePath);
 
-            if ($user->type === Role::ROLE_INFLUENCER) {
+            if ($user->type !== Role::ROLE_FOLLOWER) {
                 $user->avatar = $imagePath;
                 $user->logo   = $imagePath;
             } else {
@@ -292,7 +292,7 @@ class ProfileController extends Controller
         $currentDomain = $currentDomain[0]->domain;
         $logo          = false;
 
-        if (auth()->user()->type == 'Influencer') {
+        if (auth()->user()->type !== Role::ROLE_FOLLOWER) {
             $user     = User::find(auth()->id());
             $basePath = $currentDomain . '/' . "uploads/avatar/influencer/";
             $column   = 'avatar';
