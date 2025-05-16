@@ -29,10 +29,10 @@
                                     <div class="float-end"><i class="ti ti-chevron-right"></i></div>
                                 </a>
                             @endif
-                            <a href="#delete_account"
+                            {{-- <a href="#delete_account"
                                 class="border-0 list-group-item list-group-item-action">{{ __('Delete Account') }}
                                 <div class="float-end"><i class="ti ti-chevron-right"></i></div>
-                            </a>
+                            </a> --}}
                         </div>
                     </div>
                 </div>
@@ -376,7 +376,7 @@
                             </div>
                         </div>
                     @endif
-                    <div id="delete_account" class="card">
+                    {{-- <div id="delete_account" class="card">
                         <div class="card-header">
                             <h5>{{ __('Delete Account') }}</h5>
                             <small
@@ -397,7 +397,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             <!-- [ sample-page ] end -->
