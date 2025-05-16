@@ -1,7 +1,7 @@
 {{-- user info and avatar --}}
 <div class="avatar av-l">
     <img alt="image" class="rounded-circle mr-1"
-        src="{{ file_exists(storage_path() . '/' . Auth::user()->avatar) ? Storage::url(tenant('id') . '/' . Auth::user()->avatar) : Storage::url('avatar/avatar.png') }}">
+        src="{{ Auth::user()->avatar ? Auth::user()->avatar : Storage::url('avatar/avatar.png') }}">
 </div>
 <p class="info-name">{{ config('chatify.name') }}</p>
 <div class="messenger-infoView-btns">
