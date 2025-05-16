@@ -169,10 +169,11 @@
         }
     }
 </style>
+@stack('css')
 </head>
 
 
-@stack('css')
+
 
 <body class="theme-2">
 
