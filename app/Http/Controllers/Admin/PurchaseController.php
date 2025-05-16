@@ -410,14 +410,17 @@ class PurchaseController extends Controller
                         return redirect()->route('purchase.index')->with('success', 'Video Successfully Added');
                     }
                 } catch (\Exception $e) {
+                    report($e);
                     return redirect()->back()->with('errors', $e->getMessage());
                 } catch (Error $e) {
+                    report($e);
                     return response($e, 419);
                 }
             } else {
                 return throw new ValidationException(['You dont have enough lessons remaining']);
             }
         } else {
+            report($e);
             return throw new ValidationException(['No purchase found for this ID']);
         }
     }

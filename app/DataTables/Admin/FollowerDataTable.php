@@ -169,9 +169,6 @@ class FollowerDataTable extends DataTable
                         <'col-sm-7'p>>
                         ",
                 'buttons'        => [
-                    ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('follower.import') . "';
-                   }", ],
                     [
                         'extend'    => 'collection',
                         'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
@@ -242,7 +239,6 @@ class FollowerDataTable extends DataTable
             'buttons' => [
                 'export' => __('Export'),
                 'print'  => __('Print'),
-                'reload' => __('Import'),
                 'excel'  => __('Excel'),
                 'csv'    => __('CSV'),
             ],
