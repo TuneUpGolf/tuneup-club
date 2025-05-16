@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Stancl\Tenancy\Database\Models\Domain;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -89,7 +90,13 @@ class UserController extends Controller
                     : $request->domains;
 
                 if ($request->hasFile('logo')) {
-                    $user['logo'] = $request->file('logo')->store('logo/');
+                    $fileName = $request->file('logo');
+                    $filePath = $request->domains . '/' . Auth::user()->id . '/posts' . $fileName;
+                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                    $imageUrl      = Storage::disk('spaces')->url($filePath);
+                    $user->logo      = $imageUrl;
+                    $user->avatar      = $imageUrl;
+                    $user->save();
                 }
 
                 if (UtilityFacades::getsettings('database_permission') == '1') {
@@ -142,7 +149,7 @@ class UserController extends Controller
                     ]);
                     $userPhone = Str::of($users['dial_code'])->append($users['phone'])->value();
                     $userPhone = str_replace(array('(', ')'), '', $userPhone);
-                    SendSMS::dispatch("+" . $userPhone, $message);
+                    // SendSMS::dispatch("+" . $userPhone, $message);
 
                     tenancy()->end();
                 } else {
