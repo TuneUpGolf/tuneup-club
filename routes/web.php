@@ -439,3 +439,15 @@ Route::post('/request/submit', function () {
 
     return redirect('/')->with('success', 'Request Submitted Successfully');
 })->name('request.submit');
+
+
+Route::get('/test-email', function () {
+    $to = request()->get('email');
+
+    \Illuminate\Support\Facades\Mail::raw('This is a test email sent from Laravel.', function ($message) use ($to) {
+        $message->to($to)
+            ->subject('Test Email from Laravel');
+    });
+
+    return 'Test email sent to ' . $to;
+});
