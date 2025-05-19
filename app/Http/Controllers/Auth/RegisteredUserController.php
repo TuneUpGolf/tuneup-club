@@ -68,7 +68,7 @@ class RegisteredUserController extends Controller
         } else {
             $this->chatService->createUser($user);
         }
-        ProcessSignupEmails::dispatch($user);
+        ProcessSignupEmails::dispatch($user, tenant('id'));
 
         // else {
         //     $user = User::create([
