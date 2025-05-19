@@ -123,7 +123,7 @@
                         <label class="form-label" for="password">{{ __('Password') }}</label>
 
                         <input id="password" type="password" class="form-control-new"
-                            placeholder="{{ __('Enter password') }}" name="password" tabindex="2" required
+                            placeholder="{{ __('Enter password') }}" name="password" required
                             autocomplete="current-password">
                     </div>
 
