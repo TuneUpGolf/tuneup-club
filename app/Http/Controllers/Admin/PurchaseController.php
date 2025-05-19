@@ -334,8 +334,8 @@ class PurchaseController extends Controller
     public function addVideo(Request $request)
     {
         $request->validate([
-            'video'       => 'required|mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
-            'video_2'     => 'mimetypes:mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4',
+            'video'       => 'required|mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4|max:102400',
+            'video_2'     => 'mimetypes:mimetypes:video/avi,video/mpeg,video/quicktime,video/mov,video/mp4|max:102400',
             'purchase_id' => 'required',
         ]);
         $purchase      = Purchase::with('lesson')->find($request?->purchase_id);
