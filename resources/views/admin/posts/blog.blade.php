@@ -53,6 +53,14 @@ body.modal-open .dash-container {
         @endif
         <div class="{{ $cls }}">
             <div class="flex justify-between items-center w-full">
+                <div class="flex items-center gap-3">
+                    <img class="w-16 h-16 rounded-full" src="{{ $post?->influencer?->logo }}" alt="Profile" />
+                    <div>
+                        <p class="text-xl text-white font-bold mb-0 leading-tight">
+                            {{ ucfirst($post->isFollowerPost ? $post?->follower->name : $post?->influencer?->name) }}
+                        </p>
+                    </div>
+                </div>
                 <div class="bg-white py-2 px-3 rounded-3xl shadow">
                     {!! Form::open([
                     'route' => ['purchase.like', ['post_id' => $post->id]],
