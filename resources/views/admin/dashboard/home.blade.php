@@ -354,7 +354,9 @@ $chatcolor = '#0C7785';
     $(document).ready(function() {
         var html =
             $('.dataTable-title').html(
-                "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>My online Submissions</span></div>"
+                `<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>
+                    {{ $users->type == 'Follower'?'My online Submissions':'Lesson Submissions' }}
+                </span></div>`
             );
     });
     </script>
