@@ -442,13 +442,12 @@ Route::post('/request/submit', function () {
 
 
 Route::get('/test-email', function () {
-    $to = 'rajan.chudasama@brainvire.com'; // Replace with your test email
+    $to = request()->get('email');
 
-     \Illuminate\Support\Facades\Mail::raw('This is a test email sent from Laravel.', function ($message) use ($to) {
+    \Illuminate\Support\Facades\Mail::raw('This is a test email sent from Laravel.', function ($message) use ($to) {
         $message->to($to)
-                ->subject('Test Email from Laravel');
+            ->subject('Test Email from Laravel');
     });
 
     return 'Test email sent to ' . $to;
 });
-
