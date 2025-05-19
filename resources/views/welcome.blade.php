@@ -172,29 +172,8 @@
                             @endif
                             <div class="{{ $cls }}">
                                 <div class="flex justify-between items-center w-full">
-                                    <div class="flex items-center gap-3">
-                                        <img class="w-16 h-16 rounded-full"
-                                            src="{{ $influencerDetails->avatar }}"
-                                            alt="Profile">
-                                        <div>
-                                            <p class="text-xl text-white font-bold mb-0 leading-tight">
-                                                {{ $influencerDetails->name }}
-                                            </p>
-                                            <span class="text-md text-white">
-                                                {{ $influencerDetails->type}}
-                                            </span>
-                                        </div>
-                                    </div>
 
                                     <div class="bg-white py-2 px-3 rounded-3xl shadow">
-                                        {{-- <form method="POST"
-                                            action="https://demo.collegegolfrecruitingportal.com/purchase/like?post_id=9"
-                                            accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
-                                                type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
-
-                                            <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
-                                                    class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }} Likes</span></button>
-                                        </form> --}}
                                         <a href="{{ route('login') }}">
                                             <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
                                                     class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }} Likes</span></button>
@@ -203,46 +182,58 @@
 
                                 </div>
                             </div>
-
-                            <div class="relative paid-post-wrap">
-                                <img class=" w-full post-thumbnail"
-                                    src="{{ $post->file}}"
-                                    alt="Post Image">
-                                @if($post->paid)
-                                    <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
-                                        <div
-                                            class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
-                                            <i class="ti ti-lock-open"></i>
+                            @if ($post->file_type == 'image')
+                                <div class="relative paid-post-wrap">
+                                    <img class=" w-full post-thumbnail"
+                                        src="{{ $post->file}}">
+                                    @if($post->paid)
+                                        <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                            <div
+                                                class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                <i class="ti ti-lock-open"></i>
+                                            </div>
+                                            <a href="{{ route('login') }}">
+                                                <div
+                                                    class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                    <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
+                                                        {{ $currency . ' ' . $post->price }}</button>
+                                                </div>
+                                            </a>
                                         </div>
-                                        {{-- <form method="POST"
-                                            action="https://demo.collegegolfrecruitingportal.com/purchase/post/influencer?post_id=9"
-                                            accept-charset="UTF-8" data-validate="" novalidate="true"><input name="_token"
-                                                type="hidden" value="SPXmKFzZiPNexBLu4sdqhfLFZub7MjKoldBMJsMM">
+                                    @endif
+                                </div>
+                            @else
+                                @if ($post->paid && !isset($purchasePost))
+                                    <div class="relative paid-post-wrap">
+                                        <video class="w-full post-thumbnail pointer-events-none opacity-50">
+                                            <source src="{{ $post->file }}" type="video/mp4">
+                                        </video>
+                                        <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                            <div
+                                                class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
+                                                <i class="ti ti-lock-open"></i>
+                                            </div>
 
-                                            <div
-                                                class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
-                                                    {{ $currency . ' ' . $post->price }}</button>
-                                            </div>
-                                        </form> --}}
-                                        <a href="{{ route('login') }}">
-                                            <div
-                                                class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
-                                                <i class="ti ti-lock-open text-2xl lh-sm"></i>
-                                                <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
-                                                    {{ $currency . ' ' . $post->price }}</button>
-                                            </div>
-                                        </a>
+                                            <a href="{{ route('login') }}">
+                                                <div
+                                                    class="bg-orange text-white px-4 py-1 rounded-3xl w-full text-center flex items-center justify-center gap-1">
+                                                    <i class="ti ti-lock-open text-2xl lh-sm"></i>
+                                                    <button type="submit" class="btn p-0 pl-1 text-white border-0">Unlock for -
+                                                        {{ $currency . ' ' . $post->price }}</button>
+                                                </div>
+                                            </a>
+                                        </div>
                                     </div>
+                                @else
+                                    <video controls class="w-full post-thumbnail">
+                                        <source src="{{ $post->file }}" type="video/mp4">
+                                    </video>
                                 @endif
-                            </div>
+                            @endif
 
 
                             <div class="px-4 py-2 border-t border-gray-500">
-                                <div class="text-md italic text-gray-500">
-                                    {{ $post->created_at }}
-                                </div>
                                 <h1 class="text-xl font-bold truncate">
                                     {{ $post->title }}
                                 </h1>
