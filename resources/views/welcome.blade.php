@@ -104,8 +104,6 @@
 <section class="lession-sec subscription-sec">
     <div class="container ctm-container">
         <h2 class="font-bold text-4xl mb-2">Subscription Plans</h2>
-        <p style="color:#718096;" class="text-xl max-w-2xl">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-            do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="subscription-slider pt-5">
             @if(!$plans->isEmpty())
                 @foreach($plans as $plan)

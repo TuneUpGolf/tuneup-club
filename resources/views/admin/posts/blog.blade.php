@@ -53,18 +53,6 @@ body.modal-open .dash-container {
         @endif
         <div class="{{ $cls }}">
             <div class="flex justify-between items-center w-full">
-                <div class="flex items-center gap-3">
-                    <img class="w-16 h-16 rounded-full" src="{{ $post?->influencer?->logo }}" alt="Profile" />
-                    <div>
-                        <p class="text-xl text-white font-bold mb-0 leading-tight">
-                            {{ ucfirst($post->isFollowerPost ? $post?->follower->name : $post?->influencer?->name) }}
-                        </p>
-                        <span class="text-md text-white">
-                            {{ $post->isFollowerPost ? 'Follower' : 'Influencer' }}
-                        </span>
-                    </div>
-                </div>
-
                 <div class="bg-white py-2 px-3 rounded-3xl shadow">
                     {!! Form::open([
                     'route' => ['purchase.like', ['post_id' => $post->id]],
@@ -77,7 +65,6 @@ body.modal-open .dash-container {
                             Likes</span></button>
                     {!! Form::close() !!}
                 </div>
-
             </div>
         </div>
 
@@ -85,8 +72,7 @@ body.modal-open .dash-container {
         @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
             <img class=" w-full post-thumbnail"
-                src="{{  $post->file }}"
-                alt="Post Image" />
+                src="{{  $post->file }}"/>
             <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                 <div
                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
@@ -110,18 +96,17 @@ body.modal-open .dash-container {
         @else
 
         <img class=" w-full post-thumbnail open-full-thumbnail"
-            src="{{  $post->file }}" alt="Profile" />
+            src="{{  $post->file }}" />
         <div id="imageModal" class="modal">
             <span class="close" id="closeBtn">&times;</span>
             <img class="modal-content" id="fullImage">
         </div>
         @endif
         @else
-        @if ($post->paid && !isset($purchasePost))
+        @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
             <img class=" w-full post-thumbnail"
-                src="{{  $post->file }}"
-                alt="Post Image" />
+                src="{{  $post->file }}"/>
             <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                 <div
                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
@@ -143,15 +128,12 @@ body.modal-open .dash-container {
         </div>
         @else
         <video controls class="w-full post-thumbnail">
-            <source src="{{ Storage::url(tenant('id') . '/' . $post?->file) }}" type="video/mp4">
+            <source src="{{ $post->file }}" type="video/mp4">
         </video>
         @endif
         @endif
 
         <div class="px-4 py-2">
-            <div class="text-md italic text-gray-500">
-                {{ \Carbon\Carbon::parse($post->created_at)->format('d M Y') }}
-            </div>
             <h1 class="text-xl font-bold truncate">
                 {{ $post->title }}
             </h1>
