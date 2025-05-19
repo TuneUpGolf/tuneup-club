@@ -105,9 +105,9 @@ body.modal-open .dash-container {
         @else
         @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
-            <img class=" w-full post-thumbnail"
-                src="{{  $post->file }}"/>
-            <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                <video class="w-full post-thumbnail pointer-events-none opacity-50">
+                    <source src="{{ $post->file }}" type="video/mp4">
+                </video>
                 <div
                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
                     <i class="ti ti-lock-open"></i>

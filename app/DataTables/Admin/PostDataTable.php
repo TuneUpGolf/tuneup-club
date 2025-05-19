@@ -26,9 +26,14 @@ class PostDataTable extends DataTable
             ->editColumn("photo", function (Post $post) {
                 if ($post->file) {
                     $imageSrc = $post->file;
-                    return "<img src=' " . $imageSrc . " ' width='50'/>";
+                    if($post->file_type == 'image'){
+                        $return =  "<img src=' " . $imageSrc . " ' width='50'/>";
+                    } else {
+                        $thumbnail = asset('assets/images/video-thumbanail.jpeg');
+                        $return = "<img src='" . $thumbnail . "' width='50' class='video-thumbnail' data-video='" . $post->file . "' style='cursor:pointer;' />";
+                    }
                 } else {
-                    $return = "<img src='" . asset('/storage' . '/' . tenant('id') . '/seeder-image/350x250.png') . "' width='50' />";
+                    $return = "<img src='" . asset('assets/images/image-thumbanail.jpeg') . "' width='50' />";
                 }
                 return $return;
             })
