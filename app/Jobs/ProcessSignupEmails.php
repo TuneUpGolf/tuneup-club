@@ -1,6 +1,4 @@
-
 <?php
-
 namespace App\Jobs;
 
 use App\Actions\SendEmail;
@@ -13,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\Tenant;
 use Stancl\Tenancy\Tenancy;
 
-class ProcessTenantSomething implements ShouldQueue
+class ProcessSignupEmails implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
