@@ -39,7 +39,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     {{ Form::label('slug', __('Slug'), ['class' => 'form-label']) }} *
-                                    {!! Form::text('slug', null, [
+                                    {!! Form::text('slug', $posts->slug ?? null, [
                                         'class' => 'form-control',
                                         'placeholder' => __('Enter slug'),
                                         'required' => 'required',
@@ -48,7 +48,7 @@
                                 <div class="row form-inline">
                                     <div class="form-group col-md-6">
                                         {{ Form::label('Paid', __('Paid'), ['class' => 'form-label']) }} *
-                                        {!! Form::checkbox('paid', null, true, [
+                                        {!! Form::checkbox('paid', 1, $posts->paid, [
                                             'class' => 'form-check',
                                             'data-onstyle' => 'primary',
                                             'data-toggle' => 'switchbutton',

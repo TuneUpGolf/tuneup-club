@@ -156,6 +156,7 @@ class PostsController extends Controller
                 $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             }
             $post->title       = $request->title;
+            $post->slug        = $request->slug;
             $post->paid        = $request?->paid == 'on' ? true : false;
             $post->price       = $request?->paid == 'on' ? $request?->price : 0;
             $post->description = $request->description;
