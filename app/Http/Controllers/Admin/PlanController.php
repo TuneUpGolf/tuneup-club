@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\DataTables\Admin\PlanDataTable;
@@ -67,7 +68,7 @@ class PlanController extends Controller
                 'duration'     => 'required',
                 'durationtype' => 'required',
                 'max_users'    => 'required',
-                'description'  => 'max:100',
+                'description'  => 'max:1000',
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (! $paymentTypes) {

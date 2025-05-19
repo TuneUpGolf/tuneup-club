@@ -1,9 +1,9 @@
 @extends('layouts.main')
-@section('title', __('Create Purchase'))
+@section('title', __('Provide Feedback'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('purchase.index') }}">{{ __('Purchase') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Create Purchase') }}</li>
+    <li class="breadcrumb-item">{{ __('Provide Feedback') }}</li>
 @endsection
 @section('content')
     <div class="main-content">
@@ -11,7 +11,7 @@
             <div class="">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('Create Purchase') }}</h5>
+                        <h5>{{ __('Provide Feedback') }}</h5>
                     </div>
                     <div class="card-body ">
                         <livewire:influencer-grid-view />
