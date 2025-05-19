@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
-use App\Actions\SendEmail;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
-use App\Mail\Admin\WelcomeMailFollower;
+use App\Jobs\ProcessSignupEmails;
 use App\Models\Follower;
 use App\Models\Role;
 use App\Providers\RouteServiceProvider;
@@ -68,7 +68,7 @@ class RegisteredUserController extends Controller
         } else {
             $this->chatService->createUser($user);
         }
-        SendEmail::dispatch($user->email, new WelcomeMailFollower($user, ''));
+        ProcessSignupEmails::dispatch($user);
 
         // else {
         //     $user = User::create([
