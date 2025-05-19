@@ -30476,6 +30476,25 @@ button.lesson-btn.btn-border:hover {
   background: #42A439 !important;
 }
 
+.fc .fc-list-event:hover td {
+  background-color: transparent;
+}
+
+div#calendar .fc-list-table {
+  overflow-y: auto;
+}
+
+.landing-hero .hero-sec img {
+  height: 600px;
+  object-fit: cover;
+}
+
+.subscription-slider .slick-track {
+  display: flex !important;
+}
+
+
+
 @media (max-width:1024px) {
   .dash-mob-drp {
     margin-right: auto;
@@ -30510,12 +30529,4 @@ button.lesson-btn.btn-border:hover {
   .custom-event-class {
     display: table-row !important;
   }
-}
-
-.fc .fc-list-event:hover td {
-  background-color: transparent;
-}
-
-div#calendar .fc-list-table {
-  overflow-y: auto;
 }
