@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
@@ -419,7 +420,6 @@ class LessonController extends Controller
                 if ($lesson->created_by == Auth::user()->id || Auth::user()->type == Role::ROLE_ADMIN) {
                     $lesson->delete();
                 }
-
             } catch (\Exception $e) {
                 return throw new Exception($e->getMessage());
             }
@@ -443,26 +443,26 @@ class LessonController extends Controller
 
             if (! $lesson || $lesson->type !== Lesson::LESSON_TYPE_INPERSON) {
                 return $request->get('redirect') == 1
-                ? redirect()->back()->with('error', 'In-Person lesson not found for lesson id: ' . $request->lesson_id)
-                : response()->json(['error' => 'In-Person lesson not found for lesson id: ' . $request->lesson_id], 422);
+                    ? redirect()->back()->with('error', 'In-Person lesson not found for lesson id: ' . $request->lesson_id)
+                    : response()->json(['error' => 'In-Person lesson not found for lesson id: ' . $request->lesson_id], 422);
             }
 
             // If lesson is a package and has purchases, don't allow new slots
             if ($lesson->is_package_lesson && $lesson->purchases()->where('status', Purchase::STATUS_COMPLETE)->exists()) {
                 return $request->get('redirect') == 1
-                ? redirect()->back()->with('error', 'Cannot add new slots as purchases already exist for this package lesson.')
-                : response()->json(['error' => 'Cannot add new slots as purchases already exist for this package lesson.'], 422);
+                    ? redirect()->back()->with('error', 'Cannot add new slots as purchases already exist for this package lesson.')
+                    : response()->json(['error' => 'Cannot add new slots as purchases already exist for this package lesson.'], 422);
             }
 
             Slots::create($validatedData);
 
             return $request->get('redirect') == 1
-            ? redirect()->route('slot.view', ['lesson_id' => $lesson->id])->with('success', __('Slot Successfully Added'))
-            : response()->json(['message' => 'Slot successfully created against the lesson.'], 200);
+                ? redirect()->route('slot.view', ['lesson_id' => $lesson->id])->with('success', __('Slot Successfully Added'))
+                : response()->json(['message' => 'Slot successfully created against the lesson.'], 200);
         } catch (\Exception $e) {
             return $request->get('redirect') == 1
-            ? redirect()->back()->with('error', $e->getMessage())
-            : response()->json(['error' => $e->getMessage()], 422);
+                ? redirect()->back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()], 422);
         }
     }
 
@@ -482,15 +482,15 @@ class LessonController extends Controller
 
             if (! $lesson || $lesson->type != Lesson::LESSON_TYPE_INPERSON) {
                 return $request->get('redirect') == 1
-                ? redirect()->back()->with('error', 'In-Person lesson not found.')
-                : response()->json(['error' => 'In-Person lesson not found.'], 404);
+                    ? redirect()->back()->with('error', 'In-Person lesson not found.')
+                    : response()->json(['error' => 'In-Person lesson not found.'], 404);
             }
 
             // Prevent adding slots if it's a package lesson with completed purchases
             if ($lesson->is_package_lesson && $lesson->purchases()->where('status', Purchase::STATUS_COMPLETE)->exists()) {
                 return $request->get('redirect') == 1
-                ? redirect()->back()->with('error', 'Cannot add slots. This package lesson already has completed purchases.')
-                : response()->json(['error' => 'Cannot add slots. This package lesson already has completed purchases.'], 422);
+                    ? redirect()->back()->with('error', 'Cannot add slots. This package lesson already has completed purchases.')
+                    : response()->json(['error' => 'Cannot add slots. This package lesson already has completed purchases.'], 422);
             }
 
             $begin          = new Carbon($validatedData['start_date'] . ' ' . $validatedData['start_time']);
@@ -534,15 +534,15 @@ class LessonController extends Controller
 
             // Return based on redirect parameter
             return $request->get('redirect') == 1
-            ? redirect()->route('slot.view', ['lesson_id' => $lesson->id])->with('success', 'Slots Successfully Added')
-            : response()->json([
-                'message' => 'Consecutive Slots for the given range are successfully created',
-                'slots'   => $slots,
-            ]);
+                ? redirect()->route('slot.view', ['lesson_id' => $lesson->id])->with('success', 'Slots Successfully Added')
+                : response()->json([
+                    'message' => 'Consecutive Slots for the given range are successfully created',
+                    'slots'   => $slots,
+                ]);
         } catch (\Exception $e) {
             return $request->get('redirect') == 1
-            ? redirect()->back()->with('error', $e->getMessage())
-            : response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+                ? redirect()->back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 
@@ -656,7 +656,7 @@ class LessonController extends Controller
             if (Auth::user()->type == Role::ROLE_INFLUENCER && Auth::user()->active_status == 1 && ! ! $slot && $slot->lesson->created_by == Auth::user()->id) {
                 if ($slot->lesson->is_package_lesson) {
                     return request()->redirect == 1 ? redirect()->back()->with('errors', 'Influencer cannot book package lesson slots') :
-                    response()->json(['error' => 'Influencers cannot book package lesson slots.'], 422);
+                        response()->json(['error' => 'Influencers cannot book package lesson slots.'], 422);
                 }
                 return $this->handleInfluencerBookingAPI($slot);
             }
@@ -680,20 +680,20 @@ class LessonController extends Controller
 
         if ($slot->follower()->count() + $totalNewBookings > $slot->lesson->max_followers) {
             return request()->redirect == 1
-            ? redirect()->back()->with('error', 'Sorry, the number of booked slots exceeds the limit.')
-            : response()->json(['error' => 'Sorry, the number of booked slots exceeds the limit.'], 422);
+                ? redirect()->back()->with('error', 'Sorry, the number of booked slots exceeds the limit.')
+                : response()->json(['error' => 'Sorry, the number of booked slots exceeds the limit.'], 422);
         }
 
         if ($slot->follower()->where('followers.id', $bookingFollowerId)->exists()) {
             return request()->redirect == 1
-            ? redirect()->back()->with('error', 'You have already booked this slot')
-            : response()->json(['error' => 'You have already booked this slot.'], 422);
+                ? redirect()->back()->with('error', 'You have already booked this slot')
+                : response()->json(['error' => 'You have already booked this slot.'], 422);
         }
 
         // Calculate total price for follower and friends
         $totalAmount = $slot->lesson->lesson_price * $totalNewBookings;
 
-        // Create purchase entry
+        // Provide Feedback entry
         $newPurchase = new Purchase([
             'follower_id'   => $bookingFollowerId,
             'influencer_id' => $slot->lesson->created_by,
@@ -713,7 +713,7 @@ class LessonController extends Controller
             request()->setMethod('POST');
 
             return request()->redirect == 1 ? $this->confirmPurchaseWithRedirect(request(), false) :
-            $this->confirmPurchaseWithRedirect(request(), true);
+                $this->confirmPurchaseWithRedirect(request(), true);
         }
 
         // Attach main follower to the slot
@@ -743,12 +743,12 @@ class LessonController extends Controller
         );
 
         return false
-        ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
-        : response()->json([
-            'message'      => 'Slot successfully reserved.',
-            'slot'         => new SlotAPIResource($slot),
-            'friend_names' => $friendNames,
-        ], 200);
+            ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
+            : response()->json([
+                'message'      => 'Slot successfully reserved.',
+                'slot'         => new SlotAPIResource($slot),
+                'friend_names' => $friendNames,
+            ], 200);
     }
 
     private function handleInfluencerBookingAPI($slot)
@@ -793,8 +793,8 @@ class LessonController extends Controller
         );
 
         return request()->redirect == 1
-        ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
-        : response()->json(['message' => 'Slot successfully booked for followers.', 'slot' => new SlotAPIResource($slot)], 200);
+            ? redirect()->route('slot.view', ['lesson_id' => $slot->lesson_id])->with('success', 'Slot Successfully Booked.')
+            : response()->json(['message' => 'Slot successfully booked for followers.', 'slot' => new SlotAPIResource($slot)], 200);
     }
 
     public function completeSlot()
@@ -810,8 +810,8 @@ class LessonController extends Controller
 
             if ($user->type !== Role::ROLE_INFLUENCER && $user->id !== $slot->lesson->created_by) {
                 return request()->get('redirect') == 1
-                ? redirect()->back()->with('error', 'Unauthorized')
-                : response()->json(['error' => 'Unauthorized'], 403);
+                    ? redirect()->back()->with('error', 'Unauthorized')
+                    : response()->json(['error' => 'Unauthorized'], 403);
             }
 
             $followers = $slot->follower;
@@ -824,8 +824,8 @@ class LessonController extends Controller
                 if ($hasIncompletePurchases) {
 
                     return request()->get('redirect') == 1
-                    ? redirect()->back()->with('error', 'Cannot complete this slot until all payments are completed.')
-                    : response()->json(['error' => 'Cannot complete this slot until all payments are completed.'], 422);
+                        ? redirect()->back()->with('error', 'Cannot complete this slot until all payments are completed.')
+                        : response()->json(['error' => 'Cannot complete this slot until all payments are completed.'], 422);
                 }
 
                 // If all purchases are complete, mark slot as completed and exit
@@ -833,8 +833,8 @@ class LessonController extends Controller
                 $slot->save();
 
                 return request()->get('redirect') == 1
-                ? redirect()->back()->with('success', 'Slot Successfully Completed.')
-                : response()->json(['message' => 'Slot successfully marked as completed', 'slot' => new SlotAPIResource($slot)]);
+                    ? redirect()->back()->with('success', 'Slot Successfully Completed.')
+                    : response()->json(['message' => 'Slot successfully marked as completed', 'slot' => new SlotAPIResource($slot)]);
             }
 
             if (($slot->lesson->payment_method === Lesson::LESSON_PAYMENT_BOTH && request()->payment_method === Lesson::LESSON_PAYMENT_CASH)
@@ -1025,7 +1025,6 @@ class LessonController extends Controller
                                 $follower // Send notification only to this follower
                             );
                         }
-
                     }
                 }
 
