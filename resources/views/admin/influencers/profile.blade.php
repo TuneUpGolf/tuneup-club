@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 <div class="card min-h-screen">
-                    <div class="flex justify-between mt-4">
+                    <div class="flex justify-between mt-4 flex-column flex-md-row px-3 gap-2 items-center">
                         <div class="flex justify-center items-center divide-x divide-solid stats-container">
                             <div class="flex flex-col justify-center items-center w-100">
                                 <span>{{ $followers }}</span>
@@ -66,7 +66,7 @@
                                 <span class="text-sm text-gray-500 dark:text-gray-400">Lessons</span>
                             </div>
                         </div>
-                        <div class="mr-4">
+                        <div class="">
                             {!! Form::open([
                                 'route' => [
                                     'follow.influencer',
@@ -103,9 +103,9 @@
                     <div id="Posts" class="tabcontent">
                         @if($isFollowing)
                             @if (!!$totalLessons)
-                                <div id="blog" class="bg-gray-100 px-4 xl:px-4 py-14">
-                                    <div class="mx-auto container">
-                                        <div class="focus:outline-none mt-5 mb-5 lg:mt-24">
+                                <div id="blog" class="">
+                                    <div class="">
+                                        <div class="focus:outline-none mt-4 mb-5 lg:mt-24">
                                             <div class="infinity">
                                                 <div class="flex flex-wrap w-100">
                                                     @foreach ($posts as $post)
@@ -137,9 +137,9 @@
                             <div class="row ">
                                 @foreach ($plans as $plan)
                                     @if ($plan->active_status == 1)
-                                        <div class="col-xl-3 col-md-6">
-                                            <div class="card price-card price-1 wow animate__fadeInUp ani-fade" data-wow-delay="0.2s">
-                                                <div class="card-body">
+                                        <div class="col-xl-3 col-md-6 py-4">
+                                            <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"  data-wow-delay="0.2s">
+                                                <div class="card-body rounded-lg shadow popular-wrap">
                                                     <span class="price-badge bg-primary">{{ $plan->name }}</span>
                                                     <span class="mb-4 f-w-600 p-price"> {{ $currency_symbol . '' . $plan->price }}<small
                                                             class="text-sm">/{{ $plan->duration . ' ' . $plan->durationtype }}</small></span>
