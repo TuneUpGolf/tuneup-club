@@ -444,7 +444,7 @@ $languages = Utility::languages();
             @if(Auth::user()->type == "Follower" && Auth::user()->group_id)
             <li class="dash-item dash-hasmenu {{ request()->is('chat*') ? 'active' : '' }}">
                 <a class="dash-link" href="{{ route('follower.chat') }}">
-                    <span class="dash-micon"><i class="ti ti-users"></i></span>
+                    <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
                     <span class="dash-mtext">{{ __('Chat') }}</span>
                 </a>
             </li>
