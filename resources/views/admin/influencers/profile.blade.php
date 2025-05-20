@@ -27,7 +27,7 @@
         <div class="col-xl-12">
             <div class="flex flex-col">
                 <div class="profile-backdrop">
-                    <div class="profile-info-container flex">
+                    <div class="profile-info-container flex flex-wrap">
                         <img alt="{{ $influencer->name }}"
                             src="{{ $influencer?->logo }}"
                             class="rounded-full align-middle border-1 profile-image">
