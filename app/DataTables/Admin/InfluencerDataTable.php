@@ -8,6 +8,19 @@ use Yajra\DataTables\Services\DataTable;
 
 class InfluencerDataTable extends DataTable
 {
+    protected $showCreateButton = false;
+
+    public function with(array|string $key, mixed $value = null): static
+    {
+        if (is_array($key)) {
+            $this->showCreateButton = $key['showCreateButton'] ?? false;
+        } elseif ($key === 'showCreateButton') {
+            $this->showCreateButton = $value;
+        }
+
+        return parent::with($key, $value);
+    }
+
     public function dataTable($query)
     {
 
@@ -137,6 +150,42 @@ class InfluencerDataTable extends DataTable
 
     public function html()
     {
+        $buttons = [
+            [
+                'extend'    => 'collection',
+                'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
+                'text'      => '<i class="ti ti-download"></i> Export',
+                "buttons"   => [
+                    ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                    ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                    ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                    ["extend" => "pdf", "text" => '<i class="fas fa-file-pdf"></i> PDF', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
+                ],
+            ],
+        ];
+
+        if ($this->showCreateButton) {
+            $extraButtons = [
+                [
+                    'extend' => 'create',
+                    'className' => 'btn btn-light-primary no-corner me-1 add_module',
+                    'text' => '<i class="ti ti-plus"></i> Create',
+                    'action' => "function ( e, dt, node, config ) {
+                        window.location = '" . route('influencer.create') . "';
+                    }",
+                ],
+                [
+                    'extend' => 'reload',
+                    'className' => 'btn btn-light-primary no-corner me-1 add_module',
+                    'text' => '<i class="ti ti-upload"></i> Import',
+                    'action' => "function ( e, dt, node, config ) {
+                        window.location = '" . route('influencer.import') . "';
+                    }",
+                ],
+            ];
+
+            $buttons = array_merge($extraButtons, $buttons);
+        }
         return $this->builder()
             ->setTableId('influencers-table')
             ->addTableClass('display responsive nowrap')
@@ -167,26 +216,7 @@ class InfluencerDataTable extends DataTable
                         <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                         <'col-sm-7'p>>
                         ",
-                'buttons'        => [
-                    ['extend' => 'create', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('influencer.create') . "';
-                   }"],
-                    ['extend' => 'reload', 'className' => 'btn btn-light-primary no-corner me-1 add_module', 'action' => " function ( e, dt, node, config ) {
-                        window.location = '" . route('influencer.import') . "';
-                   }"],
-                    [
-                        'extend'    => 'collection',
-                        'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
-                        'text'      => '<i class="ti ti-download"></i> Export',
-                        "buttons"   => [
-                            ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                            ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                            ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                            ["extend" => "pdf", "text" => '<i class="fas fa-file-pdf"></i> PDF', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
-                        ],
-                    ],
-
-                ],
+                'buttons'        => $buttons,
                 
                 "scrollX" => true,
                 "responsive" => [

@@ -242,8 +242,11 @@ $chatcolor = '#0C7785';
             </div>
         </div>
         @endif
-
+        @if(Auth::user()->type == 'Follower')
+            @include('admin.influencers.common-profile')
+        @endif
     </div>
+</div>
     @endsection
     @push('css')
     <link rel="stylesheet" type="text/css" href="{{ asset('vendor/daterangepicker/daterangepicker.css') }}">

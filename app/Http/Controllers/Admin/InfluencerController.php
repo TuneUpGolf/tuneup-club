@@ -51,7 +51,8 @@ class InfluencerController extends Controller
     public function index(InfluencerDataTable $dataTable)
     {
         if (Auth::user()->can('manage-influencers')) {
-            return $dataTable->render('admin.influencers.index');
+            $influencerCount = User::where('type', Role::ROLE_INFLUENCER)->count() ;
+            return $dataTable->with('showCreateButton', $influencerCount === 0)->render('admin.influencers.index');
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
