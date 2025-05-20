@@ -7,9 +7,11 @@ use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentGenrator;
 use App\Models\Event;
+use App\Models\Follow;
 use App\Models\Follower;
 use App\Models\Lesson;
 use App\Models\Plan;
+use App\Models\Post;
 use App\Models\Posts;
 use App\Models\Purchase;
 use App\Models\Role;
@@ -33,7 +35,7 @@ class HomeController extends Controller
         });
         return view('welcome', compact('plans'));
     }
-    public function index(UpcomingLessonDataTable $dataTable)
+    public function index(UpcomingLessonDataTable $dataTable, Request $request)
     {
         $user     = Auth::user();
         $userType = $user->type;
@@ -57,7 +59,7 @@ class HomeController extends Controller
                 'posts'          => $posts,
                 'events'         => $events,
                 'supports'       => $supports,
-            ]);
+            ], $request);
         }
 
         // Fetch Plan Expiration
@@ -83,7 +85,7 @@ class HomeController extends Controller
 
         // Fetch Influencer Statistics for Admins (Without Follower Count)
         $influencerStats = [];
-        if ($userType == "Admin" ||  $userType == "Influencer") {
+        if ($userType == "Admin" || $userType == "Influencer") {
             $influencerStats = User::where('tenant_id', $tenantId)
                 ->where('type', Role::ROLE_INFLUENCER)
                 ->withCount([
@@ -144,16 +146,31 @@ class HomeController extends Controller
     }
 
     // Follower Dashboard
-    private function followerDashboard($data)
+    private function followerDashboard($data, $request)
     {
         $datatable      = $data['dataTable'];
         $user           = $data['user'];
         $paymentTypes   = $data['paymentTypes'];
         $documents      = $data['documents'];
         $documentsDatas = $data['documentsDatas'];
-        $posts          = $data['posts'];
         $events         = $data['events'];
         $supports       = $data['supports'];
+
+        $influencer   = User::where('type', Role::ROLE_INFLUENCER)->first();
+        $totalLessons = Lesson::where('created_by', $influencer->id)->count();
+        $posts        = Post::where('influencer_id', $influencer->id);
+        $posts        = $posts->orderBy('created_at', 'desc')->paginate(6);
+        $section      = $request->section;
+        $follow       = Follow::where('influencer_id', $influencer->id);
+        $isFollowing  = $follow->where('follower_id', Auth::user()->id)
+            ->where('active_status', 1)
+            ->exists();
+        $plans             = Plan::where('influencer_id', $influencer->id)->get();
+        $isInfluencer      = Auth::user()->type === Role::ROLE_INFLUENCER;
+        $feedEnabledPlanId = Plan::where('influencer_id', $influencer->id)
+            ->where('is_feed_enabled', true)->pluck('id')->toArray();
+
+        $isSubscribed = in_array(Auth::user()->plan_id, $feedEnabledPlanId);
 
         $purchaseComplete   = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->count();
         $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
@@ -164,13 +181,13 @@ class HomeController extends Controller
             'paymentTypes',
             'documents',
             'documentsDatas',
-            'posts',
             'events',
             'supports',
             'purchaseComplete',
             'purchaseInprogress',
             'inPersonCompleted',
-            'inPersonPending'
+            'inPersonPending',
+            'influencer', 'totalLessons', 'section', 'posts', 'follow', 'plans', 'isInfluencer', 'isSubscribed', 'isFollowing'
         ));
     }
 
