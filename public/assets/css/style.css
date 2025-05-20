@@ -30529,4 +30529,9 @@ div#calendar .fc-list-table {
   .custom-event-class {
     display: table-row !important;
   }
+
+  .landing-hero .hero-sec img {
+    height: 400px;
+
+  }
 }
