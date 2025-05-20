@@ -21,7 +21,7 @@
         <div class="profile-info-container flex">
             <img alt="{{ $influencer->name }}"
                 src="{{ $influencer?->logo }}"
-                class="rounded-full w-40 h-40 object-contain border border-gray-300 bg-white p-1">
+                class="rounded-full align-middle border-1 profile-image">
             <div class="flex flex-col">
                 <span class="font-medium text-3xl mb-2">{{ $influencer->name }}</span>
                 <div class="flex justify-center items-center divide-x divide-solid w-100 gap-2 text-gray-600">

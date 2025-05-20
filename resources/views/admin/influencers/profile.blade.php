@@ -44,29 +44,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="card min-h-screen">
-                    <div class="flex justify-between mt-4 flex-column flex-md-row px-3 gap-2 items-center">
-                        <div class="flex justify-center items-center divide-x divide-solid stats-container">
-                            <div class="flex flex-col justify-center items-center w-100">
-                                <span>{{ $followers }}</span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Followers</span>
-                            </div>
-                            <div class="flex flex-col justify-center items-center w-100">
-                                <span>{{ $subscribers }}</span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Subscribers</span>
-                            </div>
-                            <div class="flex flex-col justify-center items-center w-100">
-                                <span>{{ $totalPosts }}</span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Posts</span>
-                            </div>
-                            <div class="flex flex-col justify-center items-center w-100">
-                                <span>{{ $totalLessons }}</span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Lessons</span>
-                            </div>
-                        </div>
-                        <div class="">
+                        <div class="ml-auto">
                             {!! Form::open([
                                 'route' => [
                                     'follow.influencer',
@@ -84,6 +62,8 @@
                             {!! Form::close() !!}
                         </div>
                     </div>
+                </div>
+                <div class="card min-h-screen">
                     <div class="tab">
                         <button class="tablinks active" onclick="openCity(event, 'Lessons')">Lessons</button>
                         <button class="tablinks" onclick="openCity(event, 'Posts')">Posts</button>
