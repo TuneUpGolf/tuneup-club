@@ -62,7 +62,7 @@ $purchaseVideo = $purchase->videos->first();
 
 
             <div class="flex items-start gap-3 mt-4">
-                <img class="w-20 h-32"  src="{{ asset('storage/'.Auth::user()->tenant_id.'/uploads/golf.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
+                <img class="w-15 h-10"  src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
 
                 <!-- Modal -->
                 <div id="videoModal" class="modal">
