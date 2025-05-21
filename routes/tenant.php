@@ -178,6 +178,7 @@ Route::middleware([
 
         //purchase
         Route::resource('purchase', PurchaseController::class);
+        Route::get('/upcoming-lessons/data', [PurchaseController::class, 'upcomingLessonsData'])->name('upcoming-lessons.data');
         Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
         Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
         Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');

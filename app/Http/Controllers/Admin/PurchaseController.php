@@ -6,6 +6,7 @@ use App\Actions\SendPushNotification;
 use App\DataTables\Admin\PurchaseDataTable;
 use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
+use App\DataTables\Admin\UpcomingLessonDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseAPIResource;
 use App\Http\Resources\PurchaseVideoAPIResource;
@@ -48,12 +49,19 @@ class PurchaseController extends Controller
         $this->chatService = $chatService;
     }
 
-    public function index(PurchaseDataTable $dataTable)
+    public function index(PurchaseDataTable $dataTable, UpcomingLessonDataTable $upcomingLessonDataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
-            return $dataTable->render('admin.purchases.index');
+            return $dataTable->render('admin.purchases.index', [
+                'upcomingLessonBuilder' => $upcomingLessonDataTable->html(),
+            ]);;
         }
 
+    }
+
+    public function upcomingLessonsData(UpcomingLessonDataTable $dataTable)
+    {
+        return $dataTable->ajax();
     }
 
     public function view($id)

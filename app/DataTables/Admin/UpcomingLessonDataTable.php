@@ -76,7 +76,7 @@ class UpcomingLessonDataTable extends DataTable
             ->setTableId('lessons-table')
             ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->minifiedAjax(route('upcoming-lessons.data'))
             ->orderBy(1)
             ->language([
                 "paginate"          => [
