@@ -1,0 +1,150 @@
+/* @font-face {
+  font-family: SFPRODISPLAYREGULAR;
+  src: url(fonts/SFPRODISPLAYREGULAR.OTF);
+}
+
+@font-face {
+  font-family: SFPRODISPLAYBOLD;
+  src: url(fonts/SFPRODISPLAYBOLD.OTF);
+} */
+.anker:hover {
+  color: #0071ce;
+}
+.active {
+  color: #0071ce !important;
+}
+.navbar-dark .navbar-nav .nav-link {
+  color: #576974 !important;
+}
+.nav-link.active {
+  font-weight: bold;
+  color: #007bff; /* Adjust color or style as needed */
+}
+.anker-1 {
+  text-decoration: none;
+  color: #576974;
+  margin-right: 12px;
+  margin-left: 112px;
+  padding-left: 10px;
+  /* border: 2px solid red; */
+}
+.anker-2 {
+  text-decoration: none;
+  color: #576974;
+  margin-right: 12px;
+}
+.anker {
+  color: #576974;
+  padding-right: 20px !important;
+  padding-left: 20px !important;
+}
+.footer-item .anker-1 {
+  margin-left: 12px;
+}
+.access-wrapper {
+  background-image: url("/imges/Subtract.png");
+  background-color: #0071ce; /* Used if the image is unavailable */
+  height: 330px; /* You must set a specified height */
+  background-position: 15% 85%;
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+/* background: #ffffff url(/img/ottawa.jpg) center bottom/contain no-repeat; */
+.navbar-toggler-icon {
+  border: 0.2px solid rgb(47, 46, 46);
+  /* bor */
+  color: #0071ce !important;
+  background-image: url("/imges/icon-1.png") !important;
+}
+.access-content {
+  height: 120px;
+  /* border: 2px solid red; */
+  display: flex;
+  align-items: center;
+}
+
+.navbar-toggler {
+  color: rebeccapurple;
+}
+.demo {
+  background-color: #0071ce;
+  color: #fbfbfb;
+  padding: 5px 15px;
+}
+.head {
+  background-color: #fbfbfb;
+}
+
+.lesson {
+  max-width: 630px;
+}
+.features {
+  line-height: 40px;
+  max-width: 590px;
+}
+.with {
+  max-width: 1040px;
+  text-align: center;
+}
+
+.foot {
+  background-color: #EFEFEF;
+  padding-block: 70px;
+  border-bottom: 2px solid #eef0f3;
+}
+.foot-two {
+  background-color: #EFEFEF;
+  padding-block: 10px;
+}
+.icon img {
+  padding-left: 30px;
+  filter: brightness(0.5);
+}
+.fot-golf {
+  font-size: 19px;
+}
+.golf {
+  font-size: 22px;
+}
+.access-content p {
+  font-weight: 700 !important;
+  line-height: 36px;
+  font-size: 18px;
+}
+.anker-1 {
+  text-decoration: none;
+}
+.request-text {
+  font-weight: 500;
+  line-height: 14px;
+  font-size: 12px;
+  padding: 8px 14px;
+}
+.access-content h1 {
+  font-weight: 700 !important;
+}
+.golf-p {
+  font-size: 21px;
+  color: #000000;
+}
+.fot-p {
+  color: #979797;
+  margin-bottom: 0;
+}
+.lesson-two {
+  max-width: 550px;
+}
+.lesson,
+.lesson-two {
+  padding-inline: 10px;
+}
+.lesson-h {
+  font-size: 43px !important;
+  color: #000000;
+}
+.google {
+  margin-right: 41px;
+}

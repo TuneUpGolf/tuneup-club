@@ -1,0 +1,63 @@
+<?php
+namespace App\Http\Controllers\Auth;
+
+use App\Facades\UtilityFacades;
+use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
+
+class NewPasswordController extends Controller
+{
+    public function create(Request $request, $token)
+    {
+        $lang = UtilityFacades::getActiveLanguage();
+        \App::setLocale($lang);
+        return view('auth.reset-password', ['request' => $request, 'token' => $request->route('token'), 'lang' => $lang]);
+    }
+
+    public function store(Request $request)
+    {
+
+        request()->validate([
+            'token'    => 'required',
+            'email'    => 'required|email',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $userExists     = \App\Models\User::where('email', $request->email)->exists();
+        $followerExists = \App\Models\Follower::where('email', $request->email)->exists();
+
+        if (! $userExists && ! $followerExists) {
+            return back()->withInput($request->only('email'))->withErrors([
+                'email' => 'No account found with this email address.',
+            ]);
+        }
+
+        $broker = $userExists ? 'users' : 'followers';
+
+        $status = Password::broker($broker)->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                if (isset($user->tenant_id)) {
+                    event(new PasswordReset($user));
+                    tenancy()->initialize($user->tenant_id);
+                    $user->forceFill([
+                        'password'       => Hash::make($request->password),
+                        'remember_token' => Str::random(60),
+                    ])->save();
+                } else {
+                    $user->forceFill([
+                        'password'       => Hash::make($request->password),
+                        'remember_token' => Str::random(60),
+                    ])->save();
+                }
+            }
+        );
+
+        return redirect()->route('login')->with('status', __($status));
+    }
+}
