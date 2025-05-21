@@ -187,7 +187,7 @@ $chatcolor = '#0C7785';
         </div>
         @endif
 
-        @if (Auth::user()->type == 'Influencer' || Auth::user()->type == 'Follower')
+        @if (Auth::user()->type == 'Influencer')
         <div class="row">
             <div class="col-xl-12">
                 <div class="card">
