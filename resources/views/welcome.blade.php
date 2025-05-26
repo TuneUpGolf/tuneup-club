@@ -249,10 +249,17 @@
 
                                 @php
                                     $description = strip_tags($post->description);
-                                    $shortDescription = \Illuminate\Support\Str::limit($description, 50, '');
+                                    $shortDescription = \Illuminate\Support\Str::limit(
+                                        $description,
+                                        50,
+                                        '<a onClick="javascript:showMore(this);" class="read-more" href="javascript:void(0);"> Read more >></a>'
+                                    ).
+                                    '<span class="more-content hidden">'.substr($description, 50).
+                                    '<a onClick="javascript:showLess(this);" href="javascript:void(0);"> << Read less</a>'
+                                    ."</span>";
                                 @endphp
                                 <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
-                                    <span class="short-text">{{ $shortDescription }}</span>
+                                    <span class="short-text">{!! $shortDescription !!}</span>
                                 </p>
                             </div>
                         </div>
