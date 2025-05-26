@@ -260,7 +260,7 @@ $languages = Utility::languages();
                     </a>
                 </li>
                 @endcan
-                @if (Auth::user()->type === 'Follower')
+                {{-- @if (Auth::user()->type === 'Follower')
                 <li class="dash-item dash-hasmenu {{ request()->is('influencer*') ? 'active' : '' }}">
                     <a class="dash-link" href="{{ route('influencer.profiles') }}">
                         <span class="dash-micon"><i class="ti ti-user"></i></span>
@@ -268,7 +268,7 @@ $languages = Utility::languages();
                     </a>
 
                 </li>
-                @endif
+                @endif --}}
                 @if (Auth::user()->type === 'influencer')
                 <li class="dash-item dash-hasmenu">
                     <a class="dash-link" rel="noopener noreferrer"
@@ -333,11 +333,11 @@ $languages = Utility::languages();
                         <a class="dash-link" href="{{ route('coupon.index') }}">{{ __('Coupons') }}</a>
                     </li>
                     @endcan
-                    @can('manage-plan')
+                    {{-- @can('manage-plan')
                     <li class="dash-item {{ request()->is('plans*') || request()->is('payment*') ? 'active' : '' }}">
                         <a class="dash-link" href="{{ route('plans.index') }}">{{ __('Your Subscription Plan') }}</a>
                     </li>
-                    @endcan
+                    @endcan --}}
                     @if ($users->type != 'Follower')
                     <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
                         <a class="dash-link"
