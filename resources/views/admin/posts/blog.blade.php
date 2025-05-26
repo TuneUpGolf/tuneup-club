@@ -156,7 +156,7 @@ body.modal-open .dash-container {
                 @if (strlen($description) > 50)
                 <span class="hidden full-text">{{ $description }}</span>
                 <a href="javascript:void(0);" class="text-blue-600 toggle-read-more font-semibold underline"
-                    onclick="toggleDescription(this)">Read More</a>
+                    onclick="toggleDescription(this)">Read More >></a>
                 @endif
             </p>
         </div>
@@ -172,11 +172,11 @@ function toggleDescription(button) {
     if (shortText.classList.contains('hidden')) {
         shortText.classList.remove('hidden');
         fullText.classList.add('hidden');
-        button.innerText = "Read More";
+        button.innerText = "Read More >>";
     } else {
         shortText.classList.add('hidden');
         fullText.classList.remove('hidden');
-        button.innerText = "Show Less";
+        button.innerText = "<< Read Less";
     }
 }
 </script>
