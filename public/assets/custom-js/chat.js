@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const file = event.target.files[0];
         if (!file) return;
 
-        const maxSizeMB = 2;
+        const maxSizeMB = 100;
         const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
         if (file.size > maxSizeBytes) {
