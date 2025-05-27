@@ -150,11 +150,7 @@ class PlanController extends Controller
                 $plan->is_feed_enabled = $request->input('feed') ? true : false;
                 $plan->save();
             }
-            if (Auth::user()->type == 'Admin') {
                 return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));
-            } else {
-                return redirect()->route('plans.index')->with('success', __('Plan updated successfully.'));
-            }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
