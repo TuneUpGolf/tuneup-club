@@ -74,14 +74,21 @@ class UsersDataTable extends DataTable
             ])
             ->initComplete('function() {
                 var table = this;
+                var tableContainer = $(table.api().table().container());
                 var searchInput = $(\'#\'+table.api().table().container().id+\' label input[type="search"]\');
                 searchInput.removeClass(\'form-control form-control-sm\');
                 searchInput.addClass(\'dataTable-input\');
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
+                tableContainer.find(".dataTable-title").html(
+                    $("<div>").addClass("flex justify-start items-center").append(
+                        $("<div>").addClass("custom-table-header"),
+                        $("<span>").addClass("font-medium text-2xl pl-4").text("All Users")
+                    )
+                );
             }')
             ->parameters([
                 "dom" =>  "
-                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'>
+                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>
                         <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                         <'dataTable-container'<'col-sm-12'tr>>
                         <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>

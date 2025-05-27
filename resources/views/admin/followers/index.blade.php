@@ -23,12 +23,4 @@
 @push('javascript')
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            var html =
-                $('.dataTable-title').html(
-                    "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Followers</span></div>"
-                );
-        });
-    </script>
 @endpush

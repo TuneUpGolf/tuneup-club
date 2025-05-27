@@ -37,26 +37,4 @@
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
     {!! $upcomingLessonBuilder->scripts() !!}
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#purchases-table')
-                .closest('.dataTables_wrapper')
-                .find('.dataTable-title')
-                .html(`
-                    <div class='flex justify-start items-center'>
-                        <div class='custom-table-header'></div>
-                        <span class='font-medium text-2xl pl-4'>All Purchases</span>
-                    </div>
-                `);
-            $('#lessons-table')
-                .closest('.dataTables_wrapper')
-                .find('.dataTable-title')
-                .html(`
-                    <div class='flex justify-start items-center'>
-                        <div class='custom-table-header'></div>
-                        <span class='font-medium text-2xl pl-4'>My online Submissions</span>
-                    </div>
-                `);
-        });
-    </script>
 @endpush
