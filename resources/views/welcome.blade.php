@@ -32,7 +32,7 @@
 <section class="lession-sec">
     <div class="container ctm-container">
         <h2 class="font-bold text-4xl mb-2">{{ $influencerDetails->name }}</h2>
-        <p style="color:#718096;" class="text-xl max-w-2xl">{{ $influencerDetails->bio }}</p>
+        <p class="text-xl max-w-2xl text-gray-600">{{ $influencerDetails->bio }}</p>
     </div>
     <div class="container-fluid lessions-slider pt-5">
         @if(!$influencerDetails->lessons->isEmpty())
@@ -104,6 +104,9 @@
 <section class="lession-sec subscription-sec">
     <div class="container ctm-container">
         <h2 class="font-bold text-4xl mb-2">Subscription Plans</h2>
+        <p class="text-xl text-gray-600">
+            Subscription plans give you full access to your coach's posts, training content, and the ability to connect directly.
+        </p>
         <div class="subscription-slider pt-5">
             @if(!$plans->isEmpty())
                 @foreach($plans as $plan)
