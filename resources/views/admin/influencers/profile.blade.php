@@ -124,7 +124,7 @@
                                                     <span class="mb-4 f-w-600 p-price"> {{ $currency_symbol . '' . $plan->price }}<small
                                                             class="text-sm">/{{ $plan->duration . ' ' . $plan->durationtype }}</small></span>
                                                     <p class="mb-0">
-                                                        {{ $plan->description }}
+                                                        {!! $plan->description !!}
                                                         <div class="mt-2 d-flex justify-content-center gap-3">
                                                             @if($plan->is_chat_enabled)
                                                                 <div class="d-flex align-items-center">

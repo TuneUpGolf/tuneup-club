@@ -38,7 +38,7 @@
                                     <span class="mb-4 f-w-600 p-price"> {{ $currency_symbol . '' . $plan->price }}<small
                                             class="text-sm">/{{ $plan->duration . ' ' . $plan->durationtype }}</small></span>
                                     <p class="mb-0">
-                                        {{ $plan->description }}
+                                        {!! $plan->description !!}
                                     </p>
                                     <ul class="mt-4">
                                         <li class="list-unstyled d-flex">

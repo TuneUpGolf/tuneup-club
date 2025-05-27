@@ -118,23 +118,22 @@
                                 </div>
                             @endif
                             <div class="relative px-3 py-4">
-                                
-                                <p class="text-2xl font-semibold mb-2">{{ $plan->name }}</p>
-                                <p class="text-gray-600">
-                                    {{ $plan->description }}
-                                </p>
                                 <div class="flex gap-2 items-center my-3">
                                     <h2 class="text-6xl font-bold">{{ $currency . ' ' . $plan->price }}</h2>
                                     <div>
                                         <p class="text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
                                     </div>
                                 </div>
+                                <p class="text-2xl font-semibold mb-2">{{ $plan->name }}</p>
+                                <p class="text-gray-600">
+                                    {!! $plan->description !!}
+                                </p>
                                 <a href="{{ route('login') }}">
                                     <button type="submit" class="lesson-btn font-bold text-lg">Purchase</button>
                                 </a>
                             </div>
                             <div class="border-t border-gray-300"></div>
-                            <div class="p-3">
+                            {{-- <div class="p-3">
                                 <p class="font-semibold text-xl">Features</p>
                                 <div class="mt-2 d-flex justify-content-center gap-3">
                                     @if($plan->is_chat_enabled)
@@ -150,7 +149,7 @@
                                         </div>
                                     @endif
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 @endforeach

@@ -55,7 +55,6 @@ class PlanController extends Controller
                 'max_roles'     => 'required',
                 'max_documents' => 'required',
                 'max_blogs'     => 'required',
-                'description'   => 'max:100',
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (!$paymentTypes) {
@@ -72,7 +71,7 @@ class PlanController extends Controller
                 'max_blogs'         => $request->max_blogs,
                 'discount_setting'  => ($request->discount_setting) ? 'on' : 'off',
                 'discount'          => $request->discount_setting == 'on' ? $request->discount : null,
-                'description'       => $request->description,
+                'description'       => $_POST['description'],
             ]);
             return redirect()->route('plans.index')->with('success', __('Plan created successfully.'));
         } else {
@@ -110,7 +109,6 @@ class PlanController extends Controller
                 'max_roles'     => 'required',
                 'max_documents' => 'required',
                 'max_blogs'     => 'required',
-                'description'   => 'max:100',
             ]);
             $plan = Plan::find($id);
             $plan->name             = $request->input('name');
@@ -123,7 +121,7 @@ class PlanController extends Controller
             $plan->max_blogs        = $request->input('max_blogs');
             $plan->discount_setting = ($request->discount_setting) ? 'on' : 'off';
             $plan->discount         = $request->discount_setting == 'on' ? $request->discount : null;
-            $plan->description      = $request->input('description');
+            $plan->description      = $_POST['description'];
             $plan->save();
 
             // tenant database setting store
