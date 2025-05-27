@@ -73,7 +73,7 @@
                                                     <td class="text-muted">{{ __('Subscription Description') }}:</td>
                                                     <td>
                                                         <span
-                                                            class="text-gray-800 text-hover-primary">{{ isset($plan->description) ? $plan->description : '--' }}</span>
+                                                            class="text-gray-800 text-hover-primary">{!! isset($plan->description) ? $plan->description : '--' !!}</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
