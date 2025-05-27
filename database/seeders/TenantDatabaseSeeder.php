@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\Mail\Admin\FollowerPaymentLink;
@@ -73,7 +74,7 @@ class TenantDatabaseSeeder extends Seeder
             'user'           => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'influencers'    => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'followers'      => ['manage', 'create', 'edit', 'delete', 'impersonate'],
-            'lessons'        => ['manage', 'create', 'edit', 'delete', 'impersonate'],
+            // 'lessons'        => ['manage', 'create', 'edit', 'delete', 'impersonate'],
             'purchases'      => ['manage', 'create', 'edit', 'delete'],
             'setting'        => ['manage'],
             'transaction'    => ['manage'],
@@ -220,7 +221,7 @@ class TenantDatabaseSeeder extends Seeder
             ['key' => 'apps_image', 'value' => 'logo/app-logo.png'],
             ['key' => 'apps_multiple_image_setting', 'value' => '[
                 {"apps_multiple_image":"logo/app-logo.png"},
-            ]', ],
+            ]',],
             ['key' => 'enable_sms_notification', 'value' => 'on'],
             ['key' => 'enable_email_notification', 'value' => 'on'],
             ['key' => 'feature_setting_enable', 'value' => 'off'],
@@ -232,7 +233,7 @@ class TenantDatabaseSeeder extends Seeder
                 {"feature_image":"seeder-image/security.svg","feature_name":"Two Factor","feature_bold_name":"Authentication","feature_detail":"Security is our priority. With our robust two-factor authentication (2FA) feature, you can add an extra layer of protection to your Full Tenancy Form"},
                 {"feature_image":"seeder-image/secretary.svg","feature_name":"Multi Users With","feature_bold_name":"Role & permission","feature_detail":"Assign roles and permissions to different users based on their responsibilities and requirements. Admins can manage user accounts, define access level"},
                 {"feature_image":"seeder-image/documents.svg","feature_name":"Document builder","feature_bold_name":"Easy and fast","feature_detail":"Template Library: Offer a selection of pre-designed templates for various document types (e.g., contracts, reports).Template Creation: Allow users to create custom templates with placeholders for dynamic content.\r\n\r\nTemplate Library: Offer a selection of pre-designed templates for various document types (e.g., contracts, reports).Template Creation: Allow users to create custom templates with placeholders for dynamic content."}
-            ]', ],
+            ]',],
 
             ['key' => 'menu_setting_section1_enable', 'value' => 'off'],
             ['key' => 'menu_name_section1', 'value' => 'Dashboard'],
@@ -262,7 +263,7 @@ class TenantDatabaseSeeder extends Seeder
                 {"business_growth_view_name":"Positive Reviews","business_growth_view_amount":"20 k+"},
                 {"business_growth_view_name":"Total Sales","business_growth_view_amount":"300 +"},
                 {"business_growth_view_name":"Happy Users","business_growth_view_amount":"100 k+"}
-            ]', ],
+            ]',],
             ['key' => 'business_growth_setting', 'value' => '[
                 {"business_growth_title":"User Friendly"},
                 {"business_growth_title":"Products Analytic"},
@@ -278,7 +279,7 @@ class TenantDatabaseSeeder extends Seeder
                 {"business_growth_title":"Store Swap Link"},
                 {"business_growth_title":"Manufacturers"},
                 {"business_growth_title":"Order Status Tracking"}
-            ]', ],
+            ]',],
 
             ['key' => 'contactus_setting_enable', 'value' => 'off'],
             ['key' => 'contactus_name', 'value' => 'Enterprise'],
