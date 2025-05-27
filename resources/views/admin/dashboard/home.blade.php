@@ -352,15 +352,4 @@ $chatcolor = '#0C7785';
         cb(start, end);
     });
     </script>
-    {{-- {{ $dataTable->scripts() }} --}}
-    <script type="text/javascript">
-    $(document).ready(function() {
-        var html =
-            $('.dataTable-title').html(
-                `<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>
-                    {{ $users->type == 'Follower'?'My online Submissions':'Lesson Submissions' }}
-                </span></div>`
-            );
-    });
-    </script>
     @endpush

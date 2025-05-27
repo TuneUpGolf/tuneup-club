@@ -72,13 +72,6 @@
     {{-- Purchases table JS --}}
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
-    <script>
-        $(document).ready(function() {
-            $('.dataTable-title').html(
-                "<div class='flex justify-start items-center'><div class='custom-table-header'></div><span class='font-medium text-2xl pl-4'>All Purchases</span></div>"
-            );
-        });
-    </script>
 
     {{-- Profile cropper and phone logic --}}
     <script>
