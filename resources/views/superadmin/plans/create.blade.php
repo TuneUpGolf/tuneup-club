@@ -108,9 +108,9 @@
                         </div>
                         <div class="form-group">
                             {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
-                            {!! Form::text('description', null, [
-                                'placeholder' => __('Enter description'),
-                                'class' => 'form-control',
+                            {!! Form::textarea('description', null, [
+                                'autocomplete' => 'off',
+                                'class' => 'form-control form-control-lg form-control-solid',
                             ]) !!}
                         </div>
                     </div>
@@ -128,6 +128,7 @@
 @endsection
 @push('javascript')
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
+    <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var genericExamples = document.querySelectorAll('[data-trigger]');
@@ -145,6 +146,11 @@
             } else {
                 $('.main_discount').addClass('d-none');
             }
+        });
+        CKEDITOR.replace('description', {
+            allowedContent: true,
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form'
         });
     </script>
 @endpush
