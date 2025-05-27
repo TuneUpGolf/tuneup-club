@@ -68,7 +68,6 @@ class PlanController extends Controller
                 'duration'     => 'required',
                 'durationtype' => 'required',
                 'max_users'    => 'required',
-                'description'  => 'max:1000',
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (! $paymentTypes) {
@@ -94,7 +93,7 @@ class PlanController extends Controller
                 'durationtype'    => $request->durationtype,
                 'tenant_id'       => $tenantId,
                 'max_users'       => $request->max_users,
-                'description'     => $request->description,
+                'description'     => $_POST['description'],
                 'is_chat_enabled' => $request->chat == 'on' ? true : false,
                 'is_feed_enabled' => $request->feed == 'on' ? true : false,
                 'influencer_id'   => $influencerId,
@@ -145,7 +144,7 @@ class PlanController extends Controller
                 $plan->duration        = $request->input('duration');
                 $plan->durationtype    = $request->input('durationtype');
                 $plan->max_users       = $request->input('max_users');
-                $plan->description     = $request->input('description');
+                $plan->description     = $_POST['description'];
                 $plan->is_chat_enabled = $request->input('chat') ? true : false;
                 $plan->is_feed_enabled = $request->input('feed') ? true : false;
                 $plan->save();

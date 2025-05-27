@@ -111,45 +111,29 @@
             @if(!$plans->isEmpty())
                 @foreach($plans as $plan)
                     <div class="px-3 py-4">
-                        <div class="bg-white rounded-lg shadow popular-wrap position-relative h-100">
+                        <div class="bg-white subs-feature rounded-lg shadow popular-wrap position-relative h-100">
                             @if($plan->is_chat_enabled && $plan->is_feed_enabled)
                                 <div class="rounded-pill px-4 py-2 popular-plan w-auto bg-primary text-white font-bold position-absolute" style="top: -22px; left: 50%; transform: translateX(-50%);">
                                     POPULAR
                                 </div>
                             @endif
-                            <div class="relative px-3 py-4">
-                                
-                                <p class="text-2xl font-semibold mb-2">{{ $plan->name }}</p>
-                                <p class="text-gray-600">
-                                    {{ $plan->description }}
-                                </p>
-                                <div class="flex gap-2 items-center my-3">
-                                    <h2 class="text-6xl font-bold">{{ $currency . ' ' . $plan->price }}</h2>
-                                    <div>
-                                        <p class="text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
-                                    </div>
+                            <div class="relative px-3 py-4  flex flex-col">
+                                <p class="text-3xl font-bold mb-1">{{ $plan->name }}</p>
+                                <div class="flex gap-2 items-center my-2 ">
+                                    <p class=" text-6xl font-bold">{{ $currency . ' ' . $plan->price }} /</p>
+                                    <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
+                                    
                                 </div>
-                                <a href="{{ route('login') }}">
-                                    <button type="submit" class="lesson-btn font-bold text-lg">Purchase</button>
+                                <a href="{{ route('login') }}" class="lesson-btn text-center font-bold text-lg mt-auto">
+                                    Purchase
                                 </a>
                             </div>
                             <div class="border-t border-gray-300"></div>
                             <div class="p-3">
-                                <p class="font-semibold text-xl">Features</p>
-                                <div class="mt-2 d-flex justify-content-center gap-3">
-                                    @if($plan->is_chat_enabled)
-                                        <div class="d-flex align-items-center">
-                                            <i class="ti ti-message-circle text-success me-1"></i>
-                                            <span>{{ __('Free Chat') }}</span>
-                                        </div>
-                                    @endif
-                                    @if($plan->is_feed_enabled)
-                                        <div class="d-flex align-items-center">
-                                            <i class="ti ti-rss text-success me-1"></i>
-                                            <span>{{ __('Free Feed') }}</span>
-                                        </div>
-                                    @endif
-                                </div>
+                                <p class="font-semibold text-xl mb-2">Features</p>
+                                <p class="text-gray-600">
+                                {!! $plan->description !!}
+                                </p>
                             </div>
                         </div>
                     </div>
