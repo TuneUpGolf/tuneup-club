@@ -48,7 +48,12 @@
        
         <span class="text-xl font-semibold text-dark">{!! $title !!}</span>
         <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
-            {!! \Illuminate\Support\Str::limit($description, 180, '...') !!}
+            {!! \Illuminate\Support\Str::limit($description, 177,
+            '<a onClick="javascript:showMore(this);" class="read-more" href="javascript:void(0);">...Read more >></a>'
+            ).
+            '<span class="more-content hidden">'.substr($description, 177).
+            '<a onClick="javascript:showLess(this);" href="javascript:void(0);"> << Read less</a>'
+            ."</span>" !!}
         </p>
 
         <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
