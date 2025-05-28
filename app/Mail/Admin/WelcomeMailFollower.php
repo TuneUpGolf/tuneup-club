@@ -22,7 +22,7 @@ class WelcomeMailFollower extends TemplateMailable
     {
         //
         $this->name = $user->name;
-        $this->link = route('login');
+        $this->link = url('/login');
         $this->password = $password;
     }
 
