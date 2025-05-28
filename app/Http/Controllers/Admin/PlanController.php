@@ -71,7 +71,7 @@ class PlanController extends Controller
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (! $paymentTypes) {
-                return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
+                return redirect()->back()->with('errors', __('Please on at list one payment type.')) ->withInput();
             }
             $influencerId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
             $tenantId     = Auth::user()->type === Role::ROLE_INFLUENCER ? tenant()->id : null;
