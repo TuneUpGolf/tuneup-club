@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Mail\Admin\FollowerPaymentLink;
+use App\Mail\Admin\FollowerSubscribedMail;
 use App\Mail\Admin\PurchaseCompleted;
 use App\Mail\Admin\PurchaseCreated;
 use App\Mail\Admin\PurchaseCreatedInsructor;
@@ -822,6 +823,22 @@ class TenantDatabaseSeeder extends Seeder
             <p><strong>Email {{email}}</strong></p>
             <p><strong>Register Successfully</strong></p>',
             'text_template' => null,
+        ]);
+
+        MailTemplate::firstOrCreate([
+            'mailable'      => FollowerSubscribedMail::class,
+            'subject'       => 'Subscription update!',
+            'html_template' => "<p>Hi {{ influencer }},</p>
+                                <p>Great news! {{ follower }} just subscribed to <strong>{{ plan }}</strong> subscription.</p>
+                                <p>You're growing your community, and people are excited to hear from you!</p>
+                                <p>Here are the details:</p>
+                                <ul>
+                                    <li><strong>Subscriber:</strong> {{ follower }} ({{ subscriberEmail }})</li>
+                                    <li><strong>Subscription plan: </strong> {{ plan }}</li>
+                                    <li><strong>Subscribed At: </strong>{{ datetime }}</li>
+                                </ul>
+                                <p>Keep engaging, sharing, and inspiring!</p>",
+            'text_template' => 'Subscription update!',
         ]);
 
         NotificationsSetting::firstOrCreate(['title' => 'Testing Purpose'], [
