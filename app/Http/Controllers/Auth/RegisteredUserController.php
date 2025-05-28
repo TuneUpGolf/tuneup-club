@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessSignupEmails;
+use App\Models\Follow;
 use App\Models\Follower;
 use App\Models\Role;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use App\Services\ChatService;
 use Carbon\Carbon;
@@ -58,6 +60,7 @@ class RegisteredUserController extends Controller
             'lang'              => 'en',
             'active_status'     => 1,
         ]);
+
         $user->assignRole(Role::ROLE_FOLLOWER);
         $chatUserDetails = $this->chatService->getUserProfile($request->email);
         if ($chatUserDetails['status'] == 'success') {
@@ -68,6 +71,15 @@ class RegisteredUserController extends Controller
         } else {
             $this->chatService->createUser($user);
         }
+
+        $influencer = User::where('type', Role::ROLE_INFLUENCER)->orderBy('id', 'desc')->first();
+        if ($influencerId = $influencer->id ?? false) {
+            Follow::updateOrCreate(
+                ['follower_id'    => $user->id, 'influencer_id' => $influencerId,],
+                ['active_status' => true, 'isPaid' => false,]
+            );
+        }
+
         ProcessSignupEmails::dispatch($user, tenant('id'));
 
         // else {
