@@ -35,23 +35,6 @@ return Utility::getsettings('currency');
                </div>
             </div>
          </div>
-         <div class="ml-auto">
-            {!! Form::open([
-            'route' => [
-            'follow.influencer',
-            [
-            'influencer_id' => $influencer?->id,
-            'follow' => $follow->where('follower_id', Auth::user()->id)?->first()?->active_status
-            ? 'unfollow'
-            : 'follow',
-            ],
-            ],
-            'method' => 'Post',
-            'data-validate',
-            ]) !!}
-            {{ Form::button(__($follow->where('follower_id', Auth::user()->id)->first()?->active_status ? 'Unfollow' : 'Follow'), ['type' => 'submit', 'class' => 'follow-profile-btn']) }}
-            {!! Form::close() !!}
-         </div>
       </div>
    </div>
    <div class="card min-h-screen">
@@ -72,7 +55,6 @@ return Utility::getsettings('currency');
          @endif
       </div>
       <div id="Posts" class="tabcontent">
-         @if($isFollowing)
          @if (!!$totalLessons)
          <div id="blog" class="">
             <div class="">
@@ -97,15 +79,8 @@ return Utility::getsettings('currency');
             this influencer yet
          </div>
          @endif
-         @else
-         <div class="flex flex-col justify-center items-center no-data gap-2 text-center">
-            <i class="fa fa-lock text-xl mb-2" aria-hidden="true"></i>
-            <span class="text-lg font-semibold">Follow to access this section</span>
-         </div>
-         @endif
       </div>
       <div id="Subscriptions" class="tabcontent">
-         @if($isFollowing)
          <div class="row">
             @foreach ($plans as $plan)
             @if ($plan->active_status == 1)
@@ -174,12 +149,6 @@ return Utility::getsettings('currency');
             @endif
             @endforeach
          </div>
-         @else
-         <div class="flex flex-col justify-center items-center no-data gap-2 text-center">
-            <i class="fa fa-lock text-xl mb-2" aria-hidden="true"></i>
-            <span class="text-lg font-semibold">Follow to access this section</span>
-         </div>
-         @endif
       </div>
    </div>
 </div>
