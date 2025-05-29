@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Facades\UtilityFacades;
@@ -41,7 +40,7 @@ class RegisteredUserController extends Controller
     {
         request()->validate([
             'name'     => 'required|max:255',
-            'email'    => 'required|email|max:255|unique:users',
+            'email'    => 'required|email|max:255|unique:followers',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
         $user = Follower::create([

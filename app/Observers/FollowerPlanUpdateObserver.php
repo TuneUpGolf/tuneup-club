@@ -21,7 +21,7 @@ class FollowerPlanUpdateObserver
     public function updating(Follower $follower)
     {
         $influencer = User::where('type', Role::ROLE_INFLUENCER)->first();
-        if ($influencer) {
+        if ($influencer && !array_key_exists('password', request()->all())) {
             SendEmail::dispatch(
                 $influencer->email,
                 new FollowerSubscribedMail(
