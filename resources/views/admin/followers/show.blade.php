@@ -46,7 +46,7 @@
 
 {{-- Chat Section --}}
 @if($isSubscribed)
-    @include('admin.chat.chat')
+    @include('admin.chat.chat', ['user' => $follower->name])
 @endif
 @endsection
 
