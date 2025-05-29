@@ -22,7 +22,7 @@ class WelcomeMail extends TemplateMailable
     {
         //
         $this->name = $user['name'];
-        $this->link = route('login');
+        $this->link = url('/login');
         $this->password = $user['unhashedPass'];
     }
 
