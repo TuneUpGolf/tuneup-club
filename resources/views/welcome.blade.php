@@ -38,7 +38,7 @@
         @if(!$influencerDetails->lessons->isEmpty())
             @foreach ($influencerDetails->lessons as $lesson)
                 <div class="px-3 py-4">
-                    <div class=" bg-white rounded-lg shadow   flex flex-col">
+                    <div class=" bg-white rounded-lg shadow h-100  flex flex-col">
                         <div class="relative text-center p-3 flex gap-3">
                             <img src="{{ $influencerDetails->avatar }}"
                                 alt="{{ $influencerDetails->name }}"
@@ -51,16 +51,24 @@
                                 <div class="text-lg font-bold tracking-tight text-primary">
                                     {{ $currency}} {{ $lesson->lesson_price }} (USD)
                                 </div>
-                                <div class="text-sm font-medium text-gray-500 italic">
-                                    <span class="">({!! \App\Models\Purchase::where('lesson_id', $lesson->id)->where('status', 'complete')->count() !!} Purchased)</span>
-                                </div>
                             </div>
                         </div>
 
                         <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                             <span class="text-xl font-semibold text-dark">{{ $lesson->lesson_name }}</span>
-                            <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
-                                {{ $lesson->lesson_description }}
+                            @php
+                                $description = strip_tags($lesson->lesson_description);
+                                $shortDescription = \Illuminate\Support\Str::limit(
+                                            $description,
+                                            177,
+                                            '<a onClick="javascript:showMore(this);" class="read-more" href="javascript:void(0);"> Read more >></a>'
+                                        ).
+                                        '<span class="more-content hidden">'.substr($description, 50).
+                                        '<a onClick="javascript:showLess(this);" href="javascript:void(0);"> << Read less</a>'
+                                        ."</span>";
+                            @endphp
+                            <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
+                                <span class="short-text break-all">{!! $shortDescription !!}</span>
                             </p>
 
                             <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3 flex">
@@ -284,3 +292,16 @@
     </div>
 </footer>
 @endsection
+@push('css')
+    <style>
+        .lessions-slider  .slick-track
+        {
+            display: flex !important;
+        }
+
+        .lessions-slider  .slick-slide
+        {
+            height: inherit !important;
+        }
+    </style>
+@endpush
