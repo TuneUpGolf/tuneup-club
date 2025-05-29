@@ -251,15 +251,16 @@ $languages = Utility::languages();
                     </a>
                 </li>
                 @endif
-
-                {{-- @can('manage-purchases')
-                <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
-                    <a class="dash-link" href="{{ route('purchase.index') }}">
-                        <span class="dash-micon"><i class="ti ti-messages"></i></span>
-                        <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
-                    </a>
-                </li>
-                @endcan --}}
+                @if (Auth::user()->type != 'Influencer')
+                    @can('manage-purchases')
+                    <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
+                        <a class="dash-link" href="{{ route('purchase.index') }}">
+                            <span class="dash-micon"><i class="ti ti-messages"></i></span>
+                            <span class="dash-mtext">{{ __('Purchased Lessons') }}</span>
+                        </a>
+                    </li>
+                    @endcan
+                @endif
                 {{-- @if (Auth::user()->type === 'Follower')
                 <li class="dash-item dash-hasmenu {{ request()->is('influencer*') ? 'active' : '' }}">
                     <a class="dash-link" href="{{ route('influencer.profiles') }}">
