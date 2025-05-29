@@ -2,7 +2,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
-use App\Actions\SendPushNotification;
 use App\DataTables\Admin\PurchaseDataTable;
 use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
@@ -54,9 +53,8 @@ class PurchaseController extends Controller
         if (Auth::user()->can('manage-purchases')) {
             return $dataTable->render('admin.purchases.index', [
                 'upcomingLessonBuilder' => $upcomingLessonDataTable->html(),
-            ]);;
+            ]);
         }
-
     }
 
     public function upcomingLessonsData(UpcomingLessonDataTable $dataTable)
@@ -490,7 +488,6 @@ class PurchaseController extends Controller
                 } else {
                     return response()->json(['error' => 'Unable to add lessons, as lesson videos limit is full'], 422);
                 }
-
             } else {
                 return response()->json(['error' => 'Purchase doesnot exist or unauthorized'], 401);
             }
@@ -565,7 +562,6 @@ class PurchaseController extends Controller
                         if (isset($purchase->follower->pushToken->token)) {
                             // SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Feedback Recieved', $message);
                         }
-
                     }
                     $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
                     if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
@@ -636,15 +632,14 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->can('create-purchases')) {
             $purchase = Purchase::find($request->purchase_id);
-                return view('admin.purchases.lesson', ['purchase' => $purchase]);
+            return view('admin.purchases.lesson', ['purchase' => $purchase]);
         }
     }
 
-    
     public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchase = Purchase::with(['videos', 'lesson', 'follower', 'influencer'])
+            $purchase = Purchase::with(['lesson', 'follower', 'influencer', 'videos.feedbackContent'])
                 ->find(request()->purchase_id);
             return view('admin.purchases.videos', compact('purchase'));
         }
@@ -661,15 +656,31 @@ class PurchaseController extends Controller
             if (Auth::user()->can('manage-purchases') && $purchaseVideo = PurchaseVideos::find($request->purchase_video_id)) {
                 $purchaseVideo->feedback = $request->feedback;
 
+                $currentDomain = tenant('domains');
+                $currentDomain = $currentDomain[0]->domain;
                 if ($request?->hasFile('fdbk_video')) {
                     foreach ($request->file('fdbk_video') as $file) {
-                        $path = $file->store('feedbackContent');
+
+                        if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+                            $localPath = $request->file('video')->store('feedbackVideos');
+                            $path      = $this->convertSingleVideo($localPath);
+                        } else {
+
+                            $extension      = $file->getClientOriginalExtension();
+                            $randomFileName = Str::random(25) . '.' . $extension;
+                            $filePath       = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
+                        }
+
                         $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
-                        FeedbackContent::create([
-                            'purchase_video_id' => $purchaseVideo->id,
-                            'url'               => $path,
-                            'type'              => $type,
-                        ]);
+                        FeedbackContent::updateOrCreate(
+                            ['purchase_video_id' => $purchaseVideo->id],
+                            [
+                                'url'  => $path,
+                                'type' => $type,
+                            ]
+                        );
                     }
                 }
 
@@ -697,8 +708,7 @@ class PurchaseController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('errors', $e->getMessage());
-        }
-        {
+        }{
             $purchaseVideo = PurchaseVideos::find($request->purchase_video);
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
@@ -722,7 +732,6 @@ class PurchaseController extends Controller
 
             return redirect()->back()->with('success', 'Feedback deleted successfully.');
         }
-
     }
     public function getFollowerPurchases(Request $request)
     {
