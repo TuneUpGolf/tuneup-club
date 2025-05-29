@@ -160,13 +160,13 @@ class PostsController extends Controller
             }
             $post->title       = $request->title;
             $post->slug        = $request->slug;
-            $post->paid        = $request?->paid == 'on' ? true : false;
-            $post->price       = $request?->paid == 'on' ? $request?->price : 0;
+            $post->paid        = $request?->paid == 1 ? true : false;
+            $post->price       = $request?->paid == 1 ? $request?->price : 0;
             $post->description = $request->description;
             // $post->short_description    = $request->short_description;
 
             $post->save();
-            return redirect()->route('blogs.index')->with('success', __('Posts updated successfully'));
+            return redirect()->route('blogs.manage')->with('success', __('Posts updated successfully'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
