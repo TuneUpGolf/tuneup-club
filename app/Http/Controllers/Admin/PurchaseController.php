@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
@@ -54,9 +55,8 @@ class PurchaseController extends Controller
         if (Auth::user()->can('manage-purchases')) {
             return $dataTable->render('admin.purchases.index', [
                 'upcomingLessonBuilder' => $upcomingLessonDataTable->html(),
-            ]);;
+            ]);
         }
-
     }
 
     public function upcomingLessonsData(UpcomingLessonDataTable $dataTable)
@@ -490,7 +490,6 @@ class PurchaseController extends Controller
                 } else {
                     return response()->json(['error' => 'Unable to add lessons, as lesson videos limit is full'], 422);
                 }
-
             } else {
                 return response()->json(['error' => 'Purchase doesnot exist or unauthorized'], 401);
             }
@@ -565,7 +564,6 @@ class PurchaseController extends Controller
                         if (isset($purchase->follower->pushToken->token)) {
                             // SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Feedback Recieved', $message);
                         }
-
                     }
                     $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
                     if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
@@ -636,11 +634,11 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->can('create-purchases')) {
             $purchase = Purchase::find($request->purchase_id);
-                return view('admin.purchases.lesson', ['purchase' => $purchase]);
+            return view('admin.purchases.lesson', ['purchase' => $purchase]);
         }
     }
 
-    
+
     public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
@@ -697,8 +695,7 @@ class PurchaseController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('errors', $e->getMessage());
-        }
-        {
+        } {
             $purchaseVideo = PurchaseVideos::find($request->purchase_video);
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
@@ -722,7 +719,6 @@ class PurchaseController extends Controller
 
             return redirect()->back()->with('success', 'Feedback deleted successfully.');
         }
-
     }
     public function getFollowerPurchases(Request $request)
     {
@@ -830,7 +826,7 @@ class PurchaseController extends Controller
 
                 // Fix for Safari's initial 0-1 range request
                 if ($start == 0 && $end == 1) {
-                                                    // Just serve these two bytes as requested, don't modify the range
+                    // Just serve these two bytes as requested, don't modify the range
                     $length                    = 2; // Just the 2 bytes requested
                     $headers['Content-Length'] = $length;
                     $headers['Content-Range']  = "bytes 0-1/$fileSize";

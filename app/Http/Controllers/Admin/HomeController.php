@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\Admin\PurchaseDataTable;
 use App\DataTables\Admin\SalesDataTable;
-use App\DataTables\Admin\UpcomingLessonDataTable;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentGenrator;
@@ -35,7 +36,7 @@ class HomeController extends Controller
         });
         return view('welcome', compact('plans'));
     }
-    public function index(UpcomingLessonDataTable $dataTable, Request $request)
+    public function index(PurchaseDataTable $dataTable, Request $request)
     {
         $user     = Auth::user();
         $userType = $user->type;
@@ -64,8 +65,8 @@ class HomeController extends Controller
 
         // Fetch Plan Expiration
         $planExpiredDate = $userType == AuthServiceProvider::ADMIN_TYPE
-        ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()->plan_expired_date)
-        : User::where('email', $user->email)->first()->plan_expired_date ?? '';
+            ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()->plan_expired_date)
+            : User::where('email', $user->email)->first()->plan_expired_date ?? '';
 
         // Fetch influencer Count
         $influencer = User::where('tenant_id', $tenantId)->where('type', Role::ROLE_INFLUENCER)->count();
@@ -73,15 +74,15 @@ class HomeController extends Controller
 
         // Fetch Lessons Count
         $lessons = ($userType == "Admin")
-        ? Lesson::where('tenant_id', $tenantId)->count()
-        : Lesson::where('tenant_id', $tenantId)->where('created_by', $user->id)->count();
+            ? Lesson::where('tenant_id', $tenantId)->count()
+            : Lesson::where('tenant_id', $tenantId)->where('created_by', $user->id)->count();
 
         $influencerLesson = Lesson::where('tenant_id', $tenantId)->where('created_by', $user->id)->get();
 
         // Fetch Earnings
         $earning = ($userType === Role::ROLE_INFLUENCER)
-        ? Purchase::where('influencer_id', $user->id)->where('status', 'complete')->sum('total_amount')
-        : Purchase::where('status', 'complete')->sum('total_amount');
+            ? Purchase::where('influencer_id', $user->id)->where('status', 'complete')->sum('total_amount')
+            : Purchase::where('status', 'complete')->sum('total_amount');
 
         // Fetch Influencer Statistics for Admins (Without Follower Count)
         $influencerStats = [];
@@ -187,7 +188,15 @@ class HomeController extends Controller
             'purchaseInprogress',
             'inPersonCompleted',
             'inPersonPending',
-            'influencer', 'totalLessons', 'section', 'posts', 'follow', 'plans', 'isInfluencer', 'isSubscribed', 'isFollowing'
+            'influencer',
+            'totalLessons',
+            'section',
+            'posts',
+            'follow',
+            'plans',
+            'isInfluencer',
+            'isSubscribed',
+            'isFollowing'
         ));
     }
 
