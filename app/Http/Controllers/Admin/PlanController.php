@@ -78,8 +78,8 @@ class PlanController extends Controller
 
             if ($influencerId) {
                 $exists = Plan::where('influencer_id', $influencerId)
-                    ->where('is_chat_enabled', $request->chat == 'on' ? true : false)
-                    ->where('is_feed_enabled', $request->feed == 'on' ? true : false)
+                    ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
+                    ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
                     ->exists();
 
                 if ($exists) {
@@ -94,8 +94,8 @@ class PlanController extends Controller
                 'tenant_id'       => $tenantId,
                 'max_users'       => $request->max_users,
                 'description'     => $_POST['description'],
-                'is_chat_enabled' => $request->chat == 'on' ? true : false,
-                'is_feed_enabled' => $request->feed == 'on' ? true : false,
+                'is_chat_enabled' => $request->chat == '1' ? 1 : 0,
+                'is_feed_enabled' => $request->feed == '1' ? 1 : 0,
                 'influencer_id'   => $influencerId,
             ]);
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
