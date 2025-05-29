@@ -25,10 +25,10 @@
             <div class="text-lg font-bold tracking-tight text-primary">
                 {!! $subtitle !!}
             </div>
-            <div class="text-sm font-medium text-gray-500 italic">
+            {{-- <div class="text-sm font-medium text-gray-500 italic">
                 <span class="">({!! \App\Models\Purchase::where('lesson_id', $model->id)->where('status',
                     'complete')->count() !!} Purchased)</span>
-            </div>
+            </div> --}}
         </div>
 
     </div>
