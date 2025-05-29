@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -47,11 +48,12 @@ class PurchasePostController extends Controller
                     ]],
                     'customer'    => Auth::user()?->stripe_cus_id,
                     'mode'        => 'payment',
-                    'success_url' => route('purchase-post-success', [
-                        'purchase_post_id' => $purchasePost?->id,
-                        'follower_id'      => Auth::user()->id,
-                        'redirect'         => $request->redirect,
-                    ]),
+                    'success_url' => route('blogs.index'),
+                    // route('purchase-post-success', [
+                    //     'purchase_post_id' => $purchasePost?->id,
+                    //     'follower_id'      => Auth::user()->id,
+                    //     'redirect'         => $request->redirect,
+                    // ]),
                     'cancel_url'  => route('subscription-unsuccess'),
                 ]
             );
