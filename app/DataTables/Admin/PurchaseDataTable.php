@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Models\Lesson;
@@ -28,8 +29,8 @@ class PurchaseDataTable extends DataTable
             })
             ->editColumn('influencer_name', function ($purchase) {
                 $imageSrc = $purchase->influencer->logo
-                ? $purchase->influencer->logo
-                : asset('assets/img/logo/logo.png');
+                    ? $purchase->influencer->logo
+                    : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -63,8 +64,8 @@ class PurchaseDataTable extends DataTable
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->follower->dp
-                ? $purchase->follower->dp
-                : asset('assets/img/logo/logo.png');
+                    ? $purchase->follower->dp
+                    : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -167,23 +168,26 @@ class PurchaseDataTable extends DataTable
                 tableContainer.find(".dataTable-title").html(
                     $("<div>").addClass("flex justify-start items-center").append(
                         $("<div>").addClass("custom-table-header"),
-                        $("<span>").addClass("font-medium text-2xl pl-4").text("All Purchases")
+                        $("<span>").addClass("font-medium text-2xl pl-4").text("Lesson Submissions")
                     )
                 );
             }')
             ->parameters([
                 "dom"            => "
                 <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>
-                <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+                <'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                 <'dataTable-container'<'col-sm-12'tr>>
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>
                 ",
+
+                //<'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+
                 'buttons'        => $buttons,
-                
+
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -235,15 +239,15 @@ class PurchaseDataTable extends DataTable
                       });
                 }',
             ])->language([
-            'buttons' => [
-                'create' => __('Choose Your Coach'),
-                'print'  => __('Print'),
-                'reset'  => __('Reset'),
-                'reload' => __('Reload'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Choose Your Coach'),
+                    'print'  => __('Print'),
+                    'reset'  => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel'  => __('Excel'),
+                    'csv'    => __('CSV'),
+                ],
+            ]);
     }
 
     protected function getColumns()
