@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
@@ -26,7 +27,7 @@ class PostDataTable extends DataTable
             ->editColumn("photo", function (Post $post) {
                 if ($post->file) {
                     $imageSrc = $post->file;
-                    if($post->file_type == 'image'){
+                    if ($post->file_type == 'image') {
                         $return =  "<img src=' " . $imageSrc . " ' width='50'/>";
                     } else {
                         $thumbnail = asset('assets/images/video-thumbanail.jpeg');
@@ -137,7 +138,7 @@ class PostDataTable extends DataTable
                     $("td", row).css("font-weight", "300");
                 }',
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -196,7 +197,7 @@ class PostDataTable extends DataTable
             Column::make('paid')->title(__('Paid')),
             Column::make('price')->title(__('Price ($)')),
             Column::computed('sales')->title(__('Sales')),
-            Column::make('photo')->title(__('Photo')),
+            Column::make('photo')->title(__('Photo'))->searchable(false)->orderable(false),
             Column::make('created_at')->title(__('Created At')),
             Column::computed('action')->title(__('Action'))
                 ->exportable(false)

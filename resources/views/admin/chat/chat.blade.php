@@ -2,7 +2,7 @@
     <div class="col-xl-12">
         <div class="card shadow-sm chat-module-wrapper">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Chat</h5>
+                <h5 class="mb-0">Chat {{isset($user)?"with ". $user:''}}</h5>
             </div>
             <div class="card-body chat-box p-4">
             </div>

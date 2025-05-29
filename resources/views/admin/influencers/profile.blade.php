@@ -33,14 +33,10 @@
                             class="rounded-full align-middle border-1 profile-image">
                         <div class="flex flex-col">
                             <span class="font-medium text-3xl mb-2">{{ $influencer->name }}</span>
-                            <div class="flex justify-center items-center divide-x divide-solid w-100 gap-2 text-gray-600">
+                            <div class="flex divide-x divide-solid w-100 gap-2 text-gray-600">
                                 <div class="text-sm leading-normal text-gray-600 uppercase">
                                     <i class="fas fa-map-marker-alt"></i>
                                     {{ $influencer->country }}
-                                </div>
-                                <div class="text-sm leading-normal text-gray-600 uppercase">
-                                    <i class="fas fa-user"></i>
-                                    Influencer
                                 </div>
                             </div>
                         </div>
