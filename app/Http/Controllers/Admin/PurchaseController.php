@@ -1,9 +1,7 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
-use App\Actions\SendPushNotification;
 use App\DataTables\Admin\PurchaseDataTable;
 use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
@@ -638,11 +636,10 @@ class PurchaseController extends Controller
         }
     }
 
-
     public function feedbackIndex(PurchaseLessonVideoDataTable $dataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
-            $purchase = Purchase::with(['videos', 'lesson', 'follower', 'influencer'])
+            $purchase = Purchase::with(['lesson', 'follower', 'influencer', 'videos.feedbackContent'])
                 ->find(request()->purchase_id);
             return view('admin.purchases.videos', compact('purchase'));
         }
@@ -659,15 +656,31 @@ class PurchaseController extends Controller
             if (Auth::user()->can('manage-purchases') && $purchaseVideo = PurchaseVideos::find($request->purchase_video_id)) {
                 $purchaseVideo->feedback = $request->feedback;
 
+                $currentDomain = tenant('domains');
+                $currentDomain = $currentDomain[0]->domain;
                 if ($request?->hasFile('fdbk_video')) {
                     foreach ($request->file('fdbk_video') as $file) {
-                        $path = $file->store('feedbackContent');
+
+                        if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+                            $localPath = $request->file('video')->store('feedbackVideos');
+                            $path      = $this->convertSingleVideo($localPath);
+                        } else {
+
+                            $extension      = $file->getClientOriginalExtension();
+                            $randomFileName = Str::random(25) . '.' . $extension;
+                            $filePath       = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
+                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                            $path = Storage::disk('spaces')->url($filePath);
+                        }
+
                         $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
-                        FeedbackContent::create([
-                            'purchase_video_id' => $purchaseVideo->id,
-                            'url'               => $path,
-                            'type'              => $type,
-                        ]);
+                        FeedbackContent::updateOrCreate(
+                            ['purchase_video_id' => $purchaseVideo->id],
+                            [
+                                'url'  => $path,
+                                'type' => $type,
+                            ]
+                        );
                     }
                 }
 
@@ -695,7 +708,7 @@ class PurchaseController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('errors', $e->getMessage());
-        } {
+        }{
             $purchaseVideo = PurchaseVideos::find($request->purchase_video);
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
@@ -826,7 +839,7 @@ class PurchaseController extends Controller
 
                 // Fix for Safari's initial 0-1 range request
                 if ($start == 0 && $end == 1) {
-                    // Just serve these two bytes as requested, don't modify the range
+                                                    // Just serve these two bytes as requested, don't modify the range
                     $length                    = 2; // Just the 2 bytes requested
                     $headers['Content-Length'] = $length;
                     $headers['Content-Range']  = "bytes 0-1/$fileSize";
