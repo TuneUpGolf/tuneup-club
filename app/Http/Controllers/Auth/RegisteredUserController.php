@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Facades\UtilityFacades;
@@ -86,7 +87,7 @@ class RegisteredUserController extends Controller
                 );
             }
 
-            ProcessSignupEmails::dispatch($user, tenant('id'));
+            ProcessSignupEmails::dispatchSync($user, tenant('id'));
             DB::commit();
             return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
         } catch (\Throwable $e) {
