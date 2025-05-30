@@ -63,18 +63,13 @@ body.modal-open .dash-container {
                         </p>
                     </div>
                 </div>
-                <div class="bg-white py-2 px-3 rounded-3xl shadow">
-                    {!! Form::open([
-                    'route' => ['purchase.like', ['post_id' => $post->id]],
-                    'method' => 'Post',
-                    'data-validate',
-                    ]) !!}
-
-                    <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
-                            class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count()  }}
-                            Likes</span></button>
-                    {!! Form::close() !!}
-                </div>
+                @if($post->paid && isset($purchasePost))
+                    <div class="bg-white py-2 px-3 rounded-3xl shadow">
+                        <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
+                                class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count()  }}
+                                Likes</span></button>
+                    </div>
+                @endif
             </div>
         </div>
 

@@ -164,24 +164,6 @@
                         @if (Auth::user()->type == 'Influencer')
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    {{ Form::label('sub_price', __('Subscription Price ($)'), ['class' => 'form-label']) }}
-                                    {!! Form::number('sub_price', $user->sub_price, [
-                                    'class' => 'form-control',
-                                    'id' => 'sub_price',
-                                    'placeholder' => __('Subscription Price'),
-                                    'required',
-                                    ]) !!}
-                                    @if ($errors->has('sub_price'))
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $errors->first('sub_price') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                        @if (Auth::user()->type == 'Influencer')
-                            <div class="col-sm-6">
-                                <div class="form-group">
                                     {{ Form::label('stripe_account_id', __('Stripe Account Id'), ['class' => 'form-label']) }}
                                     {!! Form::text('stripe_account_id', $user->stripe_account_id, [
                                     'class' => 'form-control',
