@@ -24,14 +24,10 @@ return Utility::getsettings('currency');
             class="rounded-full align-middle border-1 profile-image">
          <div class="flex flex-col">
             <span class="font-medium text-3xl mb-2">{{ $influencer->name }}</span>
-            <div class="flex justify-center items-center divide-x divide-solid w-100 gap-2 text-gray-600">
+            <div class="flex divide-x divide-solid w-100 gap-2 text-gray-600">
                <div class="text-sm leading-normal text-gray-600 uppercase">
                   <i class="fas fa-map-marker-alt"></i>
                   {{ $influencer->country }}
-               </div>
-               <div class="text-sm leading-normal text-gray-600 uppercase">
-                  <i class="fas fa-user"></i>
-                  Influencer
                </div>
             </div>
          </div>
@@ -113,7 +109,7 @@ return Utility::getsettings('currency');
                            {!! $plan->description !!}
                         </p>
                         
-                        <ul class="mt-2 pl-0">
+                        {{-- <ul class="mt-2 pl-0">
                            <li class="list-unstyled d-flex">
                               <span class="theme-avtar">
                               <i class="text-primary ti ti-circle-plus"></i></span>
@@ -141,7 +137,7 @@ return Utility::getsettings('currency');
                               {{ $plan->max_blogs . ' ' . __('Blogs') }}
                            </li>
                            @endif
-                        </ul>
+                        </ul> --}}
                      </div>
                   </div>
                </div>

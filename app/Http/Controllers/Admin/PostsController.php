@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\DataTables\Admin\PostDataTable;
@@ -29,6 +30,8 @@ class PostsController extends Controller
             $isSubscribed = true;
             $isFollowing  = true;
 
+            $influencerId      = Auth::id();
+
             if (Auth::user()->type === Role::ROLE_FOLLOWER) {
                 $follow            = Auth::user()->follows->first();
                 $isFollowing       = $follow ? $follow->active_status : false;
@@ -48,7 +51,7 @@ class PostsController extends Controller
                 case ('influencer'):
                     $posts = $posts->where('isFollowerPost', false);
             }
-            $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
+            $posts = $posts->where('influencer_id', $influencerId)->orderBy('created_at', 'desc')->paginate(6);
             $posts->load('influencer');
             $posts->load('follower');
             $posts->load('purchasePost');
@@ -158,13 +161,13 @@ class PostsController extends Controller
             }
             $post->title       = $request->title;
             $post->slug        = $request->slug;
-            $post->paid        = $request?->paid == 'on' ? true : false;
-            $post->price       = $request?->paid == 'on' ? $request?->price : 0;
+            $post->paid        = $request?->paid == 1 ? true : false;
+            $post->price       = $request?->paid == 1 ? $request?->price : 0;
             $post->description = $request->description;
             // $post->short_description    = $request->short_description;
 
             $post->save();
-            return redirect()->route('blogs.index')->with('success', __('Posts updated successfully'));
+            return redirect()->route('blogs.manage')->with('success', __('Posts updated successfully'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -260,7 +263,6 @@ class PostsController extends Controller
             } else {
                 return redirect()->back()->with('failed', __('UnSuccessfull'));
             }
-
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -291,7 +293,6 @@ class PostsController extends Controller
             } else {
                 return response()->json(['error' => 'Post does not exist for logged in user'], 404);
             }
-
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -323,7 +324,6 @@ class PostsController extends Controller
             } else {
                 return response()->json(['error' => 'Post does not exist'], 404);
             }
-
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -358,7 +358,6 @@ class PostsController extends Controller
             } else {
                 return response()->json(['error' => 'Post does not exist'], 404);
             }
-
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -442,9 +441,9 @@ class PostsController extends Controller
 
             if (Auth::user()->can('manage-blog')) {
                 $posts = PostAPIResource::collection(Post::with('influencer')
-                        ->where('influencer_id', $request?->influencer_id)
-                        ->orderBy(request()->get('sortKey', 'updated_at'), request()->get('sortOrder', 'desc'))
-                        ->paginate(request()->get('per_page', 10)));
+                    ->where('influencer_id', $request?->influencer_id)
+                    ->orderBy(request()->get('sortKey', 'updated_at'), request()->get('sortOrder', 'desc'))
+                    ->paginate(request()->get('per_page', 10)));
                 return $posts;
             }
         } catch (\Exception $e) {

@@ -33,14 +33,10 @@
                             class="rounded-full align-middle border-1 profile-image">
                         <div class="flex flex-col">
                             <span class="font-medium text-3xl mb-2">{{ $influencer->name }}</span>
-                            <div class="flex justify-center items-center divide-x divide-solid w-100 gap-2 text-gray-600">
+                            <div class="flex divide-x divide-solid w-100 gap-2 text-gray-600">
                                 <div class="text-sm leading-normal text-gray-600 uppercase">
                                     <i class="fas fa-map-marker-alt"></i>
                                     {{ $influencer->country }}
-                                </div>
-                                <div class="text-sm leading-normal text-gray-600 uppercase">
-                                    <i class="fas fa-user"></i>
-                                    Influencer
                                 </div>
                             </div>
                         </div>
@@ -121,35 +117,35 @@
                                                     {!! $plan->description !!}
                                                     </p>
                                                     
-                                                    <ul class="mt-2 pl-0">
-                                                    <li class="list-unstyled d-flex">
-                                                        <span class="theme-avtar">
-                                                        <i class="text-primary ti ti-circle-plus"></i></span>
-                                                        {{ $plan->max_users . ' ' . __('Users') }}
-                                                    </li>
-                                                    <li class="list-unstyled d-flex">
-                                                        <span class="theme-avtar">
-                                                        <i class="text-primary ti ti-circle-plus"></i></span>
-                                                        {{ $plan->duration . ' ' . $plan->durationtype . ' ' . __('Duration') }}
-                                                    </li>
-                                                    @if (Auth::user()->type == 'Admin')
-                                                    <li class="list-unstyled d-flex">
-                                                        <span class="theme-avtar">
-                                                        <i class="text-primary ti ti-circle-plus"></i></span>
-                                                        {{ $plan->max_roles . ' ' . __('Roles') }}
-                                                    </li>
-                                                    <li class="list-unstyled d-flex">
-                                                        <span class="theme-avtar">
-                                                        <i class="text-primary ti ti-circle-plus"></i></span>
-                                                        {{ $plan->max_documents . ' ' . __('Documents') }}
-                                                    </li>
-                                                    <li class="list-unstyled d-flex">
-                                                        <span class="theme-avtar">
-                                                        <i class="text-primary ti ti-circle-plus"></i></span>
-                                                        {{ $plan->max_blogs . ' ' . __('Blogs') }}
-                                                    </li>
-                                                    @endif
-                                                    </ul>
+                                                    {{-- <ul class="mt-2 pl-0">
+                                                        <li class="list-unstyled d-flex">
+                                                            <span class="theme-avtar">
+                                                            <i class="text-primary ti ti-circle-plus"></i></span>
+                                                            {{ $plan->max_users . ' ' . __('Users') }}
+                                                        </li>
+                                                        <li class="list-unstyled d-flex">
+                                                            <span class="theme-avtar">
+                                                            <i class="text-primary ti ti-circle-plus"></i></span>
+                                                            {{ $plan->duration . ' ' . $plan->durationtype . ' ' . __('Duration') }}
+                                                        </li>
+                                                        @if (Auth::user()->type == 'Admin')
+                                                        <li class="list-unstyled d-flex">
+                                                            <span class="theme-avtar">
+                                                            <i class="text-primary ti ti-circle-plus"></i></span>
+                                                            {{ $plan->max_roles . ' ' . __('Roles') }}
+                                                        </li>
+                                                        <li class="list-unstyled d-flex">
+                                                            <span class="theme-avtar">
+                                                            <i class="text-primary ti ti-circle-plus"></i></span>
+                                                            {{ $plan->max_documents . ' ' . __('Documents') }}
+                                                        </li>
+                                                        <li class="list-unstyled d-flex">
+                                                            <span class="theme-avtar">
+                                                            <i class="text-primary ti ti-circle-plus"></i></span>
+                                                            {{ $plan->max_blogs . ' ' . __('Blogs') }}
+                                                        </li>
+                                                        @endif
+                                                    </ul> --}}
                                                 </div>
                                             </div>
                                         </div>
