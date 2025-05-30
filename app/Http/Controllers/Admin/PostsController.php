@@ -147,7 +147,7 @@ class PostsController extends Controller
             request()->validate([
                 'title'       => 'required|max:50',
                 'description' => 'required',
-                // 'short_description' => 'required',
+                'price'       => ['nullable', 'numeric', 'gt:0'],
             ]);
             $post          = Post::find($id);
             $currentDomain = tenant('domains');

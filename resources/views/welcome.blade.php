@@ -161,9 +161,9 @@
                     <div class="max-w-sm w-full">
                         <div class="shadow rounded-2 overflow-hidden position-relative">
                             @if($post->paid && !isset($purchasePost))
-                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
+                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full'; ?>
                             @else
-                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
+                                <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full custom-gradient'; ?>
                             @endif
                             <div class="{{ $cls }}">
                                 <div class="flex justify-between items-center w-full">
