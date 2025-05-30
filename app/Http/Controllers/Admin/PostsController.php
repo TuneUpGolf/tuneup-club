@@ -95,6 +95,7 @@ class PostsController extends Controller
                 request()->validate([
                     'title'       => 'required|string',
                     'description' => 'required|string',
+                    'price'       => ['nullable', 'numeric', 'gt:0'],
                 ]);
 
                 if (Auth::user()->type === Role::ROLE_FOLLOWER) {
@@ -120,7 +121,7 @@ class PostsController extends Controller
                 $post->update();
                 return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
             } catch (ValidationException $e) {
-                return response()->json(['error' => 'Validation failed.', 'message' => $e->errors()], 422);
+                return redirect()->back()->withErrors($e->errors())->withInput();
             } catch (\Exception $e) {
                 return response()->json(['error' => 'Error', 'message' => $e->getMessage()], 500);
             }
