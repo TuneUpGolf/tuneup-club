@@ -177,13 +177,6 @@
                                             </p>
                                         </div>
                                     </div>
-                                    <div class="bg-white py-2 px-3 rounded-3xl shadow">
-                                        <a href="{{ route('login') }}">
-                                            <button type="submit" class="text-md font-semibold flex items-center gap-2"><i
-                                                    class="text-2xl lh-sm ti ti-heart"></i><span> {{ $post->likePost->count() }} Likes</span></button>
-                                        </a>
-                                    </div>
-
                                 </div>
                             </div>
                             @if ($post->file_type == 'image')
