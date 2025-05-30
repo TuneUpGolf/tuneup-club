@@ -189,6 +189,11 @@ class StripeController extends Controller
             }
             $followerId    = $authUser->type == 'Follower' ? $authUser->id : null;
             $plan          = Plan::find($planID);
+            if($plan->is_chat_enabled && is_null($authUser->chat_user_id)){
+                return response()->json([
+                    'error' => 'Chat user ID is required to proceed with the payment.'
+                ]);
+            }
             $couponId      = '0';
             $price         = $plan->price;
             $couponCode    = null;
