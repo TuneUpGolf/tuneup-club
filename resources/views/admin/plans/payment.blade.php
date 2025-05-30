@@ -21,10 +21,10 @@
             <div class="form-group">
                 {{ Form::label('billing_address', __('Billing Address:'), ['class' => 'form-label']) }}
             </div>
-            <div class="card">
+            <div class="card bill-detail-page">
                 <div class="card-body">
                     <div class="row justify-content-between">
-                        <div class="col-4">
+                        <div class="col-lg-4">
                             <div class="flex-equal">
                                 <table class="table m-0 fs-6 gs-0 gy-2 gx-2">
                                     <tr>
@@ -40,7 +40,7 @@
                                 </table>
                             </div>
                         </div>
-                        <div class="col-5">
+                        <div class="col-lg-5">
                             <div class="flex-equal flex-equal-right">
                                 <table class="table m-0 fs-6 gs-0 gy-2 gx-2">
                                     <tr>

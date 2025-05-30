@@ -25,8 +25,8 @@
               .attr("data-display", i || null)
               .addClass(
                 "option" +
-                  (n.is(":selected") ? " selected" : "") +
-                  (n.is(":disabled") ? " disabled" : "")
+                (n.is(":selected") ? " selected" : "") +
+                (n.is(":disabled") ? " disabled" : "")
               )
               .html(n.text())
           );
@@ -36,19 +36,19 @@
       return (
         "update" == t
           ? this.each(function () {
-              var t = e(this),
-                n = e(this).next(".nice-select"),
-                i = n.hasClass("open");
-              n.length && (n.remove(), s(t), i && t.next().trigger("click"));
-            })
+            var t = e(this),
+              n = e(this).next(".nice-select"),
+              i = n.hasClass("open");
+            n.length && (n.remove(), s(t), i && t.next().trigger("click"));
+          })
           : "destroy" == t
-          ? (this.each(function () {
+            ? (this.each(function () {
               var t = e(this),
                 s = e(this).next(".nice-select");
               s.length && (s.remove(), t.css("display", ""));
             }),
-            0 == e(".nice-select").length && e(document).off(".nice_select"))
-          : console.log('Method "' + t + '" does not exist.'),
+              0 == e(".nice-select").length && e(document).off(".nice_select"))
+            : console.log('Method "' + t + '" does not exist.'),
         this
       );
     this.hide(),
@@ -178,10 +178,10 @@ $(document).ready(function () {
         .removeClass("active");
       $(
         '.tabs-container .tab-content[id="' +
-          $theTab +
-          '"], ul.tabs li[data-tab="' +
-          $theTab +
-          '"]'
+        $theTab +
+        '"], ul.tabs li[data-tab="' +
+        $theTab +
+        '"]'
       ).addClass("active");
     }
     $(".categories-slider").slick("refresh");
@@ -594,7 +594,10 @@ if ($(".my-acc-column").length > 0) {
 }
 
 $(document).ready(function () {
-  $(".lessions-slider").slick({
+  const $slider = $('.lessions-slider');
+  const slideCount = $slider.children().length;
+
+  let slickOptions = {
     speed: 500,
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -605,8 +608,8 @@ $(document).ready(function () {
       '<div class="ctm-slick-arrow ctm-slick-left"><i class="fa fa-chevron-left"></i></div>',
     nextArrow:
       '<div class="ctm-slick-arrow ctm-slick-right"><i class="fa fa-chevron-right"></i></div>',
-     infinite: true,
-    centerMode: true,
+    infinite: true,
+    centerMode: false,
     responsive: [
       {
         breakpoint: 1580,
@@ -631,12 +634,23 @@ $(document).ready(function () {
         settings: {
           slidesToShow: 1,
           centerMode: false,
-          arrows:false
+          arrows: false
         },
       },
     ],
-  });
-  
+  };
+
+  if (slideCount > 4) {
+    slickOptions.centerMode = true;
+    slickOptions.centerPadding = '50px'; // adjust as needed
+
+    slickOptions.responsive[0].settings.centerMode = true;
+    slickOptions.responsive[0].settings.centerPadding = '20px';
+  }
+
+  $slider.slick(slickOptions);
+
+
   $(".subscription-slider").slick({
     speed: 500,
     slidesToShow: 4,
@@ -648,10 +662,10 @@ $(document).ready(function () {
       '<div class="ctm-slick-arrow ctm-slick-left"><i class="fa fa-chevron-left"></i></div>',
     nextArrow:
       '<div class="ctm-slick-arrow ctm-slick-right"><i class="fa fa-chevron-right"></i></div>',
-     infinite: true,
-    centerMode:false,
+    infinite: true,
+    centerMode: false,
     responsive: [
-      
+
       {
         breakpoint: 1025,
         settings: {
@@ -668,7 +682,7 @@ $(document).ready(function () {
         breakpoint: 500,
         settings: {
           slidesToShow: 1,
-          arrows:false
+          arrows: false
         },
       },
     ],
