@@ -28,6 +28,7 @@ class ChatService
                 $user['chat_user_id'] = $chatUserId;
                 $user->save();
             }
+            return true;
         } else {
             Log::error('Failed to create chat user', [
                 'status' => $response->status(),
