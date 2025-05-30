@@ -594,6 +594,7 @@
                 $('#stripe-payment-form').ajaxForm(function(res) {
                     if (res.error) {
                         show_toastr("Error!", res.error, "danger");
+                        return;
                     }
                     const stripe = Stripe("{{ $adminPaymentSetting['stripe_key'] }}");
                     createCheckoutSession(res.plan_id, res.order_id, res.coupon, res.total_price).then(
