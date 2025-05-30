@@ -1,3 +1,4 @@
+@push('css')
 <style>
 /* Modal styling */
 .modal {
@@ -44,12 +45,13 @@ body.modal-open .dash-container {
     z-index: 99999;
 }
 </style>
+@endpush
 <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
     <div class="shadow rounded-2 overflow-hidden position-relative">
         @if($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
-        <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full'; ?>
+        <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full'; ?>
         @else
-        <?php $cls  = 'p-3 position-absolute left-0 top-0 z-10 w-full custom-gradient'; ?>
+        <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full custom-gradient'; ?>
         @endif
         <div class="{{ $cls }}">
             <div class="flex justify-between items-center w-full">
@@ -108,9 +110,10 @@ body.modal-open .dash-container {
         @else
         @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
-                <video class="w-full post-thumbnail pointer-events-none opacity-50">
+                <video class="w-full post-thumbnail pointer-events-none opacity-50" controls playsinline webkit-playsinline>
                     <source src="{{ $post->file }}" type="video/mp4">
                 </video>
+                <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                 <div
                     class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
                     <i class="ti ti-lock-open"></i>
@@ -130,7 +133,7 @@ body.modal-open .dash-container {
             </div>
         </div>
         @else
-        <video controls class="w-full post-thumbnail">
+        <video controls class="w-full post-thumbnail" controls playsinline webkit-playsinline>
             <source src="{{ $post->file }}" type="video/mp4">
         </video>
         @endif
@@ -157,6 +160,8 @@ body.modal-open .dash-container {
         </div>
     </div>
 </div>
+    
+
 @push('javascript')
 <script>
 function toggleDescription(button) {
