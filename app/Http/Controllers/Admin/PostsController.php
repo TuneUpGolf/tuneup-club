@@ -95,7 +95,7 @@ class PostsController extends Controller
                 request()->validate([
                     'title'       => 'required|string',
                     'description' => 'required|string',
-                    'price'       => ['nullable', 'numeric', 'gt:0'],
+                    'price'       => ['nullable', 'numeric', 'gt:0.5'],
                 ]);
 
                 if (Auth::user()->type === Role::ROLE_FOLLOWER) {
@@ -147,7 +147,7 @@ class PostsController extends Controller
             request()->validate([
                 'title'       => 'required|max:50',
                 'description' => 'required',
-                'price'       => ['nullable', 'numeric', 'gt:0'],
+                'price'       => ['nullable', 'numeric', 'gt:0.5'],
             ]);
             $post          = Post::find($id);
             $currentDomain = tenant('domains');
