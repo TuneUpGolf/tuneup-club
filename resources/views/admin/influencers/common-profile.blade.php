@@ -109,7 +109,7 @@ return Utility::getsettings('currency');
                            {!! $plan->description !!}
                         </p>
                         
-                        <ul class="mt-2 pl-0">
+                        {{-- <ul class="mt-2 pl-0">
                            <li class="list-unstyled d-flex">
                               <span class="theme-avtar">
                               <i class="text-primary ti ti-circle-plus"></i></span>
@@ -137,7 +137,7 @@ return Utility::getsettings('currency');
                               {{ $plan->max_blogs . ' ' . __('Blogs') }}
                            </li>
                            @endif
-                        </ul>
+                        </ul> --}}
                      </div>
                   </div>
                </div>
