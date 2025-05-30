@@ -30233,11 +30233,11 @@ table.dataTable tbody>tr.selected th.select-checkbox:after {
 
 
 /* joolee css */
-@media (min-width:575px) {
+/* @media (min-width:575px) {
   .lessions-slider .slick-list {
     padding: 0 20% 0 0 !important;
   }
-}
+} */
 
 @media (min-width:1025px) {
   .header-brand-logo {
@@ -30534,6 +30534,13 @@ div#calendar .fc-list-table {
     height: 400px;
 
   }
+
+  .bill-detail-page td {
+    padding-left: 0 !important;
+    max-width: 50%;
+    white-space: inherit;
+  }
+
 }
 
 
@@ -30557,4 +30564,8 @@ div#calendar .fc-list-table {
 
 .price-card ul {
   margin-left: 0;
+}
+
+.bill-detail-page ul {
+  list-style-type: disc;
 }
