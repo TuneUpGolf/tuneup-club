@@ -154,6 +154,7 @@ $purchaseVideo = $purchase->videos->first();
     .modal-content video {
         width: 100%;
         height: auto;
+        max-height: calc(100vh - 200px);
     }
 
     .close {
