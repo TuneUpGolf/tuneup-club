@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
@@ -40,7 +41,7 @@ class FollowerController extends Controller
         if (Auth::user()->can('manage-followers')) {
             return $dataTable->render('admin.followers.index');
         } else {
-            return redirect()->back()->with('failed', __('Permission denied.'));
+            return redirect()->back()->with('failed', __('Permission denied'));
         }
     }
 
