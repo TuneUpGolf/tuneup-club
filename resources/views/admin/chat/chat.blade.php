@@ -36,7 +36,8 @@
         }
 
         .upload-files {
-            width: 105px;
+            min-width: 105px;
+            max-width: 105px;
         }
         .chat-msg-wrap {
             word-break: break-all;
@@ -59,7 +60,8 @@
             }
 
             .upload-files {
-                width: 34px;
+                min-width: 34px;
+                max-width: 34px;
                 font-size: 0;
                 height: 41px;
                 background-image: url('{{ asset('assets/images/upload.svg') }}');
