@@ -69,7 +69,8 @@
             overflow-y: auto;
         }
         .upload-files {
-            width:105px;
+            max-width: 105px;
+            min-width:105px;
         }
     </style>
 @endpush

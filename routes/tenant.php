@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ConversionsController;
@@ -157,6 +157,7 @@ Route::middleware([
 
         Route::get('/follower/import', [FollowerController::class, 'import'])->name('follower.import');
         Route::resource('follower', FollowerController::class);
+        Route::resource('all-chat', FollowerController::class);
         Route::get('follower-emailverified/{id}', [FollowerController::class, 'userEmailVerified'])->name('follower.email.verified');
         Route::get('follower-phoneverified/{id}', [FollowerController::class, 'userPhoneVerified'])->name('follower.phone.verified');
         Route::post('follower-status/{id}', [FollowerController::class, 'userStatus'])->name('follower.status');
@@ -187,7 +188,7 @@ Route::middleware([
         Route::get('purchase/add/follower/video', [PurchaseController::class, 'addVideoIndex'])->name('purchase.video.index');
         Route::get('purchase/add/follower/lesson', [PurchaseController::class, 'viewLesson'])->name('purchase.lesson');
 
-        
+
         Route::get('purchase/feedback/all', [PurchaseController::class, 'feedbackIndex'])->name('purchase.feedback.index');
         Route::get('purchase/add/feedback/create', [PurchaseController::class, 'addFeedBackIndex'])->name('purchase.feedback.create');
         Route::post('purchase/add/feedback/add', [PurchaseController::class, 'addFeedBack'])->name('purchase.feedback.add');
@@ -517,7 +518,6 @@ Route::middleware([
                     } else {
                         return response(new FollowerAPIResource(Auth::user()), 200);
                     }
-
                 }
             } catch (\Exception $e) {
                 return abort(301, $e->getMessage());
