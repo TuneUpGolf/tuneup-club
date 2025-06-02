@@ -449,6 +449,13 @@ $languages = Utility::languages();
                     <span class="dash-mtext">{{ __('Chat') }}</span>
                 </a>
             </li>
+            @elseif(Auth::user()->type == "Influencer")
+            <li class="dash-item dash-hasmenu {{ request()->has('all-chat*') ? 'active' : '' }}">
+                <a class="dash-link" href="{{ route('all-chat.index') }}">
+                    <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
+                    <span class="dash-mtext">{{ __('Chat') }}</span>
+                </a>
+            </li>
             @endif
             @endif
             </ul>

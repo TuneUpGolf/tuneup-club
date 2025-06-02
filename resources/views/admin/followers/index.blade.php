@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', __('Followers'))
+@section('title', __(request()->is('follower') ? 'Followers' : 'All Chats'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item">{{ __('Followers') }}</li>
