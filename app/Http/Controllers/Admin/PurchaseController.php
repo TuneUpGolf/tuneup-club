@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
@@ -662,7 +663,7 @@ class PurchaseController extends Controller
                     foreach ($request->file('fdbk_video') as $file) {
 
                         if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
-                            $localPath = $request->file('video')->store('feedbackVideos');
+                            $localPath = $file->store('feedbackVideos');
                             $path      = $this->convertSingleVideo($localPath);
                         } else {
 
@@ -708,7 +709,7 @@ class PurchaseController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('errors', $e->getMessage());
-        }{
+        } {
             $purchaseVideo = PurchaseVideos::find($request->purchase_video);
             return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
         }
@@ -839,7 +840,7 @@ class PurchaseController extends Controller
 
                 // Fix for Safari's initial 0-1 range request
                 if ($start == 0 && $end == 1) {
-                                                    // Just serve these two bytes as requested, don't modify the range
+                    // Just serve these two bytes as requested, don't modify the range
                     $length                    = 2; // Just the 2 bytes requested
                     $headers['Content-Length'] = $length;
                     $headers['Content-Range']  = "bytes 0-1/$fileSize";
