@@ -30543,8 +30543,6 @@ div#calendar .fc-list-table {
 
 }
 
-
-
 .subs-feature ul,
 .price-card ul {
   list-style-type: disc;
@@ -30568,4 +30566,8 @@ div#calendar .fc-list-table {
 
 .bill-detail-page ul {
   list-style-type: disc;
+}
+
+.lessions-slider .slick-track {
+  margin-left: 0;
 }
