@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
@@ -8,6 +9,13 @@ use Yajra\DataTables\Services\DataTable;
 
 class FollowerDataTable extends DataTable
 {
+    public $module;
+
+    public function __construct()
+    {
+        $this->module = request()->is('follower') ? 'follower' : 'all-chat';
+    }
+
     public function dataTable($query)
     {
 
@@ -16,7 +24,7 @@ class FollowerDataTable extends DataTable
             ->addIndexColumn()
             ->editColumn('name', function (Follower $user) {
                 $imageSrc = $user->dp ?? asset('assets/img/user.png');
-                $userUrl  = route('follower.show', $user->id);
+                $userUrl  = route($this->module . '.show', $user->id);
                 $html     = '
                 <div class="flex justify-start items-center">
                     <a href="' . $userUrl . '" class="flex items-center text-primary hover:underline">
@@ -44,7 +52,7 @@ class FollowerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('Verified') .
+                        . __('Verified') .
                         '</span>
                         </div>
                         ';
@@ -63,7 +71,7 @@ class FollowerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('UnVerified') .
+                        . __('UnVerified') .
                         '</span>
                         </div>
                         ';
@@ -85,7 +93,7 @@ class FollowerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('Verified') .
+                        . __('Verified') .
                         '</span>
                         </div>
                         ';
@@ -104,7 +112,7 @@ class FollowerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('UnVerified') .
+                        . __('UnVerified') .
                         '</span>
                         </div>
                         ';
@@ -163,7 +171,7 @@ class FollowerDataTable extends DataTable
                 tableContainer.find(".dataTable-title").html(
                     $("<div>").addClass("flex justify-start items-center").append(
                         $("<div>").addClass("custom-table-header"),
-                        $("<span>").addClass("font-medium text-2xl pl-4").text("All Followers")
+                        $("<span>").addClass("font-medium text-2xl pl-4").text("All ' . ($this->module == 'follower' ? 'Followers' : 'Chats') . '")
                     )
                 );
             }')
@@ -189,9 +197,9 @@ class FollowerDataTable extends DataTable
                     ],
 
                 ],
-                "scrollX"=> true,
+                "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -243,13 +251,13 @@ class FollowerDataTable extends DataTable
                       });
                 }',
             ])->language([
-            'buttons' => [
-                'export' => __('Export'),
-                'print'  => __('Print'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'export' => __('Export'),
+                    'print'  => __('Print'),
+                    'excel'  => __('Excel'),
+                    'csv'    => __('CSV'),
+                ],
+            ]);
     }
 
     protected function getColumns()
