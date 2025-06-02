@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Models\Lesson;
@@ -34,8 +35,8 @@ class FollowerPurchaseDataTable extends DataTable
             })
             ->editColumn('influencer_name', function ($purchase) {
                 $imageSrc = $purchase->influencer->avatar
-                ? $purchase->influencer->avatar
-                : asset('assets/img/logo/logo.png');
+                    ? $purchase->influencer->avatar
+                    : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -65,8 +66,8 @@ class FollowerPurchaseDataTable extends DataTable
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->follower->dp
-                ? $purchase->follower->dp
-                : asset('assets/img/logo/logo.png');
+                    ? $purchase->follower->dp
+                    : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
@@ -97,10 +98,12 @@ class FollowerPurchaseDataTable extends DataTable
                 'lessons.lesson_name as lesson_name',
                 'influencers.name as influencer_name',
                 'followers.name as follower_name',
+                'plans.name as plan',
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as influencers', 'purchases.influencer_id', '=', 'influencers.id')
             ->join('followers as followers', 'purchases.follower_id', '=', 'followers.id')
+            ->leftjoin('plans as plans', 'followers.plan_id', '=', 'plans.id')
             ->where('purchases.follower_id', $this->followerId)
             ->orderBy('purchases.created_at', 'desc');
 
@@ -116,7 +119,7 @@ class FollowerPurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             unset($buttons[0]);
         }
-    
+
         return $this->builder()
             ->setTableId('purchases-table')
             ->addTableClass('display responsive nowrap')
@@ -151,10 +154,10 @@ class FollowerPurchaseDataTable extends DataTable
                     <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>
                     <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
                     <'dataTable-container'<'col-sm-12'tr>>
-                ", 
+                ",
                 'buttons'        => $buttons,
                 "scrollX"        => true,
-                "paging"         => false, 
+                "paging"         => false,
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
                         "background-color": "rgba(249, 252, 255, 1)",
@@ -167,9 +170,9 @@ class FollowerPurchaseDataTable extends DataTable
                     $("td", row).css("font-family", "Helvetica");
                     $("td", row).css("font-weight", "300");
                 }',
-                
+
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -218,7 +221,7 @@ class FollowerPurchaseDataTable extends DataTable
                 ],
             ]);
     }
-    
+
     protected function getColumns()
     {
         $columns = [
@@ -232,6 +235,7 @@ class FollowerPurchaseDataTable extends DataTable
         }
         return array_merge($columns, [
             Column::make('status')->title(__('Payment Status')),
+            Column::make('plan')->title(__('Subscription'))->orderable(false),
             Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
             Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
             Column::computed('action')->title(__('Actions'))
