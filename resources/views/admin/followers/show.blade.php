@@ -29,6 +29,38 @@
             </div>
         </div>
     </div>
+
+    {{-- Purchased plan section --}}
+    @if (!empty($follower->plan_expired_date))
+    <div class="row">
+        <div class="col-xl-3 col-md-6 py-4">
+            <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"  data-wow-delay="0.2s">
+                <div class="rounded-lg shadow popular-wrap h-100">
+                    <div class="px-3 pt-4 ">
+                        <p class="text-2xl font-bold mb-1">{{ $follower->plan->name }}</p>
+                        <div class="flex gap-2 items-center mt-2 ">
+                            <p class=" text-6xl font-bold">{{ $currencySymbol . ' ' . $follower->plan->price }} /</p>
+                            <p class="text-2xl text-gray-600">{{ $follower->plan->duration . ' ' . $follower->plan->durationtype }}</p>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-300"></div>
+                    <div class="px-3 py-4">
+                        <span
+                            class="lesson-btn text-center font-bold text-lg mt-auto"
+                            data-amount="{{ $follower->plan->price }}">{{ __('Expire at') }}
+                            {{ \Carbon\Carbon::parse($follower->plan_expired_date)->format('d/m/Y') }}
+                        </span>
+                        <p class="font-semibold text-xl mb-2 mt-2">Features</p>
+                        <p class="text-gray-600">
+                            {!! $follower->plan->description !!}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
 
 {{-- Purchases Table --}}
@@ -43,6 +75,37 @@
         </div>
     </div>
 </div>
+
+{{-- Purchased plan section --}}
+{{-- @if (!empty($follower->plan_expired_date))
+<div class="row">
+    <div class="col-xl-3 col-md-6 py-4">
+        <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"  data-wow-delay="0.2s">
+            <div class="rounded-lg shadow popular-wrap h-100">
+                <div class="px-3 pt-4 ">
+                    <p class="text-2xl font-bold mb-1">{{ $follower->plan->name }}</p>
+                    <div class="flex gap-2 items-center mt-2 ">
+                        <p class=" text-6xl font-bold">{{ $currencySymbol . ' ' . $follower->plan->price }} /</p>
+                        <p class="text-2xl text-gray-600">{{ $follower->plan->duration . ' ' . $follower->plan->durationtype }}</p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-300"></div>
+                <div class="px-3 py-4">
+                    <span
+                        class="lesson-btn text-center font-bold text-lg mt-auto"
+                        data-amount="{{ $follower->plan->price }}">{{ __('Expire at') }}
+                        {{ \Carbon\Carbon::parse($follower->plan_expired_date)->format('d/m/Y') }}
+                    </span>
+                    <p class="font-semibold text-xl mb-2 mt-2">Features</p>
+                    <p class="text-gray-600">
+                        {!! $follower->plan->description !!}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif --}}
 
 {{-- Chat Section --}}
 @if($isSubscribed)
