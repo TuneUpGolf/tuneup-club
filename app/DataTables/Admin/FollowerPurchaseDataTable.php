@@ -97,13 +97,11 @@ class FollowerPurchaseDataTable extends DataTable
                 'purchases.*',
                 'lessons.lesson_name as lesson_name',
                 'influencers.name as influencer_name',
-                'followers.name as follower_name',
-                'plans.name as plan',
+                'followers.name as follower_name'
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as influencers', 'purchases.influencer_id', '=', 'influencers.id')
             ->join('followers as followers', 'purchases.follower_id', '=', 'followers.id')
-            ->leftjoin('plans as plans', 'followers.plan_id', '=', 'plans.id')
             ->where('purchases.follower_id', $this->followerId)
             ->orderBy('purchases.created_at', 'desc');
 
@@ -235,7 +233,6 @@ class FollowerPurchaseDataTable extends DataTable
         }
         return array_merge($columns, [
             Column::make('status')->title(__('Payment Status')),
-            Column::make('plan')->title(__('Subscription'))->orderable(false),
             Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
             Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
             Column::computed('action')->title(__('Actions'))

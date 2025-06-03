@@ -6,6 +6,7 @@ use App\Actions\SendEmail;
 use App\Actions\SendSMS;
 use App\DataTables\Admin\FollowerDataTable;
 use App\DataTables\Admin\FollowerPurchaseDataTable;
+use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FollowerAPIResource;
@@ -53,13 +54,15 @@ class FollowerController extends Controller
         return redirect()->back()->with('failed', __('Permission denied.'));
     }
 
-    public function show($id)
+    public function show($id, Utility $utility)
     {
-        $follower     = Follower::findOrFail($id);
+        $follower     = Follower::with('plan')->findOrFail($id);
         $dataTable    = new FollowerPurchaseDataTable($id); // Pass follower ID to the datatable
         $token        = $this->chatService->getChatToken($follower->chat_user_id);
         $isSubscribed = $this->isSubscribed($follower);
-        return $dataTable->render('admin.followers.show', compact('follower', 'dataTable', 'token', 'isSubscribed'));
+        $currencySymbol = $utility->getsettings('currency');
+
+        return $dataTable->render('admin.followers.show', compact('follower', 'dataTable', 'token', 'isSubscribed', 'currencySymbol'));
     }
     public function import()
     {
