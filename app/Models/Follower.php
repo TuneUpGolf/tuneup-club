@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Actions\SendEmail;
@@ -103,6 +104,10 @@ class Follower extends User implements MustVerifyEmail
     public function pushToken(): HasOne
     {
         return $this->hasOne(PushToken::class, 'follower_id');
+    }
+    public function plan(): HasOne
+    {
+        return $this->hasOne(Plan::class, 'id', 'plan_id');
     }
 
     public function sendPasswordResetNotification($token)
