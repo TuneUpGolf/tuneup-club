@@ -20,16 +20,18 @@ class FollowerPlanUpdateObserver
      */
     public function updating(Follower $follower)
     {
-        $influencer = User::where('type', Role::ROLE_INFLUENCER)->first();
-        if ($influencer && !array_key_exists('password', request()->all())) {
-            SendEmail::dispatch(
-                $influencer->email,
-                new FollowerSubscribedMail(
-                    $influencer,
-                    $follower,
-                    Plan::where('id', $follower->plan_id)->first()
-                )
-            );
+        if ($follower->isDirty('plan_id')) {
+            $influencer = User::where('type', Role::ROLE_INFLUENCER)->first();
+            if ($influencer && !array_key_exists('password', request()->all())) {
+                SendEmail::dispatch(
+                    $influencer->email,
+                    new FollowerSubscribedMail(
+                        $influencer,
+                        $follower,
+                        Plan::where('id', $follower->plan_id)->first()
+                    )
+                );
+            }
         }
     }
 }
