@@ -2,6 +2,7 @@
 $users = \Auth::user();
 $currantLang = $users->currentLanguage();
 $languages = Utility::languages();
+$users->chat_status = Utility::chatEnabled($users);
 @endphp
 <nav class="dash-sidebar light-sidebar {{ Utility::getsettings('transparent_layout') == 1 ? 'transprent-bg' : '' }}">
     <div class="navbar-wrapper navbar-border">
@@ -216,7 +217,7 @@ $languages = Utility::languages();
                     </ul>
                 </li>
                 @endcanany
-                @if (Auth::user()->type != 'Follower')
+                @if ($users->type != 'Follower')
                 <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                     @can('manage-lessons')
                 <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
@@ -230,7 +231,7 @@ $languages = Utility::languages();
                         <li class="dash-item {{ request()->is('lesson') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('lesson.index') }}">{{ __('Manage Lessons') }}</a>
                         </li>
-                        @if (Auth::user()->type === 'Admin')
+                        @if ($users->type === 'Admin')
                         <li class="dash-item {{ request()->is('lesson/manage/slot') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('slot.manage') }}">{{ __('Admin Bookings') }}</a>
                         </li>
@@ -243,7 +244,7 @@ $languages = Utility::languages();
                 </li>
                 @endcan
                 @endif
-                @if (Auth::user()->type == 'Follower')
+                @if ($users->type == 'Follower')
                 <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                     <a class="dash-link" href="{{ route('lesson.available', ['type' => 'online']) }}">
                         <span class="dash-micon"><i class="ti ti-school"></i></span>
@@ -251,7 +252,7 @@ $languages = Utility::languages();
                     </a>
                 </li>
                 @endif
-                @if (Auth::user()->type != 'Influencer')
+                @if ($users->type != 'Influencer')
                     @can('manage-purchases')
                     <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
                         <a class="dash-link" href="{{ route('purchase.index') }}">
@@ -261,7 +262,7 @@ $languages = Utility::languages();
                     </li>
                     @endcan
                 @endif
-                {{-- @if (Auth::user()->type === 'Follower')
+                {{-- @if ($users->type === 'Follower')
                 <li class="dash-item dash-hasmenu {{ request()->is('influencer*') ? 'active' : '' }}">
                     <a class="dash-link" href="{{ route('influencer.profiles') }}">
                         <span class="dash-micon"><i class="ti ti-user"></i></span>
@@ -270,10 +271,10 @@ $languages = Utility::languages();
 
                 </li>
                 @endif --}}
-                @if (Auth::user()->type === 'influencer')
+                @if ($users->type === 'influencer')
                 <li class="dash-item dash-hasmenu">
                     <a class="dash-link" rel="noopener noreferrer"
-                        href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid }}" target="_blank">
+                        href="{{ 'https://annotation.tuneup.golf?userid=' . $users->uuid }}" target="_blank">
                         <span class="dash-micon"><i class="ti ti-picture-in-picture"></i></span>
                         <span class="dash-mtext">{{ __('Annotation Tool') }}</span>
                     </a>
@@ -287,7 +288,7 @@ $languages = Utility::languages();
                         <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
                                 data-feather="chevron-right"></i></span></a>
                     <ul class="dash-submenu">
-                        @if (Auth::user()->type === 'Influencer' || Auth::user()->type === 'Admin')
+                        @if ($users->type === 'Influencer' || $users->type === 'Admin')
                         @can('create-blog')
                         <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
@@ -299,7 +300,7 @@ $languages = Utility::languages();
                             <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
                         </li>
                         @endcan
-                        @if (Auth::user()->type === 'Influencer' || Auth::user()->type === 'Admin')
+                        @if ($users->type === 'Influencer' || $users->type === 'Admin')
                         @can('manage-blog')
                         <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
                             <a class="dash-link" href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
@@ -414,7 +415,7 @@ $languages = Utility::languages();
             </ul>
             </li> --}}
             @endif
-            @if (Auth::user()->type == 'Admin')
+            @if ($users->type == 'Admin')
             <li
                 class="dash-item dash-hasmenu {{ request()->is('email-template*') || request()->is('sms-template*') || request()->is('settings*') ? 'active dash-trigger' : 'collapsed' }}">
 
@@ -442,14 +443,15 @@ $languages = Utility::languages();
                 </ul>
             </li>
             @endif
-            @if(Auth::user()->type == "Follower" && Auth::user()->group_id)
+            
+            @if($users->type == "Follower" && $users->group_id && $users->chat_status == 1)
             <li class="dash-item dash-hasmenu {{ request()->is('chat*') ? 'active' : '' }}">
                 <a class="dash-link" href="{{ route('follower.chat') }}">
                     <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
                     <span class="dash-mtext">{{ __('Chat') }}</span>
                 </a>
             </li>
-            @elseif(Auth::user()->type == "Influencer")
+            @elseif($users->type == "Influencer")
             <li class="dash-item dash-hasmenu {{ request()->has('all-chat*') ? 'active' : '' }}">
                 <a class="dash-link" href="{{ route('all-chat.index') }}">
                     <span class="dash-micon"><i class="ti ti-message-circle"></i></span>

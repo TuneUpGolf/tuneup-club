@@ -51,6 +51,7 @@ class Follower extends User implements MustVerifyEmail
         'plan_expired_date',
         'chat_user_id',
         'group_id',
+        'chat_status',
     ];
     protected $hidden = [
         'password',

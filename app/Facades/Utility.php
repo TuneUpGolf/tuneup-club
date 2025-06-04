@@ -124,7 +124,7 @@ class Utility
     }
     public function getsettings($value = '')
     {
-        if ($value == 'plan_setting'){
+        if ($value == 'plan_setting') {
             $value == 'plan_setting';
         }
         $setting = Setting::select('value');
@@ -808,8 +808,22 @@ class Utility
         $file_size = number_format($file_size / 1000000, 4);
         return $file_size;
     }
-    public function formatCurrency($amount) {
+    public function formatCurrency($amount)
+    {
         return '$' . number_format($amount, 2, '.', ',');
     }
 
+    public function chatEnabled($user)
+    {
+        $status = 1;
+        if ($user->type != \App\Models\Role::ROLE_FOLLOWER) {
+            return $status;
+        }
+
+        if ($follower = \App\Models\Follower::find($user->id)) {
+            $status = $follower->chat_status;
+        }
+
+        return $status;
+    }
 }
