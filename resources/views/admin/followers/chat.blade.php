@@ -5,14 +5,7 @@
     <li class="breadcrumb-item">{{ __('Chat') }}</li>
 @endsection
 @section('content')
-    @if($isSubscribed)
-        @include('admin.chat.chat', ['user' => $influencer->name])
-    @else
-    <div class="flex flex-col justify-center items-center no-data gap-2 text-center vh-100">
-        <i class="fa fa-lock text-xl mb-2" aria-hidden="true"></i>
-        <span class="text-lg font-semibold">Purchase Subscription with chat enabled to access this section</span>
-    </div>
-    @endif
+    @include('admin.chat.chat', ['user' => $influencer->name])
 @endsection
 @push('css')
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>

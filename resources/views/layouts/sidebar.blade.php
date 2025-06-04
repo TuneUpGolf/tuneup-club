@@ -444,7 +444,7 @@ $users->chat_status = Utility::chatEnabled($users);
             </li>
             @endif
             
-            @if($users->type == "Follower" && $users->group_id && $users->chat_status == 1)
+            @if($users->type == "Follower" && $users->chat_status == 1)
             <li class="dash-item dash-hasmenu {{ request()->is('chat*') ? 'active' : '' }}">
                 <a class="dash-link" href="{{ route('follower.chat') }}">
                     <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
