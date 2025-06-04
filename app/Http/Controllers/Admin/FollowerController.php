@@ -391,9 +391,8 @@ class FollowerController extends Controller
         }
 
         $influencer   = User::where('tenant_id', tenant('id'))->where('id', $user->follows->first()->influencer_id)->first();
-        $isSubscribed = $this->isSubscribed($user);
         $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
-        return view('admin.followers.chat', compact('isSubscribed', 'influencer', 'token'));
+        return view('admin.followers.chat', compact('influencer', 'token'));
     }
 
     public function isSubscribed($user)
