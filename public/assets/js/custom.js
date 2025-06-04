@@ -114,6 +114,7 @@ $(document).ready(function () {
         if (response.is_success) {
           show_toastr("Success!", response.message, "success");
         }
+        location.reload();
       },
     });
   });

@@ -6,6 +6,8 @@ use App\Facades\UtilityFacades;
 use App\Models\Follower;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
+use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class FollowerDataTable extends DataTable
 {
@@ -122,11 +124,17 @@ class FollowerDataTable extends DataTable
             ->editColumn('active_status', function (Follower $user) {
                 $checked = ($user->active_status == 1) ? 'checked' : '';
                 $status  = '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" name="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
+                             <input class="form-check-input chnageStatus" class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('follower.status', $user->id) . '" type="checkbox">
                              </label>';
                 return $status;
             })
-            ->rawColumns(['role', 'email_verified_at', 'phone_verified_at', 'active_status', 'name']);
+            ->addColumn('chat_enabled', function (Follower $user) {
+                $checked = ($user->chat_status == 1) ? 'checked' : '';
+                return '<label class="form-switch">
+                             <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('follower.chatstatus', $user->id) . '" type="checkbox">
+                        </label>';
+            })
+            ->rawColumns(['role', 'email_verified_at', 'phone_verified_at', 'active_status', 'name', 'chat_enabled']);
         return $data;
     }
 
@@ -263,15 +271,21 @@ class FollowerDataTable extends DataTable
     protected function getColumns()
     {
 
-        return [
+        $collumn = [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('name')->title(__('User')),
             Column::make('email')->title(__('Email')),
             Column::make('email_verified_at')->title(__('Email Verified Status')),
             Column::make('phone_verified_at')->title(__('Phone Verified Status')),
             Column::make('created_at')->title(__('Created At')),
-            Column::make('active_status')->title(__('Status')),
+            Column::make('active_status')->title(__('Status'))->searchable(false)->orderable(false),
         ];
+
+        if (Auth::user()->type == Role::ROLE_INFLUENCER) {
+            $collumn[] = Column::make('chat_enabled')->title(__('Chat Enabled'))->searchable(false)->orderable(false);
+        }
+
+        return $collumn;
     }
 
     protected function filename(): string
