@@ -309,7 +309,20 @@ class FollowerController extends Controller
         }
         return response()->json([
             'is_success' => true,
-            'message'    => __('User status changed successfully.'),
+            'message'    => __('Follower status changed successfully.'),
+        ]);
+    }
+    public function userChatStatus(Request $request, $id)
+    {
+        $user  = Follower::find($id);
+        $input = ($request->value === "true") ? 1 : 0;
+        if ($user) {
+            $user->chat_status = $input;
+            $user->save();
+        }
+        return response()->json([
+            'is_success' => true,
+            'message'    => __('Follower chat status changed successfully.'),
         ]);
     }
     public function getAllUsers()
@@ -370,9 +383,13 @@ class FollowerController extends Controller
         }
     }
 
-    public function followerChat()
+    public function followerChat(Utility $utility)
     {
-        $user         = Auth::user();
+        $user = Auth::user();
+        if (!$utility->chatEnabled($user)) {
+            return redirect()->route('home')->with('error', 'Chat feature not available!');
+        }
+
         $influencer   = User::where('tenant_id', tenant('id'))->where('id', $user->follows->first()->influencer_id)->first();
         $isSubscribed = $this->isSubscribed($user);
         $token        = $this->chatService->getChatToken(Auth::user()->chat_user_id);
