@@ -444,7 +444,13 @@ $users->chat_status = Utility::chatEnabled($users);
             </li>
             @endif
             
-            @if($users->type == "Follower" && $users->chat_status == 1)
+            @php
+                $today = now();
+                $plan_expiry_date = $users->plan_expired_date?
+                    \Carbon\Carbon::parse($users->plan_expired_date):$today;
+            @endphp
+
+            @if($users->type == "Follower" && ($users->chat_status == 1 && $plan_expiry_date->gte($today)))
             <li class="dash-item dash-hasmenu {{ request()->is('chat*') ? 'active' : '' }}">
                 <a class="dash-link" href="{{ route('follower.chat') }}">
                     <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
