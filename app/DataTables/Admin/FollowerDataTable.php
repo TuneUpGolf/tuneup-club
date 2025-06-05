@@ -131,7 +131,7 @@ class FollowerDataTable extends DataTable
             ->addColumn('chat_enabled', function (Follower $user) {
                 if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
                     return '<span title="Follower has subscription to chat">
-                        <i class="ti ti-alert-triangle" style="font-size: 25px; color: #FFC107;"></i>
+                        <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
                     </span>';
                 }
                 $checked = ($user->chat_status == 1) ? 'checked' : '';

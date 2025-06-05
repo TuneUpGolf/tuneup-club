@@ -108,7 +108,7 @@
 @endif --}}
 
 {{-- Chat Section --}}
-@if($isSubscribed)
+@if($follower->chat_status == 1)
     @include('admin.chat.chat', ['user' => $follower->name])
 @endif
 @endsection
