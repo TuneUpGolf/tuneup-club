@@ -1,7 +1,7 @@
 @php
     $today = now();
-    $plan_expiry_date = $users->plan_expired_date?
-        \Carbon\Carbon::parse($users->plan_expired_date):$today;
+    $plan_expiry_date = isset($follower->plan_expired_date)?
+        \Carbon\Carbon::parse($follower->plan_expired_date):$today;
 @endphp
 
 @extends('layouts.main')
@@ -83,7 +83,7 @@
 </div>
 
 {{-- Chat Section --}}
-@if($users->chat_status == 1 && $plan_expiry_date->gte($today))
+@if($follower->chat_status == 1 && $plan_expiry_date->gte($today))
     @include('admin.chat.chat', ['user' => $follower->name])
 @endif
 
