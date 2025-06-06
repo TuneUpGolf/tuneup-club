@@ -244,14 +244,14 @@ $users->chat_status = Utility::chatEnabled($users);
                 </li>
                 @endcan
                 @endif
-                @if ($users->type == 'Follower')
+                {{-- @if ($users->type == 'Follower')
                 <li class="dash-item dash-hasmenu {{ request()->is('lesson*') ? 'active' : '' }}">
                     <a class="dash-link" href="{{ route('lesson.available', ['type' => 'online']) }}">
                         <span class="dash-micon"><i class="ti ti-school"></i></span>
                         <span class="dash-mtext">{{ __('Start Lesson') }}</span>
                     </a>
                 </li>
-                @endif
+                @endif --}}
                 @if ($users->type != 'Influencer')
                     @can('manage-purchases')
                     <li class="dash-item dash-hasmenu {{ request()->is('purchase*') ? 'active' : '' }}">
