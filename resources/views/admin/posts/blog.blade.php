@@ -48,7 +48,7 @@ body.modal-open .dash-container {
 @endpush
 <div class="focus:outline-none w-full md:w-1/2 lg:w-1/3 py-3 p-sm-3 max-w-md">
     <div class="shadow rounded-2 overflow-hidden position-relative">
-        @if($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
+        @if($post->paid && !$purchasePost && !$isInfluencer && !$isSubscribed)
         <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full'; ?>
         @else
         <?php $cls  = 'p-3 position-absolute left-0 top-0 z-1 w-full custom-gradient'; ?>
@@ -63,7 +63,7 @@ body.modal-open .dash-container {
                         </p>
                     </div>
                 </div>
-                @if($post->paid && isset($purchasePost))
+                @if($post->paid && $purchasePost)
                     <div class="bg-green-500 py-2 px-3 rounded-3xl shadow">
                         <span> Purchased</span>
                     </div>
@@ -72,7 +72,7 @@ body.modal-open .dash-container {
         </div>
 
         @if ($post->file_type == 'image')
-        @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
+        @if ($post->paid && !$purchasePost && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
             <img class=" w-full post-thumbnail"
                 src="{{  $post->file }}"/>
@@ -106,7 +106,7 @@ body.modal-open .dash-container {
         </div>
         @endif
         @else
-        @if ($post->paid && !isset($purchasePost) && !$isInfluencer && !$isSubscribed)
+        @if ($post->paid && !$purchasePost && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
                 <video class="w-full post-thumbnail pointer-events-none opacity-50" controls playsinline webkit-playsinline>
                     <source src="{{ $post->file }}" type="video/mp4">

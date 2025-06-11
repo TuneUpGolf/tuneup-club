@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down()
     {
-        DB::statement("ALTER TABLE followers MODIFY chat_status TINYINT DEFAULT 0");
+        DB::statement("ALTER TABLE followers MODIFY chat_status TINYINT DEFAULT 1");
     }
 };
