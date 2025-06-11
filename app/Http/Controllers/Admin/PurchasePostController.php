@@ -59,9 +59,14 @@ class PurchasePostController extends Controller
             );
             if (! empty($session?->id)) {
                 $purchasePost->session_id = $session?->id;
+                $purchasePost->save();
+            }
+
+            if ($session->payment_status === 'paid') {
                 $purchasePost->active_status = true;
                 $purchasePost->save();
             }
+
             if ($request->redirect == 1) {
                 return response($session->url);
             }
