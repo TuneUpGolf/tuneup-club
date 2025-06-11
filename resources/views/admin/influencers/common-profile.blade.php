@@ -60,6 +60,7 @@ return Utility::getsettings('currency');
                         @foreach ($posts as $post)
                         @php
                         $purchasePost = $post->purchasePost->firstWhere('follower_id', Auth::id());
+                        $purchasePost = $purchasePost->active_status??false;
                         @endphp
                         @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed, 'purchasePost' => $purchasePost])
                         @endforeach
