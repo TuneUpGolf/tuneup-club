@@ -158,13 +158,8 @@
         <div class="d-flex justify-content-between container footer-one">
             <div class="d-flex flex-column gap-4">
                 <div>
-
                     <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" alt="" />
                 </div>
-                <p class=" fot-golf word-spacing-5">
-                    Trusted by Industry leading Golf Club, Instructors, Acadmies, and
-                    Teaching Professionals.
-                </p>
             </div>
             <div class="d-flex flex-column gap-4 google">
                 <div>
