@@ -50,7 +50,7 @@ class PurchaseDataTable extends DataTable
                 $lessonName           = e($purchase->lesson_name);
                 $truncatedLessonName  = strlen($lessonName) > 20 ? substr($lessonName, 0, 20) . '...' : $lessonName;
 
-                $url = route('purchase.show', $purchase->id);
+                $url = route('purchase.feedback.index', ['purchase_id' => $purchase->id]);
 
                 // Check user role
                 if (Auth::user()->type == 'Influencer') {
