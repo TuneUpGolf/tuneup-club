@@ -54,8 +54,7 @@ $chatcolor = '#0C7785';
                                 </svg>
                             </div>
                             <div class="order-3 order-sm-2">
-                                <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
-                                <span class="font-roboto font-semibold"> {{ __('Completed Lessons') }} </span>
+                                <span class="font-roboto font-semibold"> {{ __('Completed Submissions') }} </span>
                             </div>
                             <p class="order-2 order-sm-3 mb-0 font-sans  bg-card-text text-2xl ml-auto">
                                 {{ $purchaseComplete }} </p>
@@ -80,8 +79,7 @@ $chatcolor = '#0C7785';
                                 </svg>
                             </div>
                             <div class="order-3 order-sm-2">
-                                <p class="font-sans font-thin mb-0">{{ __('Online') }}</p>
-                                <span class="font-roboto font-semibold"> {{ __('Lessons Pending') }} </span>
+                                <span class="font-roboto font-semibold"> {{ __('Pending Submissions') }} </span>
                             </div>
 
                             <p class="order-2 order-sm-3 mb-0 font-sans bg-card4-text text-2xl ml-auto">
@@ -109,8 +107,7 @@ $chatcolor = '#0C7785';
                                 </svg>
                             </div>
                             <div class="order-3 order-sm-2">
-                                <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
-                                <span class="font-roboto font-semibold">{{ __('Followers') }}</span>
+                                <span class="font-roboto font-semibold">{{ __('Total Followers') }}</span>
                             </div>
                             <p class="order-2 order-sm-3 mb-0 font-sans bg-card2-text text-2xl ml-auto">
                                 {{ $followers }} </p>
@@ -147,8 +144,7 @@ $chatcolor = '#0C7785';
                                 </svg>
                             </div>
                             <div class="order-3 order-sm-2">
-                                <p class="font-sans font-thin mb-0">{{ __('Total') }}</p>
-                                <span class="font-roboto font-semibold">{{ __('Earnings') }}</span>
+                                <span class="font-roboto font-semibold">{{ __('Total Earnings') }}</span>
                             </div>
                             <p class="order-2 order-sm-3 mb-0 font-sans bg-card3-text text-2xl ml-auto">
                                 {{ Utility::amount_format($earning) }} </p>
@@ -167,8 +163,8 @@ $chatcolor = '#0C7785';
                         <div class="col-sm">
                             <h2 class="text-white ">{{ 'Connect Stripe' }}</h2>
                             <p class="text-white">
-                                {{ __('Inorder to recieve payments for your lessons and subscriptions you need to connect stripe.') }}<br/>
-                                *{{ __('Make sure you have enabled the payouts in your stripe account.') }}
+                                {{ __('To receive payments for your lessons and subscriptions, please connect your Stripe account.') }}
+                                {{ __('Ensure that payouts are enabled in your Stripe settings to start receiving funds.') }}
                             </p>
                             <div class="quick-add-btn">
                                 {!! Form::open([
