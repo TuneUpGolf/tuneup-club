@@ -35,7 +35,7 @@ return Utility::getsettings('currency');
    </div>
    <div class="card min-h-screen">
       <div class="tab">
-         <button class="tablinks active" onclick="openCity(event, 'Lessons')">Lessons</button>
+         <button class="tablinks active" onclick="openCity(event, 'Lessons')">Offerings</button>
          <button class="tablinks" onclick="openCity(event, 'Posts')">Posts</button>
          <button class="tablinks" onclick="openCity(event, 'Subscriptions')">Subscriptions</button>
          </hr>
