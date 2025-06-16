@@ -56,20 +56,14 @@
 
                         <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
                             <span class="text-xl font-semibold text-dark">{{ $lesson->lesson_name }}</span>
-                            @php
-                                $description = strip_tags($lesson->lesson_description);
-                                $shortDescription = \Illuminate\Support\Str::limit(
-                                            $description,
-                                            177,
-                                            '<a onClick="javascript:showMore(this);" class="read-more" href="javascript:void(0);"> Read more >></a>'
-                                        ).
-                                        '<span class="more-content hidden">'.substr($description, 50).
-                                        '<a onClick="javascript:showLess(this);" href="javascript:void(0);"> << Read less</a>'
-                                        ."</span>";
-                            @endphp
-                            <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
-                                <span class="short-text break-all">{!! $shortDescription !!}</span>
-                            </p>
+                            <div class="description-wrapper relative">
+                                <div class="short-text break-all clamp-text" id="lessonDesc">
+                                    {!! $lesson->lesson_description !!}
+                                </div>
+                                <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
+                                    ...Read More >>
+                                </a>
+                            </div>
 
                             <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
                                 <div class="text-center">
@@ -229,21 +223,14 @@
                                 <h1 class="text-xl font-bold truncate">
                                     {{ $post->title }}
                                 </h1>
-
-                                @php
-                                    $description = strip_tags($post->description);
-                                    $shortDescription = \Illuminate\Support\Str::limit(
-                                        $description,
-                                        50,
-                                        '<a onClick="javascript:showMore(this);" class="read-more" href="javascript:void(0);"> Read more >></a>'
-                                    ).
-                                    '<span class="more-content hidden">'.substr($description, 50).
-                                    '<a onClick="javascript:showLess(this);" href="javascript:void(0);"> << Read less</a>'
-                                    ."</span>";
-                                @endphp
-                                <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
-                                    <span class="short-text">{!! $shortDescription !!}</span>
-                                </p>
+                                <div class="description-wrapper relative">
+                                    <div class="short-text clamp-text text-gray-500 text-md mt-1 font-medium ctm-min-h">
+                                        {!! $post->description !!}
+                                    </div>
+                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
+                                        ...Read More >>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

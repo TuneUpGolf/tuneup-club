@@ -8,7 +8,7 @@
 @section('content')
     <div class="main-content">
         <section class="section">
-            <div class="m-auto col-lg-6 col-md-8 col-xxl-4">
+            <div class="m-auto col-lg-8 col-md-8 col-xxl-8">
                 <div class="card">
                     <div class="card-header">
                         <h5>{{ __('Edit Lesson') }}</h5>
@@ -37,14 +37,6 @@
                         <div class="form-group ">
                             {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
                             {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
-                        </div>
-                        <div class="form-group">
-                            {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
-                            {!! Form::text('lesson_description', null, [
-                                'class' => 'form-control',
-                                'required',
-                                'placeholder' => __('Enter Description'),
-                            ]) !!}
                         </div>
                         <div class="form-group">
                             {{ Form::label('price', __('Price ($)'), ['class' => 'form-label']) }}
@@ -114,6 +106,16 @@
                                 ]) !!}
                             </div>
                         @endif
+
+                        <div class="form-group">
+                            {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
+                            {!! Form::textarea('lesson_description', null, [
+                                'class' => 'form-control',
+                                'required',
+                                'placeholder' => __('Enter Description'),
+                            ]) !!}
+                        </div>
+
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
@@ -136,4 +138,12 @@
     <script src="{{ asset('vendor/intl-tel-input/jquery.mask.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/intlTelInput-jquery.min.js') }}"></script>
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
+    <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
+    <script>
+    CKEDITOR.replace('lesson_description', {
+            allowedContent: true,
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form'
+        });
+    </script>
 @endpush
