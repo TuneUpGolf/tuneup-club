@@ -71,13 +71,8 @@
                                 <span class="short-text break-all">{!! $shortDescription !!}</span>
                             </p>
 
-                            <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3 flex">
-                                <div class="text-center w-50">
-                                    <span class="text-xl font-bold">{{ $lesson->lesson_quantity }}</span>
-                                    <div class="text-sm rtl:space-x-reverse">Number of Lessons</div>
-
-                                </div>
-                                <div class="text-center w-50">
+                            <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
+                                <div class="text-center">
                                     <span class="text-xl font-bold">{{ $lesson->required_time }} Days</span>
                                     <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
                                 </div>
