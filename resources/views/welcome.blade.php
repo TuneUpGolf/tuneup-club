@@ -245,11 +245,6 @@
         <div class="flex justify-center">
             <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="img-fluid" alt="" />
         </div>
-
-        <p class="mt-3 fot-golf word-spacing-5">
-            Trusted by Industry leading Golf Club, influencers, Acadmies, and
-            Teaching Professionals.
-        </p>
     </div>
 </footer>
 <footer class="foot-two">
