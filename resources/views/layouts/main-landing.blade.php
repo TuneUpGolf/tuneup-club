@@ -193,21 +193,15 @@
     @include('layouts.includes.alerts')
     @stack('javascript')
     <script>
-        function showMore(element) {
-            element.classList.add('hidden');
-            const moreContent = element.parentElement.querySelector('.more-content');
-            if (moreContent) {
-                moreContent.classList.remove('hidden');
-            }
+        function toggleRead(link) {
+            const wrapper = link.closest('.description-wrapper');
+            wrapper.classList.toggle('expanded');
+
+            link.textContent = wrapper.classList.contains('expanded')
+                ? '<< Read Less'
+                : '...Read More >>';
         }
 
-        function showLess(element) {
-            element.parentElement.classList.add('hidden');
-            const readMore = element.parentElement.parentElement.querySelector('.read-more');
-            if (readMore) {
-                readMore.classList.remove('hidden');
-            }
-        }
     </script>
 </body>
 @if (Utility::getsettings('cookie_setting_enable') == 'on')

@@ -47,22 +47,17 @@
         </div>
        
         <span class="text-xl font-semibold text-dark">{!! $title !!}</span>
-        <p class="font-thin text-gray-600 overflow-hidden whitespace-nowrap overflow-ellipsis">
-            {!! \Illuminate\Support\Str::limit($description, 177,
-            '<a onClick="javascript:showMore(this);" class="read-more" href="javascript:void(0);">...Read more >></a>'
-            ).
-            '<span class="more-content hidden">'.substr($description, 177).
-            '<a onClick="javascript:showLess(this);" href="javascript:void(0);"> << Read less</a>'
-            ."</span>" !!}
-        </p>
-
-        <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3 flex">
-            <div class="text-center w-50">
-                <span class="text-xl font-bold">{!! $model->lesson_quantity !!}</span>
-                <div class="text-sm rtl:space-x-reverse">Number of <br> Lessons</div>
-
+        <div class="description-wrapper relative">
+            <div class="short-text clamp-text font-thin text-gray-600">
+                {!! $description !!}
             </div>
-            <div class="text-center w-50">
+            <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
+                ...Read More >>
+            </a>
+        </div>
+
+        <div class="mt-auto bg-gray-200 gap-1 rounded-lg px-4 py-3">
+            <div class="text-center">
                 <span class="text-xl font-bold">{!! $model->required_time !!} Days</span>
                 <div class="text-sm rtl:space-x-reverse">Expected Response <br> Time</div>
             </div>
