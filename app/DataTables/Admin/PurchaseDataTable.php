@@ -27,6 +27,9 @@ class PurchaseDataTable extends DataTable
             ->filterColumn('follower_name', function ($query, $keyword) {
                 $query->where('followers.name', 'like', "%{$keyword}%");
             })
+            ->filterColumn('plan', function ($query, $keyword) {
+                $query->where('plans.name', 'like', "%{$keyword}%");
+            })
             ->editColumn('influencer_name', function ($purchase) {
                 $imageSrc = $purchase->influencer->logo
                     ? $purchase->influencer->logo
@@ -256,7 +259,7 @@ class PurchaseDataTable extends DataTable
     protected function getColumns()
     {
         $columns = [
-            Column::make('No')->title(__('Lesson Number'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
+            Column::make('No')->title(__('Submission #'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('lesson_name')->title(__('Lesson'))->searchable(false),
         ];
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
