@@ -63,10 +63,11 @@ class HomeController extends Controller
             ], $request);
         }
 
+        $userFromEmail = User::where('email', $user->email)->first();
         // Fetch Plan Expiration
         $planExpiredDate = $userType == AuthServiceProvider::ADMIN_TYPE
-            ? tenancy()->central(fn($tenant) => User::where('email', $user->email)->first()->plan_expired_date)
-            : User::where('email', $user->email)->first()->plan_expired_date ?? '';
+            ? tenancy()->central(fn($tenant) => $userFromEmail->plan_expired_date ?? null)
+            : $userFromEmail->plan_expired_date ?? '';
 
         // Fetch influencer Count
         $influencer = User::where('tenant_id', $tenantId)->where('type', Role::ROLE_INFLUENCER)->count();
