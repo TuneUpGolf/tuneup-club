@@ -53,9 +53,6 @@ $purchaseVideo = $purchase->videos->first();
             Provided</h2>
         <div class="">
             <p class="text-2xl text-gray-700 font-bold">{{ $purchase->lesson->created_at->format('F j, Y') }}</p>
-            <p class="text-gray-500">Influencer Name:</p>
-            <p class="text-xl font-semibold">{{ $purchase->influencer->name }}</p>
-
             <br>
             <p class="text-gray-500">Feedback:</p>
             <p class="text-xl font-semibold">{{ $purchaseVideo->feedback }}</p>
