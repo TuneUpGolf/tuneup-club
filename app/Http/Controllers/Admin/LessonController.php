@@ -80,6 +80,7 @@ class LessonController extends Controller
         }
 
         // Assuming 'created_by' is the ID of the currently authenticated influencer
+        $validatedData['lesson_description'] = $_POST['lesson_description'];
         $validatedData['created_by']     = Auth::user()->id;
         $validatedData['type']           = $request->type;
         $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
@@ -117,6 +118,7 @@ class LessonController extends Controller
 
         // Assuming 'created_by' is the ID of the currently authenticated influencer
         $validatedData['created_by'] = Auth::user()->id;
+        $validatedData['lesson_description'] = $_POST['lesson_description'];
 
         $lesson->update($validatedData);
 

@@ -57,10 +57,6 @@
                 <h1 id="hero-heading" class="fw-bold text-white time">
                     Technology To Advance Your Operation
                 </h1>
-                <p id="hero-para" class="text-white golf hero-features mt-4">
-                    Trusted by industry leading Golf Clubs, Instructors, Academies, and
-                    Teaching Professionals Worldwide.
-                </p>
                 <button id="hero-btn" class="request-text border-0 rounded-pill demo" style="background-color: #ffffff">
                     <a href="{{ url('request-demo') }}" style="text-decoration: none">
                         Request a Demo</a>

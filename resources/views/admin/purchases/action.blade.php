@@ -26,7 +26,7 @@
     @endcan
 @endif
 
-@if ($purchase->status == 'complete' && Auth::user()->type == 'Influencer' && $purchase->lesson->type === 'online')
+@if ($purchase->status == 'complete' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
