@@ -179,6 +179,10 @@ class PurchaseDataTable extends DataTable
                 );
             }')
             ->parameters([
+                "columnDefs" => [
+                    ["responsivePriority" => 1, "targets" => 2],
+                    ["responsivePriority" => 2, "targets" => 6],
+                ],
                 "dom"            => "
                 <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>
                 <'dataTable-search tb-search col-lg-3 col-sm-12'f>>
@@ -186,11 +190,8 @@ class PurchaseDataTable extends DataTable
                 <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
                 <'col-sm-7'p>>
                 ",
-
                 //<'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
-
                 'buttons'        => $buttons,
-
                 "scrollX" => true,
                 "responsive" => [
                     "scrollX" => false,
@@ -211,7 +212,7 @@ class PurchaseDataTable extends DataTable
                     ]
                 ],
                 "rowCallback" => 'function(row, data, index) {
-                    $(row).addClass("custom-parent-row"); 
+                    $(row).addClass("custom-parent-row");
                 }',
                 'headerCallback' => 'function(thead, data, start, end, display) {
                     $(thead).find("th").css({
@@ -244,15 +245,6 @@ class PurchaseDataTable extends DataTable
                         return new bootstrap.Toast(toastEl);
                       });
                 }',
-            ])->language([
-                'buttons' => [
-                    'create' => __('Choose Your Coach'),
-                    'print'  => __('Print'),
-                    'reset'  => __('Reset'),
-                    'reload' => __('Reload'),
-                    'excel'  => __('Excel'),
-                    'csv'    => __('CSV'),
-                ],
             ]);
     }
 
