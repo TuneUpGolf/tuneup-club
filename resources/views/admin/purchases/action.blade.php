@@ -30,7 +30,9 @@
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-            data-bs-placement="bottom" data-bs-original-title="{{ __('Click to Begin Analyzing') }}">
+            data-bs-placement="bottom" data-bs-original-title="{{
+                auth()->user()->type=='Follower'?__('View Feedback'):__('Click to Begin Analyzing')
+            }}">
             <i class="ti ti-plus text-white"></i>
         </a>
     @endcan
