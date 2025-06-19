@@ -201,6 +201,16 @@
                 ? '<< Read Less'
                 : '...Read More >>';
         }
+        
+        $(document).ready(function () {
+            $('.description-wrapper .short-text').each(function () {
+            if ($(this).height() < 25) {
+                $(this).addClass('single-line')
+                $(this).siblings('.read-toggle').addClass('d-none');
+            }
+        });
+  });
+
 
     </script>
 </body>
