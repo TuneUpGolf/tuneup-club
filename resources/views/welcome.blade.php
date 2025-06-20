@@ -224,7 +224,7 @@
                                     {{ $post->title }}
                                 </h1>
                                 <div class="description-wrapper relative">
-                                    <div class="short-text clamp-text text-gray-500 text-md mt-1 font-medium ctm-min-h">
+                                    <div class="short-text clamp-text text-gray-500 text-md mt-1 font-medium">
                                         {!! $post->description !!}
                                     </div>
                                     <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">

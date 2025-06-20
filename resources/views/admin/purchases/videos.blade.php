@@ -84,21 +84,22 @@ $purchaseVideo = $purchase->videos->first();
             @endif
 
             <div class="flex items-start gap-3 mt-4">
-                @if($purchase->videos->first())
-                    @if($purchase->videos->first()->feedbackContent->first()->url )
+                @if($purVid = $purchase->videos->first())
+                    @if($vid = $purVid->feedbackContent->first())
                     <img class="w-15 h-10"  src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
-                    @endif
+                    
                     <!-- Modal -->
                     <div id="videoModal" class="modal">
-                    <span class="close">&times;</span>
+                        <span class="close">&times;</span>
                         <div class="modal-content">
                             
                             <video id="videoPlayer" controls>
-                                <source src="{{ $purchase->videos->first()->feedbackContent->first()->url }}" type="video/mp4">
+                                <source src="{{ $vid->url }}" type="video/mp4">
                                 Your browser does not support HTML5 video.
                             </video>
                         </div>
                     </div>
+                    @endif
                 @endif
                 @if(auth()->user()->type == 'Influencer')
                 <div class="flex gap-2">
