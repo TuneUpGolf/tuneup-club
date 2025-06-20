@@ -30544,10 +30544,16 @@ div#calendar .fc-list-table {
 }
 
 .subs-feature ul,
-.price-card ul {
+.price-card ul,
+.short-text ul,
+.short-text ol {
   list-style-type: disc;
   margin-left: 20px;
   margin-bottom: 20px;
+}
+
+.short-text ol {
+  list-style-type: decimal;
 }
 
 
@@ -30570,4 +30576,16 @@ div#calendar .fc-list-table {
 
 .lessions-slider .slick-track {
   margin-left: 0;
+}
+
+.single-line::after {
+  content: none;
+}
+
+#Lessons ol {
+  margin-left: 0;
+}
+
+.short-text p {
+  margin-bottom: 0;
 }

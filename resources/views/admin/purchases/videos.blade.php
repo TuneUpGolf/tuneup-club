@@ -19,6 +19,7 @@ $purchaseVideo = $purchase->videos->first();
     <div class="video-section-col flex gap-4">
         <div class="video-wrap border-r border-gray-400 pr-4">
             <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchase->videos->first()->video_url }}" class="w-80 h-60 rounded-lg"></video>
+            @if(auth()->user()->type == 'Influencer')
             <div class="flex gap-1 mt-3">
 
                 <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
@@ -32,6 +33,7 @@ $purchaseVideo = $purchase->videos->first();
                     Analyze
                 </a>
             </div>
+            @endif
         </div>
         <div>
             <ul>
@@ -72,15 +74,20 @@ $purchaseVideo = $purchase->videos->first();
             Provided</h2>
         <div class="">
             <p class="text-2xl text-gray-700 font-bold">{{ $purchase->lesson->created_at->format('F j, Y') }}</p>
+            <p class="text-gray-500">{{ auth()->user()->name == $purchase->follower->name?'Your Note':'Note by '.$purchase->follower->name }}:</p>
+            <p class="text-xl font-semibold">{{ $purchaseVideo->note }}</p>
+            
+            @if($purchaseVideo->feedback)
             <br>
-            <p class="text-gray-500">Feedback:</p>
+            <p class="text-gray-500">{{ auth()->user()->type == 'Influencer'?'Your feedback':'Feedback' }}</p>
             <p class="text-xl font-semibold">{{ $purchaseVideo->feedback }}</p>
-
+            @endif
 
             <div class="flex items-start gap-3 mt-4">
-                @if($purchaseVideo->feedback)
+                @if($purchase->videos->first())
+                    @if($purchase->videos->first()->feedbackContent->first()->url )
                     <img class="w-15 h-10"  src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
-
+                    @endif
                     <!-- Modal -->
                     <div id="videoModal" class="modal">
                     <span class="close">&times;</span>
@@ -93,12 +100,17 @@ $purchaseVideo = $purchase->videos->first();
                         </div>
                     </div>
                 @endif
+                @if(auth()->user()->type == 'Influencer')
                 <div class="flex gap-2">
                     <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
                         class="btn btn-outline-secondary rounded-pill px-4 py-2 d-flex align-items-center gap-1">
-                        <i class="ti ti-pencil text-2xl"></i> Edit
+                        @if(trim($purchaseVideo->feedback))
+                            <i class="ti ti-pencil text-2xl"></i> Edit Feedback
+                        @else
+                            <i class="ti ti-plus text-2xl"></i> Provide Feedback
+                        @endif
                     </a>
-
+                    @if(trim($purchaseVideo->feedback))
                     <form action="{{ route('purchase.feedback.delete', $purchaseVideo->id) }}" method="POST"
                         onsubmit="return confirm('Are you sure you want to delete this feedback?');">
                         @csrf
@@ -108,7 +120,9 @@ $purchaseVideo = $purchase->videos->first();
                             <i class="ti ti-trash text-2xl"></i> Delete
                         </button>
                     </form>
+                    @endif
                 </div>
+                @endif
             </div>
         </div>
     </div>

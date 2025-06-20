@@ -27,9 +27,6 @@ class PurchaseDataTable extends DataTable
             ->filterColumn('follower_name', function ($query, $keyword) {
                 $query->where('followers.name', 'like', "%{$keyword}%");
             })
-            ->filterColumn('plan', function ($query, $keyword) {
-                $query->where('plans.name', 'like', "%{$keyword}%");
-            })
             ->editColumn('influencer_name', function ($purchase) {
                 $imageSrc = $purchase->influencer->logo
                     ? $purchase->influencer->logo
@@ -101,12 +98,10 @@ class PurchaseDataTable extends DataTable
                 'lessons.lesson_name as lesson_name',  // Get lesson name
                 'influencers.name as influencer_name', // Get influencer name
                 'followers.name as follower_name',     // Get follower name
-                'plans.name as plan',                  // Get plan name
             ])
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as influencers', 'purchases.influencer_id', '=', 'influencers.id')
             ->join('followers as followers', 'purchases.follower_id', '=', 'followers.id')
-            ->leftjoin('plans as plans', 'followers.plan_id', '=', 'plans.id')
             ->groupBy('purchases.id')
             ->orderBy('purchases.created_at', 'desc'); // Order by creation date in descending order
 
@@ -262,7 +257,6 @@ class PurchaseDataTable extends DataTable
         return array_merge($columns, [
             Column::make('status')->title(__('Payment Status')),
             Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
-            Column::make('plan')->title(__('Subscription'))->orderable(false),
             Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
             Column::computed('action')->title(__('Actions'))
                 ->exportable(false)
