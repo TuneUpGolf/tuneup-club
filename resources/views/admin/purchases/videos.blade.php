@@ -84,8 +84,7 @@ $purchaseVideo = $purchase->videos->first();
             @endif
 
             <div class="flex items-start gap-3 mt-4">
-                {{-- @dump($purchaseVideo->toArray()) --}}
-                @if($purchaseVideo->feedback_content)
+                @if($purchase->videos->first())
                     @if($purchase->videos->first()->feedbackContent->first()->url )
                     <img class="w-15 h-10"  src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
                     @endif

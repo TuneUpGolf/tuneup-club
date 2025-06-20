@@ -659,7 +659,7 @@ class PurchaseController extends Controller
 
                 $currentDomain = tenant('domains');
                 $currentDomain = $currentDomain[0]->domain;
-                if ($request?->hasFile('fdbk_video')) {
+                if (count($request->file('fdbk_video')) > 0) {
                     foreach ($request->file('fdbk_video') as $file) {
 
                         if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
