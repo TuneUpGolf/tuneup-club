@@ -12,7 +12,7 @@
         {!! Form::close() !!}
     @endcan
 @endif
-@if (
+{{-- @if (
     $purchase->status == 'complete' &&
         $purchase->lesson->lesson_quantity !== $purchase->lessons_used &&
         Auth::user()->type == 'Follower' &&
@@ -24,7 +24,7 @@
             <i class="ti ti-plus text-white"></i>
         </a>
     @endcan
-@endif
+@endif --}}
 
 @if ($purchase->status == 'complete' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
