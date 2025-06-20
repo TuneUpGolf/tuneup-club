@@ -6,11 +6,11 @@
         <h2 class="font-bold text-3xl mb-3">Purchase User Details</h2>
 
     </div>
-    <a href="#"
+    {{-- <a href="#"
         class="rounded-pill px-3 py-2 w-auto bg-primary text-white text-lg font-bold flex itmes-center gap-1 ">
         <i class="ti ti-brand-hipchat text-2xl"></i>
         Chat
-    </a>
+    </a> --}}
 </div>
 @php
 $purchaseVideo = $purchase->videos->first();
