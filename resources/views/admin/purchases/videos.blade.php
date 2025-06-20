@@ -1,11 +1,7 @@
 @extends('layouts.main')
+@section('title', __('Purchase User Details'))
 @section('content')
-<div
-    class="flex items-start justify-content-between border-b border-gray-400 pb-4 mb-5">
-    <div class="max-w-lg">
-        <h2 class="font-bold text-3xl mb-3">Purchase User Details</h2>
-
-    </div>
+<div class="flex items-start justify-content-between border-b border-gray-400 pb-4 mb-5">
     {{-- <a href="#"
         class="rounded-pill px-3 py-2 w-auto bg-primary text-white text-lg font-bold flex itmes-center gap-1 ">
         <i class="ti ti-brand-hipchat text-2xl"></i>
