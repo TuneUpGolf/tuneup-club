@@ -48,7 +48,7 @@
        
         <span class="text-xl font-semibold text-dark">{!! $title !!}</span>
         <div class="description-wrapper relative">
-            <div class="short-text clamp-text font-thin text-gray-600">
+            <div class="short-text clamp-text font-thin text-gray-600 mb-2">
                 {!! $description !!}
             </div>
             <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
