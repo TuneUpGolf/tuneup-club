@@ -37,62 +37,64 @@
     <div class="container-fluid lessions-slider pt-5">
         @if(!$influencerDetails->lessons->isEmpty())
             @foreach ($influencerDetails->lessons as $lesson)
-                <div class="px-3 py-4">
-                    <div class=" bg-white rounded-lg shadow h-100  flex flex-col">
-                        <div class="relative text-center p-3 flex gap-3">
-                            <img src="{{ $influencerDetails->avatar }}"
-                                alt="{{ $influencerDetails->name }}"
-                                class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
-                            <div class="text-left">
-                                <a class="font-bold text-dark text-xl"
-                                    href="{{ route('login') }}">
-                                    {{ $influencerDetails->name }}
-                                </a>
-                                <div class="text-lg font-bold tracking-tight text-primary">
-                                    {{ $currency}} {{ $lesson->lesson_price }} (USD)
+                @if($lesson->active_status)
+                    <div class="px-3 py-4">
+                        <div class=" bg-white rounded-lg shadow h-100  flex flex-col">
+                            <div class="relative text-center p-3 flex gap-3">
+                                <img src="{{ $influencerDetails->avatar }}"
+                                    alt="{{ $influencerDetails->name }}"
+                                    class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+                                <div class="text-left">
+                                    <a class="font-bold text-dark text-xl"
+                                        href="{{ route('login') }}">
+                                        {{ $influencerDetails->name }}
+                                    </a>
+                                    <div class="text-lg font-bold tracking-tight text-primary">
+                                        {{ $currency}} {{ $lesson->lesson_price }} (USD)
+                                    </div>
                                 </div>
                             </div>
+
+                            <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
+                                <span class="text-xl font-semibold text-dark">{{ $lesson->lesson_name }}</span>
+                                <div class="description-wrapper relative">
+                                    <div class="short-text break-all clamp-text" id="lessonDesc">
+                                        {!! $lesson->lesson_description !!}
+                                    </div>
+                                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
+                                        ...Read More >>
+                                    </a>
+                                </div>
+
+                                <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
+                                    <div class="text-center">
+                                        <span class="text-xl font-bold">{{ $lesson->required_time }} Days</span>
+                                        <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                                    </div>
+                                </div>
+                                <div class="w-100 mt-3">
+                                    {{-- <form method="POST"
+                                        action="{{ route('login') }}"
+                                        accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
+                                        data-validate="" novalidate="true"><input name="_token" type="hidden"
+                                            value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
+                                        <button type="submit" class="lesson-btn py-2">Purchase</button>
+                                    </form> --}}
+                                    <a href="{{ route('login') }}">
+                                        <button type="submit" class="lesson-btn py-2">Purchase</button>
+                                    </a>
+                                </div>
+                            </div>
+                            <form id="bookingForm" method="POST"
+                                action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
+                                <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
+                                    type="hidden" id="slotIdInput" name="slot_id">
+                                <input type="hidden" id="friendNamesInput" name="friend_names">
+
+                            </form>
                         </div>
-
-                        <div class="px-3 pb-4 mt-1 flex flex-col flex-grow">
-                            <span class="text-xl font-semibold text-dark">{{ $lesson->lesson_name }}</span>
-                            <div class="description-wrapper relative">
-                                <div class="short-text break-all clamp-text" id="lessonDesc">
-                                    {!! $lesson->lesson_description !!}
-                                </div>
-                                <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
-                                    ...Read More >>
-                                </a>
-                            </div>
-
-                            <div class="mt-2 bg-gray-200 gap-2 rounded-lg px-4 py-3">
-                                <div class="text-center">
-                                    <span class="text-xl font-bold">{{ $lesson->required_time }} Days</span>
-                                    <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
-                                </div>
-                            </div>
-                            <div class="w-100 mt-3">
-                                {{-- <form method="POST"
-                                    action="{{ route('login') }}"
-                                    accept-charset="UTF-8" enctype="multipart/form-data" class="form-horizontal"
-                                    data-validate="" novalidate="true"><input name="_token" type="hidden"
-                                        value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH">
-                                    <button type="submit" class="lesson-btn py-2">Purchase</button>
-                                </form> --}}
-                                <a href="{{ route('login') }}">
-                                    <button type="submit" class="lesson-btn py-2">Purchase</button>
-                                </a>
-                            </div>
-                        </div>
-                        <form id="bookingForm" method="POST"
-                            action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
-                            <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
-                                type="hidden" id="slotIdInput" name="slot_id">
-                            <input type="hidden" id="friendNamesInput" name="friend_names">
-
-                        </form>
                     </div>
-                </div>
+                @endif
             @endforeach
         @endif
     </div>
