@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
@@ -25,12 +26,12 @@ class LessonDataTable extends DataTable
             ->editColumn('created_by', function (Lesson $lesson) {
                 $imageSrc = $lesson?->user?->dp ? asset('/storage' . '/' . tenant('id') . '/' . $lesson?->user?->dp) : asset('assets/img/logo/logo.png');
                 $html     =
-                '
+                    '
                 <div class="flex justify-start items-center">'
-                .
-                "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                .
-                "<span class='px-0'>" . $lesson->user->name . " </span>" .
+                    .
+                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
+                    .
+                    "<span class='px-0'>" . $lesson->user->name . " </span>" .
                     '</div>';
                 return $html;
             })
@@ -52,12 +53,12 @@ class LessonDataTable extends DataTable
     public function query(Lesson $model)
     {
         if (tenant('id') == null) {
-            return $model->newQuery()->select(['lessons.*', 'domains.domain'])
+            return $model->newQuery()->select(['lessons.*', 'domains.domain'])->where('active_status', true)
                 ->join('domains', 'domains.tenant_id', '=', 'users.tenant_id')->where('type', 'Admin');
         } else if (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_FOLLOWER) {
             return $model->newQuery()->where('tenant_id', '=', tenant('id'))->where('active_status', true);
         } else {
-            return $model->newQuery()->where('created_by', '=', Auth::user()->id);
+            return $model->newQuery()->where('active_status', true)->where('created_by', '=', Auth::user()->id);
         }
     }
 
@@ -139,7 +140,7 @@ class LessonDataTable extends DataTable
                 }',
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -178,16 +179,16 @@ class LessonDataTable extends DataTable
                       });
                 }',
             ])->language([
-            'buttons' => [
-                'create' => __('Create'),
-                'export' => __('Export'),
-                'print'  => __('Print'),
-                'reset'  => __('Reset'),
-                'reload' => __('Reload'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Create'),
+                    'export' => __('Export'),
+                    'print'  => __('Print'),
+                    'reset'  => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel'  => __('Excel'),
+                    'csv'    => __('CSV'),
+                ],
+            ]);
     }
 
     protected function getColumns()
