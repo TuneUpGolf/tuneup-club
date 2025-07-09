@@ -26,6 +26,13 @@
     @endcan
 @endif --}}
 
+@if (auth()->user()->type == 'Influencer' && $purchaseVideo = $purchase->videos->first())
+    <a class="btn btn-sm small btn btn-warning "
+        href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}" data-bs-toggle="tooltip"
+        data-bs-placement="bottom" data-bs-original-title="{{ __('Add Feedback') }}">
+        <i class="ti ti-plus text-white"></i>
+    </a>
+@endif
 
 @if ($purchase->status == 'complete' && $purchase->lesson->type === 'online')
 <a class="btn btn-sm small btn btn-warning "
@@ -34,13 +41,7 @@
     <i class="ti ti-eye text-white"></i>
 </a>
 @endif
-@if (auth()->user()->type == 'Influencer' && $purchaseVideo = $purchase->videos->first())
-    <a class="btn btn-sm small btn btn-warning "
-        href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}" data-bs-toggle="tooltip"
-        data-bs-placement="bottom" data-bs-original-title="{{ __('Add Feedback') }}">
-        <i class="ti ti-plus text-white"></i>
-    </a>
-@endif
+
 @can('delete-purchases')
     {!! Form::open([
         'method' => 'DELETE',
