@@ -34,7 +34,15 @@
     </a>
 @endif
 
-@if ($purchase->status == 'complete' && $purchase->lesson->type === 'online')
+@if ($purchase->status == 'complete' && $purchase->lesson->type === 'online' && auth()->user()->type == 'Follower')
+<a class="btn btn-sm small btn btn-warning "
+    href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+    data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
+    <i class="ti ti-eye text-white"></i>
+</a>
+@endif
+
+@if (($purchaseVideo->feedback??false) && auth()->user()->type == 'Influencer')
 <a class="btn btn-sm small btn btn-warning "
     href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
     data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
