@@ -26,16 +26,20 @@
     @endcan
 @endif --}}
 
+
 @if ($purchase->status == 'complete' && $purchase->lesson->type === 'online')
-    @can('manage-purchases')
-        <a class="btn btn-sm small btn btn-warning "
-            href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-            data-bs-placement="bottom" data-bs-original-title="{{
-                auth()->user()->type=='Follower'?__('View Feedback'):__('Click to Begin Analyzing')
-            }}">
-            <i class="ti ti-plus text-white"></i>
-        </a>
-    @endcan
+<a class="btn btn-sm small btn btn-warning "
+    href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+    data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
+    <i class="ti ti-eye text-white"></i>
+</a>
+@endif
+@if (auth()->user()->type == 'Influencer' && $purchaseVideo = $purchase->videos->first())
+    <a class="btn btn-sm small btn btn-warning "
+        href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}" data-bs-toggle="tooltip"
+        data-bs-placement="bottom" data-bs-original-title="{{ __('Add Feedback') }}">
+        <i class="ti ti-plus text-white"></i>
+    </a>
 @endif
 @can('delete-purchases')
     {!! Form::open([
