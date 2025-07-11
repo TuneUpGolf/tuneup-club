@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.css" />
 <link rel="stylesheet" href={{ asset('vendor/tailwind.css') }} />
-<link rel="stylesheet" href="https://demo.collegegolfrecruitingportal.com/assets/css/customizer.css">
+<link rel="stylesheet" href="{{ asset('assets/css/customizer.css') }}">
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
         <div class="container ctm-container">
@@ -85,13 +85,6 @@
                                     </a>
                                 </div>
                             </div>
-                            <form id="bookingForm" method="POST"
-                                action="https://demo.collegegolfrecruitingportal.com/lesson/slot/booking?redirect=1">
-                                <input type="hidden" name="_token" value="0DKCSNAoSKqudQ5rlJIX6LimpNfZ5JMl0QoWqaGH"> <input
-                                    type="hidden" id="slotIdInput" name="slot_id">
-                                <input type="hidden" id="friendNamesInput" name="friend_names">
-
-                            </form>
                         </div>
                     </div>
                 @endif
