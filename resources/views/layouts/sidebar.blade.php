@@ -444,27 +444,14 @@ $users->chat_status = Utility::chatEnabled($users);
             </li>
             @endif
             
-            @php
-                $today = now();
-                $plan_expiry_date = $users->plan_expired_date?
-                    \Carbon\Carbon::parse($users->plan_expired_date):$today;
-            @endphp
-
-            @if($users->type == "Follower" && ($users->chat_status == 1 && $plan_expiry_date->gte($today)) )
-            <li class="dash-item dash-hasmenu {{ request()->is('chat*') ? 'active' : '' }}">
-                <a class="dash-link" href="{{ route('follower.chat') }}">
-                    <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
-                    <span class="dash-mtext">{{ __('Chat') }}</span>
-                </a>
-            </li>
-            @elseif($users->type == "Influencer")
-            <li class="dash-item dash-hasmenu {{ request()->has('all-chat*') ? 'active' : '' }}">
-                <a class="dash-link" href="{{ route('all-chat.index') }}">
-                    <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
-                    <span class="dash-mtext">{{ __('Chat') }}</span>
-                </a>
-            </li>
-            @endif
+                @if($users->type == "Influencer")
+                <li class="dash-item dash-hasmenu {{ request()->has('all-chat*') ? 'active' : '' }}">
+                    <a class="dash-link" href="{{ route('all-chat.index') }}">
+                        <span class="dash-micon"><i class="ti ti-message-circle"></i></span>
+                        <span class="dash-mtext">{{ __('Chat') }}</span>
+                    </a>
+                </li>
+                @endif
             @endif
             </ul>
             <div class="flex flex-col">
