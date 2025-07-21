@@ -15,6 +15,10 @@ $currency = tenancy()->central(function ($tenant) {
 return Utility::getsettings('currency');
 });
 }
+$isChatTab = isset($token) ? true : false;
+$today = now();
+$plan_expiry_date = $users->plan_expired_date?
+        \Carbon\Carbon::parse($users->plan_expired_date):$today;
 @endphp
 <div class="flex flex-col">
    <div class="profile-backdrop">
@@ -35,12 +39,15 @@ return Utility::getsettings('currency');
    </div>
    <div class="card min-h-screen">
       <div class="tab">
-         <button class="tablinks active" onclick="openCity(event, 'Lessons')">Offerings</button>
+         <button class="tablinks {{ $token??'active' }}" onclick="openCity(event, 'Lessons')">Offerings</button>
          <button class="tablinks" onclick="openCity(event, 'Posts')">Posts</button>
          <button class="tablinks" onclick="openCity(event, 'Subscriptions')">Subscriptions</button>
-         </hr>
+         @if($users->type == "Follower" && ($users->chat_status == 1 || $plan_expiry_date->gte($today)) )
+            <button class="tablinks {{ $isChatTab ? 'active' : '' }}" onclick="window.location.href='home?tab=chat'">Chat</button>
+         @endif
+      </hr>
       </div>
-      <div id="Lessons" class="tabcontent flex items-center">
+      <div id="Lessons" class="tabcontent flex items-center {{ $isChatTab ? 'hidden' : '' }}">
          @if (!!$totalLessons)
          <livewire:lessons-grid-view />
          @else
@@ -50,7 +57,7 @@ return Utility::getsettings('currency');
          </div>
          @endif
       </div>
-      <div id="Posts" class="tabcontent">
+      <div id="Posts" class="tabcontent {{ $isChatTab ? 'hidden' : '' }}">
          @if (!!$totalLessons)
          <div id="blog" class="">
             <div class="">
@@ -77,7 +84,7 @@ return Utility::getsettings('currency');
          </div>
          @endif
       </div>
-      <div id="Subscriptions" class="tabcontent">
+      <div id="Subscriptions" class="tabcontent {{ $isChatTab ? 'hidden' : ''  }}">
          <div class="row">
             @foreach ($plans as $plan)
             @if ($plan->active_status == 1)
@@ -147,12 +154,19 @@ return Utility::getsettings('currency');
             @endforeach
          </div>
       </div>
+      @if($users->type == "Follower" && ($users->chat_status == 1 || $plan_expiry_date->gte($today)) )
+      <div id="Chat" class="tabcontent {{ $isChatTab ? 'block' : 'hidden' }}">
+         <div class="row">
+            @include('admin.followers.chat', ['token' => $token, 'influencer' => $influencer])
+         </div>
+      </div>
+      @endif
    </div>
 </div>
 @push('javascript')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script>
-   document.getElementById('Lessons').style.display = "block";
+   document.getElementById('Lessons').style.display = "{{ $isChatTab ? 'hidden' : 'block'  }}";
    
    function openCity(evt, tabName) {
        // Declare all variables

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\DataTables\Admin\PurchaseDataTable;
 use App\DataTables\Admin\SalesDataTable;
+use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentGenrator;
@@ -19,6 +20,7 @@ use App\Models\Role;
 use App\Models\SupportTicket;
 use App\Models\User;
 use App\Providers\AuthServiceProvider;
+use App\Services\ChatService;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
@@ -28,6 +30,13 @@ use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
+    protected $chatService;
+    protected $utility;
+    public function __construct(ChatService $chatService, Utility $utility)
+    {
+        $this->chatService = $chatService;
+        $this->utility = $utility;
+    }
 
     public function landingPage()
     {
@@ -51,6 +60,14 @@ class HomeController extends Controller
         $supports       = tenancy()->central(fn($tenant) => SupportTicket::where('tenant_id', $tenant->id)->latest()->take(7)->get());
 
         if ($userType == Role::ROLE_FOLLOWER) {
+            if ($request->tab == 'chat') {
+                if (!$this->utility->chatEnabled($user)) {
+                    return redirect()->route('home')->with('error', 'Chat feature not available!');
+                }
+
+                $influencer   = User::where('tenant_id', tenant('id'))->where('id', $user->follows->first()->influencer_id)->first();
+                $token        = $this->chatService->getChatToken($user->chat_user_id);
+            }
             return $this->followerDashboard([
                 'dataTable'      => $dataTable,
                 'user'           => $user,
@@ -60,6 +77,8 @@ class HomeController extends Controller
                 'posts'          => $posts,
                 'events'         => $events,
                 'supports'       => $supports,
+                'influencer'     => $influencer ?? null,
+                'token'          => $token ?? null,
             ], $request);
         }
 
@@ -157,6 +176,8 @@ class HomeController extends Controller
         $documentsDatas = $data['documentsDatas'];
         $events         = $data['events'];
         $supports       = $data['supports'];
+        $influencer     = $data['influencer'];
+        $token          = $data['token'];
 
         $influencer   = User::where('type', Role::ROLE_INFLUENCER)->first();
         $totalLessons = Lesson::where('created_by', $influencer->id)->count();
@@ -197,7 +218,9 @@ class HomeController extends Controller
             'plans',
             'isInfluencer',
             'isSubscribed',
-            'isFollowing'
+            'isFollowing',
+            'influencer',
+            'token'
         ));
     }
 
