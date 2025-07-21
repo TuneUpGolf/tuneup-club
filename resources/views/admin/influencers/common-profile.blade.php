@@ -42,7 +42,7 @@ $plan_expiry_date = $users->plan_expired_date?
          <button class="tablinks {{ $token??'active' }}" onclick="openCity(event, 'Lessons')">Offerings</button>
          <button class="tablinks" onclick="openCity(event, 'Posts')">Posts</button>
          <button class="tablinks" onclick="openCity(event, 'Subscriptions')">Subscriptions</button>
-         @if($users->type == "Follower" && ($users->chat_status == 1 || $plan_expiry_date->gte($today)) )
+         @if($users->type == "Follower" && ($users->chat_status == 1 && $plan_expiry_date->gte($today)) )
             <button class="tablinks {{ $isChatTab ? 'active' : '' }}" onclick="window.location.href='home?tab=chat'">Chat</button>
          @endif
       </hr>
@@ -154,7 +154,7 @@ $plan_expiry_date = $users->plan_expired_date?
             @endforeach
          </div>
       </div>
-      @if($users->type == "Follower" && ($users->chat_status == 1 || $plan_expiry_date->gte($today)) )
+      @if($users->type == "Follower" && ($users->chat_status == 1 && $plan_expiry_date->gte($today)) )
       <div id="Chat" class="tabcontent {{ $isChatTab ? 'block' : 'hidden' }}">
          <div class="row">
             @include('admin.followers.chat', ['token' => $token, 'influencer' => $influencer])
