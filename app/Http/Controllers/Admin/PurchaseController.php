@@ -250,6 +250,13 @@ class PurchaseController extends Controller
                     $purchase->status = Purchase::STATUS_COMPLETE;
                     $purchase->save();
 
+                    SendEmail::dispatch($purchase?->lesson?->user?->email, new VideoAdded($purchase));
+
+                    $message = __('Hello, :name, has submitted an online submission.', [
+                        'name' => $purchase->follower->name,
+                    ]);
+                    // SendPushNotification::dispatch($purchase?->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
+
                     if (isset($slot)) {
                         // If the slot is a package lesson, attach follower and their friends
                         if (! ! $slot->lesson->is_package_lesson) {
@@ -690,8 +697,8 @@ class PurchaseController extends Controller
 
                 $purchaseVideo->load('purchase');
                 $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
-                SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
 
+                SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
                 $message = __(':name, has sent feedback for your online submission.', [
                     'name' => $purchaseVideo->purchase->lesson->user->name,
                 ]);
