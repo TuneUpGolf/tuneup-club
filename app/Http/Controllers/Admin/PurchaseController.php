@@ -697,8 +697,8 @@ class PurchaseController extends Controller
 
                 $purchaseVideo->load('purchase');
                 $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
-                SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
 
+                SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
                 $message = __(':name, has sent feedback for your online submission.', [
                     'name' => $purchaseVideo->purchase->lesson->user->name,
                 ]);
