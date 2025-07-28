@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Facades\UtilityFacades;
@@ -94,8 +95,8 @@ class ProfileController extends Controller
         }
 
         request()->validate([
-            'name'         => 'required|max:50|regex:/^[A-Za-z0-9_.,() ]+$/|max:255',
-            'address'      => 'max:191|regex:/^[A-Za-z0-9_.,() ]+$/',
+            'name'         => "required|max:50|regex:/^[A-Za-z0-9_.,()' ]+$/|max:255",
+            'address'      => "max:191|regex:/^[A-Za-z0-9_.,()' ]+$/",
             'phone'        => 'required',
             'country_code' => 'required',
             'dial_code'    => 'required',
