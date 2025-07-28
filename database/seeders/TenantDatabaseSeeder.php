@@ -739,7 +739,7 @@ class TenantDatabaseSeeder extends Seeder
         MailTemplate::firstOrCreate([
             'mailable'      => PurchaseFeedback::class,
             'subject'       => 'Feedback for your purchase is added by the influencer',
-            'html_template' => '<p>Hello, {{ name }}, feedback for your purchase {{id}} has has been added by the influencer.</p>',
+            'html_template' => '<p>Hello, {{ name }}, feedback for your purchase {{id}} has been added by the influencer.</p>',
             'text_template' => 'Hello, {{ name }}.',
         ]);
 
