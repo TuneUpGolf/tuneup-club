@@ -9,8 +9,7 @@ class PurchaseFeedback extends TemplateMailable
 {
 
     public $name;
-    public $id;
-    public $amount;
+    public $influencer;
     /**
      * Create a new message instance.
      *
@@ -18,9 +17,8 @@ class PurchaseFeedback extends TemplateMailable
      */
     public function __construct(Purchase $purchase)
     {
-        //
         $this->name = $purchase->follower->name;
-        $this->id = $purchase->id;
+        $this->influencer = $purchase->lesson->user->name;
     }
 
     public function build()

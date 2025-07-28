@@ -722,10 +722,10 @@ class TenantDatabaseSeeder extends Seeder
             'text_template' => 'Hi,  {{ name }},  I hope you enjoyed your lesson with {{influencerName}}. Please click on the link to complete the payment process : {{ link }}.',
         ]);
 
-        MailTemplate::firstOrCreate([
+        MailTemplate::updateOrCreate([
             'mailable'      => VideoAdded::class,
             'subject'       => 'Video added by {{follower_name}}.',
-            'html_template' => '<p>Hello, {{ name }}, <br> {{follower_name}} added video for their purchase for your lesson. Please click the link below to add feedback {{link}}.</p>',
+            'html_template' => '<p>Hello {{influencer}},<br/>{{name}} has made a submission. Click the link to review and provide feedback.</p>',
             'text_template' => 'Hello, {{ name }}.',
         ]);
 
@@ -736,10 +736,10 @@ class TenantDatabaseSeeder extends Seeder
             'text_template' => 'Hello, {{ name }}.',
         ]);
 
-        MailTemplate::firstOrCreate([
+        MailTemplate::updateOrCreate([
             'mailable'      => PurchaseFeedback::class,
             'subject'       => 'Feedback for your purchase is added by the influencer',
-            'html_template' => '<p>Hello, {{ name }}, feedback for your purchase {{id}} has been added by the influencer.</p>',
+            'html_template' => '<p>Hello, {{ name }}, you\'ve received feedback from {{influencer}}. Please sign in to review.</p>',
             'text_template' => 'Hello, {{ name }}.',
         ]);
 
