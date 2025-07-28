@@ -20,9 +20,9 @@ class VideoAdded extends TemplateMailable
      */
     public function __construct(Purchase $purchase)
     {
-        $this->influencer    = $purchase?->lesson?->user?->name;
-        $this->link          = route('purchase.feedback.index', ['purchase_id' => $purchase->id]);
         $this->name = $purchase->follower->name;
+        $this->influencer = $purchase->lesson->user->name;
+        $this->link = route('purchase.feedback.index', ['purchase_id' => $purchase->id]);
     }
     public function build()
     {
@@ -31,6 +31,6 @@ class VideoAdded extends TemplateMailable
 
     public function getHtmlLayout(): string
     {
-        return view('mails.layout', ['data' => [$this->name, $this->influencer, $this->link]])->render();
+        return view('mails.layout', ['data' => [$this->influencer, $this->name, $this->link]])->render();
     }
 }
