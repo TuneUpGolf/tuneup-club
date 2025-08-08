@@ -10,6 +10,7 @@
 </div>
 @php
 $purchaseVideo = $purchase->videos->first();
+$purchaseVideo2Url = $purchaseVideo->video_url_2??'';
 @endphp
 <div class="flex justify-content-between items-start bg-white p-4 rounded-lg">
     <div class="video-section-col flex gap-4">
@@ -29,6 +30,9 @@ $purchaseVideo = $purchase->videos->first();
                     Analyze
                 </a>
             </div>
+            @endif
+            @if($purchaseVideo2Url)
+                <video width='320' height='240' controls autoplay="autoplay" loop muted src="{{ $purchaseVideo2Url }}" class="w-80 h-60 rounded-lg mt-20"></video>        
             @endif
         </div>
         <div>
