@@ -52,6 +52,7 @@ class HomeController extends Controller
         $tenantId = tenant('id');
 
         // Common Queries
+        $chatEnabled    = $this->utility->chatEnabled($user);
         $paymentTypes   = UtilityFacades::getpaymenttypes();
         $documents      = DocumentGenrator::where('tenant_id', $tenantId)->count();
         $documentsDatas = DocumentGenrator::where('tenant_id', $tenantId)->latest()->take(5)->get();
@@ -61,11 +62,9 @@ class HomeController extends Controller
 
         if ($userType == Role::ROLE_FOLLOWER) {
             if ($request->tab == 'chat') {
-                if (!$this->utility->chatEnabled($user)) {
+                if (!$chatEnabled) {
                     return redirect()->route('home')->with('error', 'Chat feature not available!');
                 }
-
-                $influencer   = User::where('tenant_id', tenant('id'))->where('id', $user->follows->first()->influencer_id)->first();
                 $token        = $this->chatService->getChatToken($user->chat_user_id);
             }
             return $this->followerDashboard([
@@ -77,8 +76,8 @@ class HomeController extends Controller
                 'posts'          => $posts,
                 'events'         => $events,
                 'supports'       => $supports,
-                'influencer'     => $influencer ?? null,
                 'token'          => $token ?? null,
+                'chatEnabled'    => $chatEnabled,
             ], $request);
         }
 
@@ -143,7 +142,8 @@ class HomeController extends Controller
             'purchaseInprogress',
             'inPersonCompleted',
             'inPersonPending',
-            'influencerStats'
+            'influencerStats',
+            'chatEnabled',
         ));
     }
 
@@ -176,8 +176,8 @@ class HomeController extends Controller
         $documentsDatas = $data['documentsDatas'];
         $events         = $data['events'];
         $supports       = $data['supports'];
-        $influencer     = $data['influencer'];
         $token          = $data['token'];
+        $chatEnabled    = $data['chatEnabled'];
 
         $influencer   = User::where('type', Role::ROLE_INFLUENCER)->first();
         $totalLessons = Lesson::where('created_by', $influencer->id)->count();
@@ -220,6 +220,7 @@ class HomeController extends Controller
             'isSubscribed',
             'isFollowing',
             'influencer',
+            'chatEnabled',
             'token'
         ));
     }
