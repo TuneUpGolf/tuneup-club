@@ -813,17 +813,24 @@ class Utility
         return '$' . number_format($amount, 2, '.', ',');
     }
 
-    public function chatEnabled($user)
+    /**
+     * Determine if chat is enabled for the given user.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function chatEnabled($user): bool
     {
-        $status = 1;
-        if ($user->type != \App\Models\Role::ROLE_FOLLOWER) {
-            return $status;
+        if ($user->type !== 'Follower') {
+            return false;
         }
 
-        if ($follower = \App\Models\Follower::find($user->id)) {
-            $status = $follower->chat_status;
-        }
+        $today = now();
+        $planExpiryDate = $user->plan_expired_date
+            ? \Carbon\Carbon::parse($user->plan_expired_date)
+            : $today;
 
-        return $status;
+        return ($planExpiryDate->gte($today) && $user->plan->is_chat_enabled === 1)
+            || ($user->chat_status == 1 && $user->plan->is_chat_enabled === 0);
     }
 }

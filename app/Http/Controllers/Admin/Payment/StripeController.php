@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin\Payment;
 
 use App\Facades\UtilityFacades;
@@ -189,7 +190,7 @@ class StripeController extends Controller
             }
             $followerId    = $authUser->type == 'Follower' ? $authUser->id : null;
             $plan          = Plan::find($planID);
-            if($plan->is_chat_enabled && is_null($authUser->chat_user_id)){
+            if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
                 return response()->json([
                     'error' => 'Chat user ID is required to proceed with the payment.'
                 ]);
@@ -336,7 +337,7 @@ class StripeController extends Controller
             echo json_encode($response);
             die;
         } else {
-            $user = User::find(Auth::user()->id);{
+            $user = User::find(Auth::user()->id); {
                 $planDetails = Plan::find($request->plan_id);
                 $user        = User::where('email', $user->email)->first();
                 $data        = Order::create([
@@ -449,18 +450,17 @@ class StripeController extends Controller
             } else {
                 $user->plan_expired_date = null;
             }
-            if($plan->is_chat_enabled){
+            if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
                 $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->influencer->chat_user_id);
-                if($groupId){
+                if ($groupId) {
                     $user->group_id = $groupId;
                 }
             }
             $user->save();
         }
         if ($userType == 'Follower') {
-            $influencerId = $user->follows->first()?->influencer_id;
-            return redirect()->route('influencer.profile', ['influencer_id' => $influencerId])->with('status', __('Payment successfully!'));
+            return redirect()->route('home')->with('status', __('Payment successfully!'));
         } else {
             return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
         }

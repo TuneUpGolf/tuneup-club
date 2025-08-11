@@ -1,6 +1,5 @@
 @php
 use Carbon\Carbon;
-$user = Auth::user();
 if (Auth::user()->type == 'Admin') {
 $currency_symbol = tenancy()->central(function ($tenant) {
 return Utility::getsettings('currency_symbol');
@@ -16,9 +15,6 @@ return Utility::getsettings('currency');
 });
 }
 $isChatTab = isset($token) ? true : false;
-$today = now();
-$plan_expiry_date = $users->plan_expired_date?
-        \Carbon\Carbon::parse($users->plan_expired_date):$today;
 @endphp
 <div class="flex flex-col">
    <div class="profile-backdrop">
@@ -42,9 +38,9 @@ $plan_expiry_date = $users->plan_expired_date?
          <button class="tablinks {{ $token??'active' }}" onclick="openCity(event, 'Lessons')">Offerings</button>
          <button class="tablinks" onclick="openCity(event, 'Posts')">Posts</button>
          <button class="tablinks" onclick="openCity(event, 'Subscriptions')">Subscriptions</button>
-         @if($users->type == "Follower" && ($users->chat_status == 1 && $plan_expiry_date->gte($today)) )
-            <button class="tablinks {{ $isChatTab ? 'active' : '' }}" onclick="window.location.href='home?tab=chat'">Chat</button>
-         @endif
+            @if ($chatEnabled)
+               <button class="tablinks {{ $isChatTab ? 'active' : '' }}" onclick="window.location.href='home?tab=chat'">Chat</button>
+            @endif
       </hr>
       </div>
       <div id="Lessons" class="tabcontent flex items-center {{ $isChatTab ? 'hidden' : '' }}">
@@ -154,7 +150,7 @@ $plan_expiry_date = $users->plan_expired_date?
             @endforeach
          </div>
       </div>
-      @if($users->type == "Follower" && ($users->chat_status == 1 && $plan_expiry_date->gte($today)) )
+      @if($chatEnabled)
       <div id="Chat" class="tabcontent {{ $isChatTab ? 'block' : 'hidden' }}">
          <div class="row">
             @include('admin.followers.chat', ['token' => $token, 'influencer' => $influencer])

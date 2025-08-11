@@ -115,7 +115,7 @@ class ProfileController extends Controller
 
         if ($user->type === Role::ROLE_INFLUENCER) {
             $user->address = $request?->address;
-            // $user->country     = $request?->country;
+            $user->country     = $request?->country;
             $user->sub_price   = $request?->sub_price;
             $user->golf_course = $request?->golf_course;
         }
