@@ -97,7 +97,7 @@ $isChatTab = isset($token) ? true : false;
                      <div class="border-t border-gray-300"></div>
                      <div class="px-3 py-4">
                         @if ($plan->id != 1)
-                        @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date))
+                        @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
                         <a href="javascript:void(0)" data-id="{{ $plan->id }}"
                            class="lesson-btn text-center font-bold text-lg mt-auto"
                            data-amount="{{ $plan->price }}">{{ __('Expire at') }}
