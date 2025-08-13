@@ -104,7 +104,12 @@ $isChatTab = isset($token) ? true : false;
                         {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
                         @else
                         <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                           class="lesson-btn text-center font-bold text-lg mt-auto">{{ __('Buy Plan') }}
+                           class="lesson-btn text-center font-bold text-lg mt-auto">
+                           @if($plan->id == $user->plan_id)
+                           {{ __('Renew') }}
+                           @else
+                           {{ __('Buy Plan') }}
+                           @endif
                         </a>
                         @endif
                         @endif
