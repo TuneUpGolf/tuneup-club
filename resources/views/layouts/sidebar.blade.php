@@ -280,48 +280,39 @@ $users->chat_status = Utility::chatEnabled($users);
                     </a>
                 </li>
                 @endif
-                @canany(['manage-blog', 'manage-category'])
-                <li
-                    class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
-                    <a href="#!" class="dash-link">
-                        <span class="dash-micon"><i class="ti ti-server"></i></span>
-                        <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
-                                data-feather="chevron-right"></i></span></a>
-                    <ul class="dash-submenu">
-                        @if ($users->type === 'Influencer' || $users->type === 'Admin')
-                        @can('create-blog')
-                        <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
-                            <a class="dash-link" href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
-                        </li>
-                        @endcan
-                        @endif
-                        @can('manage-blog')
-                        <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
-                            <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
-                        </li>
-                        @endcan
-                        @if ($users->type === 'Influencer' || $users->type === 'Admin')
-                        @can('manage-blog')
-                        <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
-                            <a class="dash-link" href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
-                        </li>
-                        @endcan
-                        @endif
-                        @if ($users->type == 'Admin')
-                        @can('manage-blog')
-                        <li class="dash-item {{ request()->is('blogs/manage/report') ? 'active' : '' }}">
-                            <a class="dash-link" href="{{ route('blogs.report') }}">{{ __('Reported Posts') }}</a>
-                        </li>
-                        @endcan
-                        @endif
-                        {{-- @can('manage-category')
-                                    <li class="dash-item {{ request()->is('category*') ? 'active' : '' }}">
-                        <a class="dash-link" href="{{ route('category.index') }}">{{ __('Categories') }}</a>
-                </li>
-                @endcan --}}
-            </ul>
-            </li>
-            @endcanany
+                @if(in_array($users->type, ['Admin', 'Influencer']))
+                    @canany(['manage-blog', 'manage-category'])
+                    <li
+                        class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
+                        <a href="#!" class="dash-link">
+                            <span class="dash-micon"><i class="ti ti-server"></i></span>
+                            <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
+                                    data-feather="chevron-right"></i></span></a>
+                        <ul class="dash-submenu">
+                                @can('create-blog')
+                                <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
+                                    <a class="dash-link" href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
+                                </li>
+                                @endcan
+                                @can('manage-blog')
+                                <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
+                                    <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
+                                </li>
+                                <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
+                                    <a class="dash-link" href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
+                                </li>
+                                @endcan
+                                @if ($users->type == 'Admin')
+                                    @can('manage-blog')
+                                    <li class="dash-item {{ request()->is('blogs/manage/report') ? 'active' : '' }}">
+                                        <a class="dash-link" href="{{ route('blogs.report') }}">{{ __('Reported Posts') }}</a>
+                                    </li>
+                                    @endcan
+                                @endif
+                        </ul>
+                    </li>
+                    @endcanany
+                @endif
             @canany(['manage-coupon', 'manage-plan'])
             <li
                 class="dash-item dash-hasmenu {{ request()->is('coupon*') || request()->is('plans*') || request()->is('myplan*') || request()->is('payment*') ? 'active dash-trigger' : 'collapsed' }}">
