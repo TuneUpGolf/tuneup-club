@@ -38,10 +38,8 @@ $isChatTab = isset($token) ? true : false;
          <button class="tablinks {{ $tab == 'lessons'?'active':'' }}" onclick="window.location.href='home?tab=lessons'">Offerings</button>
          <button class="tablinks {{ $tab == 'posts'?'active':'' }}" onclick="window.location.href='home?tab=posts'">Posts</button>
          <button class="tablinks {{ $tab == 'subscriptions'?'active':'' }}" onclick="window.location.href='home?tab=subscriptions'">Subscriptions</button>
-            @if ($chatEnabled)
-               <button class="tablinks {{ $isChatTab ? 'active' : '' }}" onclick="window.location.href='home?tab=chat'">Chat</button>
-            @endif
-      </hr>
+         <button class="tablinks {{ $isChatTab ? 'active' : '' }}" onclick="window.location.href='home?tab=chat'">Chat</button>
+         </hr>
       </div>
       @if($tab == 'lessons')
       <div id="Lessons" class="tabcontent flex items-center block">
@@ -184,12 +182,57 @@ $isChatTab = isset($token) ? true : false;
          </div>
       </div>
       @endif
-      @if($chatEnabled && $isChatTab)
-      <div id="Chat" class="tabcontent block">
-         <div class="row">
-            @include('admin.followers.chat', ['token' => $token, 'influencer' => $influencer])
+      @if($isChatTab)
+         
+         <div id="Chat" class="tabcontent block">
+            <div class="row">
+               @if($chatEnabled)
+                  @include('admin.followers.chat', ['token' => $token, 'influencer' => $influencer])
+               @else
+                  @foreach ($plans as $plan)
+                     @if ($plan->active_status == 1 && $plan->is_chat_enabled == 1)
+                        <div class="col-xl-3 col-md-6 py-4">
+                           <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"  data-wow-delay="0.2s">
+                              <div class="rounded-lg shadow popular-wrap h-100">
+                                 <div class="px-3 pt-4 ">
+                                    <p class="text-2xl font-bold mb-1">{{ $plan->name }}</p>
+                                    <div class="flex gap-2 items-center mt-2 ">
+                                       <p class=" text-6xl font-bold">{{ $currency_symbol . ' ' . $plan->price }} /</p>
+                                       <p class="text-2xl text-gray-600">{{ $plan->duration . ' ' . $plan->durationtype }}</p>
+                                    </div>
+                                 </div>
+                                 <div class="border-t border-gray-300"></div>
+                                 <div class="px-3 py-4">
+                                    @if ($plan->id != 1)
+                                    @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
+                                    <a href="javascript:void(0)" data-id="{{ $plan->id }}"
+                                       class="lesson-btn text-center font-bold text-lg mt-auto"
+                                       data-amount="{{ $plan->price }}">{{ __('Expire at') }}
+                                    {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
+                                    @else
+                                    <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                       class="lesson-btn text-center font-bold text-lg mt-auto">
+                                       @if($plan->id == $user->plan_id)
+                                       {{ __('Renew') }}
+                                       @else
+                                       {{ __('Buy Plan') }}
+                                       @endif
+                                    </a>
+                                    @endif
+                                    @endif
+                                    <p class="font-semibold text-xl mb-2 mt-2">Features</p>
+                                    <p class="text-gray-600">
+                                       {!! $plan->description !!}
+                                    </p>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     @endif
+                  @endforeach
+               @endif
+            </div>
          </div>
-      </div>
       @endif
    </div>
 </div>  

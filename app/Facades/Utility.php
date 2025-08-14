@@ -830,7 +830,9 @@ class Utility
             ? \Carbon\Carbon::parse($user->plan_expired_date)
             : $today;
 
-        return ($planExpiryDate->gte($today) && $user->plan->is_chat_enabled === 1)
-            || ($user->chat_status == 1 && $user->plan->is_chat_enabled === 0);
+        $chatEnabled = $user->plan->is_chat_enabled ?? 0;
+
+        return ($planExpiryDate->gte($today) && $chatEnabled === 1)
+            || ($user->chat_status == 1 && $chatEnabled === 0);
     }
 }
