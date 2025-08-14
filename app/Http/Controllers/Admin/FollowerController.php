@@ -19,7 +19,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Services\ChatService;
 use Carbon\Carbon;
-use Dotenv\Exception\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -404,5 +404,15 @@ class FollowerController extends Controller
             return in_array($user->plan_id, $chatEnabledPlanId);
         }
         return false;
+    }
+
+    public function followerPurchasesData(\App\DataTables\Admin\FollowerPurchasesDataTable $dataTable)
+    {
+        return $dataTable->ajax();
+    }
+
+    public function purchases(\App\DataTables\Admin\FollowerPurchasesDataTable $dataTable)
+    {
+        return $dataTable->render('admin.followers.purchases');
     }
 }

@@ -7,6 +7,7 @@ use App\DataTables\Admin\PurchaseDataTable;
 use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
 use App\DataTables\Admin\UpcomingLessonDataTable;
+use App\DataTables\Admin\FollowerPurchasesDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseAPIResource;
 use App\Http\Resources\PurchaseVideoAPIResource;
@@ -49,11 +50,11 @@ class PurchaseController extends Controller
         $this->chatService = $chatService;
     }
 
-    public function index(PurchaseDataTable $dataTable, UpcomingLessonDataTable $upcomingLessonDataTable)
+    public function index(PurchaseDataTable $dataTable, FollowerPurchasesDataTable $followerPurchasesDataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
             return $dataTable->render('admin.purchases.index', [
-                'upcomingLessonBuilder' => $upcomingLessonDataTable->html(),
+                'followerPurchasesDataTable' => $followerPurchasesDataTable->html(),
             ]);
         }
     }
