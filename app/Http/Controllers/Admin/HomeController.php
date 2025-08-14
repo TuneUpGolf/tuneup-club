@@ -73,9 +73,6 @@ class HomeController extends Controller
         if ($userType == Role::ROLE_FOLLOWER) {
             $tab = $request->tab ?? 'lessons';
             if ($tab == 'chat') {
-                if (!$chatEnabled) {
-                    return redirect()->route('home')->with('error', 'Chat feature not available!');
-                }
                 $token        = $this->chatService->getChatToken($user->chat_user_id);
             }
             return $this->followerDashboard([
