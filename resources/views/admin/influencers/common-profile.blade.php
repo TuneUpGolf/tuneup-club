@@ -35,15 +35,16 @@ $isChatTab = isset($token) ? true : false;
    </div>
    <div class="card min-h-screen">
       <div class="tab">
-         <button class="tablinks {{ $token??'active' }}" onclick="openCity(event, 'Lessons')">Offerings</button>
-         <button class="tablinks" onclick="openCity(event, 'Posts')">Posts</button>
-         <button class="tablinks" onclick="openCity(event, 'Subscriptions')">Subscriptions</button>
+         <button class="tablinks {{ $tab == 'lessons'?'active':'' }}" onclick="window.location.href='home?tab=lessons'">Offerings</button>
+         <button class="tablinks {{ $tab == 'posts'?'active':'' }}" onclick="window.location.href='home?tab=posts'">Posts</button>
+         <button class="tablinks {{ $tab == 'subscriptions'?'active':'' }}" onclick="window.location.href='home?tab=subscriptions'">Subscriptions</button>
             @if ($chatEnabled)
                <button class="tablinks {{ $isChatTab ? 'active' : '' }}" onclick="window.location.href='home?tab=chat'">Chat</button>
             @endif
       </hr>
       </div>
-      <div id="Lessons" class="tabcontent flex items-center {{ $isChatTab ? 'hidden' : '' }}">
+      @if($tab == 'lessons')
+      <div id="Lessons" class="tabcontent flex items-center block">
          @if (!!$totalLessons)
          <livewire:lessons-grid-view />
          @else
@@ -53,9 +54,32 @@ $isChatTab = isset($token) ? true : false;
          </div>
          @endif
       </div>
-      <div id="Posts" class="tabcontent {{ $isChatTab ? 'hidden' : '' }}">
+      @endif
+      @if($tab == 'posts')
+      <div id="Posts" class="tabcontent block">
          @if (!!$totalLessons)
          <div id="blog" class="">
+            <div class="dropdown dash-h-item drp-company mt-3">
+               <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
+                   href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
+                   <span class="hide-mob ms-2 text-lg">Filter</span>
+                   <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
+               </a>
+               <div class="dropdown-menu dash-h-dropdown">
+                   <a href="{{ route('home', ['filter' => 'all', 'tab' => 'posts']) }}"
+                       class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
+                       <span>{{ __('All') }}</span>
+                   </a>
+                   <a href="{{ route('home', ['filter' => 'free', 'tab' => 'posts']) }}"
+                       class="dropdown-item  {{ request()->query('filter') === 'free' ? 'active' : '' }}">
+                       <span>{{ __('Free') }}</span>
+                   </a>
+                   <a href="{{ route('home', ['filter' => 'paid', 'tab' => 'posts']) }}"
+                       class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
+                       <span>{{ __('Paid') }}</span>
+                   </a>
+               </div>
+           </div>
             <div class="">
                <div class="focus:outline-none mt-4 mb-5 lg:mt-24">
                   <div class="infinity">
@@ -67,7 +91,9 @@ $isChatTab = isset($token) ? true : false;
                         @endphp
                         @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed, 'purchasePost' => $purchasePost])
                         @endforeach
-                        {{ $posts->links('pagination::bootstrap-4') }}
+                     </div>
+                     <div class="float-end">
+                        {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
                      </div>
                   </div>
                </div>
@@ -80,7 +106,9 @@ $isChatTab = isset($token) ? true : false;
          </div>
          @endif
       </div>
-      <div id="Subscriptions" class="tabcontent {{ $isChatTab ? 'hidden' : ''  }}">
+      @endif
+      @if($tab == 'subscriptions')
+      <div id="Subscriptions" class="tabcontent block">
          <div class="row">
             @foreach ($plans as $plan)
             @if ($plan->active_status == 1)
@@ -155,15 +183,16 @@ $isChatTab = isset($token) ? true : false;
             @endforeach
          </div>
       </div>
-      @if($chatEnabled)
-      <div id="Chat" class="tabcontent {{ $isChatTab ? 'block' : 'hidden' }}">
+      @endif
+      @if($chatEnabled && $isChatTab)
+      <div id="Chat" class="tabcontent block">
          <div class="row">
             @include('admin.followers.chat', ['token' => $token, 'influencer' => $influencer])
          </div>
       </div>
       @endif
    </div>
-</div>
+</div>  
 @push('javascript')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script>

@@ -56,12 +56,23 @@ class HomeController extends Controller
         $paymentTypes   = UtilityFacades::getpaymenttypes();
         $documents      = DocumentGenrator::where('tenant_id', $tenantId)->count();
         $documentsDatas = DocumentGenrator::where('tenant_id', $tenantId)->latest()->take(5)->get();
-        $posts          = Posts::latest()->take(6)->get();
         $events         = Event::latest()->take(5)->get();
         $supports       = tenancy()->central(fn($tenant) => SupportTicket::where('tenant_id', $tenant->id)->latest()->take(7)->get());
 
+        $posts = Post::where('status', 'active');
+        switch (request()->query('filter')) {
+            case ('free'):
+                $posts = $posts->where('paid', 0);
+                break;
+            case ('paid'):
+                $posts = $posts->where('paid', 1);
+                break;
+        }
+        $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
+
         if ($userType == Role::ROLE_FOLLOWER) {
-            if ($request->tab == 'chat') {
+            $tab = $request->tab ?? 'lessons';
+            if ($tab == 'chat') {
                 if (!$chatEnabled) {
                     return redirect()->route('home')->with('error', 'Chat feature not available!');
                 }
@@ -78,6 +89,7 @@ class HomeController extends Controller
                 'supports'       => $supports,
                 'token'          => $token ?? null,
                 'chatEnabled'    => $chatEnabled,
+                'tab'            => $tab,
             ], $request);
         }
 
@@ -178,11 +190,11 @@ class HomeController extends Controller
         $supports       = $data['supports'];
         $token          = $data['token'];
         $chatEnabled    = $data['chatEnabled'];
+        $tab            = $data['tab'];
+        $posts          = $data['posts'];
 
         $influencer   = User::where('type', Role::ROLE_INFLUENCER)->first();
         $totalLessons = Lesson::where('created_by', $influencer->id)->count();
-        $posts        = Post::where('influencer_id', $influencer->id);
-        $posts        = $posts->orderBy('created_at', 'desc')->paginate(6);
         $section      = $request->section;
         $follow       = Follow::where('influencer_id', $influencer->id);
         $isFollowing  = $follow->where('follower_id', Auth::user()->id)
@@ -221,7 +233,8 @@ class HomeController extends Controller
             'isFollowing',
             'influencer',
             'chatEnabled',
-            'token'
+            'token',
+            'tab'
         ));
     }
 
