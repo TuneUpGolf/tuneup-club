@@ -3,17 +3,30 @@
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
-use App\Models\Follower;
-use App\Models\Plan;
-use App\Models\Post;
-use App\Models\PurchasePost;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
+/**
+ * DataTable for displaying a follower's purchased posts and active subscriptions.
+ *
+ * Combines purchased posts with current plan details using a UNION query and
+ * exposes a unified, searchable result set optimized for server-side DataTables.
+ *
+ * @package App\DataTables\Admin
+ */
 class FollowerPurchasesDataTable extends DataTable
 {
+    /**
+     * Build the DataTable response for follower purchases (posts and subscriptions).
+     *
+     * Applies global and column-specific filtering suitable for a UNION subquery
+     * where columns are exposed via aliases.
+     *
+     * @param \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder $query
+     * @return \Yajra\DataTables\DataTableAbstract|\Illuminate\Http\JsonResponse
+     */
     public function dataTable($query)
     {
         try {
@@ -77,6 +90,15 @@ class FollowerPurchasesDataTable extends DataTable
         }
     }
 
+    /**
+     * Build the base query for follower purchases by unioning purchased posts
+     * with the follower's active subscription (plan) info.
+     *
+     * The unioned result is wrapped as a subquery (combined_data) so column
+     * aliases (e.g., title, type, purchase_date, amount) are filterable.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
     public function query()
     {
         $follower = Auth::user();
@@ -122,6 +144,11 @@ class FollowerPurchasesDataTable extends DataTable
         return $outerQuery;
     }
 
+    /**
+     * Configure the DataTable HTML builder for the follower purchases table.
+     *
+     * @return \Yajra\DataTables\Html\Builder
+     */
     public function html()
     {
         return $this->builder()
@@ -216,6 +243,11 @@ class FollowerPurchasesDataTable extends DataTable
             ])->language([]);
     }
 
+    /**
+     * Define the columns displayed in the follower purchases DataTable.
+     *
+     * @return array<int, \Yajra\DataTables\Html\Column>
+     */
     protected function getColumns()
     {
         return [
@@ -227,6 +259,11 @@ class FollowerPurchasesDataTable extends DataTable
         ];
     }
 
+    /**
+     * Export filename base for the DataTable.
+     *
+     * @return string
+     */
     protected function filename(): string
     {
         return 'Follower_Purchases_' . date('YmdHis');
