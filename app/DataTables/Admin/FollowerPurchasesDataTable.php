@@ -18,7 +18,7 @@ class FollowerPurchasesDataTable extends DataTable
     {
         try {
             $data = datatables()
-                ->eloquent($query)
+                ->query($query)
                 ->addIndexColumn()
                 ->editColumn('purchase_date', function ($request) {
                     if ($request->purchase_date) {
@@ -32,26 +32,40 @@ class FollowerPurchasesDataTable extends DataTable
                     }
                     return 'N/A';
                 })
-                ->editColumn('plan_name', function ($request) {
-                    if ($request->plan_name) {
-                        return '<label class="badge rounded-pill bg-blue-600 p-2 px-3">' . $request->plan_name . '</label>';
-                    }
-                    return '<label class="badge rounded-pill bg-gray-400 p-2 px-3">No Plan</label>';
-                })
-                ->editColumn('post_name', function ($request) {
-                    if ($request->post_name) {
-                        return '<span class="font-medium">' . $request->post_name . '</span>';
-                    }
-                    return '<span class="text-gray-500">N/A</span>';
-                })
                 ->editColumn('type', function ($request) {
                     if ($request->type === 'plan') {
-                        return '<label class="badge rounded-pill bg-green-600 p-2 px-3">Plan Subscription</label>';
+                        return 'Subscription';
                     } else {
-                        return '<label class="badge rounded-pill bg-orange-600 p-2 px-3">Post Purchase</label>';
+                        return 'Post';
                     }
                 })
-                ->rawColumns(['plan_name', 'post_name', 'type']);
+                ->rawColumns(['type'])
+                // Global search across unioned/aliased columns
+                ->filter(function ($query) {
+                    $search = request('search.value');
+                    if (!empty($search)) {
+                        $keyword = strtolower($search);
+                        $query->where(function ($q) use ($keyword) {
+                            $q->whereRaw('LOWER(title) LIKE ?', ["%{$keyword}%"]) // includes plan name
+                                ->orWhereRaw('LOWER(type) LIKE ?', ["%{$keyword}%"]) // plan/post
+                                ->orWhereRaw('LOWER(CAST(purchase_date AS CHAR)) LIKE ?', ["%{$keyword}%"]) // date
+                                ->orWhereRaw('LOWER(CAST(amount AS CHAR)) LIKE ?', ["%{$keyword}%"]); // numeric
+                        });
+                    }
+                }, true)
+                // Column-specific fallback filters (for column filters UI)
+                ->filterColumn('title', function ($query, $keyword) {
+                    $query->whereRaw('LOWER(title) LIKE ?', ['%' . strtolower($keyword) . '%']);
+                })
+                ->filterColumn('type', function ($query, $keyword) {
+                    $query->whereRaw('LOWER(type) LIKE ?', ['%' . strtolower($keyword) . '%']);
+                })
+                ->filterColumn('purchase_date', function ($query, $keyword) {
+                    $query->whereRaw('LOWER(CAST(purchase_date AS CHAR)) LIKE ?', ['%' . strtolower($keyword) . '%']);
+                })
+                ->filterColumn('amount', function ($query, $keyword) {
+                    $query->whereRaw('LOWER(CAST(amount AS CHAR)) LIKE ?', ['%' . strtolower($keyword) . '%']);
+                });
 
             return $data;
         } catch (\Exception $e) {
@@ -67,38 +81,45 @@ class FollowerPurchasesDataTable extends DataTable
     {
         $follower = Auth::user();
 
-        // Get purchased post
-        $purchasedPosts = PurchasePost::select([
-            'purchasepost.id',
-            'purchasepost.created_at as purchase_date',
-            'post.title as post_name',
-            'post.price as amount',
-            'followers.plan_id',
-            'plans.name as plan_name',
-            DB::raw("'post' as type")
-        ])
+        // Get purchased post (use Query Builder, not Eloquent)
+        $purchasedPosts = DB::table('purchasepost')
+            ->select([
+                'purchasepost.id',
+                DB::raw('purchasepost.created_at as purchase_date'),
+                'post.title',
+                DB::raw('post.price as amount'),
+                'followers.plan_id',
+                DB::raw("'post' as type"),
+                'purchasepost.follower_id'
+            ])
             ->join('post', 'purchasepost.post_id', '=', 'post.id')
             ->join('followers', 'purchasepost.follower_id', '=', 'followers.id')
-            ->leftJoin('plans', 'followers.plan_id', '=', 'plans.id')
-            ->where('purchasepost.follower_id', $follower->id);
+            ->leftJoin('plans', 'followers.plan_id', '=', 'plans.id');
 
         // Get current plan information if exists
         $currentPlan = DB::table('followers')
             ->select([
                 DB::raw("CONCAT('plan_', followers.id) as id"),
                 DB::raw("followers.plan_expired_date as purchase_date"),
-                DB::raw("NULL as post_name"),
+                'plans.name as title',
                 DB::raw("COALESCE(plans.price, 0) as amount"),
                 'followers.plan_id',
-                'plans.name as plan_name',
-                DB::raw("'plan' as type")
+                DB::raw("'plan' as type"),
+                'followers.id as follower_id'
             ])
             ->leftJoin('plans', 'followers.plan_id', '=', 'plans.id')
-            ->where('followers.id', $follower->id)
             ->whereNotNull('followers.plan_id');
 
-        // Union the queries without ordering (ordering will be handled by DataTables)
-        return $purchasedPosts->union($currentPlan);
+        // Union the queries and wrap in a subquery so aliases are searchable
+        $unionQuery = $purchasedPosts->union($currentPlan);
+
+        // Wrap union as subquery and return a Query Builder
+        $outerQuery = DB::table(DB::raw("({$unionQuery->toSql()}) as combined_data"))
+            ->mergeBindings($unionQuery)
+            ->select('*')
+            ->where('follower_id', $follower->id);
+
+        return $outerQuery;
     }
 
     public function html()
@@ -127,7 +148,7 @@ class FollowerPurchasesDataTable extends DataTable
                 tableContainer.find(".dataTable-title").html(
                     $("<div>").addClass("flex justify-start items-center").append(
                         $("<div>").addClass("custom-table-header"),
-                        $("<span>").addClass("font-medium text-2xl pl-4").text("My Purchases & Subscriptions")
+                        $("<span>").addClass("font-medium text-2xl pl-4").text("My Posts & Subscriptions")
                     )
                 );
             }')
@@ -199,11 +220,10 @@ class FollowerPurchasesDataTable extends DataTable
     {
         return [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('type')->title(__('Type')),
-            Column::make('plan_name')->title(__('Plan Name')),
-            Column::make('post_name')->title(__('Post Name')),
-            Column::make('purchase_date')->title(__('Purchase Date')),
-            Column::make('amount')->title(__('Amount')),
+            Column::make('title')->title(__('title'))->data('title')->searchable(true)->orderable(true),
+            Column::make('type')->title(__('Type'))->data('type')->searchable(true)->orderable(true),
+            Column::make('purchase_date')->title(__('Purchase Date'))->data('purchase_date')->searchable(true)->orderable(true),
+            Column::make('amount')->title(__('Amount'))->data('amount')->searchable(true)->orderable(true),
         ];
     }
 
