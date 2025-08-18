@@ -406,11 +406,23 @@ class FollowerController extends Controller
         return false;
     }
 
+    /**
+     * Return AJAX response for the follower purchases DataTable.
+     *
+     * @param \App\DataTables\Admin\FollowerPurchasesDataTable $dataTable
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
     public function followerPurchasesData(\App\DataTables\Admin\FollowerPurchasesDataTable $dataTable)
     {
         return $dataTable->ajax();
     }
 
+    /**
+     * Render the purchases view for the authenticated follower using the DataTable.
+     *
+     * @param \App\DataTables\Admin\FollowerPurchasesDataTable $dataTable
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function purchases(\App\DataTables\Admin\FollowerPurchasesDataTable $dataTable)
     {
         return $dataTable->render('admin.followers.purchases');
