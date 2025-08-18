@@ -164,6 +164,8 @@ Route::middleware([
         Route::post('follower-chat/{id}', [FollowerController::class, 'userChatStatus'])->name('follower.chatstatus');
         Route::post('/import_followers', [FollowerController::class, 'importfun'])->name('follower.import_followers');
         Route::get('follower/{id}', [FollowerController::class, 'show'])->name('follower.show');
+        Route::get('follower-purchases/data', [FollowerController::class, 'followerPurchasesData'])->name('follower-purchases.data');
+        Route::get('follower/purchases', [FollowerController::class, 'purchases'])->name('follower.purchases');
 
         Route::resource('lesson', LessonController::class);
         Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
