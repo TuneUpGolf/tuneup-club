@@ -1,8 +1,8 @@
 @extends('layouts.main')
-@section('title', __('Purchases'))
+@section('title', __('My Purchases & Subscriptions'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Purchases') }}</li>
+    <li class="breadcrumb-item">{{ __('My Purchases') }}</li>
 @endsection
 @section('content')
     <div class="row">
@@ -16,19 +16,6 @@
             </div>
         </div>
     </div>
-    @if(Auth::user()->type == 'Follower')
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-body table-border-style">
-                        <div class="table-responsive">
-                            {!! $followerPurchasesDataTable->table(['width' => '100%']) !!}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 @endsection
 @push('css')
     @include('layouts.includes.datatable_css')
@@ -36,5 +23,4 @@
 @push('javascript')
     @include('layouts.includes.datatable_js')
     {{ $dataTable->scripts() }}
-    {!! $followerPurchasesDataTable->scripts() !!}
 @endpush

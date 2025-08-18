@@ -7,6 +7,7 @@ use App\DataTables\Admin\PurchaseDataTable;
 use App\DataTables\Admin\PurchaseLessonDataTable;
 use App\DataTables\Admin\PurchaseLessonVideoDataTable;
 use App\DataTables\Admin\UpcomingLessonDataTable;
+use App\DataTables\Admin\FollowerPurchasesDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PurchaseAPIResource;
 use App\Http\Resources\PurchaseVideoAPIResource;
@@ -37,6 +38,14 @@ use Illuminate\Validation\ValidationException;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 
+/**
+ * Controller for managing lesson purchases and related flows (checkout, feedback, videos).
+ *
+ * Includes endpoints to create/confirm purchases, upload videos, manage feedback,
+ * and render listings for admins, influencers, and followers.
+ *
+ * @package App\Http\Controllers\Admin
+ */
 class PurchaseController extends Controller
 {
     use PurchaseTrait;
@@ -49,11 +58,18 @@ class PurchaseController extends Controller
         $this->chatService = $chatService;
     }
 
-    public function index(PurchaseDataTable $dataTable, UpcomingLessonDataTable $upcomingLessonDataTable)
+    /**
+     * Display the purchases index page with follower purchases datatable.
+     *
+     * @param PurchaseDataTable $dataTable
+     * @param FollowerPurchasesDataTable $followerPurchasesDataTable
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function index(PurchaseDataTable $dataTable, FollowerPurchasesDataTable $followerPurchasesDataTable)
     {
         if (Auth::user()->can('manage-purchases')) {
             return $dataTable->render('admin.purchases.index', [
-                'upcomingLessonBuilder' => $upcomingLessonDataTable->html(),
+                'followerPurchasesDataTable' => $followerPurchasesDataTable->html(),
             ]);
         }
     }

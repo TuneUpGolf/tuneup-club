@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\DataTables\Admin\SubscriptionsDataTable;
@@ -15,6 +16,14 @@ use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
+/**
+ * Controller handling follow and subscription interactions between followers and influencers.
+ *
+ * Provides APIs and web actions for following/unfollowing, subscriptions,
+ * and retrieving follower/influencer relations.
+ *
+ * @package App\Http\Controllers\Admin
+ */
 class FollowController extends Controller
 {
     public function followInfluencerApi(Request $request)
@@ -250,6 +259,11 @@ class FollowController extends Controller
         }
     }
 
+    /**
+     * Get the list of influencers that the authenticated follower is subscribed to.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Http\Response
+     */
     public function getSubscribedInfluencer()
     {
         try {
@@ -260,6 +274,11 @@ class FollowController extends Controller
         }
     }
 
+    /**
+     * Get paginated list of followers for the authenticated influencer.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getFollowers()
     {
         try {
