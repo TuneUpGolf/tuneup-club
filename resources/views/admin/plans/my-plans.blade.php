@@ -25,7 +25,7 @@
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="buyersModalLabel">Plan Buyers</h5>
+        <h5 class="modal-title" id="buyersModalLabel">Followers</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -85,14 +85,14 @@
                                 '</tr>';
                         });
                     } else {
-                        rows = '<tr><td colspan="4" class="text-center">No buyers found</td></tr>';
+                        rows = '<tr><td colspan="4" class="text-center">No follower found</td></tr>';
                     }
                     tbody.innerHTML = rows;
                     var modal = new bootstrap.Modal(document.getElementById('buyersModal'));
                     modal.show();
                   })
                   .catch(function(){
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load buyers</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Failed to load follower</td></tr>';
                     var modal = new bootstrap.Modal(document.getElementById('buyersModal'));
                     modal.show();
                   });
