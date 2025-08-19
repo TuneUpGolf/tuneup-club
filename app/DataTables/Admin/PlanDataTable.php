@@ -17,7 +17,8 @@ class PlanDataTable extends DataTable
             ->addIndexColumn()
             ->editColumn('name', function (Plan $plan) {
                 $url = route('plans.buyers', $plan->id);
-                return '<a href="#" class="js-plan-buyers" data-plan-id="' . $plan->id . '" data-url="' . $url . '">' . e($plan->name) . '</a>';
+                return auth()->user()->type == 'Admin' ? $plan->name :
+                    '<a href="#" class="js-plan-buyers" data-plan-id="' . $plan->id . '" data-url="' . $url . '">' . e($plan->name) . '</a>';
             })
             ->editColumn('created_at', function ($request) {
                 return UtilityFacades::date_time_format($request->created_at);
@@ -49,6 +50,9 @@ class PlanDataTable extends DataTable
 
     public function query(Plan $model)
     {
+        if (auth()->user()->type == 'Admin') {
+            return $model->newQuery()->where('tenant_id', null);
+        }
         $query = $model->newQuery()->withCount([
             'orders as buyers_count' => function ($q) {
                 $q->join('followers', 'orders.follower_id', '=', 'followers.id')
@@ -58,9 +62,7 @@ class PlanDataTable extends DataTable
                     ->select(DB::raw('COUNT(DISTINCT orders.follower_id)'));
             },
         ]);
-        if (auth()->user()->type == 'Admin') {
-            return $query->where('tenant_id', null);
-        }
+
         return $query->where('influencer_id', auth()->user()->id);
     }
 
@@ -172,7 +174,9 @@ class PlanDataTable extends DataTable
             Column::make('name')->title(__('Name')),
             Column::make('price')->title(__('Price')),
             Column::make('duration')->title(__('Duration')),
-            Column::computed('purchases_count')->title(__('# of Purchases'))->exportable(true)->printable(true),
+            auth()->user()->type == 'Admin'
+                ? Column::make('max_users')->title(__('Max Users'))
+                : Column::computed('purchases_count')->title(__('# of Purchases'))->exportable(true)->printable(true),
             Column::make('created_at')->title(__('Created At')),
             Column::make('active_status')->title(__('Status')),
             Column::computed('action')->title(__('Action'))
