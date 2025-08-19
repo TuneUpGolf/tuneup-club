@@ -4,6 +4,7 @@ namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
 use App\Models\Plan;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
@@ -14,6 +15,11 @@ class PlanDataTable extends DataTable
         return datatables()
             ->eloquent($query)
             ->addIndexColumn()
+            ->editColumn('name', function (Plan $plan) {
+                $url = route('plans.buyers', $plan->id);
+                return auth()->user()->type == 'Admin' ? $plan->name :
+                    '<a href="#" class="js-plan-buyers" data-plan-id="' . $plan->id . '" data-url="' . $url . '">' . e($plan->name) . '</a>';
+            })
             ->editColumn('created_at', function ($request) {
                 return UtilityFacades::date_time_format($request->created_at);
             })
@@ -36,16 +42,28 @@ class PlanDataTable extends DataTable
             ->editColumn('price', function (plan $plan) {
                 return UtilityFacades::amount_format($plan->price);
             })
-            ->rawColumns(['action', 'active_status']);
+            ->addColumn('purchases_count', function (Plan $plan) {
+                return $plan->buyers_count ?? 0;
+            })
+            ->rawColumns(['action', 'active_status', 'name']);
     }
 
     public function query(Plan $model)
     {
-        if(auth()->user()->type == 'Admin') {
+        if (auth()->user()->type == 'Admin') {
             return $model->newQuery()->where('tenant_id', null);
-        } else {
-            return $model->newQuery()->where('influencer_id', auth()->user()->id);
         }
+        $query = $model->newQuery()->withCount([
+            'orders as buyers_count' => function ($q) {
+                $q->join('followers', 'orders.follower_id', '=', 'followers.id')
+                    ->whereNotNull('followers.plan_expired_date')
+                    ->whereDate('followers.plan_expired_date', '>=', now()->toDateString())
+                    ->whereColumn('followers.plan_id', 'orders.plan_id')
+                    ->select(DB::raw('COUNT(DISTINCT orders.follower_id)'));
+            },
+        ]);
+
+        return $query->where('influencer_id', auth()->user()->id);
     }
 
     public function html()
@@ -62,7 +80,8 @@ class PlanDataTable extends DataTable
                     "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
                 'lengthMenu' => __('_MENU_ entries per page'),
-                "searchPlaceholder" => __('Search...'), "search" => ""
+                "searchPlaceholder" => __('Search...'),
+                "search" => ""
             ])
             ->initComplete('function() {
                 var table = this;
@@ -82,7 +101,10 @@ class PlanDataTable extends DataTable
                         window.location = '" . route('plans.createmyplan') . "';
                    }"],
                     [
-                        'extend' => 'collection', 'className' => 'btn btn-light-secondary me-1 dropdown-toggle', 'text' => '<i class="ti ti-download"></i> Export', "buttons" => [
+                        'extend' => 'collection',
+                        'className' => 'btn btn-light-secondary me-1 dropdown-toggle',
+                        'text' => '<i class="ti ti-download"></i> Export',
+                        "buttons" => [
                             ["extend" => "print", "text" => '<i class="fas fa-print"></i> Print', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "csv", "text" => '<i class="fas fa-file-csv"></i> CSV', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
                             ["extend" => "excel", "text" => '<i class="fas fa-file-excel"></i> Excel', "className" => "btn btn-light text-primary dropdown-item", "exportOptions" => ["columns" => [0, 1, 3]]],
@@ -94,7 +116,7 @@ class PlanDataTable extends DataTable
                 ],
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -152,7 +174,9 @@ class PlanDataTable extends DataTable
             Column::make('name')->title(__('Name')),
             Column::make('price')->title(__('Price')),
             Column::make('duration')->title(__('Duration')),
-            Column::make('max_users')->title(__('Max Users')),
+            auth()->user()->type == 'Admin'
+                ? Column::make('max_users')->title(__('Max Users'))
+                : Column::computed('purchases_count')->title(__('# of Purchases'))->exportable(true)->printable(true),
             Column::make('created_at')->title(__('Created At')),
             Column::make('active_status')->title(__('Status')),
             Column::computed('action')->title(__('Action'))

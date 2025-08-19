@@ -71,7 +71,7 @@ class PlanController extends Controller
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
             if (! $paymentTypes) {
-                return redirect()->back()->with('errors', __('Please select at least one payment type from Settings > Payment Settings.')) ->withInput();
+                return redirect()->back()->with('errors', __('Please select at least one payment type from Settings > Payment Settings.'))->withInput();
             }
             $influencerId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
             $tenantId     = Auth::user()->type === Role::ROLE_INFLUENCER ? tenant()->id : null;
@@ -149,7 +149,7 @@ class PlanController extends Controller
                 $plan->is_feed_enabled = $request->input('feed') ? true : false;
                 $plan->save();
             }
-                return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));
+            return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -210,5 +210,45 @@ class PlanController extends Controller
         } else {
             return redirect()->back()->with('errors', __('Plan deleted successfully.'));
         }
+    }
+
+    /**
+     * Return buyers for a given plan (followers who currently have or had the plan).
+     *
+     * @param int $planId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function buyers($planId)
+    {
+        $this->authorize('manage-plan');
+
+        $plan = Plan::with(['orders' => function ($q) use ($planId) {
+            $q->with(['orderFollower:id,name,email,plan_expired_date'])
+                ->whereHas('orderFollower', function ($qq) use ($planId) {
+                    $qq->whereNotNull('plan_expired_date')
+                        ->whereDate('plan_expired_date', '>=', now()->toDateString())
+                        ->where('plan_id', $planId);
+                });
+        }])->findOrFail($planId);
+
+        $buyers = $plan->orders
+            ->map(function ($order) {
+                $f = $order->orderFollower;
+                if (!$f) {
+                    return null;
+                }
+                return [
+                    'id' => $f->id,
+                    'name' => $f->name,
+                    'email' => $f->email,
+                    'plan_expired_date' => date('Y-m-d', strtotime($f->plan_expired_date)),
+                ];
+            })
+            ->filter()
+            ->unique('id')
+            ->sortBy('name')
+            ->values();
+
+        return response()->json(['data' => $buyers]);
     }
 }
