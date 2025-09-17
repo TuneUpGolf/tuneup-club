@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Superadmin;
 
 use App\Actions\SendEmail;
@@ -89,15 +90,15 @@ class UserController extends Controller
                     ? $request->domains . '.' . parse_url(config('services.env.app_url'), PHP_URL_HOST)
                     : $request->domains;
 
-                if ($request->hasFile('logo')) {
-                    $fileName = $request->file('logo');
-                    $filePath = $request->domains . '/' . Auth::user()->id . '/posts' . $fileName;
-                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
-                    $imageUrl      = Storage::disk('spaces')->url($filePath);
-                    $user->logo      = $imageUrl;
-                    $user->avatar      = $imageUrl;
-                    $user->save();
-                }
+                // if ($request->hasFile('logo')) {
+                //     $fileName = $request->file('logo');
+                //     $filePath = $request->domains . '/' . Auth::user()->id . '/posts' . $fileName;
+                //     Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                //     $imageUrl      = Storage::disk('spaces')->url($filePath);
+                //     $user->logo      = $imageUrl;
+                //     $user->avatar      = $imageUrl;
+                //     $user->save();
+                // }
 
                 if (UtilityFacades::getsettings('database_permission') == '1') {
                     $tenant     = Tenant::create([

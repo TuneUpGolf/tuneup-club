@@ -66,21 +66,21 @@
                                     {{ Form::password('confirm-password', ['class' => 'form-control', ' required', 'placeholder' => __('Enter confirm password')]) }}
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('logo', _('Logo'), ['class' => 'form-label']) }}
+                                    {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
                                     {{ Form::file('logo', ['class' => 'form-control', 'required', 'accept' => 'image/jpeg, image/png']) }}
                                 </div>
                             </div>
                             <div class="alert alert-info" style="display:none;">
                                 <ul>
                                     <li>{{ __('If you want to run your website in localhost then it is necessary to be a vhost,
-                                                                        because of
-                                                                        tenancy-based software it is necessary to create a vhost.') }}
+                                                                                                            because of
+                                                                                                            tenancy-based software it is necessary to create a vhost.') }}
                                     </li>
                                     <li class="text-danger">
                                         {{ __('If you give incorrect website host,then 404 error will be
-                                                                            shown throughout the
-                                                                            whole
-                                                                            website') }}
+                                                                                                                    shown throughout the
+                                                                                                                    whole
+                                                                                                                    website') }}
                                     </li>
                                     <li> {{ __('if your website URL is') }} <span
                                             class="text-danger">{{ __('https://example.com/') }}</span>
@@ -90,8 +90,8 @@
                                     <li> {{ __('if your website URL is') }} <span
                                             class="text-danger">{{ __('https://subdomain.example.com/') }}</span>
                                         {{ __(',then host
-                                                                                will
-                                                                                be') }}
+                                                                                                                        will
+                                                                                                                        be') }}
                                         <span class="text-danger">{{ __('subdomain.example.com') }}</span>
                                     </li>
                                 </ul>

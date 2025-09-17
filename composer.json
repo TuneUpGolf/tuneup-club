@@ -14,6 +14,7 @@
     "barryvdh/laravel-snappy": "^1.0",
     "coingate/coingate-php": "v3.0",
     "ctwillie/expo-server-sdk-php": "^2.1",
+    "doctrine/dbal": "3.3",
     "fruitcake/laravel-cors": "^3.0",
     "gdbhosale/paywitheasebuzz-php": "^1.0",
     "guzzlehttp/guzzle": "^7.5",

@@ -64,7 +64,7 @@
                                 ]) !!}
                             </div>
                             <div class="form-group">
-                                {{ Form::label('file', _('Profile Picture'), ['class' => 'form-label']) }}
+                                {{ Form::label('file', __('Profile Picture'), ['class' => 'form-label']) }}
                                 {{ Form::file('file', ['class' => 'form-control', 'required', 'accept' => 'image/jpeg, image/png']) }}
                             </div>
                         </div>

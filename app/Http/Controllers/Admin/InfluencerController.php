@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
@@ -51,7 +52,7 @@ class InfluencerController extends Controller
     public function index(InfluencerDataTable $dataTable)
     {
         if (Auth::user()->can('manage-influencers')) {
-            $influencerCount = User::where('type', Role::ROLE_INFLUENCER)->count() ;
+            $influencerCount = User::where('type', Role::ROLE_INFLUENCER)->count();
             return $dataTable->with('showCreateButton', $influencerCount === 0)->render('admin.influencers.index');
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -134,7 +135,7 @@ class InfluencerController extends Controller
                     $currentDomain = $currentDomain[0]->domain;
                     $fileName = $request->file('file');
                     $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
-                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                    // Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
                     $imageUrl      = Storage::disk('spaces')->url($filePath);
                     $user['logo']      = $imageUrl;
                     $user['avatar']      = $imageUrl;
@@ -143,7 +144,7 @@ class InfluencerController extends Controller
                 $chatUserDetails = $this->chatService->getUserProfile($request->email);
 
                 if ($chatUserDetails['status'] == 'success') {
-                    $this->chatService->updateUser($chatUserDetails-['data']['_id'], 'tenant_id', tenant('id'), $chatUserDetails['data']['email']);
+                    $this->chatService->updateUser($chatUserDetails - ['data']['_id'], 'tenant_id', tenant('id'), $chatUserDetails['data']['email']);
                     $user->update([
                         'chat_user_id' => $chatUserDetails['data']['_id'],
                     ]);
@@ -270,7 +271,6 @@ class InfluencerController extends Controller
             } else {
                 throw new Exception('influencer not found', 404);
             }
-
         } catch (\Exception $e) {
             return throw new Exception($e->getMessage());
         }

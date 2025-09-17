@@ -39,10 +39,14 @@ class LandingController extends Controller
             $lang                           = UtilityFacades::getActiveLanguage();
             \App::setLocale($lang);
             $influencerDetails = User::where('type', Role::ROLE_INFLUENCER)
-                    ->with(['lessons', 'post', 'post.likePost'])
-                    ->first();
-            $plans = Plan::where('influencer_id', $influencerDetails->id)
+                ->with(['lessons', 'post', 'post.likePost'])
+                ->first();
+
+            $plans = null;
+            if (!empty($influencerDetails)) {
+                $plans = Plan::where('influencer_id', $influencerDetails->id)
                     ->where('active_status', 1)->get();
+            }
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 return view('welcome', compact(
                     'lang',
@@ -130,6 +134,6 @@ class LandingController extends Controller
             $lang   = UtilityFacades::getActiveLanguage();
         }
         Cookie::queue('lang', $lang, 120);
-        return redirect()->back()->with('success',__('Language successfully changed.'));
+        return redirect()->back()->with('success', __('Language successfully changed.'));
     }
 }
