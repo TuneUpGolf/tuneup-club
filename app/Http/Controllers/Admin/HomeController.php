@@ -50,6 +50,7 @@ class HomeController extends Controller
     {
         $user     = Auth::user();
         $userType = $user->type;
+
         $tenantId = tenant('id');
 
         // Common Queries

@@ -25,15 +25,15 @@
                             'enctype' => 'multipart/form-data',
                         ]) !!}
                         <div class="form-group">
-                            {{ Form::label('video', _('Purchase Video'), ['class' => 'form-label']) }}
+                            {{ Form::label('video', __('Purchase Video'), ['class' => 'form-label']) }}
                             {{ Form::file('video', ['class' => 'form-control', 'required']) }}
                         </div>
                         <div class="form-group">
-                            {{ Form::label('video_2', _('Purchase Video 2 (Optional)'), ['class' => 'form-label']) }}
+                            {{ Form::label('video_2', __('Purchase Video 2 (Optional)'), ['class' => 'form-label']) }}
                             {{ Form::file('video_2', ['class' => 'form-control']) }}
                         </div>
                         <div class="form-group">
-                            {{ Form::label('Note', _('Note'), ['class' => 'form-label']) }}
+                            {{ Form::label('Note', __('Note'), ['class' => 'form-label']) }}
                             {!! Form::textarea('note', null, [
                                 'class' => 'form-control',
                                 'placeholder' => __('Enter Note'),
