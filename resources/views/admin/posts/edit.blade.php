@@ -59,14 +59,34 @@
                                         {{ Form::number('price', null, ['class' => 'form-control', 'placeholder' => __('Enter Price'), 'step' => '0.01']) }}
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
-                                    {!! Form::textarea('description', null, [
-                                        'class' => 'form-control ',
-                                        'placeholder' => __('Enter description'),
-                                        'required' => 'required',
-                                    ]) !!}
+
+                            </div>
+                            <div class="form-group mb-3">
+                                {{ Form::label('short_description', __('Short Description'), ['class' => 'form-label']) }}
+                                *
+                                {!! Form::textarea('short_description', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter short description'),
+                                    'required',
+                                    'rows' => 3,
+                                ]) !!}
+                                <small class="text-muted">
+                                    Characters: <span id="short-desc-count">0</span> / 300
+                                </small>
+                                <div id="short-desc-warning" class="text-danger" style="display: none;">
+                                    {{ __('Maximum 300 characters allowed.') }}
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
+                                {!! Form::textarea('description', null, [
+                                    'class' => 'form-control ',
+                                    'placeholder' => __('Enter description'),
+                                    'required' => 'required',
+                                ]) !!}
+                                <small class="text-muted">
+                                    Characters: <span id="long-desc-count">0</span>
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -86,13 +106,79 @@
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script type="text/javascript">
+        const MAX_SHORT = 300;
         CKEDITOR.replace('short_description', {
+            toolbar: [{
+                    name: 'basicstyles',
+                    items: ['Bold', 'Italic']
+                },
+                {
+                    name: 'paragraph',
+                    items: ['BulletedList']
+                }
+            ],
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
         });
         CKEDITOR.replace('description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
-            filebrowserUploadMethod: 'form'
+            filebrowserUploadMethod: 'form',
+            removeButtons: 'Link,Unlink'
+        });
+        document.addEventListener("DOMContentLoaded", function() {
+            const shortCount = document.getElementById("short-desc-count");
+            const longCount = document.getElementById("long-desc-count");
+            const shortWarning = document.getElementById("short-desc-warning");
+            const form = document.querySelector("form");
+
+            function getPlainText(editor) {
+                return editor.getData().replace(/<[^>]*>/g, '').trim();
+            }
+
+            function updateShortCount(evt) {
+                const editor = evt.editor;
+                const text = getPlainText(editor);
+                const length = text.length;
+
+                shortCount.textContent = length;
+
+                if (length >= MAX_SHORT) {
+                    editor.container.addClass('is-invalid');
+                    shortWarning.style.display = 'block';
+                } else {
+                    editor.container.removeClass('is-invalid');
+                    shortWarning.style.display = 'none';
+                }
+            }
+
+            function updateLongCount(evt) {
+                const editor = evt.editor;
+                const text = getPlainText(editor);
+                longCount.textContent = text.length;
+            }
+
+            // ✅ Live word count + prevent typing after limit
+            CKEDITOR.instances.short_description.on('key', function(evt) {
+                const text = getPlainText(evt.editor);
+                if (text.length >= MAX_SHORT && evt.data.keyCode != 8 && evt.data.keyCode != 46) {
+                    // allow backspace(8) and delete(46)
+                    evt.cancel(); // stop the keystroke
+
+                }
+            });
+
+            // ✅ Update counts on change
+            CKEDITOR.instances.short_description.on('change', updateShortCount);
+            CKEDITOR.instances.description.on('change', updateLongCount);
+
+            // ✅ Form validation
+            form.addEventListener("submit", function(e) {
+                const shortText = getPlainText(CKEDITOR.instances.short_description);
+                if (shortText.length > MAX_SHORT) {
+                    e.preventDefault();
+
+                }
+            });
         });
 
         document.addEventListener('DOMContentLoaded', function() {

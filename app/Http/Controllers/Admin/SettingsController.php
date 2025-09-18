@@ -68,6 +68,7 @@ class SettingsController extends Controller
 
     public function authSettingsUpdate(Request $request)
     {
+
         $user = \Auth::user();
         if ($request->database_permission == 'on') {
             try {
@@ -96,6 +97,10 @@ class SettingsController extends Controller
             'landing_page_status'   => ($request->landing_page_status == 'on') ? '1' : '0',
             'enable_email_notification' => ($request->enable_email_notifiaction == 'on') ? 'on' : 'off',
             'enable_sms_notification' => ($request->enable_email_notifiaction == 'on') ? 'on' : 'off',
+            'subscription_plans'    => $request->subscription_plans,
+            'name'                  => $request->name,
+            'feed'                  => $request->feed,
+
 
         ];
         foreach ($data as $key => $value) {

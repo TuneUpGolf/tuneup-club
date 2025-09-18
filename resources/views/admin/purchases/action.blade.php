@@ -12,11 +12,7 @@
         {!! Form::close() !!}
     @endcan
 @endif
-{{-- @if (
-    $purchase->status == 'complete' &&
-        $purchase->lesson->lesson_quantity !== $purchase->lessons_used &&
-        Auth::user()->type == 'Follower' &&
-        $purchase->lesson->type === 'online')
+{{-- @if ($purchase->status == 'complete' && $purchase->lesson->lesson_quantity !== $purchase->lessons_used && Auth::user()->type == 'Follower' && $purchase->lesson->type === 'online')
     @can('manage-purchases')
         <a class="btn btn-sm small btn btn-warning "
             href="{{ route('purchase.lesson', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
@@ -26,28 +22,28 @@
     @endcan
 @endif --}}
 
-@if (auth()->user()->type == 'Influencer' && $purchaseVideo = $purchase->videos->first())
+@if (auth()->user()->type == 'Influencer' && ($purchaseVideo = $purchase->videos->first()))
     <a class="btn btn-sm small btn btn-warning "
-        href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}" data-bs-toggle="tooltip"
-        data-bs-placement="bottom" data-bs-original-title="{{ __('Add Feedback') }}">
+        href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
+        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Add Feedback') }}">
         <i class="ti ti-plus text-white"></i>
     </a>
 @endif
 
 @if ($purchase->status == 'complete' && $purchase->lesson->type === 'online' && auth()->user()->type == 'Follower')
-<a class="btn btn-sm small btn btn-warning "
-    href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-    data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
-    <i class="ti ti-eye text-white"></i>
-</a>
+    <a class="btn btn-sm small btn btn-warning "
+        href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+        data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
+        <i class="ti ti-eye text-white"></i>
+    </a>
 @endif
 
-@if (($purchaseVideo->feedback??false) && auth()->user()->type == 'Influencer')
-<a class="btn btn-sm small btn btn-warning "
-    href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
-    data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
-    <i class="ti ti-eye text-white"></i>
-</a>
+@if (($purchaseVideo->feedback ?? false) && auth()->user()->type == 'Influencer')
+    <a class="btn btn-sm small btn btn-warning "
+        href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
+        data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
+        <i class="ti ti-eye text-white"></i>
+    </a>
 @endif
 
 @can('delete-purchases')
@@ -63,4 +59,3 @@
     </a>
     {!! Form::close() !!}
 @endcan
-

@@ -82,6 +82,9 @@ class SettingsController extends Controller
             'color'                 => ($request->color) ? $request->color : UtilityFacades::getsettings('color'),
             'database_permission'   => ($request->database_permission == 'on') ? '1' : '0',
             'landing_page_status'   => ($request->landing_page_status == 'on') ? '1' : '0',
+            'subscription_plans'    => $request->subscription_plans,
+            'name'                  => $request->name,
+            'feed'                  => $request->feed,
         ];
         foreach ($data as $key => $value) {
             UtilityFacades::storesettings([

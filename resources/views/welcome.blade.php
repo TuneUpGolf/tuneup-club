@@ -25,10 +25,21 @@
     </header>
 
     <section class="landing-hero">
+
         <div class="hero-sec">
             <img class="w-full"
                 src="{{ $influencerDetails?->banner_image ?? asset('assets/images/landing-page-images/banner1.png') }}"
                 alt="hero-banner">
+        </div>
+    </section>
+    <section class="lession-sec">
+        @php
+            $name = DB::table('settings')->where('key', 'name')->first();
+
+        @endphp
+        <div class="container ctm-container py-2">
+            <h2 class="font-bold text-4xl mb-2">{{ !empty($name) ? $name->value : $admin->name }}</h2>
+            <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
         </div>
     </section>
     <section class="container">
@@ -129,7 +140,11 @@
 
     <section class="lession-sec subscription-sec">
         <div class="container ctm-container">
-            <h2 class="font-bold text-4xl mb-2">Subscription Plans</h2>
+            @php
+                $subscription = DB::table('settings')->where('key', 'subscription_plans')->first();
+
+            @endphp
+            <h2 class="font-bold text-4xl mb-2"> {{ $subscription->value }}</h2>
             <p class="text-xl text-gray-600">
                 Subscription plans give you full access to your coach's posts, training content, and the ability to connect
                 directly.
@@ -178,7 +193,11 @@
 
     <section class="lession-sec feed-sec">
         <div class="container ctm-container">
-            <h2 class="font-bold text-4xl mb-2">Feed</h2>
+            @php
+                $feed = DB::table('settings')->where('key', 'feed')->first();
+
+            @endphp
+            <h2 class="font-bold text-4xl mb-2">{{ $feed->value }}</h2>
 
             <div class="flex flex-wrap gap-5 w-100">
                 @if (@$influencerDetails)
@@ -194,8 +213,8 @@
                                     <div class="{{ $cls }}">
                                         <div class="flex justify-between items-center w-full">
                                             <div class="flex items-center gap-3">
-                                                <img class="w-16 h-16 rounded-full" src="{{ $influencerDetails?->avatar }}"
-                                                    alt="Profile">
+                                                <img class="w-16 h-16 rounded-full"
+                                                    src="{{ $influencerDetails?->avatar }}" alt="Profile">
                                                 <div>
                                                     <p class="text-xl text-white font-bold mb-0 leading-tight">
                                                         {{ $influencerDetails?->name }}

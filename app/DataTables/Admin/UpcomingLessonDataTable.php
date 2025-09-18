@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin;
 
 use App\Facades\UtilityFacades;
@@ -26,12 +27,12 @@ class UpcomingLessonDataTable extends DataTable
             ->editColumn('created_by', function (Lesson $lesson) {
                 $imageSrc = $lesson?->user?->dp ? asset('/storage' . '/' . tenant('id') . '/' . $lesson?->user?->dp) : asset('assets/img/logo/logo.png');
                 $html     =
-                '
+                    '
                 <div class="flex justify-start items-center">'
-                .
-                "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                .
-                "<span class='px-0'>" . $lesson->user->name . " </span>" .
+                    .
+                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
+                    .
+                    "<span class='px-0'>" . $lesson->user->name . " </span>" .
                     '</div>';
                 return $html;
             })
@@ -114,7 +115,7 @@ class UpcomingLessonDataTable extends DataTable
                 'buttons'        => [],
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -165,8 +166,7 @@ class UpcomingLessonDataTable extends DataTable
                         return new bootstrap.Toast(toastEl);
                       });
                 }',
-            ])->language([
-        ]);
+            ])->language([]);
     }
 
     protected function getColumns()
