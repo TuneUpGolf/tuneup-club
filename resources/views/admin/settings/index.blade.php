@@ -583,6 +583,33 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
+                                            {!! Form::text('name', Utility::getsettings('name'), [
+                                                'class' => 'form-control',
+                                                'placeholder' => __('Enter Name'),
+                                            ]) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ Form::label('subscription_plans', __('Subscription Plans'), ['class' => 'form-label']) }}
+                                            {!! Form::text('subscription_plans', Utility::getsettings('subscription_plans'), [
+                                                'class' => 'form-control',
+                                                'placeholder' => __('Enter Subscription Plans'),
+                                            ]) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ Form::label('feed', __('Feed'), ['class' => 'form-label']) }}
+                                            {!! Form::text('feed', Utility::getsettings('feed'), [
+                                                'class' => 'form-control',
+                                                'placeholder' => __('Enter Feed'),
+                                            ]) !!}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-footer">

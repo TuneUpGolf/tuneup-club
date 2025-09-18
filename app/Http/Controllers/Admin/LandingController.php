@@ -47,11 +47,14 @@ class LandingController extends Controller
                 $plans = Plan::where('influencer_id', $influencerDetails->id)
                     ->where('active_status', 1)->get();
             }
+            $admin = User::where('type', Role::ROLE_ADMIN)
+                ->first();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
                 return view('welcome', compact(
                     'lang',
                     'influencerDetails',
-                    'plans'
+                    'plans',
+                    'admin'
                 ));
             } else {
                 return redirect()->route('home');

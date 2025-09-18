@@ -157,7 +157,8 @@
         CKEDITOR.replace('lesson_description', {
             allowedContent: true,
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
-            filebrowserUploadMethod: 'form'
+            filebrowserUploadMethod: 'form',
+            removeButtons: 'Link,Unlink'
         });
 
         CKEDITOR.replace('short_description', {

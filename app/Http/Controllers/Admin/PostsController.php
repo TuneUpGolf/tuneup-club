@@ -90,11 +90,12 @@ class PostsController extends Controller
 
     public function store(Request $request)
     {
+
         if (Auth::user()->can('create-blog')) {
             try {
                 request()->validate([
                     'title'       => 'required|string',
-                    'description' => 'required|string',
+                    'short_description' => 'required|string',
                     'price'       => ['nullable', 'numeric', 'gt:0.5'],
                 ]);
 
@@ -164,7 +165,7 @@ class PostsController extends Controller
             $post->paid        = $request?->paid == 1 ? true : false;
             $post->price       = $request?->paid == 1 ? $request?->price : 0;
             $post->description = $request->description;
-            // $post->short_description    = $request->short_description;
+            $post->short_description    = $request->short_description;
 
             $post->save();
             return redirect()->route('blogs.manage')->with('success', __('Posts updated successfully'));
