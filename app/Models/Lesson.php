@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,7 @@ class Lesson extends Model
         'lesson_duration',
         'max_followers',
         'is_package_lesson',
+        'short_description',
     ];
 
     protected $casts = [

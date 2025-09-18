@@ -72,7 +72,7 @@ class LessonController extends Controller
         if ($request->type === Lesson::LESSON_PAYMENT_ONLINE) {
             $validatedData = $request->validate([
                 'lesson_name'        => 'required|string|max:255',
-                'lesson_description' => 'required|string',
+                'short_description' => 'required|string',
                 'lesson_price'       => 'required|numeric',
                 'lesson_quantity'    => 'required|integer',
                 'required_time'      => 'required|integer',
@@ -81,6 +81,7 @@ class LessonController extends Controller
 
         // Assuming 'created_by' is the ID of the currently authenticated influencer
         $validatedData['lesson_description'] = $_POST['lesson_description'];
+        $validatedData['short_description'] = $_POST['short_description'];
         $validatedData['created_by']     = Auth::user()->id;
         $validatedData['type']           = $request->type;
         $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
@@ -107,7 +108,7 @@ class LessonController extends Controller
 
         $validatedData = $request->validate([
             'lesson_name'        => 'required|string|max:255',
-            'lesson_description' => 'required|string',
+            'short_description' => 'required|string',
             'lesson_price'       => 'required|numeric',
             'lesson_quantity'    => 'integer',
             'required_time'      => 'integer',
@@ -119,7 +120,7 @@ class LessonController extends Controller
         // Assuming 'created_by' is the ID of the currently authenticated influencer
         $validatedData['created_by'] = Auth::user()->id;
         $validatedData['lesson_description'] = $_POST['lesson_description'];
-
+        $validatedData['short_description'] = $_POST['short_description'];
         $lesson->update($validatedData);
 
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson updated successfully.');
@@ -129,6 +130,7 @@ class LessonController extends Controller
     {
         if (Auth::user()->can('edit-lessons')) {
             $user = Lesson::find($id);
+
             if (Auth::user()->type == 'Admin') {
                 $roles   = Role::where('name', '!=', 'Super Admin')->where('name', '!=', 'Admin')->pluck('name', 'name');
                 $domains = Domain::pluck('domain', 'domain')->all();

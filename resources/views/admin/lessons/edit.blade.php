@@ -16,11 +16,10 @@
                     <div class="card-body">
                         {!! Form::model($user, [
                             'route' => ['lesson.update', $user->id],
-                            'method' => 'Put',
+                            'method' => 'PUT',
                             'data-validate',
                         ]) !!}
 
-                        <!-- Package Lesson Checkbox (Disabled if it's a package lesson) -->
                         @if ($user->is_package_lesson)
                             <div class="form-group">
                                 <div class="form-check">
@@ -34,10 +33,11 @@
                             </div>
                         @endif
 
-                        <div class="form-group ">
+                        <div class="form-group">
                             {{ Form::label('name', __('Name'), ['class' => 'form-label']) }}
                             {!! Form::text('lesson_name', null, ['class' => 'form-control', 'required', 'placeholder' => __('Enter name')]) !!}
                         </div>
+
                         <div class="form-group">
                             {{ Form::label('price', __('Price ($)'), ['class' => 'form-label']) }}
                             {!! Form::number('lesson_price', null, [
@@ -50,18 +50,12 @@
                         @if ($user->type !== 'inPerson')
                             <div class="form-group">
                                 {{ Form::label('quantity', __('Quantity'), ['class' => 'form-label']) }}
-                                {!! Form::number('lesson_quantity', null, [
-                                    'class' => 'form-control',
-                                    'placeholder' => __('Enter Quantity'),
-                                ]) !!}
+                                {!! Form::number('lesson_quantity', null, ['class' => 'form-control', 'placeholder' => __('Enter Quantity')]) !!}
                             </div>
 
                             <div class="form-group">
                                 {{ Form::label('response_time', __('Response Time'), ['class' => 'form-label']) }}
-                                {!! Form::number('required_time', null, [
-                                    'class' => 'form-control',
-                                    'placeholder' => __('Enter Required Time'),
-                                ]) !!}
+                                {!! Form::number('required_time', null, ['class' => 'form-control', 'placeholder' => __('Enter Required Time')]) !!}
                             </div>
                         @endif
 
@@ -80,14 +74,10 @@
                                         '3' => '3 Hours',
                                     ],
                                     null,
-                                    [
-                                        'class' => 'form-control',
-                                        'data-trigger',
-                                        'required',
-                                        'placeholder' => __('Duration'),
-                                    ],
+                                    ['class' => 'form-control', 'data-trigger', 'required', 'placeholder' => __('Duration')],
                                 ) !!}
                             </div>
+
                             <div class="form-group">
                                 {{ Form::label('max_followers', __('Group Size'), ['class' => 'form-label']) }}
                                 {!! Form::number('max_followers', null, [
@@ -97,6 +87,7 @@
                                     'min' => 1,
                                 ]) !!}
                             </div>
+
                             <div class="form-group">
                                 {{ Form::label('payment_method', __('Payment Method'), ['class' => 'form-label']) }}
                                 {!! Form::select('payment_method', ['online' => 'Online', 'cash' => 'Cash', 'both' => 'Both'], null, [
@@ -107,13 +98,34 @@
                             </div>
                         @endif
 
+                        {{-- ✅ Short Description --}}
                         <div class="form-group">
-                            {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
+                            {{ Form::label('short_description', __('Short Description'), ['class' => 'form-label']) }}
+                            {!! Form::textarea('short_description', null, [
+                                'class' => 'form-control',
+                                'required',
+                                'placeholder' => __('Enter Short Description'),
+                                'id' => 'short_description',
+                            ]) !!}
+                            <small class="text-muted">
+                                Characters: <span id="short-desc-count">0</span> / 300
+                            </small>
+                            <div id="short-desc-warning" class="text-danger" style="display: none;">
+                                {{ __('Maximum 300 characters allowed.') }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('lesson_description', null, [
                                 'class' => 'form-control',
                                 'required',
-                                'placeholder' => __('Enter Description'),
+                                'id' => 'lesson_description',
+                                'placeholder' => __('Enter Long Description'),
                             ]) !!}
+                            <small class="text-muted">
+                                Characters: <span id="long-desc-count">0</span>
+                            </small>
                         </div>
 
                     </div>
@@ -140,10 +152,71 @@
     <script src="{{ asset('vendor/intl-tel-input/utils.min.js') }}"></script>
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script>
-    CKEDITOR.replace('lesson_description', {
+        const MAX_SHORT = 300;
+
+        CKEDITOR.replace('lesson_description', {
             allowedContent: true,
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
+        });
+
+        CKEDITOR.replace('short_description', {
+            toolbar: [{
+                    name: 'basicstyles',
+                    items: ['Bold', 'Italic']
+                },
+                {
+                    name: 'paragraph',
+                    items: ['BulletedList']
+                }
+            ],
+            allowedContent: true,
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form'
+        });
+
+        function getPlainText(editor) {
+            return editor.getData().replace(/<[^>]*>/g, '').trim();
+        }
+
+        function updateShortCount(evt) {
+            const editor = evt.editor;
+            const text = getPlainText(editor);
+            const length = text.length;
+
+            document.getElementById("short-desc-count").textContent = length;
+
+            if (length >= MAX_SHORT) {
+                editor.container.addClass('is-invalid');
+                document.getElementById("short-desc-warning").style.display = 'block';
+            } else {
+                editor.container.removeClass('is-invalid');
+                document.getElementById("short-desc-warning").style.display = 'none';
+            }
+        }
+
+        function updateLongCount(evt) {
+            const editor = evt.editor;
+            const text = getPlainText(editor);
+            document.getElementById("long-desc-count").textContent = text.length;
+        }
+
+        CKEDITOR.instances.short_description.on('key', function(evt) {
+            const text = getPlainText(evt.editor);
+            if (text.length >= MAX_SHORT && evt.data.keyCode != 8 && evt.data.keyCode != 46) {
+                evt.cancel(); // stop typing when limit reached
+            }
+        });
+
+        CKEDITOR.instances.short_description.on('change', updateShortCount);
+        CKEDITOR.instances.lesson_description.on('change', updateLongCount);
+
+        document.querySelector("form").addEventListener("submit", function(e) {
+            const shortText = getPlainText(CKEDITOR.instances.short_description);
+            if (shortText.length > MAX_SHORT) {
+                e.preventDefault();
+
+            }
         });
     </script>
 @endpush

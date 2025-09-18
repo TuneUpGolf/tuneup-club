@@ -43,6 +43,7 @@ class HomeController extends Controller
         $plans = tenancy()->central(function ($tenant) {
             return Plan::where('active_status', 1)->get();
         });
+
         return view('welcome', compact('plans'));
     }
     public function index(PurchaseDataTable $dataTable, Request $request)
@@ -129,7 +130,7 @@ class HomeController extends Controller
                 ])
                 ->get();
         }
-        // dd($influencerStats);
+
 
         [$purchaseComplete, $purchaseInprogress] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_ONLINE);
         [$inPersonCompleted, $inPersonPending]   = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_INPERSON);

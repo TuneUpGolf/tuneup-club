@@ -114,7 +114,7 @@ class UsersDataTable extends DataTable
                 ],
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -169,7 +169,7 @@ class UsersDataTable extends DataTable
     {
         return [
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('logo')->file(_('logo'))->searchable(false),
+            Column::make('logo')->file(__('logo'))->searchable(false),
             Column::make('name')->title(__('Name')),
             Column::make('email')->title(__('Email')),
             Column::make('role')->title(__('Role')),
