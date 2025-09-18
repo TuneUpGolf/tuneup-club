@@ -31,12 +31,9 @@
                 alt="hero-banner">
         </div>
     </section>
-    <section class="lession-sec">
-        <div class="container ctm-container">
-            <h2 class="font-bold text-4xl mb-2">{{ $influencerDetails?->name }}</h2>
-            <p class="text-xl max-w-2xl text-gray-600">{{ $influencerDetails?->bio }}</p>
-        </div>
-        <div class="container-fluid lessions-slider pt-5">
+    <section class="container">
+        <div class="row g-4 py-4">
+            <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $influencerDetails?->name ?? '' }}</h3>
             @if ($influencerDetails)
                 @if (!$influencerDetails?->lessons->isEmpty())
                     @foreach ($influencerDetails?->lessons as $lesson)
@@ -83,7 +80,7 @@
                                         @if (!empty($description) && strlen(strip_tags($description)) > 80)
                                             <div class="hidden full-text text-gray-600"
                                                 style="font-size: 15px; max-height: auto; overflow-y: auto;">
-                                                {!! $cleanDescription !!}
+                                                {!! $lesson->short_description !!}
                                             </div>
                                             <a href="javascript:void(0);" style="font-size: 15px"
                                                 class="text-blue-600 toggle-read-more font-semibold"
@@ -197,8 +194,8 @@
                                     <div class="{{ $cls }}">
                                         <div class="flex justify-between items-center w-full">
                                             <div class="flex items-center gap-3">
-                                                <img class="w-16 h-16 rounded-full"
-                                                    src="{{ $influencerDetails?->avatar }}" alt="Profile">
+                                                <img class="w-16 h-16 rounded-full" src="{{ $influencerDetails?->avatar }}"
+                                                    alt="Profile">
                                                 <div>
                                                     <p class="text-xl text-white font-bold mb-0 leading-tight">
                                                         {{ $influencerDetails?->name }}
@@ -340,6 +337,52 @@
 
         .lessions-slider .slick-slide {
             height: inherit !important;
+        }
+
+        .read-more-btn {
+            transition: all 0.3s ease;
+        }
+
+        .read-more-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        #instructorPopup {
+            transition: opacity 0.3s ease;
+        }
+
+        #instructorPopup.show {
+            opacity: 1;
+        }
+
+        .description ul,
+        .description ol {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 20px;
+        }
+
+        .description li {
+            display: list-item;
+            margin-bottom: 5px;
+        }
+
+        .description b,
+        .description strong {
+            font-weight: bold;
+        }
+
+        .description i,
+        .description em {
+            font-style: italic;
+        }
+
+        .description {
+            display: block !important;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .longDescContent ul {

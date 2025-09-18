@@ -127,6 +127,15 @@
         });
 
         CKEDITOR.replace('short_description', {
+            toolbar: [{
+                    name: 'basicstyles',
+                    items: ['Bold', 'Italic']
+                },
+                {
+                    name: 'paragraph',
+                    items: ['BulletedList']
+                }
+            ],
             allowedContent: true,
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form'
