@@ -68,6 +68,11 @@
                 <a href="javascript:void(0);" style="font-size: 15px"
                     class="text-blue-600 toggle-read-more font-semibold" onclick="toggleDescription(this, event)">View
                     Lesson Description</a>
+            @else
+                <div class="hidden full-text text-gray-600"
+                    style="font-size: 15px; max-height: auto; overflow-y: auto;">
+                    {!! $short_description !!}
+                </div>
             @endif
         </div>
 
