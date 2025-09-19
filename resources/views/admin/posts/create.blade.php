@@ -62,7 +62,7 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
+                                {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }} *
                                 {!! Form::textarea('description', null, [
                                     'class' => 'form-control',
                                     'placeholder' => __('Enter description'),
