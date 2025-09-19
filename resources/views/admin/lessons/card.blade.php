@@ -57,7 +57,8 @@
             $shortDescription = \Illuminate\Support\Str::limit($cleanShortDescription, 80, '...');
         @endphp
         <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
-            <div class="short-text clamp-text font-thin text-gray-600 mb-2">
+            <div class="short-text text-gray-600"
+                style="font-size: 15px; min-height: auto; max-height: auto; overflow-y: auto;">
                 {!! $shortDescription !!}
             </div>
             @if (!empty($description1) && strlen(strip_tags($description1)) > 80)
