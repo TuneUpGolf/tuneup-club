@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Livewire;
 
 use App\Models\Lesson;
@@ -59,6 +60,7 @@ class LessonsGridView extends GridView
             'image' =>  $model?->user?->logo ?? asset('assets/img/logo/logo.png'),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
+            'short_description' => $model->short_description,
             'description' => $model->lesson_description,
         ];
     }

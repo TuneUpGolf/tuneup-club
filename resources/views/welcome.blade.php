@@ -38,7 +38,7 @@
 
         @endphp
         <div class="container ctm-container py-2">
-            <h2 class="font-bold text-4xl mb-2">{{ !empty($name) ? $name->value : $admin->name }}</h2>
+            <h2 class="font-bold text-4xl mb-2">{{ !empty($name->value) ? $name->value : $admin->name }}</h2>
             <p class="text-xl text-gray-600">{{ $admin->bio }}</p>
         </div>
     </section>
@@ -144,7 +144,9 @@
                 $subscription = DB::table('settings')->where('key', 'subscription_plans')->first();
 
             @endphp
-            <h2 class="font-bold text-4xl mb-2"> {{ $subscription->value ?? 'Subscription Plans' }}</h2>
+            <h2 class="font-bold text-4xl mb-2">
+                {{ !empty($subscription->value) ? $subscription->value : 'Subscription Plans' }}
+            </h2>
             <p class="text-xl text-gray-600">
                 Subscription plans give you full access to your coach's posts, training content, and the ability to connect
                 directly.
@@ -197,7 +199,7 @@
                 $feed = DB::table('settings')->where('key', 'feed')->first();
 
             @endphp
-            <h2 class="font-bold text-4xl mb-2">{{ $feed->value ?? 'Feed' }}</h2>
+            <h2 class="font-bold text-4xl mb-2">{{ !empty($feed->value) ? $feed->value : 'Feed' }}</h2>
 
             <div class="flex flex-wrap gap-5 w-100">
                 @if (@$influencerDetails)
