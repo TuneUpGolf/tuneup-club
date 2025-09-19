@@ -727,6 +727,10 @@ class PurchaseController extends Controller
                     $purchase                     = Purchase::find($purchaseVideo->purchase_id);
                     $purchase->isFeedbackComplete = 1;
                     $purchase->save();
+                } else {
+                    $purchase                     = Purchase::find($purchaseVideo->purchase_id);
+                    $purchase->isFeedbackComplete = 1;
+                    $purchase->save();
                 }
                 if ($request->redirect == 1) {
                     return redirect()->route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id])->with('success', 'Feedback Added Successfully');
