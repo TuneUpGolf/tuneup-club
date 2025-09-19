@@ -144,7 +144,7 @@
                 $subscription = DB::table('settings')->where('key', 'subscription_plans')->first();
 
             @endphp
-            <h2 class="font-bold text-4xl mb-2"> {{ $subscription->value }}</h2>
+            <h2 class="font-bold text-4xl mb-2"> {{ $subscription->value ?? 'Subscription Plans' }}</h2>
             <p class="text-xl text-gray-600">
                 Subscription plans give you full access to your coach's posts, training content, and the ability to connect
                 directly.
@@ -197,7 +197,7 @@
                 $feed = DB::table('settings')->where('key', 'feed')->first();
 
             @endphp
-            <h2 class="font-bold text-4xl mb-2">{{ $feed->value }}</h2>
+            <h2 class="font-bold text-4xl mb-2">{{ $feed->value ?? 'Feed' }}</h2>
 
             <div class="flex flex-wrap gap-5 w-100">
                 @if (@$influencerDetails)

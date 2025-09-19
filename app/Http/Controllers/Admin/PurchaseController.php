@@ -593,6 +593,8 @@ class PurchaseController extends Controller
                         $purchase->isFeedbackComplete = 1;
                         $purchase->save();
                     }
+                    $purchase->isFeedbackComplete = 1;
+                    $purchase->save();
                     return response()->json(['message' => 'Feedback Added Successfully', 'purchase Video' => new PurchaseVideoAPIResource($purchaseVideo)], 200);
                 } else {
                     return response()->json(['error' => 'Purchase doesnot exist'], 420);

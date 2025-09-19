@@ -48,6 +48,7 @@ class HomeController extends Controller
     }
     public function index(PurchaseDataTable $dataTable, Request $request)
     {
+
         $user     = Auth::user();
         $userType = $user->type;
 
