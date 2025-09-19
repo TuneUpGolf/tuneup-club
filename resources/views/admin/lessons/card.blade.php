@@ -56,7 +56,7 @@
             $cleanShortDescription = strip_tags($description1, '<ul><ol><li><strong><b><i>');
             $shortDescription = \Illuminate\Support\Str::limit($cleanShortDescription, 80, '...');
         @endphp
-        <div class="description-wrapper relative">
+        <div class="text-gray-500 text-md description font-medium ctm-min-h p-2">
             <div class="short-text clamp-text font-thin text-gray-600 mb-2">
                 {!! $shortDescription !!}
             </div>
@@ -159,7 +159,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="word-break: break-word;">
+            <div class="modal-body" style="word-break: break-all;">
                 <div class="longDescContent"></div>
             </div>
             <div class="modal-footer">
@@ -236,7 +236,7 @@
         function toggleDescription(button, event) {
             event.stopPropagation();
             // match the wrapper class used in HTML
-            const parent = button.closest('.description-wrapper');
+            const parent = button.closest('.description');
             const shortText = parent.querySelector('.short-text');
             const fullText = parent.querySelector('.full-text');
 
