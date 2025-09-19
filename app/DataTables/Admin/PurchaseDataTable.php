@@ -26,6 +26,16 @@ class PurchaseDataTable extends DataTable
                         $query->where('purchases.isFeedbackComplete', 1);
                     }
                 }
+                if (request()->has('search') && !empty(request('search')['value'])) {
+                    $search = request('search')['value'];
+
+                    $query->where(function ($q) use ($search) {
+                        $q->where('lessons.lesson_name', 'like', "%{$search}%")
+                            ->orWhere('influencers.name', 'like', "%{$search}%")
+                            ->orWhere('followers.name', 'like', "%{$search}%")
+                            ->orWhere('purchases.status', 'like', "%{$search}%");
+                    });
+                }
             })
             ->smart(false)
             ->addIndexColumn()
