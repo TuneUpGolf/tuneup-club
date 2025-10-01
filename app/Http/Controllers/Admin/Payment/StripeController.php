@@ -324,11 +324,7 @@ class StripeController extends Controller
                     'stripe_account' => $account_id // ✅ connected account context
                 ]);
 
-                $order = Order::find($request->order_id);
-                $retriveSubscription = StripeSession::retrieve($checkout_session->id);
-                $subscriptionId = $retriveSubscription->subscription;
-                $order->subscription_id = $subscriptionId;
-                $order->save();
+
 
                 $response = [
                     'status'    => 1,
