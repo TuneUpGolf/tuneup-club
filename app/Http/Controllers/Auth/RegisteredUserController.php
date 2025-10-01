@@ -88,8 +88,8 @@ class RegisteredUserController extends Controller
                     ['active_status' => true, 'isPaid' => false]
                 );
             }
-            dd($user->chat_user_id, $influencer->chat_user_id);
-            $groupId = $this->chatService->createGroup($user->chat_user_id, $influencer->chat_user_id);
+
+            $groupId = $this->chatService->createGroup($user->chat_user_id, $influencer->id);
             if ($groupId) {
                 $user->group_id = $groupId;
                 $user->save();
