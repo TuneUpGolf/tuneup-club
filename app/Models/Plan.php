@@ -30,6 +30,8 @@ class Plan extends Model
         'is_chat_enabled',
         'is_feed_enabled',
         'influencer_id',
+        'stripe_price_id',
+        'stripe_product_id'
     ];
 
     /**
@@ -40,5 +42,10 @@ class Plan extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class, 'plan_id');
+    }
+
+    public function influencer()
+    {
+        return $this->belongsTo(User::class, 'influencer_id', 'id');
     }
 }

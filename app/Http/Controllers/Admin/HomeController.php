@@ -74,10 +74,12 @@ class HomeController extends Controller
         $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
 
         if ($userType == Role::ROLE_FOLLOWER) {
+
             $tab = $request->tab ?? 'lessons';
             if ($tab == 'chat') {
                 $token        = $this->chatService->getChatToken($user->chat_user_id);
             }
+
             return $this->followerDashboard([
                 'dataTable'      => $dataTable,
                 'user'           => $user,
@@ -136,6 +138,7 @@ class HomeController extends Controller
 
         [$purchaseComplete, $purchaseInprogress] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_ONLINE);
         [$inPersonCompleted, $inPersonPending]   = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_INPERSON);
+
         return $dataTable->render('admin.dashboard.home', compact(
             'user',
             'userType',
@@ -201,6 +204,7 @@ class HomeController extends Controller
             ->where('active_status', 1)
             ->exists();
         $plans             = Plan::where('influencer_id', $influencer->id)->get();
+
         $isInfluencer      = Auth::user()->type === Role::ROLE_INFLUENCER;
         $feedEnabledPlanId = Plan::where('influencer_id', $influencer->id)
             ->where('is_feed_enabled', true)->pluck('id')->toArray();

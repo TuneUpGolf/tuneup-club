@@ -52,8 +52,7 @@
                                     <tr>
                                         <td class="text-muted">{{ __('Subscription Description') }}:</td>
                                         <td>
-                                            <span
-                                                class="text-gray-800 text-hover-primary">{!! isset($plan->description) ? $plan->description : '--' !!}</span>
+                                            <span class="text-gray-800 text-hover-primary">{!! isset($plan->description) ? $plan->description : '--' !!}</span>
                                         </td>
                                     </tr>
                                     <tr>
@@ -199,7 +198,10 @@
                                     isset($adminPaymentSetting['payfastsetting']) &&
                                     $adminPaymentSetting['payfastsetting'] == 'on')
                                 @php
-                                    $pfHost = $adminPaymentSetting['payfast_mode'] == 'sandbox' ? 'sandbox.payfast.co.za' : 'www.payfast.co.za';
+                                    $pfHost =
+                                        $adminPaymentSetting['payfast_mode'] == 'sandbox'
+                                            ? 'sandbox.payfast.co.za'
+                                            : 'www.payfast.co.za';
                                     $route = 'https://' . $pfHost . '/eng/process';
                                     $id = 'payfast-payment-form';
                                     $button_type = 'submit';
@@ -296,10 +298,7 @@
                                     $button_type = 'submit';
                                     $payment_description = $adminPaymentSetting['mollie_description'];
                                 @endphp
-                            @elseif (
-                                $key == 'skrill' &&
-                                    $adminPaymentSetting['skrillsetting'] == 'on' &&
-                                    !empty($adminPaymentSetting['skrill_email']))
+                            @elseif ($key == 'skrill' && $adminPaymentSetting['skrillsetting'] == 'on' && !empty($adminPaymentSetting['skrill_email']))
                                 @php
                                     $route = route('plan.pay.with.skrill');
                                     $id = 'payment-form';
@@ -418,6 +417,8 @@
     <script
         src="https://www.paypal.com/sdk/js?client-id={{ Auth::user()->type == 'Admin' ? env('PAYPAL_SANDBOX_CLIENT_ID') : Utility::getsettings('paypal_sandbox_client_id') }}">
     </script>
+
+
     <script>
         var scrollSpy = new bootstrap.ScrollSpy(document.body, {
             target: '#useradd-sidenav',
@@ -589,6 +590,7 @@
                 });
             }).submit();
         @endif
+
         @if (isset($adminPaymentSetting['stripesetting']) && $adminPaymentSetting['stripesetting'] == 'on')
             $(document).on("click", "#pay_with_stripe", function() {
                 $('#stripe-payment-form').ajaxForm(function(res) {
@@ -596,20 +598,23 @@
                         show_toastr("Error!", res.error, "danger");
                         return;
                     }
-                    const stripe = Stripe("{{ $adminPaymentSetting['stripe_key'] }}");
+
+                    // ✅ Only publishable key here
+                    const stripe = Stripe("{{ config('services.stripe.key') }}");
+
                     createCheckoutSession(res.plan_id, res.order_id, res.coupon, res.total_price).then(
-                        function(
-                            data) {
+                        function(data) {
                             if (data.sessionId) {
-                                stripe.redirectToCheckout({
-                                    sessionId: data.sessionId,
-                                }).then(handleResult);
+
+                                window.location.href = data.url
+
                             } else {
                                 handleResult(data);
                             }
                         });
                 });
             }).submit();
+
             const createCheckoutSession = function(plan_id, order_id, coupon, amount) {
                 return fetch("{{ route('stripe.session') }}", {
                     method: "POST",
@@ -624,13 +629,11 @@
                         coupon: coupon,
                         amount: amount,
                     }),
-                }).then(function(result) {
-                    return result.json();
-                });
+                }).then(result => result.json());
             };
+
             const handleResult = function(result) {
                 if (result.error) {
-                    // showMessage(result.error.message);
                     show_toastr("Error!", result.error.message, "danger");
                 }
                 setLoading(false);

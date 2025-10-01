@@ -124,6 +124,7 @@ class Utility
     }
     public function getsettings($value = '')
     {
+
         if ($value == 'plan_setting') {
             $value == 'plan_setting';
         }
@@ -134,11 +135,13 @@ class Utility
             $setting->whereNull('tenant_id');
         }
         $set =  $setting->where('key', $value)->first();
+
         $val = '';
         if (!empty($set->value)) {
 
             $val = $set->value;
         }
+
         return $val;
     }
 
@@ -685,6 +688,7 @@ class Utility
 
     public function getpaymenttypes()
     {
+
         $payment_type = [];
         if (Self::getsettings('stripesetting') == 'on') {
             $payment_type['stripe'] = 'Stripe';

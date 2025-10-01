@@ -67,6 +67,7 @@ class PurchaseController extends Controller
      */
     public function index(PurchaseDataTable $dataTable, FollowerPurchasesDataTable $followerPurchasesDataTable)
     {
+
         if (Auth::user()->can('manage-purchases')) {
             return $dataTable->render('admin.purchases.index', [
                 'followerPurchasesDataTable' => $followerPurchasesDataTable->html(),
