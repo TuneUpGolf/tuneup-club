@@ -424,6 +424,7 @@ class StripeController extends Controller
 
     public function paymentSuccess($data)
     {
+
         if (strpos($data, '&session_id=') !== false) {
             [$encrypted, $sessionId] = explode('&session_id=', $data, 2);
         } else {
@@ -432,11 +433,13 @@ class StripeController extends Controller
         }
         $data = Crypt::decrypt($encrypted);
 
+
         if (Auth::user()->type == 'Admin') {
-            $order = tenancy()->central(function ($tenant) use ($data) {
+            $order = tenancy()->central(function ($tenant) use ($data,  $sessionId) {
                 $datas               = Order::find($data['order_id']);
                 $datas->status       = 1;
                 $datas->payment_type = 'stripe';
+                $datas->checkout_session_id = $sessionId;
                 $datas->update();
                 $coupons = Coupon::find($data['coupon']);
                 $user    = User::find($tenant->id);
@@ -467,6 +470,7 @@ class StripeController extends Controller
             $datas               = Order::find($data['order_id']);
             $datas->status       = 1;
             $datas->payment_type = 'stripe';
+            $datas->checkout_session_id = $sessionId;
             $datas->update();
             $currentUser = Auth::user();
             $userType    = $currentUser->type;
