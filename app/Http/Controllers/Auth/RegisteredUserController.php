@@ -99,6 +99,7 @@ class RegisteredUserController extends Controller
             DB::commit();
             return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
         } catch (\Throwable $e) {
+            dd($e);
             DB::rollBack();
 
             Log::error('Signup failed: ' . $e->getMessage(), [
