@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +21,7 @@ class Order extends Model
         'discount_amount',
         'payment_type',
         'follower_id',
+        'subscription_id',
     ];
 
     public function Plan()

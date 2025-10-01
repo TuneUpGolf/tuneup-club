@@ -21,6 +21,7 @@ use Stripe\Checkout\Session;
 use Stripe\Price;
 use Stripe\Stripe;
 use Stripe\Product;
+use Stripe\Checkout\Session as StripeSession;
 use Stripe\StripeClient;
 
 class StripeController extends Controller
@@ -392,48 +393,106 @@ class StripeController extends Controller
 
     public function paymentCancel($data)
     {
-        $data = Crypt::decrypt($data);
-        if (Auth::user()->type == 'Admin') {
-            $order = tenancy()->central(function ($tenant) use ($data) {
-                $datas               = Order::find($data['order_id']);
-                $datas->status       = 2;
-                $datas->payment_type = 'stripe';
+        // ✅ Split encrypted data and session_id
+        if (strpos($data, '&session_id=') !== false) {
+            [$encrypted, $sessionId] = explode('&session_id=', $data, 2);
+        } else {
+            $encrypted = $data;
+            $sessionId = null;
+        }
+
+        $data = Crypt::decrypt($encrypted);
+
+        // ✅ Initialize Stripe
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $subscriptionId = null;
+
+        if ($sessionId) {
+            $session = StripeSession::retrieve($sessionId);
+            if (!empty($session->subscription)) {
+                $subscriptionId = $session->subscription;
+            }
+        }
+
+        $userType = Auth::user()->type;
+
+        if ($userType === 'Admin') {
+            tenancy()->central(function ($tenant) use ($data, $subscriptionId) {
+                $datas                     = Order::find($data['order_id']);
+                $datas->status             = 2; // canceled
+                $datas->payment_type       = 'stripe';
+                $datas->subscription_id    = $subscriptionId;
                 $datas->update();
             });
         } else {
-            $datas               = Order::find($data['order_id']);
-            $datas->status       = 2;
-            $datas->payment_type = 'stripe';
+            $datas                     = Order::find($data['order_id']);
+            $datas->status             = 2; // canceled
+            $datas->payment_type       = 'stripe';
+            $datas->subscription_id    = $subscriptionId;
             $datas->update();
         }
-        return redirect()->route('plans.index')->with('errors', __('Payment canceled.'));
+
+        return redirect()->route('plans.index')
+            ->with('errors', __('Payment canceled.'));
     }
+
+
 
     public function paymentSuccess($data)
     {
-        $data = Crypt::decrypt($data);
-        if (Auth::user()->type == 'Admin') {
-            $order = tenancy()->central(function ($tenant) use ($data) {
+        // ✅ Split encrypted data and session_id
+        if (strpos($data, '&session_id=') !== false) {
+            [$encrypted, $sessionId] = explode('&session_id=', $data, 2);
+        } else {
+            $encrypted = $data;
+            $sessionId = null;
+        }
+
+        $data = Crypt::decrypt($encrypted);
+
+        // ✅ Initialize Stripe
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $subscriptionId = null;
+
+        if ($sessionId) {
+            $session = StripeSession::retrieve($sessionId);
+            if (!empty($session->subscription)) {
+                $subscriptionId = $session->subscription;
+            }
+        }
+
+        $userType = Auth::user()->type; // ✅ define before condition
+
+        if ($userType == 'Admin') {
+            tenancy()->central(function ($tenant) use ($data, $subscriptionId) {
                 $datas               = Order::find($data['order_id']);
                 $datas->status       = 1;
                 $datas->payment_type = 'stripe';
+                $datas->subscription_id = $subscriptionId; // ✅ subscription saved
                 $datas->update();
+
                 $coupons = Coupon::find($data['coupon']);
                 $user    = User::find($tenant->id);
-                if (! empty($coupons)) {
+
+                if (!empty($coupons)) {
                     $userCoupon         = new UserCoupon();
                     $userCoupon->user   = $user->id;
                     $userCoupon->coupon = $coupons->id;
                     $userCoupon->order  = $datas->id;
                     $userCoupon->save();
+
                     $usedCoupun = $coupons->used_coupon();
                     if ($coupons->limit <= $usedCoupun) {
                         $coupons->is_active = 0;
                         $coupons->save();
                     }
                 }
+
                 $plan          = Plan::find($data['plan_id']);
                 $user->plan_id = $plan->id;
+
                 if ($plan->durationtype == 'Month' && $plan->id != '1') {
                     $user->plan_expired_date = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
                 } elseif ($plan->durationtype == 'Year' && $plan->id != '1') {
@@ -441,19 +500,21 @@ class StripeController extends Controller
                 } else {
                     $user->plan_expired_date = null;
                 }
+
                 $user->save();
             });
         } else {
             $datas               = Order::find($data['order_id']);
             $datas->status       = 1;
             $datas->payment_type = 'stripe';
+            $datas->subscription_id = $subscriptionId; // ✅ subscription saved
             $datas->update();
-            $currentUser = Auth::user();
-            $userType    = $currentUser->type;
 
-            $user    = $userType === 'Follower' ? Follower::find($currentUser->id) : User::find($currentUser->id);
+            $currentUser = Auth::user();
+            $user        = $userType === 'Follower' ? Follower::find($currentUser->id) : User::find($currentUser->id);
+
             $coupons = Coupon::find($data['coupon']);
-            if (! empty($coupons)) {
+            if (!empty($coupons)) {
                 $userCoupon = new UserCoupon();
                 if ($userType == 'Follower') {
                     $userCoupon->follower = $user->id;
@@ -463,14 +524,17 @@ class StripeController extends Controller
                 $userCoupon->coupon = $coupons->id;
                 $userCoupon->order  = $datas->id;
                 $userCoupon->save();
+
                 $usedCoupun = $coupons->used_coupon();
                 if ($coupons->limit <= $usedCoupun) {
                     $coupons->is_active = 0;
                     $coupons->save();
                 }
             }
+
             $plan          = Plan::find($data['plan_id']);
             $user->plan_id = $plan->id;
+
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
                 $planExpiredDate = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
                 $user->plan_expired_date = $planExpiredDate;
@@ -480,21 +544,27 @@ class StripeController extends Controller
             } else {
                 $user->plan_expired_date = null;
             }
+
             if ($plan->is_chat_enabled) {
-                $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
-                $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->influencer->chat_user_id);
+                $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate ?? null, $user->email);
+                $groupId = $this->chatService->createGroup(
+                    $user->chat_user_id,
+                    $user->follows->first()?->influencer->chat_user_id
+                );
                 if ($groupId) {
                     $user->group_id = $groupId;
                 }
             }
+
             $user->save();
         }
-        if ($userType == 'Follower') {
-            return redirect()->route('home')->with('status', __('Payment successfully!'));
-        } else {
-            return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
-        }
+
+        // ✅ safer redirect
+        return $userType == 'Follower'
+            ? redirect()->route('home')->with('status', __('Payment successfully!'))
+            : redirect()->route('plans.index')->with('status', __('Payment successfully!'));
     }
+
     public function handleStripeWebhook(Request $request)
     {
         $payload = $request->getContent();
