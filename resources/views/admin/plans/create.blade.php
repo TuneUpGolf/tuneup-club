@@ -26,7 +26,11 @@
 
                         <div class="form-group">
                             {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
-                            {!! Form::text('price', old('price'), ['placeholder' => __('Enter price'), 'class' => 'form-control', 'required']) !!}
+                            {!! Form::text('price', old('price'), [
+                                'placeholder' => __('Enter price'),
+                                'class' => 'form-control',
+                                'required',
+                            ]) !!}
                         </div>
 
                         <div class="row">

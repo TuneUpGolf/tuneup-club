@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Plan;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -61,6 +62,7 @@ class PlanController extends Controller
 
     public function store(Request $request)
     {
+
         if (Auth::user()->can('create-plan')) {
             request()->validate([
                 'name'         => 'required|unique:plans,name|max:50',
@@ -70,6 +72,7 @@ class PlanController extends Controller
                 'max_users'    => 'required',
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
+
             if (! $paymentTypes) {
                 return redirect()->back()->with('errors', __('Please select at least one payment type from Settings > Payment Settings.'))->withInput();
             }
@@ -86,6 +89,14 @@ class PlanController extends Controller
                     return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
                 }
             }
+            $user  = Auth::user();
+            if (empty($user->stripe_account_id)) {
+                return redirect()->route('plans.myplan')
+                    ->with('failed', __('Please first connect your Stripe account.'));
+            }
+
+            $serviceplane = SubscriptionService::createStripePlan($request, $user);
+
             Plan::create([
                 'name'            => $request->name,
                 'price'           => $request->price,
@@ -97,6 +108,8 @@ class PlanController extends Controller
                 'is_chat_enabled' => $request->chat == '1' ? 1 : 0,
                 'is_feed_enabled' => $request->feed == '1' ? 1 : 0,
                 'influencer_id'   => $influencerId,
+                'stripe_product_id' => $serviceplane['product_id'],
+                'stripe_price_id' => $serviceplane['price_id']
             ]);
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
         } else {
@@ -116,6 +129,11 @@ class PlanController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user  = Auth::user();
+        if (empty($user->stripe_account_id)) {
+            return redirect()->route('plans.myplan')
+                ->with('failed', __('Please first connect your Stripe account.'));
+        }
         if (Auth::user()->can('edit-plan')) {
             if (Auth::user()->type == 'Super Admin') {
                 request()->validate([
@@ -125,11 +143,14 @@ class PlanController extends Controller
                     'description' => 'max:100',
                 ]);
                 $plan               = Plan::find($id);
+                $serviceplane = SubscriptionService::updateStripePlan($request, $user, $plan);
                 $plan->name         = $request->input('name');
                 $plan->price        = $request->input('price');
                 $plan->duration     = $request->input('duration');
                 $plan->durationtype = $request->input('durationtype');
                 $plan->description  = $request->input('description');
+                $plan->stripe_product_id = $serviceplane['product_id'];
+                $plan->stripe_price_id = $serviceplane['price_id'];
                 $plan->save();
             } else {
                 request()->validate([
@@ -139,6 +160,7 @@ class PlanController extends Controller
                     'max_users' => 'required',
                 ]);
                 $plan                  = Plan::find($id);
+                $serviceplane = SubscriptionService::updateStripePlan($request, $user, $plan);
                 $plan->name            = $request->input('name');
                 $plan->price           = $request->input('price');
                 $plan->duration        = $request->input('duration');
@@ -147,6 +169,8 @@ class PlanController extends Controller
                 $plan->description     = $_POST['description'];
                 $plan->is_chat_enabled = $request->input('chat') ? true : false;
                 $plan->is_feed_enabled = $request->input('feed') ? true : false;
+                $plan->stripe_product_id = $serviceplane['product_id'];
+                $plan->stripe_price_id = $serviceplane['price_id'];
                 $plan->save();
             }
             return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));
@@ -157,8 +181,15 @@ class PlanController extends Controller
 
     public function destroy($id)
     {
+        $user  = Auth::user();
+        if (empty($user->stripe_account_id)) {
+            return redirect()->route('plans.myplan')
+                ->with('failed', __('Please first connect your Stripe account.'));
+        }
         if (Auth::user()->can('delete-plan')) {
             $plan = Plan::find($id);
+            $serviceplane = SubscriptionService::deleteStripePlan($user, $plan);
+
             if ($plan->id != 1) {
                 $planExistInOrder = Order::where('plan_id', $plan->id)->first();
                 if (empty($planExistInOrder)) {
@@ -192,6 +223,7 @@ class PlanController extends Controller
     public function payment($code)
     {
         $plan_id = \Illuminate\Support\Facades\Crypt::decrypt($code);
+
         if (Auth::user()->type == 'Admin') {
             $plan = tenancy()->central(function ($tenant) use ($plan_id) {
                 return Plan::find($plan_id);
@@ -205,6 +237,7 @@ class PlanController extends Controller
             $paymentTypes        = UtilityFacades::getpaymenttypes();
             $adminPaymentSetting = UtilityFacades::getplansetting();
         }
+
         if ($plan) {
             return view('admin.plans.payment', compact('plan', 'adminPaymentSetting', 'paymentTypes'));
         } else {

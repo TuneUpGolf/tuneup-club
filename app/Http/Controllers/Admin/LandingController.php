@@ -50,6 +50,7 @@ class LandingController extends Controller
             $admin = User::where('type', Role::ROLE_ADMIN)
                 ->first();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
+
                 return view('welcome', compact(
                     'lang',
                     'influencerDetails',

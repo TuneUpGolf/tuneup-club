@@ -16,7 +16,11 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Stripe\Account;
+use Stripe\Checkout\Session;
+use Stripe\Price;
 use Stripe\Stripe;
+use Stripe\Product;
 use Stripe\StripeClient;
 
 class StripeController extends Controller
@@ -50,6 +54,10 @@ class StripeController extends Controller
                 $account = $stripeClient->accounts->create([
                     'type'  => 'standard',
                     'email' => $influencer->email,
+                    'capabilities' => [
+                        'card_payments' => ['requested' => true],
+                        'transfers' => ['requested' => true],
+                    ],
                 ]);
                 $influencer->stripe_account_id = $account->id;
                 $influencer->save();
@@ -136,11 +144,13 @@ class StripeController extends Controller
 
     public function stripePostPending(Request $request)
     {
+
         $planID   = \Illuminate\Support\Facades\Crypt::decrypt($request->plan_id);
         $authUser = Auth::user();
+
         if ($authUser->type == 'Admin') {
             $plan = tenancy()->central(function ($tenant) use ($planID) {
-                return Plan::find($planID);
+                return Plan::with(['influencer'])->find($planID);
             });
             $resData = tenancy()->central(function ($tenant) use ($plan, $request) {
                 $couponId      = '0';
@@ -177,10 +187,14 @@ class StripeController extends Controller
                 $resData['plan_id']     = $plan->id;
                 $resData['coupon']      = $couponId;
                 $resData['order_id']    = $data->id;
+                $resData['stripe_account_id']    = $plan->influencer?->stripe_account_id;
+                $resData['stripe_product_id']     = $plan->stripe_product_id;
+                $resData['stripe_price_id']     = $plan->stripe_price_id;
                 return $resData;
             });
             return $resData;
         } else {
+
             if ($authUser->type == 'Follower') {
                 $authUserId = 0;
                 $followerId = $authUser->id;
@@ -189,12 +203,14 @@ class StripeController extends Controller
                 $followerId = null;
             }
             $followerId    = $authUser->type == 'Follower' ? $authUser->id : null;
-            $plan          = Plan::find($planID);
+            $plan          = Plan::with(['influencer'])->find($planID);
+
             if ($plan->is_chat_enabled && is_null($authUser->chat_user_id)) {
                 return response()->json([
                     'error' => 'Chat user ID is required to proceed with the payment.'
                 ]);
             }
+
             $couponId      = '0';
             $price         = $plan->price;
             $couponCode    = null;
@@ -230,86 +246,100 @@ class StripeController extends Controller
             $resData['plan_id']     = $plan->id;
             $resData['coupon']      = $couponId;
             $resData['order_id']    = $data->id;
+            $resData['stripe_account_id']    = $plan->influencer?->stripe_account_id;
+            $resData['stripe_product_id']     = $plan->stripe_product_id;
+            $resData['stripe_price_id']     = $plan->stripe_price_id;
+            // dd($resData);
             return $resData;
         }
     }
     public function stripeSession(Request $request)
     {
-        if (Auth::user()->type != 'Admin') {
-            Stripe::setApiKey(UtilityFacades::getsettings('stripe_secret'));
-            $currency = UtilityFacades::getsettings('currency');
+
+        // ✅ Get Plan with Influencer
+        if (Auth::user()->type === 'Admin') {
+            $planDetails = tenancy()->central(function ($tenant) use ($request) {
+                return Plan::with(['influencer'])->find($request->plan_id);
+            });
         } else {
-            $currency = tenancy()->central(function ($tenant) {
-                return UtilityFacades::getsettings('currency');
-            });
-            $stripe_secret = tenancy()->central(function ($tenant) {
-                return UtilityFacades::getsettings('stripe_secret');
-            });
-            Stripe::setApiKey($stripe_secret);
+            $planDetails = Plan::with(['influencer'])->find($request->plan_id);
         }
-        if (! empty($request->createCheckoutSession)) {
-            if (Auth::user()->type == 'Admin') {
-                $planDetails = tenancy()->central(function ($tenant) use ($request) {
-                    return Plan::find($request->plan_id);
-                });
-            } else {
-                $planDetails = Plan::find($request->plan_id);
-            }
+
+        if (! $planDetails || empty($planDetails->influencer?->stripe_account_id)) {
+            return response()->json([
+                'status' => 0,
+                'error'  => ['message' => 'Plan or connected account not found.']
+            ], 404);
+        }
+
+        // ✅ Always use your platform secret key
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $account_id = $planDetails->influencer->stripe_account_id;
+
+        // (Optional) verify price exists inside the connected account
+        try {
+            Price::retrieve($planDetails->stripe_price_id, ['stripe_account' => $account_id]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 0,
+                'error'  => ['message' => 'Price not found in connected account: ' . $e->getMessage()]
+            ], 404);
+        }
+
+        $response = [];
+
+        // ✅ Create checkout session
+        if ($request->has('createCheckoutSession')) {
             try {
-                $checkout_session = \Stripe\Checkout\Session::create([
+                $checkout_session = Session::create([
                     'payment_method_types' => ['card'],
+                    'mode'                 => 'subscription',
                     'line_items'           => [[
-                        'price_data' => [
-                            'currency'     => $currency,
-                            'product_data' => [
-                                'name'     => $planDetails->name,
-                                'metadata' => [
-                                    'plan_id'          => $request->plan_id,
-                                    'domainrequest_id' => $request->domainrequest_id,
-                                ],
-                            ],
-                            'unit_amount'  => $request->amount * 100,
-                        ],
-                        'quantity'   => 1,
+                        'price'    => $planDetails->stripe_price_id, // must exist in connected account
+                        'quantity' => 1,
                     ]],
-                    'mode'                 => 'payment',
-                    'success_url'          => route('stripe.success.pay', Crypt::encrypt([
+                    'success_url' => route('stripe.success.pay', Crypt::encrypt([
                         'coupon'   => $request->coupon,
                         'plan_id'  => $planDetails->id,
                         'price'    => $request->amount,
-                        'user_id'  => Auth::user()->id,
+                        'user_id'  => Auth::id(),
                         'order_id' => $request->order_id,
                         'type'     => 'stripe',
-                    ])),
-                    'cancel_url'           => route('stripe.cancel.pay', Crypt::encrypt([
+                    ])) . '&session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url'  => route('stripe.cancel.pay', Crypt::encrypt([
                         'coupon'   => $request->coupon,
                         'plan_id'  => $planDetails->id,
                         'price'    => $request->amount,
-                        'user_id'  => Auth::user()->id,
+                        'user_id'  => Auth::id(),
                         'order_id' => $request->order_id,
                         'type'     => 'stripe',
                     ])),
+                    'metadata' => [
+                        'plan_id' => $request->plan_id, // 👈 your own plan id
+                        'user_id' => Auth::id(),
+                    ]
+                ], [
+                    'stripe_account' => $account_id // ✅ connected account context
                 ]);
-            } catch (Exception $e) {
-                $api_error = $e->getMessage();
-            }
-            if (empty($api_error) && $checkout_session) {
+
                 $response = [
                     'status'    => 1,
                     'message'   => 'Checkout session created successfully.',
                     'sessionId' => $checkout_session->id,
+                    'url'       => $checkout_session->url,
                 ];
-            } else {
+            } catch (\Exception $e) {
                 $response = [
                     'status' => 0,
-                    'error'  => [
-                        'message' => 'Checkout session creation failed. ' . $api_error,
-                    ],
+                    'error'  => ['message' => 'Checkout session creation failed. ' . $e->getMessage()],
                 ];
             }
         }
+
         return response()->json($response);
     }
+
 
     public function paymentPending(Request $request)
     {
@@ -464,5 +494,57 @@ class StripeController extends Controller
         } else {
             return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
         }
+    }
+    public function handleStripeWebhook(Request $request)
+    {
+        $payload = $request->getContent();
+        $sig_header = $request->server('HTTP_STRIPE_SIGNATURE');
+        $endpoint_secret = config('services.stripe.webhook.secret');
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload,
+                $sig_header,
+                $endpoint_secret
+            );
+        } catch (\Exception $e) {
+            return response('Webhook error: ' . $e->getMessage(), 400);
+        }
+
+        if ($event->type === 'checkout.session.completed') {
+            $session = $event->data->object;
+
+            // ✅ read metadata
+            $plan_id  = $session->metadata->plan_id;
+            $user_id  = $session->metadata->user_id;
+            $order_id = $session->metadata->order_id;
+
+            // ✅ amount in cents, convert to normal
+            $amount   = $session->amount_total / 100;
+
+            Order::create([
+                'user_id'      => $user_id,
+                'plan_id'      => $plan_id,
+                'amount'       => $amount,
+                'payment_type' => 'stripe',
+                'status'       => 1,
+                'order_ref'    => $session->id,
+            ]);
+        }
+
+        if ($event->type === 'invoice.payment_failed') {
+            $session = $event->data->object;
+
+            \App\Models\Order::create([
+                'user_id'      => $session->metadata->user_id ?? null,
+                'plan_id'      => $session->metadata->plan_id ?? null,
+                'amount'       => $session->amount_due / 100,
+                'payment_type' => 'stripe',
+                'status'       => -1,
+                'order_ref'    => $session->id,
+            ]);
+        }
+
+        return response('Webhook handled', 200);
     }
 }
