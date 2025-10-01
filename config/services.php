@@ -49,10 +49,10 @@ return [
 
     'stripe' => [
         'model' => Follower::class,
-        'key' => 'pk_test_51QxaPkBFx3eDWa5rXhe5yeINptLvMNxXWcxKHBPfB5YyoWyy2hTZlvQwiFewk2X1oTOjeLBr8ER9iWRVbPfbVtmV00DiWRs1Ix',
-        'secret' => 'sk_test_51QxaPkBFx3eDWa5rjI0PvwVwz40tU2oJx7V20bYxW13A5XrK0TaAuChEiIdyHgRo3FukOtEWP2yfuxjhOnYlOyPa00Evz3RMoC',
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
         'webhook' => [
-            'secret' => 'whsec_6KDTcKP2F7NWOdEgCHvXzauRWhxSbIY6',
+            'secret' => env('STRIPE_WEBHOOK_SECRET'),
             'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
         ],
         'currency' => env('STRIPE_CURRENCY'),
