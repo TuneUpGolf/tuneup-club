@@ -81,7 +81,6 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-Route::post('/stripe/webhook', [StripeController::class, 'handleStripeWebhook']);
 
 Route::middleware([
     'web',

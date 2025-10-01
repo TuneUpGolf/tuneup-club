@@ -22,6 +22,7 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 |
 */
 
+Route::post('/stripe/webhook', [StripeController::class, 'handleStripeWebhook']);
 
 Route::post('/sanctum/token', function (Request $request) {
     $request->validate([
