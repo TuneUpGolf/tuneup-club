@@ -95,7 +95,7 @@ class RegisteredUserController extends Controller
                 $user->save();
             }
 
-            ProcessSignupEmails::dispatchSync($user, tenant('id'));
+            // ProcessSignupEmails::dispatchSync($user, tenant('id'));
             DB::commit();
             return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
         } catch (\Throwable $e) {
