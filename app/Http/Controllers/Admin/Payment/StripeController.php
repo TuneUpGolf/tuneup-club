@@ -518,7 +518,7 @@ class StripeController extends Controller
     public function handleStripeWebhook(Request $request)
     {
         $payload = $request->getContent();
-        \Log::info($payload);
+
         $sig_header = $request->server('HTTP_STRIPE_SIGNATURE');
         $endpoint_secret = config('services.stripe.webhook.secret');
 
@@ -534,31 +534,33 @@ class StripeController extends Controller
 
         if ($event->type === 'checkout.session.completed') {
             $session = $event->data->object;
+            if ($session) {
+                $old_order = Order::where('checkout_session_id', $session->id)->first();
+                // ✅ read metadata
+                $plan_id  = $old_order->plan_id;
+                $user_id  = $old_order->user_id;
+                $order_id = $old_order->id;
 
-            // ✅ read metadata
-            $plan_id  = $session->metadata->plan_id;
-            $user_id  = $session->metadata->user_id;
-            $order_id = $session->metadata->order_id;
+                // ✅ amount in cents, convert to normal
+                $amount   = $session->amount_total / 100;
 
-            // ✅ amount in cents, convert to normal
-            $amount   = $session->amount_total / 100;
-
-            Order::create([
-                'user_id'      => $user_id,
-                'plan_id'      => $plan_id,
-                'amount'       => $amount,
-                'payment_type' => 'stripe',
-                'status'       => 1,
-                'order_ref'    => $session->id,
-            ]);
+                Order::create([
+                    'user_id'      => $user_id,
+                    'plan_id'      => $plan_id,
+                    'amount'       => $amount,
+                    'payment_type' => 'stripe',
+                    'status'       => 1,
+                    'order_ref'    => $session->id,
+                ]);
+            }
         }
 
         if ($event->type === 'invoice.payment_failed') {
             $session = $event->data->object;
-
+            $old_order = Order::where('checkout_session_id', $session->id)->first();
             \App\Models\Order::create([
-                'user_id'      => $session->metadata->user_id ?? null,
-                'plan_id'      => $session->metadata->plan_id ?? null,
+                'user_id'      => $old_order->user_id ?? null,
+                'plan_id'      => $old_order->plan_id ?? null,
                 'amount'       => $session->amount_due / 100,
                 'payment_type' => 'stripe',
                 'status'       => -1,
