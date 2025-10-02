@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Facades\UtilityFacades;
@@ -34,6 +35,7 @@ class AuthenticatedSessionController extends Controller
 
     public function store(LoginRequest $request)
     {
+
         $central_domain = config('tenancy.central_domains')[0];
         $current_domain = tenant('domains');
         $current_guard  = 'web';

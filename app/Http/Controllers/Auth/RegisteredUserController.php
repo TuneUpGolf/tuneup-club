@@ -14,6 +14,7 @@ use App\Services\ChatService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -46,6 +47,7 @@ class RegisteredUserController extends Controller
             'email'    => 'required|email|max:255|unique:followers',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+        $current_guard  = 'web';
         DB::beginTransaction();
         try {
             $user = Follower::create([
@@ -65,7 +67,9 @@ class RegisteredUserController extends Controller
                 'active_status'     => 1,
             ]);
 
+
             $user->assignRole(Role::ROLE_FOLLOWER);
+
             $chatUserDetails = $this->chatService->getUserProfile($request->email);
             if ($chatUserDetails['code'] == 200) {
                 $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
@@ -97,7 +101,18 @@ class RegisteredUserController extends Controller
 
             ProcessSignupEmails::dispatchSync($user, tenant('id'));
             DB::commit();
-            return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
+            $user          = Follower::where('email', $request->email)->where('active_status', 1)->first();
+            $current_guard = 'follower';
+            if (Auth::guard($current_guard)->loginUsingId($user->id)) {
+                $request->session()->regenerate();
+
+                if ($user->phone_verified_at == '' && UtilityFacades::getsettings('sms_verification') == '1') {
+                    return redirect()->route('smsindex.noticeverification');
+                }
+                return redirect()->intended(RouteServiceProvider::HOME);
+            } else {
+                return redirect(RouteServiceProvider::LOGIN)->with('success', 'Signup successful, please login with your credentials');
+            }
         } catch (\Throwable $e) {
             DB::rollBack();
 
