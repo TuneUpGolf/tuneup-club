@@ -270,7 +270,6 @@ class Utility
         $data['stripe_key'] = Self::getsettings('stripe_key');
         $data['stripe_secret'] = Self::getsettings('stripe_secret');
         $data['stripe_description'] = Self::getsettings('stripe_description');
-        $data['platform_fee'] = Self::getsettings('platform_fee');
 
         $data['razorpaysetting'] = Self::getsettings('razorpaysetting');
         $data['razorpay_key'] = Self::getsettings('razorpay_key');
@@ -398,9 +397,6 @@ class Utility
         });
         $data['stripe_description'] = tenancy()->central(function ($tenant) {
             return Self::getsettings('stripe_description');
-        });
-        $data['platform_fee'] = tenancy()->central(function ($tenant) {
-            return Self::getsettings('platform_fee');
         });
 
         $data['razorpaysetting'] = tenancy()->central(function ($tenant) {

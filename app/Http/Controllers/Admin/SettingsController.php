@@ -493,7 +493,6 @@ class SettingsController extends Controller
 
     public function paymentSettingUpdate(Request $request)
     {
-
         $this->validate($request, [
             'paymentsetting'    => 'required|min:1'
         ]);
@@ -508,8 +507,6 @@ class SettingsController extends Controller
                 'stripe_secret'         => $request->stripe_secret,
                 'stripe_description'    => $request->stripe_description,
                 'stripesetting'         => (in_array('stripe', $request->get('paymentsetting'))) ? 'on' : 'off',
-                'platform_fee'         => $request->platform_fee,
-
             ];
         }
         if (in_array('razorpay', $request->paymentsetting)) {
@@ -796,7 +793,6 @@ class SettingsController extends Controller
             'stripe_secret'                 => $request->stripe_secret,
             'stripe_description'            => $request->stripe_description,
             'stripesetting'                 => (in_array('stripe', $request->get('paymentsetting'))) ? 'on' : 'off',
-            'platform_fee'                  => $request->platform_fee,
 
             'razorpay_key'                  => $request->razorpay_key,
             'razorpay_secret'               => $request->razorpay_secret,

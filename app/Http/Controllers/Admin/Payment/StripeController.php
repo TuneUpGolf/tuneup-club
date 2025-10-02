@@ -47,13 +47,10 @@ class StripeController extends Controller
             ]);
 
             $influencer = User::find($request->influencer_id);
-            $setting = UtilityFacades::getsettings('stripe_secret');
-            if (empty($setting)) {
-                throw new Exception('Stripe API key is not set in settings.');
-            }
 
-            Stripe::setApiKey($setting);
-            $stripeClient = new StripeClient($setting);
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+            $stripeClient = new StripeClient(config('services.stripe.secret'));
 
             if (empty($influencer->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
@@ -88,13 +85,9 @@ class StripeController extends Controller
             ]);
 
             $influencer = User::find($request->influencer_id);
-            $setting = UtilityFacades::getsettings('stripe_secret');
-            if (empty($setting)) {
-                throw new Exception('Stripe API key is not set in settings.');
-            }
 
-            Stripe::setApiKey($setting);
-            $stripeClient = new StripeClient($setting);
+            Stripe::setApiKey(config('services.stripe.secret'));
+            $stripeClient = new StripeClient(config('services.stripe.secret'));
 
             if (empty($influencer->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
@@ -126,12 +119,9 @@ class StripeController extends Controller
             ]);
             $influencer = User::where('id', $request->get('influencer_id'))->first();
             if (! empty($influencer->stripe_account_id)) {
-                $setting = UtilityFacades::getsettings('stripe_secret');
-                if (empty($setting)) {
-                    throw new Exception('Stripe API key is not set in settings.');
-                }
-                \Stripe\Stripe::setApiKey($setting);
-                $stripeClient = new \Stripe\StripeClient($setting);
+
+                \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+                $stripeClient = new \Stripe\StripeClient(config('services.stripe.secret'));
                 $account      = $stripeClient->accounts->retrieve($influencer->stripe_account_id);
 
                 if ($account && $account->id) {
@@ -288,12 +278,8 @@ class StripeController extends Controller
         }
 
         // ✅ Always use your platform secret key
-        $setting = UtilityFacades::getsettings('stripe_secret');
 
-        if (empty($setting)) {
-            throw new Exception('Stripe API key is not set in settings.');
-        }
-        Stripe::setApiKey($setting);
+        Stripe::setApiKey(config('services.stripe.secret'));
 
         $account_id = $planDetails->influencer->stripe_account_id;
         $platformAccount = \Stripe\Account::retrieve();
@@ -312,7 +298,7 @@ class StripeController extends Controller
             ], 404);
         }
 
-        $platform_fee = UtilityFacades::getsettings('platform_fee');
+        $platform_fee = UtilityFacades::getsettings('application_fee_percentage');
         if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
             return response()->json([
                 'status' => 0,
