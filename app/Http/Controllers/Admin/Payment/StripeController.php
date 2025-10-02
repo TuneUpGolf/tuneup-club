@@ -47,9 +47,13 @@ class StripeController extends Controller
             ]);
 
             $influencer = User::find($request->influencer_id);
+            $setting = UtilityFacades::getsettings('stripe_secret');
+            if (empty($setting)) {
+                throw new Exception('Stripe API key is not set in settings.');
+            }
 
-            Stripe::setApiKey(config('services.stripe.secret'));
-            $stripeClient = new StripeClient(config('services.stripe.secret'));
+            Stripe::setApiKey($setting);
+            $stripeClient = new StripeClient($setting);
 
             if (empty($influencer->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
@@ -82,9 +86,15 @@ class StripeController extends Controller
             $request->validate([
                 'influencer_id' => 'required',
             ]);
+
             $influencer = User::find($request->influencer_id);
-            Stripe::setApiKey(config('services.stripe.secret'));
-            $stripeClient = new StripeClient(config('services.stripe.secret'));
+            $setting = UtilityFacades::getsettings('stripe_secret');
+            if (empty($setting)) {
+                throw new Exception('Stripe API key is not set in settings.');
+            }
+
+            Stripe::setApiKey($setting);
+            $stripeClient = new StripeClient($setting);
 
             if (empty($influencer->stripe_account_id)) {
                 $account = $stripeClient->accounts->create([
@@ -116,8 +126,12 @@ class StripeController extends Controller
             ]);
             $influencer = User::where('id', $request->get('influencer_id'))->first();
             if (! empty($influencer->stripe_account_id)) {
-                \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-                $stripeClient = new \Stripe\StripeClient(config('services.stripe.secret'));
+                $setting = UtilityFacades::getsettings('stripe_secret');
+                if (empty($setting)) {
+                    throw new Exception('Stripe API key is not set in settings.');
+                }
+                \Stripe\Stripe::setApiKey($setting);
+                $stripeClient = new \Stripe\StripeClient($setting);
                 $account      = $stripeClient->accounts->retrieve($influencer->stripe_account_id);
 
                 if ($account && $account->id) {
@@ -274,17 +288,35 @@ class StripeController extends Controller
         }
 
         // ✅ Always use your platform secret key
-        Stripe::setApiKey(config('services.stripe.secret'));
+        $setting = UtilityFacades::getsettings('stripe_secret');
+
+        if (empty($setting)) {
+            throw new Exception('Stripe API key is not set in settings.');
+        }
+        Stripe::setApiKey($setting);
 
         $account_id = $planDetails->influencer->stripe_account_id;
+        $platformAccount = \Stripe\Account::retrieve();
+
+        // Get connected account (influencer’s account)
+        $destinationAccount = \Stripe\Account::retrieve($account_id);
+
 
         // (Optional) verify price exists inside the connected account
         try {
-            Price::retrieve($planDetails->stripe_price_id, ['stripe_account' => $account_id]);
+            $price  = Price::retrieve($planDetails->stripe_price_id, ['stripe_account' => $account_id]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 0,
                 'error'  => ['message' => 'Price not found in connected account: ' . $e->getMessage()]
+            ], 404);
+        }
+
+        $platform_fee = UtilityFacades::getsettings('platform_fee');
+        if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
+            return response()->json([
+                'status' => 0,
+                'error'  => ['message' => 'Platform fee is not set or invalid in settings. It should be between 0 and 100.']
             ], 404);
         }
 
@@ -295,9 +327,9 @@ class StripeController extends Controller
             try {
                 $checkout_session = Session::create([
                     'payment_method_types' => ['card'],
-                    'mode'                 => 'subscription',
-                    'line_items'           => [[
-                        'price'    => $planDetails->stripe_price_id, // must exist in connected account
+                    'mode' => 'subscription',
+                    'line_items' => [[
+                        'price'    => $planDetails->stripe_price_id,
                         'quantity' => 1,
                     ]],
                     'success_url' => route('stripe.success.pay', Crypt::encrypt([
@@ -308,7 +340,7 @@ class StripeController extends Controller
                         'order_id' => $request->order_id,
                         'type'     => 'stripe',
                     ])) . '&session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url'  => route('stripe.cancel.pay', Crypt::encrypt([
+                    'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
                         'coupon'   => $request->coupon,
                         'plan_id'  => $planDetails->id,
                         'price'    => $request->amount,
@@ -317,12 +349,19 @@ class StripeController extends Controller
                         'type'     => 'stripe',
                     ])),
                     'metadata' => [
-                        'plan_id' => $request->plan_id, // 👈 your own plan id
+                        'plan_id' => $request->plan_id,
                         'user_id' => Auth::id(),
+                    ],
+                    'subscription_data' => [
+                        'application_fee_percent' => $platform_fee, // Use the platform fee from settings
+
                     ]
                 ], [
-                    'stripe_account' => $account_id // ✅ connected account context
+                    // 👇 THIS IS THE IMPORTANT FIX
+                    'stripe_account' => $account_id
                 ]);
+
+
 
 
 

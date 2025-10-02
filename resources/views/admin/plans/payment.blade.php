@@ -590,7 +590,7 @@
                 });
             }).submit();
         @endif
-
+        const adminPaymentSetting = @json($adminPaymentSetting ?? []);
         @if (isset($adminPaymentSetting['stripesetting']) && $adminPaymentSetting['stripesetting'] == 'on')
             $(document).on("click", "#pay_with_stripe", function() {
                 $('#stripe-payment-form').ajaxForm(function(res) {
@@ -600,7 +600,7 @@
                     }
 
                     // ✅ Only publishable key here
-                    const stripe = Stripe("{{ config('services.stripe.key') }}");
+                    const stripe = Stripe(adminPaymentSetting.stripe_key);
 
                     createCheckoutSession(res.plan_id, res.order_id, res.coupon, res.total_price).then(
                         function(data) {

@@ -6,6 +6,7 @@ use Stripe\Stripe;
 use Stripe\Customer;
 use Stripe\Product;
 use Stripe\Price;
+use App\Facades\UtilityFacades;
 
 
 class SubscriptionService
@@ -13,7 +14,11 @@ class SubscriptionService
 
     public static function createStripePlan($request, $user)
     {
-        Stripe::setApiKey(config('services.stripe.secret'));
+        $setting = UtilityFacades::getsettings('stripe_secret');
+        if (empty($setting)) {
+            throw new \Exception('Stripe API key is not set in settings.');
+        }
+        Stripe::setApiKey($setting);
 
         try {
             // ✅ Wrap everything in a try/catch
@@ -59,7 +64,11 @@ class SubscriptionService
 
     public static function updateStripePlan($request, $user, $plan)
     {
-        Stripe::setApiKey(config('services.stripe.secret'));
+        $setting = UtilityFacades::getsettings('stripe_secret');
+        if (empty($setting)) {
+            throw new \Exception('Stripe API key is not set in settings.');
+        }
+        Stripe::setApiKey($setting);
 
         try {
             // ✅ Update product (only name/description can be changed)
@@ -112,7 +121,11 @@ class SubscriptionService
 
     public static function deleteStripePlan($user, $plan)
     {
-        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        $setting = UtilityFacades::getsettings('stripe_secret');
+        if (empty($setting)) {
+            throw new \Exception('Stripe API key is not set in settings.');
+        }
+        \Stripe\Stripe::setApiKey($setting);
 
         try {
             // 1. Deactivate all Prices

@@ -1845,6 +1845,25 @@
                                                                             {{ Form::text('stripe_description', Utility::getsettings('stripe_description'), ['class' => 'form-control', 'id' => 'stripe_description', 'placeholder' => __('Enter description')]) }}
                                                                         </div>
                                                                     </div>
+                                                                    <div class="col-md-6">
+                                                                        {{-- Platform fee (percentage) --}}
+                                                                        <div class="form-group">
+                                                                            {{ Form::label('platform_fee', __('Platform Fee (%)'), ['class' => 'col-form-label']) }}
+                                                                            {{ Form::number('platform_fee', Utility::getsettings('platform_fee'), [
+                                                                                'class' => 'form-control',
+                                                                                'id' => 'platform_fee',
+                                                                                'placeholder' => __('Enter platform fee in %'),
+                                                                                'min' => 0,
+                                                                                'max' => 100,
+                                                                                'step' => '0.1', // allow decimals like 2.5%
+                                                                            ]) }}
+                                                                            <small class="form-text text-muted">
+                                                                                Example: <code>10</code> means 10% will be
+                                                                                charged as a platform fee.
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+
                                                                 </div>
                                                             </div>
                                                         </div>
