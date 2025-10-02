@@ -70,36 +70,36 @@ class RegisteredUserController extends Controller
 
             $user->assignRole(Role::ROLE_FOLLOWER);
 
-            $chatUserDetails = $this->chatService->getUserProfile($request->email);
-            if ($chatUserDetails['code'] == 200) {
-                $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
-                $user->update([
-                    'chat_user_id' => $chatUserDetails['data']['_id'],
-                ]);
-            } elseif ($chatUserDetails['code'] == 204) {
-                $created = $this->chatService->createUser($user);
-                if (! $created) {
-                    throw new \Exception('Failed to chat user.');
-                }
-            } else {
-                throw new \Exception('Failed to chat user.');
-            }
+            // $chatUserDetails = $this->chatService->getUserProfile($request->email);
+            // if ($chatUserDetails['code'] == 200) {
+            //     $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
+            //     $user->update([
+            //         'chat_user_id' => $chatUserDetails['data']['_id'],
+            //     ]);
+            // } elseif ($chatUserDetails['code'] == 204) {
+            //     $created = $this->chatService->createUser($user);
+            //     if (! $created) {
+            //         throw new \Exception('Failed to chat user.');
+            //     }
+            // } else {
+            //     throw new \Exception('Failed to chat user.');
+            // }
 
-            $influencer = User::where('type', Role::ROLE_INFLUENCER)->orderBy('id', 'desc')->first();
-            if ($influencerId = $influencer->id ?? false) {
-                Follow::updateOrCreate(
-                    ['follower_id' => $user->id, 'influencer_id' => $influencerId],
-                    ['active_status' => true, 'isPaid' => false]
-                );
-            }
+            // $influencer = User::where('type', Role::ROLE_INFLUENCER)->orderBy('id', 'desc')->first();
+            // if ($influencerId = $influencer->id ?? false) {
+            //     Follow::updateOrCreate(
+            //         ['follower_id' => $user->id, 'influencer_id' => $influencerId],
+            //         ['active_status' => true, 'isPaid' => false]
+            //     );
+            // }
 
-            $groupId = $this->chatService->createGroup($user->chat_user_id, $influencer->chat_user_id);
-            if ($groupId) {
-                $user->group_id = $groupId;
-                $user->save();
-            }
+            // $groupId = $this->chatService->createGroup($user->chat_user_id, $influencer->chat_user_id);
+            // if ($groupId) {
+            //     $user->group_id = $groupId;
+            //     $user->save();
+            // }
 
-            ProcessSignupEmails::dispatchSync($user, tenant('id'));
+            // ProcessSignupEmails::dispatchSync($user, tenant('id'));
             DB::commit();
             $user          = Follower::where('email', $request->email)->where('active_status', 1)->first();
             $current_guard = 'follower';
