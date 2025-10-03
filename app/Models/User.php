@@ -61,6 +61,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'social_url_ln',
         'social_url_yt',
         'chat_user_id',
+        'service_earning'
     ];
 
     protected $hidden = [
