@@ -118,7 +118,7 @@ class HomeController extends Controller
             ? Purchase::where('influencer_id', $user->id)->where('status', 'complete')->sum('total_amount')
             : Purchase::where('status', 'complete')->sum('total_amount');
 
-        $order_earning = Order::sum('total_amount');
+        $order_earning = Order::sum('net_amount');
         $earning       = $earning + $order_earning;
         // Fetch Influencer Statistics for Admins (Without Follower Count)
         $influencerStats = [];
