@@ -14,25 +14,26 @@ class SubscriptionService
 
     public static function createStripePlan($request, $user)
     {
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+        $product = null; // ✅ define before try to avoid undefined variable
 
         try {
-            // ✅ Wrap everything in a try/catch
-            $product = Product::create([
+            // ✅ Create Product
+            $product = \Stripe\Product::create([
                 'name' => $request->name,
             ], [
                 'stripe_account' => $user->stripe_account_id,
             ]);
 
-            $price = Price::create([
+            // ✅ Create Price
+            $price = \Stripe\Price::create([
                 'unit_amount' => $request->price * 100,
-                'currency' => 'usd',
-                'recurring' => [
-                    'interval' => strtolower($request->durationtype),
-
+                'currency'    => 'usd',
+                'recurring'   => [
+                    'interval' => strtolower($request->durationtype), // e.g. month/year
                 ],
-                'product' => $product->id,
+                'product'     => $product->id,
             ], [
                 'stripe_account' => $user->stripe_account_id,
             ]);
@@ -43,21 +44,16 @@ class SubscriptionService
                 'price_id'   => $price->id,
             ];
         } catch (\Exception $e) {
-            if (!empty($product?->id)) {
-                \Stripe\Product::delete(
-                    $product->id,
-                    [],
-                    ['stripe_account' => $user->stripe_account_id]
-                );
-            }
+             dd($e)
 
-
+            // ✅ Return error response
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
             ];
         }
     }
+
 
     public static function updateStripePlan($request, $user, $plan)
     {
