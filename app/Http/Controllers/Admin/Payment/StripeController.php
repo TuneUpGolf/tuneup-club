@@ -486,7 +486,8 @@ class StripeController extends Controller
                     'service_earning' => $superAdmin->service_earning + $platformAmount,
                 ]);
         }
-        \Log::info('Stripe Payment Success - Super Admin ID: ' . $superAdmin);
+        \Log::info('Stripe Payment Success - Super Admin', (array) $superAdmin);
+
 
 
         if (Auth::user()->type == 'Admin') {
