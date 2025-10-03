@@ -431,20 +431,24 @@ class FollowerController extends Controller
 
     public function chatNotification(Request $request)
     {
-        $receiverId = $request->input('receiver_id');
-        $message    = $request->input('message');
+        try {
+            $receiverId = $request->input('receiver_id');
+            $message    = $request->input('message');
 
-        $user = Follower::find($receiverId);
+            $user = User::find($receiverId);
 
-        // ✅ Use the actual chat message
-        $messagedata = __($message);
+            // ✅ Use the actual chat message
+            $messagedata = __($message);
 
-        if ($user?->pushToken?->token) {
-            SendTendPuchNotification::dispatch(
-                $user->pushToken->token,
-                'New Message',
-                $messagedata
-            );
+            if ($user?->pushToken?->token) {
+                SendTendPuchNotification::dispatch(
+                    $user->pushToken->token,
+                    'New Message',
+                    $messagedata
+                );
+            }
+        } catch (\Exception $e) {
+            \Log::error('Chat Notification Error: ' . $e->getMessage());
         }
     }
 }
