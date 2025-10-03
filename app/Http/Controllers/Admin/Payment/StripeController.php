@@ -475,11 +475,15 @@ class StripeController extends Controller
         $platformAmount = ($totalAmount * $platform_fee) / 100; // your fee %
         $netAmount      = $totalAmount - $platformAmount - $taxAmount;
 
-        $superAdmin = DB::connection('mysql')->table('users')->where('type', 'Super Admin')->first();
+        $superAdmin = \App\Models\User::on('mysql')
+            ->where('type', 'Super Admin')
+            ->first();
+
         if ($superAdmin) {
             $superAdmin->service_earning += $platformAmount;
             $superAdmin->save();
         }
+
 
         if (Auth::user()->type == 'Admin') {
             $order = tenancy()->central(function ($tenant) use ($data,  $sessionId, $subscription, $taxAmount, $platformAmount, $netAmount) {
