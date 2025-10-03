@@ -2,9 +2,9 @@
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
     <style>
-        .card-body{
+        .card-body {
             min-height: calc(100vh - 360px)
-           }
+        }
     </style>
     <style>
         .chat-box .rounded-circle {
@@ -25,6 +25,7 @@
             min-width: 105px;
             max-width: 105px;
         }
+
         .chat-msg-wrap {
             word-break: break-all;
         }
@@ -62,6 +63,7 @@
                 padding: 0.5rem 0.75rem;
 
             }
+
             .chat-box audio {
                 max-width: 260px;
             }
@@ -69,16 +71,18 @@
     </style>
 @endpush
 @include('admin.chat.chat', ['user' => $influencer->name])
+<input type="hidden" name="reciever_id" id="reciever_id" value="{{ $influencer->id }}">
+<input type="hidden" value="csrf-token" id="csrf-token" content="{{ csrf_token() }}">
 @push('javascript')
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         window.chatConfig = {
-            senderId : "{{ auth()->user()->chat_user_id }}",
-            senderImage : "{{ auth()->user()->dp }}",
-            groupId : "{{ auth()->user()->group_id }}",
-            recieverImage : "{{ $influencer->avatar }}",
-            token : "{{ $token }}",
+            senderId: "{{ auth()->user()->chat_user_id }}",
+            senderImage: "{{ auth()->user()->dp }}",
+            groupId: "{{ auth()->user()->group_id }}",
+            recieverImage: "{{ $influencer->avatar }}",
+            token: "{{ $token }}",
         }
         window.chatBaseUrl = "{{ config('services.chat.base_url') }}";
         window.s3BaseUrl = "{{ config('services.aws.base_url') }}";
