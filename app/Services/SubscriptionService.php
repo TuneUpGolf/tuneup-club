@@ -44,7 +44,7 @@ class SubscriptionService
                 'price_id'   => $price->id,
             ];
         } catch (\Exception $e) {
-            dd($e);
+
 
             // ✅ Return error response
             return [
