@@ -15,6 +15,7 @@ use App\Models\Lesson;
 use App\Models\Plan;
 use App\Models\Post;
 use App\Models\Posts;
+use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\Role;
 use App\Models\SupportTicket;
@@ -117,6 +118,8 @@ class HomeController extends Controller
             ? Purchase::where('influencer_id', $user->id)->where('status', 'complete')->sum('total_amount')
             : Purchase::where('status', 'complete')->sum('total_amount');
 
+        $order_earning = Order::sum('total_amount');
+        $earning       = $earning + $order_earning;
         // Fetch Influencer Statistics for Admins (Without Follower Count)
         $influencerStats = [];
         if ($userType == "Admin" || $userType == "Influencer") {

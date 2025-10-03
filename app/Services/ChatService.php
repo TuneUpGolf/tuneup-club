@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
@@ -96,6 +97,7 @@ class ChatService
 
     public function getChatToken(string $chatUserId)
     {
+
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/user/token', [

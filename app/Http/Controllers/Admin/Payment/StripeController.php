@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use Stripe\Account;
 use Stripe\Checkout\Session;
@@ -324,6 +325,7 @@ class StripeController extends Controller
                         'price'    => $request->amount,
                         'user_id'  => Auth::id(),
                         'order_id' => $request->order_id,
+                        'stripe_account_id' => $account_id,
                         'type'     => 'stripe',
                     ])) . '&session_id={CHECKOUT_SESSION_ID}',
                     'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
@@ -454,13 +456,41 @@ class StripeController extends Controller
         }
         $data = Crypt::decrypt($encrypted);
 
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+
+        $session = \Stripe\Checkout\Session::retrieve($sessionId, [
+            'stripe_account' => $data['stripe_account_id'] // only if connected accounts
+        ]);
+
+        $subscription = \Stripe\Subscription::retrieve($session->subscription, [
+            'stripe_account' => $data['stripe_account_id']
+        ]);
+
+        $latestInvoice = \Stripe\Invoice::retrieve($subscription->latest_invoice, [
+            'stripe_account' => $data['stripe_account_id']
+        ]);
+        $platform_fee  = UtilityFacades::getsettings('application_fee_percentage');
+        $totalAmount    = $latestInvoice->total / 100;       // total charged
+        $taxAmount      = $latestInvoice->tax / 100 ?? 0;    // Stripe invoice tax
+        $platformAmount = ($totalAmount * $platform_fee) / 100; // your fee %
+        $netAmount      = $totalAmount - $platformAmount - $taxAmount;
+
+        $superAdmin = DB::connection('mysql')->table('users')->where('type', 'Super Admin')->first();
+        if ($superAdmin) {
+            $superAdmin->service_earning += $platformAmount;
+            $superAdmin->save();
+        }
 
         if (Auth::user()->type == 'Admin') {
-            $order = tenancy()->central(function ($tenant) use ($data,  $sessionId) {
+            $order = tenancy()->central(function ($tenant) use ($data,  $sessionId, $subscription, $taxAmount, $platformAmount, $netAmount) {
                 $datas               = Order::find($data['order_id']);
                 $datas->status       = 1;
                 $datas->payment_type = 'stripe';
                 $datas->checkout_session_id = $sessionId;
+                $datas->subscription_id     = $subscription->id;
+                $datas->tax_amount     = $taxAmount;
+                $datas->platform_amount = $platformAmount;
+                $datas->net_amount      = $netAmount;
                 $datas->update();
                 $coupons = Coupon::find($data['coupon']);
                 $user    = User::find($tenant->id);
@@ -492,6 +522,10 @@ class StripeController extends Controller
             $datas->status       = 1;
             $datas->payment_type = 'stripe';
             $datas->checkout_session_id = $sessionId;
+            $datas->subscription_id     = $subscription->id;
+            $datas->tax_amount     = $taxAmount;
+            $datas->platform_amount = $platformAmount;
+            $datas->net_amount      = $netAmount;
             $datas->update();
             $currentUser = Auth::user();
             $userType    = $currentUser->type;

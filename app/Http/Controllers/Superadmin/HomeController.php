@@ -40,6 +40,11 @@ class HomeController extends Controller
             $earning        = Order::where('status', '=', 1)->orWhere('status', '3')
                 ->where('created_at', '>=', Carbon::now()->subDays(365)->toDateString())
                 ->where('created_at', '<=', Carbon::now()->toDateString())->sum('amount');
+            $superAdmin = User::where('type', 'Super Admin')->first();
+            if ($superAdmin) {
+                $earning += $superAdmin->service_earning;
+            }
+
             $paymentTypes   = UtilityFacades::getpaymenttypes();
             $supports       = SupportTicket::latest()->take(7)->get();
             return view('superadmin.dashboard.home', compact('user', 'plan', 'languages', 'earning', 'paymentTypes', 'supports'));
