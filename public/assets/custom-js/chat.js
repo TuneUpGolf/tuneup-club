@@ -41,7 +41,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     const message = messageInput.value.trim();
 
     if (!message) return;
-
+    var received = document.getElementById("reciever_id").value;
+    var csrfToken = document
+      .getElementById("csrf-token")
+      .getAttribute("content");
+    $.ajax({
+      url: "/chat-notification",
+      type: "POST",
+      data: {
+        receiver_id: received, // instructor_id
+        message: "Checking subscription status",
+        _token: csrfToken, // if using web.php routes
+      },
+      success: function (res) {
+        console.log("Notification sent successfully");
+      },
+    });
     socket.emit("chatMessage", {
       senderId: senderId,
       groupId: groupId,
@@ -72,20 +87,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const msgHtml = createMessageHTML(newMessage);
     chatBox.insertAdjacentHTML("beforeend", msgHtml);
     chatBox.scrollTop = chatBox.scrollHeight;
-    var received = document.getElementById("reciever_id").value;
-    var csrfToken = document
-      .getElementById("csrf-token")
-      .getAttribute("content");
-    $.ajax({
-      url: "/chat-notification",
-      type: "POST",
-      data: {
-        receiver_id: received, // instructor_id
-        message: "Checking subscription status",
-        _token: csrfToken, // if using web.php routes
-      },
-      success: function (res) {},
-    });
   });
 
   // 🔹 load chat messages as per page
