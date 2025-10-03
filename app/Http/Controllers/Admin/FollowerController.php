@@ -435,7 +435,9 @@ class FollowerController extends Controller
             $receiverId = $request->input('receiver_id');
             $message    = $request->input('message');
 
+
             $user = User::find($receiverId);
+            \Log::info('Chat Notification User: ' . $user, ['receiverId' => $receiverId, 'message' => $message]);
 
             // ✅ Use the actual chat message
             $messagedata = __($message);
