@@ -475,14 +475,18 @@ class StripeController extends Controller
         $platformAmount = ($totalAmount * $platform_fee) / 100; // your fee %
         $netAmount      = $totalAmount - $platformAmount - $taxAmount;
 
-        $superAdmin = \App\Models\User::on('mysql')
+        $superAdmin = DB::connection('mysql')->table('users')
             ->where('type', 'Super Admin')
             ->first();
 
         if ($superAdmin) {
-            $superAdmin->service_earning += $platformAmount;
-            $superAdmin->save();
+            DB::connection('mysql')->table('users')
+                ->where('id', $superAdmin->id)
+                ->update([
+                    'service_earning' => $superAdmin->service_earning + $platformAmount,
+                ]);
         }
+        \Log::info('Stripe Payment Success - Super Admin ID: ' . $superAdmin);
 
 
         if (Auth::user()->type == 'Admin') {
