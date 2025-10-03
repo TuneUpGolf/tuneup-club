@@ -108,8 +108,8 @@ class PlanController extends Controller
                 'is_chat_enabled' => $request->chat == '1' ? 1 : 0,
                 'is_feed_enabled' => $request->feed == '1' ? 1 : 0,
                 'influencer_id'   => $influencerId,
-                'stripe_product_id' => $serviceplane['product_id'],
-                'stripe_price_id' => $serviceplane['price_id']
+                'stripe_product_id' => $serviceplane['product_id'] ?? null,
+                'stripe_price_id' => $serviceplane['price_id'] ?? null,
             ]);
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
         } else {
