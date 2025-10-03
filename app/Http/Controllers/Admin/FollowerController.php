@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
-use App\Actions\SendPushNotification;
+use App\Actions\SendTendPuchNotification;
 use App\Actions\SendSMS;
 use App\DataTables\Admin\FollowerDataTable;
 use App\DataTables\Admin\FollowerPurchaseDataTable;
@@ -440,7 +440,7 @@ class FollowerController extends Controller
         $messagedata = __($message);
 
         if ($user?->pushToken?->token) {
-            SendPushNotification::dispatch(
+            SendTendPuchNotification::dispatch(
                 $user->pushToken->token,
                 'New Message',
                 $messagedata
