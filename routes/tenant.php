@@ -53,6 +53,7 @@ use App\Http\Controllers\Admin\SmsController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SocialLoginController;
 use App\Http\Controllers\Admin\SupportTicketController;
+use App\Http\Controllers\Superadmin\HelpSectionController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Resources\FollowerAPIResource;
@@ -115,11 +116,15 @@ Route::middleware([
         Route::get('view-blog', [PostsController::class, 'allPost'])->name('view.post');
 
         Route::get('pages/{slug}', [LandingPageController::class, 'pageDescription'])->name('description.page');
+        //help section
+        Route::resource('help-section', HelpSectionController::class);
     });
 
     Route::group(['middleware' => ['auth:web,follower', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
 
         Route::impersonate();
+        //help section
+        Route::resource('help-section', HelpSectionController::class);
         // category
         Route::resource('category', CategoryController::class);
         Route::post('category-status/{id}', [CategoryController::class, 'categoryStatus'])->name('category.status');
