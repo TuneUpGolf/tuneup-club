@@ -35,6 +35,7 @@ class SendTendPuchNotification implements ShouldQueue
      */
     public function handle()
     {
+        \Log::info('Running job for tenant: ' . tenant('id'));
         // ✅ Restore tenant context if available
         if ($this->tenantId) {
             tenancy()->initialize($this->tenantId);
