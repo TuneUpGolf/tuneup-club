@@ -31,7 +31,7 @@ class SubscriptionService
                 'unit_amount' => $request->price * 100,
                 'currency'    => 'usd',
                 'recurring'   => [
-                    'interval' => 'day', // e.g. month/year
+                    'interval' => strtolower($request->durationtype), // e.g. month/year
                 ],
                 'product'     => $product->id,
             ], [
