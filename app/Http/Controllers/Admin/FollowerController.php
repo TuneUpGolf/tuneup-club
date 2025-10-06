@@ -441,6 +441,9 @@ class FollowerController extends Controller
 
             // ✅ Use the actual chat message
             $messagedata = __($message);
+            \Log::info('Chat Token: ' . $user?->pushToken?->token);
+            \Log::info('Chat pushToken: ' . $user?->pushToken);
+
 
             if ($user?->pushToken?->token) {
                 \Log::info('Chat Notification Token: ' . $user->pushToken->token);
