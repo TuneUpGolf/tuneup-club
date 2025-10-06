@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\SendEmail;
+use App\Actions\SendTendPuchNotification;
 use App\Actions\SendSMS;
 use App\DataTables\Admin\FollowerDataTable;
 use App\DataTables\Admin\FollowerPurchaseDataTable;
@@ -426,5 +427,30 @@ class FollowerController extends Controller
     public function purchases(\App\DataTables\Admin\FollowerPurchasesDataTable $dataTable)
     {
         return $dataTable->render('admin.followers.purchases');
+    }
+
+    public function chatNotification(Request $request)
+    {
+        try {
+            $receiverId = $request->input('receiver_id');
+            $message    = $request->input('message');
+
+
+            $user = User::find($receiverId);
+            \Log::info('Chat Notification User: ' . $user, ['receiverId' => $receiverId, 'message' => $message]);
+
+            // ✅ Use the actual chat message
+            $messagedata = __($message);
+
+            if ($user?->pushToken?->token) {
+                SendTendPuchNotification::dispatch(
+                    $user->pushToken->token,
+                    'New Message',
+                    $messagedata
+                );
+            }
+        } catch (\Exception $e) {
+            \Log::error('Chat Notification Error: ' . $e->getMessage());
+        }
     }
 }

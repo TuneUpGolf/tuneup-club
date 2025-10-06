@@ -164,6 +164,7 @@ Route::middleware([
         Route::get('/follower/import', [FollowerController::class, 'import'])->name('follower.import');
         Route::resource('follower', FollowerController::class);
         Route::resource('all-chat', FollowerController::class);
+        Route::post('chat-notification', [FollowerController::class, 'chatNotification'])->name('chat.notification');
         Route::get('follower-emailverified/{id}', [FollowerController::class, 'userEmailVerified'])->name('follower.email.verified');
         Route::get('follower-phoneverified/{id}', [FollowerController::class, 'userPhoneVerified'])->name('follower.phone.verified');
         Route::post('follower-status/{id}', [FollowerController::class, 'userStatus'])->name('follower.status');
