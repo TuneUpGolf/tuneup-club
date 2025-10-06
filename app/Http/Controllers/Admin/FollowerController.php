@@ -443,12 +443,14 @@ class FollowerController extends Controller
             $messagedata = __($message);
 
             if ($user?->pushToken?->token) {
+                \Log::info('Chat Notification Token: ' . $user->pushToken->token);
                 SendTendPuchNotification::dispatch(
                     $user->pushToken->token,
                     'New Message',
                     $messagedata
                 );
             }
+            \Log::info('Chat Notification Dispatched');
         } catch (\Exception $e) {
             \Log::error('Chat Notification Error: ' . $e->getMessage());
         }
