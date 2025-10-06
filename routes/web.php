@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\FollowController;
 use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\PurchasePostController;
+use App\Http\Controllers\Superadmin\HelpSectionController;
+use App\Http\Controllers\VideoUploadController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Superadmin\HomeController;
@@ -200,7 +202,11 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
     Route::post('settings/cookie-setting/update', [SettingsController::class, 'cookieSettingUpdate'])->name('settings.cookie.setting.update');
     Route::post('setting/seo/save', [SettingsController::class, 'SeoSetting'])->name('setting.seo.save');
     Route::get('test-mail', [SettingsController::class, 'testMail'])->name('test.mail');
+    // help section
+    Route::resource('help-section', HelpSectionController::class);
 
+    Route::post('/upload-chunk', [VideoUploadController::class, 'uploadChunk'])->name('upload-chunk');
+    Route::post('/finalize-upload', [VideoUploadController::class, 'finalizeUpload'])->name('finalize-upload');
     //froentend
     Route::group(['prefix' => 'landingpage-setting'], function () {
         Route::get('app-setting', [LandingPageController::class, 'landingPageSetting'])->name('landingpage.setting');

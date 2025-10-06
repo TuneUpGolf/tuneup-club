@@ -81,6 +81,12 @@ return [
             'endpoint' => env('DO_SPACES_ENDPOINT'),
             'visibility' => 'public',
         ],
+        'videos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/videos'), // Points to storage/videos
+            'url' => env('APP_URL') . '/storage/videos',
+            'visibility' => 'public',
+        ],
 
     ],
 
