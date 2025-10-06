@@ -576,6 +576,7 @@ class StripeController extends Controller
     }
     public function handleStripeWebhook(Request $request)
     {
+        \Log::info('Stripe Webhook Received', $request->all());
         $payload = $request->getContent();
 
         $sig_header = $request->server('HTTP_STRIPE_SIGNATURE');
@@ -592,6 +593,7 @@ class StripeController extends Controller
         }
 
         if ($event->type === 'checkout.session.completed') {
+            \Log::info('Stripe Checkout Session Completed', $event->data->object);
             $session = $event->data->object;
             if ($session) {
                 $old_order = Order::where('checkout_session_id', $session->id)->first();
@@ -615,6 +617,7 @@ class StripeController extends Controller
         }
 
         if ($event->type === 'invoice.payment_failed') {
+            \Log::info('Stripe Invoice Payment Failed', $event->data->object);
             $session = $event->data->object;
             $old_order = Order::where('checkout_session_id', $session->id)->first();
             \App\Models\Order::create([
