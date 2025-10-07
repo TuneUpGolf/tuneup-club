@@ -587,6 +587,7 @@ class StripeController extends Controller
     {
         \Log::info('Stripe Webhook Received', $request->all());
         $payload = $request->getContent();
+        \Log::info('Payload: ' . $payload);
 
         $sig_header = $request->server('HTTP_STRIPE_SIGNATURE');
         $endpoint_secret = config('services.stripe.webhook.secret');
@@ -597,6 +598,7 @@ class StripeController extends Controller
                 $sig_header,
                 $endpoint_secret
             );
+            \Log::info('Stripe Webhook Event Constructed: ' . json_encode($event));
         } catch (\Exception $e) {
             return response('Webhook error: ' . $e->getMessage(), 400);
         }
@@ -624,7 +626,9 @@ class StripeController extends Controller
                 ]);
             }
         }
-
+        if ($event->type === 'invoice.payment_succeeded') {
+            \Log::info('invoice.payment_succeeded', $event->data->object);
+        }
         if ($event->type === 'invoice.payment_failed') {
             \Log::info('Stripe Invoice Payment Failed', $event->data->object);
             $session = $event->data->object;
