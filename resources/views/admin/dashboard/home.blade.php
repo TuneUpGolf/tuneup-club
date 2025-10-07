@@ -255,7 +255,7 @@
                         </div>
                     </div>
                 @endif
-                @if (Auth::user()->type == 'Influencer' && $subscriptions == false && $influencer_plans)
+                @if (Auth::user()->type == 'Influencer' && $users->stripe_account_id && $subscriptions == false && $influencer_plans)
                     <div class="col-lg-4">
                         <div class="card bg-primary">
                             <div class="card-body">
