@@ -224,7 +224,7 @@ Route::middleware([
         Route::post('chart', [HomeController::class, 'chart'])->name('get.chart.data');
         Route::post('read/notification', [HomeController::class, 'readNotification'])->name('admin.read.notification');
         Route::get('sales', [HomeController::class, 'sales'])->name('sales.index');
-
+        Route::post('subscribe-service-plan/{id}', [HomeController::class, 'subscribeServicePlan'])->name('subscribe.service.plan');
         // coupon
         Route::get('apply-coupon', [CouponController::class, 'applyCoupon'])->name('apply.coupon');
         Route::resource('coupon', CouponController::class);

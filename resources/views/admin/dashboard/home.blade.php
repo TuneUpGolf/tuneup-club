@@ -30,6 +30,14 @@
         $chatcolor = '#0C7785';
     }
 
+    $influncerSubscriptions = DB::table('influencer_subscription')->where('status', 'active')->latest()->first();
+    if ($influncerSubscriptions) {
+        $subscriptions = true;
+    } else {
+        $subscriptions = false;
+    }
+    $influencer_plans = DB::table('influencer_plan')->where('influencer_id', $users->id)->first();
+
 @endphp
 @extends('layouts.main')
 @section('title', __('Dashboard'))
@@ -47,7 +55,7 @@
                                             enable-background="new 0 0 64 64">
                                             <path
                                                 d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50
-                                            l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
@@ -219,35 +227,62 @@
                     </div>
                 @endif
             </div>
-
-            @if (Auth::user()->type == 'Influencer' && !$users->is_stripe_connected)
-                <div class="col-lg-4">
-                    <div class="card bg-primary">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-sm">
-                                    <h2 class="text-white ">{{ 'Connect Stripe' }}</h2>
-                                    <p class="text-white">
-                                        {{ __('To receive payments for your lessons and subscriptions, please connect your Stripe account.') }}
-                                        {{ __('Ensure that payouts are enabled in your Stripe settings to start receiving funds.') }}
-                                    </p>
-                                    <div class="quick-add-btn">
-                                        {!! Form::open([
-                                            'method' => 'POST',
-                                            'class' => 'd-inline',
-                                            'route' => ['stripe.create', ['influencer_id' => $users->id]],
-                                            'id' => 'stripe-create',
-                                        ]) !!}
-                                        {{ Form::button(__('Connect Stripe'), ['type' => 'submit', 'class' => 'btn-q-add  dash-btn btn btn-default btn-light']) }}
-                                        {!! Form::close() !!}
+            <div class="row">
+                @if (Auth::user()->type == 'Influencer' && !$users->is_stripe_connected)
+                    <div class="col-lg-4">
+                        <div class="card bg-primary">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-sm">
+                                        <h2 class="text-white ">{{ 'Connect Stripe' }}</h2>
+                                        <p class="text-white">
+                                            {{ __('To receive payments for your lessons and subscriptions, please connect your Stripe account.') }}
+                                            {{ __('Ensure that payouts are enabled in your Stripe settings to start receiving funds.') }}
+                                        </p>
+                                        <div class="quick-add-btn">
+                                            {!! Form::open([
+                                                'method' => 'POST',
+                                                'class' => 'd-inline',
+                                                'route' => ['stripe.create', ['influencer_id' => $users->id]],
+                                                'id' => 'stripe-create',
+                                            ]) !!}
+                                            {{ Form::button(__('Connect Stripe'), ['type' => 'submit', 'class' => 'btn-q-add  dash-btn btn btn-default btn-light']) }}
+                                            {!! Form::close() !!}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endif
-
+                @endif
+                @if (Auth::user()->type == 'Influencer' && $users->stripe_account_id && $subscriptions == false && $influencer_plans)
+                    <div class="col-lg-4">
+                        <div class="card bg-primary">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-sm">
+                                        <h2 class="text-white ">{{ 'Subscribe to a Plan' }}</h2>
+                                        <p class="text-white">
+                                            {{ __('To unlock premium features and maximize your influence, please subscribe to one of our plans.') }}
+                                            {{ __('Choose a plan that suits your needs and start enjoying the benefits today!') }}
+                                        </p>
+                                        <div class="quick-add-btn">
+                                            {!! Form::open([
+                                                'method' => 'POST',
+                                                'class' => 'd-inline',
+                                                'route' => ['subscribe.service.plan', ['id' => $users->id]],
+                                                'id' => 'subscription-create',
+                                            ]) !!}
+                                            {{ Form::button(__('Subscribe'), ['type' => 'submit', 'class' => 'btn-q-add dash-btn btn btn-default btn-light']) }}
+                                            {!! Form::close() !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
             @if (Auth::user()->type == 'Influencer')
                 <div class="row">
                     <div class="col-xl-12">
