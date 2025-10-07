@@ -225,6 +225,8 @@ Route::middleware([
         Route::post('read/notification', [HomeController::class, 'readNotification'])->name('admin.read.notification');
         Route::get('sales', [HomeController::class, 'sales'])->name('sales.index');
         Route::post('subscribe-service-plan/{id}', [HomeController::class, 'subscribeServicePlan'])->name('subscribe.service.plan');
+        Route::get('/influencer/payment/success', [HomeController::class, 'paymentSuccess'])->name('influencer.payment.success');
+        Route::get('/influencer/payment/cancel', [HomeController::class, 'paymentCancel'])->name('influencer.payment.cancel');
         // coupon
         Route::get('apply-coupon', [CouponController::class, 'applyCoupon'])->name('apply.coupon');
         Route::resource('coupon', CouponController::class);

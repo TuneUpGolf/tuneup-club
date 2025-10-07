@@ -355,7 +355,26 @@ class HomeController extends Controller
 
     public function subscribeServicePlan($id)
     {
-        InfluncerServices::subscribeInfluncerPlan($id);
-        return redirect()->back()->with('success', __('Subscribed Successfully'));
+        $response = InfluncerServices::subscribeInfluncerPlan($id);
+        if (isset($response['url'])) {
+            return redirect($response['url']);
+        }
+        return back()->withErrors($response['error']);
+    }
+    public function paymentSuccess(Request $request)
+    {
+        $sessionId = $request->get('session_id');
+        $result = InfluncerServices::handleSuccess($sessionId);
+
+        if (isset($result['success'])) {
+            return redirect()->route('dashboard')->with('success', 'Subscription successful!');
+        }
+
+        return redirect()->route('dashboard')->with('error', $result['error'] ?? 'Something went wrong');
+    }
+
+    public function paymentCancel()
+    {
+        return redirect()->route('dashboard')->with('error', 'Payment cancelled');
     }
 }
