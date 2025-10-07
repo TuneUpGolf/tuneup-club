@@ -71,25 +71,33 @@ class InfluncerServices
     }
 
 
+
     public static function subscribeInfluncerPlan($userId)
     {
         $user = DB::table('users')->where('id', $userId)->first();
-        if (!$user) {
+        if (!$user || !$user->stripe_account_id) {
             return;
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
+        $stripeAccountId = $user->stripe_account_id;
 
-        // Search for Stripe customer by email
-        $customers = \Stripe\Customer::all(['email' => $user->email, 'limit' => 1]);
+        // Connected account me customer search karo
+        $customers = \Stripe\Customer::all(
+            ['email' => $user->email, 'limit' => 1],
+            ['stripe_account' => $stripeAccountId]
+        );
         if (count($customers->data) > 0) {
             $stripeCustomerId = $customers->data[0]->id;
         } else {
-            // Create customer if not found
-            $customer = \Stripe\Customer::create([
-                'name'  => $user->name,
-                'email' => $user->email,
-            ]);
+            // Agar customer nahi mila to connected account me create karo
+            $customer = \Stripe\Customer::create(
+                [
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                ],
+                ['stripe_account' => $stripeAccountId]
+            );
             $stripeCustomerId = $customer->id;
         }
 
@@ -98,12 +106,17 @@ class InfluncerServices
             return;
         }
 
-        $subscription = \Stripe\Subscription::create([
-            'customer' => $stripeCustomerId,
-            'items' => [[
-                'price' => $influncer->price_id,
-            ]],
-        ]);
+        // Subscription bhi connected account context me create karo
+        $subscription = \Stripe\Subscription::create(
+            [
+                'customer' => $stripeCustomerId,
+                'items' => [[
+                    'price' => $influncer->price_id,
+                ]],
+            ],
+            ['stripe_account' => $stripeAccountId]
+        );
+
         DB::table('influencer_subscription')->insert([
             'influencer_id' => $userId,
             'subscription_id' => $subscription->id,
