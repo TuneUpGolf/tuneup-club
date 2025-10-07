@@ -369,14 +369,14 @@ class HomeController extends Controller
         $result = InfluncerServices::handleSuccess($sessionId);
 
         if (isset($result['success'])) {
-            return redirect()->route('dashboard')->with('success', 'Subscription successful!');
+            return redirect('/home')->with('success', 'Subscription successful!');
         }
 
-        return redirect()->route('dashboard')->with('error', $result['error'] ?? 'Something went wrong');
+        return redirect('/home')->with('error', $result['error'] ?? 'Something went wrong');
     }
 
     public function paymentCancel()
     {
-        return redirect()->route('dashboard')->with('error', 'Payment cancelled');
+        return redirect('/home')->with('error', 'Payment cancelled');
     }
 }
