@@ -89,7 +89,7 @@ class InfluncerServices
                 'price' => $influencer->price_id,
                 'quantity' => 1,
             ]],
-            'success_url' => route('influencer.payment.success', ['session_id' => '{CHECKOUT_SESSION_ID}']),
+            'success_url' => route('influencer.payment.success') . '&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url'  => route('influencer.payment.cancel'),
         ]);
 
