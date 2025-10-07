@@ -105,6 +105,7 @@ class InfluncerServices
         $session = \Stripe\Checkout\Session::retrieve($sessionId);
 
         if ($session->status !== 'complete' && $session->payment_status !== 'paid') {
+            \Log::warning('Stripe Checkout session not completed: ' . $sessionId);
             return ['error' => 'Payment not completed'];
         }
 
@@ -122,6 +123,7 @@ class InfluncerServices
         $influencer = DB::table('influencer_plan')->where('influencer_id', $userId)->first();
 
         if ($influencer) {
+
             DB::table('influencer_subscription')->insert([
                 'influencer_id' => $userId,
                 'subscription_id' => $subscriptionId,
@@ -135,6 +137,7 @@ class InfluncerServices
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            \Log::info('Stripe Checkout session completed: ' . $sessionId);
         }
 
         return ['success' => true];
