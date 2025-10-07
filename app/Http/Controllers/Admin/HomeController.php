@@ -363,7 +363,9 @@ class HomeController extends Controller
     }
     public function paymentSuccess(Request $request)
     {
+
         $sessionId = $request->get('session_id');
+
         $result = InfluncerServices::handleSuccess($sessionId);
 
         if (isset($result['success'])) {
