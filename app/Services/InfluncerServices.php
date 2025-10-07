@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Stripe\Price;
 use Stripe\Product;
 use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class InfluncerServices
 {
@@ -70,63 +71,80 @@ class InfluncerServices
         }
     }
 
-
-
     public static function subscribeInfluncerPlan($userId)
     {
-        $user = DB::table('users')->where('id', $userId)->first();
-        if (!$user || !$user->stripe_account_id) {
-            return;
+        // 1️⃣ Fetch influencer plan from DB
+        $influencer = DB::table('influencer_plan')->where('influencer_id', $userId)->first();
+        if (!$influencer) {
+            return ['error' => 'No influencer plan found'];
         }
 
         Stripe::setApiKey(config('services.stripe.secret'));
-        $stripeAccountId = $user->stripe_account_id;
 
-        // Connected account me customer search karo
-        $customers = \Stripe\Customer::all(
-            ['email' => $user->email, 'limit' => 1],
-            ['stripe_account' => $stripeAccountId]
-        );
-        if (count($customers->data) > 0) {
-            $stripeCustomerId = $customers->data[0]->id;
-        } else {
-            // Agar customer nahi mila to connected account me create karo
-            $customer = \Stripe\Customer::create(
-                [
-                    'name'  => $user->name,
-                    'email' => $user->email,
-                ],
-                ['stripe_account' => $stripeAccountId]
-            );
-            $stripeCustomerId = $customer->id;
-        }
-
-        $influncer = DB::table('influencer_plan')->where('influencer_id', $userId)->first();
-        if (!$influncer) {
-            return;
-        }
-
-        // Subscription bhi connected account context me create karo
-        $subscription = \Stripe\Subscription::create(
-            [
-                'customer' => $stripeCustomerId,
-                'items' => [[
-                    'price' => $influncer->price_id,
-                ]],
-            ],
-            ['stripe_account' => $stripeAccountId]
-        );
-
-        DB::table('influencer_subscription')->insert([
-            'influencer_id' => $userId,
-            'subscription_id' => $subscription->id,
-            'price_id' => $influncer->price_id,
-            'product_id' => $influncer->product_id,
-            'price' => $influncer->price,
-            'status' => 'active',
-            'end_date' => $subscription->current_period_end ? date('Y-m-d H:i:s', $subscription->current_period_end) : null,
-            'created_at' => now(),
-            'updated_at' => now(),
+        // 2️⃣ Create Stripe Checkout Session
+        $session = Session::create([
+            'mode' => 'subscription',
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price' => $influencer->price_id,
+                'quantity' => 1,
+            ]],
+            'success_url' => route('influencer.payment.success', ['session_id' => '{CHECKOUT_SESSION_ID}']),
+            'cancel_url'  => route('influencer.payment.cancel'),
         ]);
+
+        return ['url' => $session->url];
+    }
+
+    /**
+     * ✅ Handle Stripe Checkout success callback
+     */
+    public static function handleSuccess($sessionId)
+    {
+        Stripe::setApiKey(config('services.stripe.secret'));
+        $session = \Stripe\Checkout\Session::retrieve($sessionId);
+
+        if ($session->status !== 'complete' && $session->payment_status !== 'paid') {
+            return ['error' => 'Payment not completed'];
+        }
+
+        $subscriptionId = $session->subscription;
+        $customerId = $session->customer;
+
+        // Retrieve subscription info
+        $subscription = \Stripe\Subscription::retrieve($subscriptionId);
+
+        // Get user ID from DB (if you stored it in metadata)
+        $userId = $session->metadata->user_id ?? null;
+
+        if (!$userId) return ['error' => 'User not found in session metadata'];
+
+        $influencer = DB::table('influencer_plan')->where('influencer_id', $userId)->first();
+
+        if ($influencer) {
+            DB::table('influencer_subscription')->insert([
+                'influencer_id' => $userId,
+                'subscription_id' => $subscriptionId,
+                'price_id' => $influencer->price_id,
+                'product_id' => $influencer->product_id,
+                'price' => $influencer->price,
+                'status' => $subscription->status ?? 'active',
+                'end_date' => $subscription->current_period_end
+                    ? date('Y-m-d H:i:s', $subscription->current_period_end)
+                    : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return ['success' => true];
+    }
+
+    /**
+     * ❌ Handle Stripe Checkout cancel callback
+     */
+    public static function handleCancel()
+    {
+        return ['cancelled' => true, 'message' => 'Payment was cancelled'];
     }
 }
