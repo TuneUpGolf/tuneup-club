@@ -90,6 +90,21 @@
                             @endif
                         </div>
 
+                        <div class="form-group">
+                            {{ Form::label('service_fee', __('Service Fee'), ['class' => 'form-label']) }}
+                            {!! Form::number('service_fee', $user->service_fee, [
+                                'class' => 'form-control',
+                                'id' => 'service_fee',
+                                'placeholder' => __('Service Fee'),
+                                'required',
+                            ]) !!}
+                            @if ($errors->has('service_fee'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('service_fee') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
                         {{-- @if (tenant('id') != null && $user->type != 'Admin')
                             <div class="form-group">
                                 {{ Form::label('roles', __('Role'), ['class' => 'form-label']) }}

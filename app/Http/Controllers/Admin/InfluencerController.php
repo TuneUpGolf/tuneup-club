@@ -23,6 +23,7 @@ use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\ChatService;
+use App\Services\InfluncerServices;
 use App\Traits\ConvertVideos;
 use Carbon\Carbon;
 use Exception;
@@ -127,6 +128,7 @@ class InfluencerController extends Controller
                 $userData['phone_verified_at'] = (UtilityFacades::getsettings('phone_verification') == '1') ? null : Carbon::now()->toDateTimeString();
                 $userData['country_code']      = $request->country_code;
                 $userData['dial_code']         = $request->dial_code;
+                $userData['service_fee']       = $request->service_fee;
                 $userData['phone']             = str_replace(' ', '', $request->phone);
                 $user                          = User::create($userData);
                 $user->assignRole('Influencer');
@@ -158,6 +160,7 @@ class InfluencerController extends Controller
                 ]);
                 $userPhone = Str::of($userData['dial_code'])->append($userData['phone'])->value();
                 $userPhone = str_replace(['(', ')'], '', $userPhone);
+                InfluncerServices::addAndUpdateInfluncerPlan($request->service_fee, $user->id, $user->name);
                 // SendSMS::dispatch("+" . $userPhone, $message);
             }
             return redirect()->route('influencer.index')->with('success', __('Influencer created successfully.'));
@@ -367,6 +370,7 @@ class InfluencerController extends Controller
             $user->country_code = $request->country_code;
             $user->dial_code    = $request->dial_code;
             $user->phone        = str_replace(' ', '', $request->phone);
+            $user->service_fee   = $request->service_fee;
             $currentdate        = Carbon::now();
             $newEndingDate      = date("Y-m-d", strtotime(date("Y-m-d", strtotime($user->created_at)) . " + 1 year"));
             if ($currentdate <= $newEndingDate) {
@@ -376,6 +380,8 @@ class InfluencerController extends Controller
                 $user->password = bcrypt($request->password);
                 $user->save();
             }
+
+            InfluncerServices::addAndUpdateInfluncerPlan($request->service_fee, $user->id, $user->name);
 
             return redirect()->route('influencer.index')->with('success', __('User updated successfully.'));
         } else {

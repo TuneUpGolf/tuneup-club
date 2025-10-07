@@ -22,6 +22,7 @@ use App\Models\SupportTicket;
 use App\Models\User;
 use App\Providers\AuthServiceProvider;
 use App\Services\ChatService;
+use App\Services\InfluncerServices;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use DatePeriod;
@@ -350,5 +351,11 @@ class HomeController extends Controller
             ]);
         }
         return response()->json(['mode' => $user->dark_layout]);
+    }
+
+    public function subscribeServicePlan($id)
+    {
+        InfluncerServices::subscribeInfluncerPlan($id);
+        return redirect()->back()->with('success', __('Subscribed Successfully'));
     }
 }
