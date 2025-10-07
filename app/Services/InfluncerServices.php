@@ -13,6 +13,7 @@ class InfluncerServices
     // Your service methods here
     public static function addAndUpdateInfluncerPlan($amount, $id, $name)
     {
+        \Log::info('addAndUpdateInfluncerPlan called with amount: ' . $amount . ', id: ' . $id . ', name: ' . $name);
         $influncer = DB::table('influencer_plan')->where('influencer_id', $id)->first();
         if (floatval($amount) <= 0) {
             return;
@@ -27,7 +28,7 @@ class InfluncerServices
                 try {
                     Price::update($influncer->price_id, ['active' => false]);
                 } catch (\Exception $e) {
-                    \Log::warning('Failed to deactivate old Stripe price: ' . $e->getMessage());
+                    \Log::info('Failed to deactivate old Stripe price: ' . $e->getMessage());
                 }
             }
 
@@ -101,11 +102,12 @@ class InfluncerServices
      */
     public static function handleSuccess($sessionId)
     {
+        \Log::info('handleSuccess called with sessionId: ' . $sessionId);
         Stripe::setApiKey(config('services.stripe.secret'));
         $session = \Stripe\Checkout\Session::retrieve($sessionId);
 
         if ($session->status !== 'complete' && $session->payment_status !== 'paid') {
-            \Log::warning('Stripe Checkout session not completed: ' . $sessionId);
+            \Log::info('Stripe Checkout session not completed: ' . $sessionId);
             return ['error' => 'Payment not completed'];
         }
 
@@ -143,11 +145,9 @@ class InfluncerServices
         return ['success' => true];
     }
 
-    /**
-     * ❌ Handle Stripe Checkout cancel callback
-     */
     public static function handleCancel()
     {
+        \Log::info('handleCancel called');
         return ['cancelled' => true, 'message' => 'Payment was cancelled'];
     }
 }
