@@ -90,6 +90,9 @@ class InfluncerServices
                 'price' => $influencer->price_id,
                 'quantity' => 1,
             ]],
+            'metadata' => [
+                'user_id' => $userId,
+            ],
             'success_url' => route('influencer.payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url'  => route('influencer.payment.cancel'),
         ]);
@@ -105,25 +108,26 @@ class InfluncerServices
         \Log::info('handleSuccess called with sessionId: ' . $sessionId);
         Stripe::setApiKey(config('services.stripe.secret'));
         $session = \Stripe\Checkout\Session::retrieve($sessionId);
-
-        if ($session->status !== 'complete' && $session->payment_status !== 'paid') {
-            \Log::info('Stripe Checkout session not completed: ' . $sessionId);
-            return ['error' => 'Payment not completed'];
+        \Log::info('Retrieved session: ' . json_encode($session));
+        if (!$session) {
+            return ['error' => 'Invalid session ID'];
         }
 
         $subscriptionId = $session->subscription;
+        \Log::info('Retrieved subscription ID: ' . $subscriptionId);
         $customerId = $session->customer;
 
         // Retrieve subscription info
         $subscription = \Stripe\Subscription::retrieve($subscriptionId);
-
+        \Log::info('Retrieved subscription: ' . json_encode($subscription));
         // Get user ID from DB (if you stored it in metadata)
         $userId = $session->metadata->user_id ?? null;
+        \Log::info('Retrieved user ID from metadata: ' . $userId);
 
         if (!$userId) return ['error' => 'User not found in session metadata'];
 
         $influencer = DB::table('influencer_plan')->where('influencer_id', $userId)->first();
-
+        \Log::info('Fetched influencer plan: ' . json_encode($influencer));
         if ($influencer) {
 
             DB::table('influencer_subscription')->insert([
