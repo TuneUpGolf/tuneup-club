@@ -70,15 +70,36 @@ class InfluncerServices
         }
     }
 
+
     public static function subscribeInfluncerPlan($userId)
     {
+        $user = DB::table('users')->where('id', $userId)->first();
+        if (!$user) {
+            return;
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        // Search for Stripe customer by email
+        $customers = \Stripe\Customer::all(['email' => $user->email, 'limit' => 1]);
+        if (count($customers->data) > 0) {
+            $stripeCustomerId = $customers->data[0]->id;
+        } else {
+            // Create customer if not found
+            $customer = \Stripe\Customer::create([
+                'name'  => $user->name,
+                'email' => $user->email,
+            ]);
+            $stripeCustomerId = $customer->id;
+        }
+
         $influncer = DB::table('influencer_plan')->where('influencer_id', $userId)->first();
         if (!$influncer) {
             return;
         }
-        Stripe::setApiKey(config('services.stripe.secret'));
+
         $subscription = \Stripe\Subscription::create([
-            'customer' => $userId,
+            'customer' => $stripeCustomerId,
             'items' => [[
                 'price' => $influncer->price_id,
             ]],
