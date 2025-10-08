@@ -143,6 +143,17 @@ class InfluncerServices
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            $superAdmin = DB::connection('mysql')->table('users')
+                ->where('type', 'Super Admin')
+                ->first();
+
+            if ($superAdmin) {
+                DB::connection('mysql')->table('users')
+                    ->where('id', $superAdmin->id)
+                    ->update([
+                        'service_earning' => $superAdmin->service_earning + $influencer->price,
+                    ]);
+            }
             \Log::info('Stripe Checkout session completed: ' . $sessionId);
         }
 
