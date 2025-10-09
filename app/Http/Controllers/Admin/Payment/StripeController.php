@@ -627,7 +627,7 @@ class StripeController extends Controller
             }
         }
         if ($event->type === 'invoice.payment_succeeded') {
-            \Log::info('invoice.payment_succeeded', $event->data->object);
+            \Log::info('invoice.payment_succeeded', json_encode($event));
         }
         if ($event->type === 'invoice.payment_failed') {
             \Log::info('Stripe Invoice Payment Failed', $event->data->object);

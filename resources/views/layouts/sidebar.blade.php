@@ -235,7 +235,7 @@
                                 @endcan
                                 @can('manage-followers')
                                     <li class="dash-item {{ request()->is('follower*') ? 'active' : '' }}">
-                                        <a class="dash-link" href="{{ route('follower.index') }}">{{ __('Follower') }}</a>
+                                        <a class="dash-link" href="{{ route('follower.index') }}">{{ __('My Clients') }}</a>
                                     </li>
                                 @endcan
                             </ul>

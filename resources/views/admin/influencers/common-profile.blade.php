@@ -37,7 +37,7 @@
             <button class="tablinks {{ $tab == 'lessons' ? 'active' : '' }}"
                 onclick="window.location.href='home?tab=lessons'">Offerings</button>
             <button class="tablinks {{ $tab == 'posts' ? 'active' : '' }}"
-                onclick="window.location.href='home?tab=posts'">Posts</button>
+                onclick="window.location.href='home?tab=posts'">Tips & Drills</button>
             <button class="tablinks {{ $tab == 'subscriptions' ? 'active' : '' }}"
                 onclick="window.location.href='home?tab=subscriptions'">Subscriptions</button>
             <button class="tablinks {{ $isChatTab ? 'active' : '' }}"
