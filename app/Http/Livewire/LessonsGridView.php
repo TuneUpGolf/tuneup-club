@@ -14,7 +14,7 @@ class LessonsGridView extends GridView
      */
     public function repository(): Builder
     {
-        $query = Lesson::where('active_status', true);
+        $query = Lesson::where('active_status', true)->orderBy('column_order');
 
         if (request()->query('influencer_id')) {
             $query->where('created_by', request()->query('influencer_id'));
