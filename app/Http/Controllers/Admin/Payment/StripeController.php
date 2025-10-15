@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers\Admin\Payment;
 
-use App\Facades\UtilityFacades;
-use App\Http\Controllers\Controller;
-use App\Models\Coupon;
-use App\Models\Follower;
-use App\Models\Order;
+use Exception;
+use Stripe\Price;
+use Carbon\Carbon;
+use Stripe\Stripe;
+use Stripe\Account;
+use Stripe\Product;
 use App\Models\Plan;
 use App\Models\User;
-use App\Models\UserCoupon;
-use App\Services\ChatService;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Crypt;
-use Stripe\Account;
-use Stripe\Checkout\Session;
-use Stripe\Price;
-use Stripe\Stripe;
-use Stripe\Product;
-use Stripe\Checkout\Session as StripeSession;
+use App\Models\Order;
+use App\Models\Coupon;
+use App\Models\Follower;
 use Stripe\StripeClient;
+use App\Models\UserCoupon;
+use Illuminate\Http\Request;
+use Stripe\Checkout\Session;
+use App\Services\ChatService;
+use App\Facades\UtilityFacades;
+use App\Models\ClientSubscription;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Stripe\Checkout\Session as StripeSession;
 
 class StripeController extends Controller
 {
@@ -299,58 +300,90 @@ class StripeController extends Controller
             ], 404);
         }
 
-        $platform_fee = UtilityFacades::getsettings('application_fee_percentage');
-        if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
-            return response()->json([
-                'status' => 0,
-                'error'  => ['message' => 'Platform fee is not set or invalid in settings. It should be between 0 and 100.']
-            ], 404);
-        }
+        // $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
+        // if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
+        //     return response()->json([
+        //         'status' => 0,
+        //         'error'  => ['message' => 'Platform fee is not set or invalid in settings. It should be between 0 and 100.']
+        //     ], 404);
+        // }
 
         $response = [];
 
         // ✅ Create checkout session
         if ($request->has('createCheckoutSession')) {
             try {
-                $checkout_session = Session::create([
+                // $checkout_session = Session::create([
+                //     'payment_method_types' => ['card'],
+                //     'mode' => 'subscription',
+                //     'line_items' => [[
+                //         'price'    => $planDetails->stripe_price_id,
+                //         'quantity' => 1,
+                //     ]],
+                //     'success_url' => route('stripe.success.pay', Crypt::encrypt([
+                //         'coupon'   => $request->coupon,
+                //         'plan_id'  => $planDetails->id,
+                //         'price'    => $request->amount,
+                //         'user_id'  => Auth::id(),
+                //         'order_id' => $request->order_id,
+                //         'stripe_account_id' => $account_id,
+                //         'type'     => 'stripe',
+                //     ])) . '&session_id={CHECKOUT_SESSION_ID}',
+                //     'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
+                //         'coupon'   => $request->coupon,
+                //         'plan_id'  => $planDetails->id,
+                //         'price'    => $request->amount,
+                //         'user_id'  => Auth::id(),
+                //         'order_id' => $request->order_id,
+                //         'type'     => 'stripe',
+                //     ])),
+                //     'metadata' => [
+                //         'plan_id' => $request->plan_id,
+                //         'user_id' => Auth::id(),
+                //     ],
+                //     'subscription_data' => [
+                //         'application_fee_percent' => $platform_fee, // Use the platform fee from settings
+
+                //     ]
+                // ], [
+                //     // 👇 THIS IS THE IMPORTANT FIX
+                //     'stripe_account' => $account_id
+                // ]);
+
+                $checkout_session = \Stripe\Checkout\Session::create([
                     'payment_method_types' => ['card'],
                     'mode' => 'subscription',
                     'line_items' => [[
-                        'price'    => $planDetails->stripe_price_id,
+                        'price' => $planDetails->stripe_price_id,
                         'quantity' => 1,
                     ]],
+                    'customer_email' => Auth::user()->email,
+                    // 'metadata' => [
+                    //     'plan_id' => $planDetails->id,
+                    //     'student_id' => Auth::user()->id,
+                    //     'tenant_id' => tenant()->id,
+                    //     'instructor_id' => $planDetails->instructor_id,
+                    // ],
                     'success_url' => route('stripe.success.pay', Crypt::encrypt([
-                        'coupon'   => $request->coupon,
-                        'plan_id'  => $planDetails->id,
-                        'price'    => $request->amount,
-                        'user_id'  => Auth::id(),
+                        'coupon' => $request->coupon,
+                        'plan_id' => $planDetails->id,
+                        'price' => $request->amount,
+                        'user_id' => Auth::user()->id,
                         'order_id' => $request->order_id,
-                        'stripe_account_id' => $account_id,
-                        'type'     => 'stripe',
-                    ])) . '&session_id={CHECKOUT_SESSION_ID}',
+                        'type' => 'stripe',
+                    ])) . '?session_id={CHECKOUT_SESSION_ID}',
                     'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
-                        'coupon'   => $request->coupon,
-                        'plan_id'  => $planDetails->id,
-                        'price'    => $request->amount,
-                        'user_id'  => Auth::id(),
+                        'coupon' => $request->coupon,
+                        'plan_id' => $planDetails->id,
+                        'price' => $request->amount,
+                        'user_id' => Auth::user()->id,
                         'order_id' => $request->order_id,
-                        'type'     => 'stripe',
+                        'type' => 'stripe',
                     ])),
-                    'metadata' => [
-                        'plan_id' => $request->plan_id,
-                        'user_id' => Auth::id(),
-                    ],
-                    'subscription_data' => [
-                        'application_fee_percent' => $platform_fee, // Use the platform fee from settings
-
-                    ]
                 ], [
-                    // 👇 THIS IS THE IMPORTANT FIX
-                    'stripe_account' => $account_id
+                    // ✅ options go here (second argument)
+                    'stripe_account' => $planDetails->influencer->stripe_account_id,
                 ]);
-
-
-
 
 
                 $response = [
@@ -448,45 +481,51 @@ class StripeController extends Controller
     public function paymentSuccess($data)
     {
 
-        if (strpos($data, '&session_id=') !== false) {
-            [$encrypted, $sessionId] = explode('&session_id=', $data, 2);
-        } else {
-            $encrypted = $data;
-            $sessionId = null;
+        $session_id = request('session_id');
+        $sessionId = $session_id;
+
+        // ✅ Remove session id as other data is encrypted
+        if (strpos($data, '?') !== false) {
+            $data = explode('?', $data)[0];
         }
-        $data = Crypt::decrypt($encrypted);
+
+        // Then decrypt encrypted data
+        $data = Crypt::decrypt($data);
 
         \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        $plan          = Plan::find($data['plan_id']);
 
-        $session = \Stripe\Checkout\Session::retrieve($sessionId, [
-            'stripe_account' => $data['stripe_account_id'] // only if connected accounts
+        $session = \Stripe\Checkout\Session::retrieve($session_id, [
+            'stripe_account' => $plan->influencer->stripe_account_id // Use the connected account ID
         ]);
 
         $subscription = \Stripe\Subscription::retrieve($session->subscription, [
-            'stripe_account' => $data['stripe_account_id']
+            'stripe_account' => $plan->influencer->stripe_account_id
         ]);
 
         $latestInvoice = \Stripe\Invoice::retrieve($subscription->latest_invoice, [
-            'stripe_account' => $data['stripe_account_id']
+            'stripe_account' => $plan->influencer->stripe_account_id
         ]);
-        $platform_fee  = UtilityFacades::getsettings('application_fee_percentage');
-        $totalAmount    = $latestInvoice->total / 100;       // total charged
-        $taxAmount      = $latestInvoice->tax / 100 ?? 0;    // Stripe invoice tax
-        $platformAmount = ($totalAmount * $platform_fee) / 100; // your fee %
-        $netAmount      = $totalAmount - $platformAmount - $taxAmount;
 
-        $superAdmin = DB::connection('mysql')->table('users')
-            ->where('type', 'Super Admin')
-            ->first();
+        $platform_fee  = UtilityFacades::getsettings('application_fee_percentage') ?? 1;
+        $totalAmount   = ($latestInvoice->total ?? 0) / 100; // total charged
+        $taxAmount     = ($latestInvoice->tax ?? 0) / 100;   // Stripe invoice tax
+        $platformAmount = ((float)$totalAmount * (float)$platform_fee) / 100; // your fee %
+        $netAmount     = $totalAmount - $platformAmount - $taxAmount;
 
-        if ($superAdmin) {
-            DB::connection('mysql')->table('users')
-                ->where('id', $superAdmin->id)
-                ->update([
-                    'service_earning' => $superAdmin->service_earning + $platformAmount,
-                ]);
-        }
-        \Log::info('Stripe Payment Success - Super Admin', (array) $superAdmin);
+
+        // $superAdmin = DB::connection('mysql')->table('users')
+        //     ->where('type', 'Super Admin')
+        //     ->first();
+
+        // if ($superAdmin) {
+        //     DB::connection('mysql')->table('users')
+        //         ->where('id', $superAdmin->id)
+        //         ->update([
+        //             'service_earning' => $superAdmin->service_earning + $platformAmount,
+        //         ]);
+        // }
+        // \Log::info('Stripe Payment Success - Super Admin', (array) $superAdmin);
 
 
 
@@ -527,6 +566,8 @@ class StripeController extends Controller
                 $user->save();
             });
         } else {
+
+
             $datas               = Order::find($data['order_id']);
             $datas->status       = 1;
             $datas->payment_type = 'stripe';
@@ -557,8 +598,10 @@ class StripeController extends Controller
                     $coupons->save();
                 }
             }
-            $plan          = Plan::find($data['plan_id']);
+
+
             $user->plan_id = $plan->id;
+
             if ($plan->durationtype == 'Month' && $plan->id != '1') {
                 $planExpiredDate = Carbon::now()->addMonths($plan->duration)->isoFormat('YYYY-MM-DD');
                 $user->plan_expired_date = $planExpiredDate;
@@ -568,6 +611,7 @@ class StripeController extends Controller
             } else {
                 $user->plan_expired_date = null;
             }
+
             if ($plan->is_chat_enabled) {
                 $this->chatService->updateUser($user->chat_user_id, 'plan_expired_date', $planExpiredDate, $user->email);
                 $groupId = $this->chatService->createGroup($user->chat_user_id, $user->follows->first()?->influencer->chat_user_id);
@@ -575,14 +619,82 @@ class StripeController extends Controller
                     $user->group_id = $groupId;
                 }
             }
+
+
             $user->save();
+            
         }
+
+
+        /**
+         * 🆕 NEW STRIPE LOGIC STARTS HERE
+         * --------------------------------
+         * After successful payment, find the checkout session and
+         * update the subscription to auto-cancel after plan duration.
+         */
+        // \Log::info($session_id);
+        try {
+            if ($session_id) {
+                \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+                // $session = \Stripe\Checkout\Session::retrieve($session_id);
+                $session = \Stripe\Checkout\Session::retrieve($session_id, [
+                    'stripe_account' => $plan->influencer->stripe_account_id // Use the connected account ID
+                ]);
+
+                if (!empty($session->subscription)) {
+                    // \Log::info("2");
+
+                    $subscription_id = $session->subscription;
+                    $customer_id = $session->customer ?? null;
+
+                    // 🆕 Create Student Subscription record
+                    ClientSubscription::create([
+                        'follower_id' => $user->id,
+                        'plan_id' => $plan->id,
+                        'influencer_id' => $plan->influencer_id ?? null,
+                        'tenant_id' => tenant()->id,
+                        'stripe_customer_id' => $customer_id,
+                        'stripe_subscription_id' => $subscription_id,
+                        'status' => 'active',
+                    ]);
+
+                    // Auto-cancel logic
+                    if (strtolower($plan->durationtype) === 'month') {
+                        $cancelAt = now()->addMonths($plan->duration)->timestamp;
+                    } elseif (strtolower($plan->durationtype) === 'day') {
+                        $cancelAt = now()->addDays($plan->duration)->timestamp;
+                    } elseif (strtolower($plan->durationtype) === 'year') {
+                        $cancelAt = now()->addYears($plan->duration)->timestamp;
+                    } else {
+                        // fallback (optional) - e.g., default to months or handle error
+                        $cancelAt = now()->addMonths($plan->duration)->timestamp;
+                    }
+
+                    // \Log::info($cancelAt);
+
+                    \Stripe\Subscription::update($subscription_id, [
+                        'cancel_at' => $cancelAt,
+                    ], [
+                        'stripe_account' => $plan->influencer->stripe_account_id // Use the connected account ID
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Stripe cancel_at update failed: ' . $e->getMessage());
+            dd($e);
+        }
+        /** 🆕 END STRIPE LOGIC */
+
+
         if ($userType == 'Follower') {
             return redirect()->route('home')->with('status', __('Payment successfully!'));
         } else {
             return redirect()->route('plans.index')->with('status', __('Payment successfully!'));
         }
     }
+
+
+
     public function handleStripeWebhook(Request $request)
     {
         \Log::info('Stripe Webhook Received', $request->all());

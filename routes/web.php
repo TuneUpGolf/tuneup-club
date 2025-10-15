@@ -1,64 +1,65 @@
 <?php
 
+use AWS\CRT\HTTP\Request;
 use App\Actions\SendEmail;
-use App\DataTables\Superadmin\RequestDemoDataTable;
-use App\Http\Controllers\Admin\FollowController;
-use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
-use App\Http\Controllers\Admin\PurchaseController;
-use App\Http\Controllers\Admin\PurchasePostController;
-use App\Http\Controllers\Superadmin\HelpSectionController;
-use App\Http\Controllers\VideoUploadController;
+use App\Models\RequestDemo;
+use App\Mail\Admin\RequestDemoMail;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request as HttpRequest;
+use Spatie\MailTemplates\Models\MailTemplate;
+use App\Http\Controllers\VideoUploadController;
+use App\Http\Controllers\Admin\FollowController;
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\Admin\PurchaseController;
+use App\Http\Controllers\Superadmin\FaqController;
+use App\DataTables\Superadmin\RequestDemoDataTable;
 use App\Http\Controllers\Superadmin\HomeController;
-use App\Http\Controllers\Superadmin\LanguageController;
-use App\Http\Controllers\Superadmin\LoginSecurityController;
-use App\Http\Controllers\Superadmin\ModuleController;
-use App\Http\Controllers\Superadmin\OfflineRequestController;
 use App\Http\Controllers\Superadmin\PlanController;
-use App\Http\Controllers\Superadmin\ProfileController;
-use App\Http\Controllers\Superadmin\ChangeDomainController;
-use App\Http\Controllers\Superadmin\ConversionsController;
-use App\Http\Controllers\Superadmin\EmailTemplateController;
-use App\Http\Controllers\Superadmin\RequestDomainController;
 use App\Http\Controllers\Superadmin\RoleController;
-use App\Http\Controllers\Superadmin\SupportTicketController;
-use App\Http\Controllers\Superadmin\SettingsController;
 use App\Http\Controllers\Superadmin\UserController;
 use App\Http\Controllers\Superadmin\CouponController;
-use App\Http\Controllers\Superadmin\FaqController;
+use App\Http\Controllers\Superadmin\ModuleController;
+use App\Http\Controllers\Admin\PurchasePostController;
+use App\Http\Controllers\Superadmin\ProfileController;
+use App\Http\Controllers\Superadmin\LanguageController;
+use App\Http\Controllers\Superadmin\SettingsController;
+use App\Http\Controllers\Superadmin\ConversionsController;
+use App\Http\Controllers\Superadmin\HelpSectionController;
 use App\Http\Controllers\Superadmin\LandingPageController;
+use App\Http\Controllers\Superadmin\PageSettingController;
 use App\Http\Controllers\Superadmin\SmsTemplateController;
 use App\Http\Controllers\Superadmin\TestimonialController;
-use App\Http\Controllers\Superadmin\NotificationsSettingController;
-use App\Http\Controllers\Superadmin\PageSettingController;
-use App\Http\Controllers\Superadmin\Payment\CoingateController;
-use App\Http\Controllers\Superadmin\Payment\ToyyibpayController;
-use App\Http\Controllers\Superadmin\Payment\SSPayController;
-use App\Http\Controllers\Superadmin\Payment\StripeController;
-use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
-use App\Http\Controllers\Superadmin\Payment\SkrillPaymentController;
+use App\Http\Controllers\Superadmin\ChangeDomainController;
+use App\Http\Controllers\Superadmin\EmailTemplateController;
+use App\Http\Controllers\Superadmin\LoginSecurityController;
 use App\Http\Controllers\Superadmin\Payment\PaytmController;
-use App\Http\Controllers\Superadmin\Payment\PayuMoneyController;
-use App\Http\Controllers\Superadmin\Payment\PaystackController;
-use App\Http\Controllers\Superadmin\Payment\PaytabController;
+use App\Http\Controllers\Superadmin\Payment\SSPayController;
+use App\Http\Controllers\Superadmin\RequestDomainController;
+use App\Http\Controllers\Superadmin\SupportTicketController;
+use App\Http\Controllers\Superadmin\OfflineRequestController;
 use App\Http\Controllers\Superadmin\Payment\PayPalController;
-use App\Http\Controllers\Superadmin\Payment\PayfastController;
+use App\Http\Controllers\Superadmin\Payment\PaytabController;
+use App\Http\Controllers\Superadmin\Payment\StripeController;
+use App\Http\Controllers\Superadmin\Payment\IyziPayController;
 use App\Http\Controllers\Superadmin\Payment\MercadoController;
-use App\Http\Controllers\Superadmin\Payment\MolliePaymentController;
-use App\Http\Controllers\Superadmin\Payment\FlutterwaveController;
+use App\Http\Controllers\Superadmin\Payment\PayfastController;
 use App\Http\Controllers\Superadmin\Payment\AamarpayController;
 use App\Http\Controllers\Superadmin\Payment\CashFreeController;
-use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
-use App\Http\Controllers\Superadmin\Payment\IyziPayController;
-use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
-use App\Mail\Admin\RequestDemoMail;
-use App\Models\RequestDemo;
-use AWS\CRT\HTTP\Request;
-use Illuminate\Http\Request as HttpRequest;
-use Illuminate\Support\Facades\Http;
-use Spatie\MailTemplates\Models\MailTemplate;
+use App\Http\Controllers\Superadmin\Payment\CoingateController;
+use App\Http\Controllers\Superadmin\Payment\PaystackController;
+use App\Http\Controllers\Superadmin\Payment\PayuMoneyController;
+use App\Http\Controllers\Superadmin\Payment\ToyyibpayController;
+use App\Http\Controllers\Superadmin\Payment\FlutterwaveController;
+use App\Http\Controllers\Superadmin\NotificationsSettingController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
+use App\Http\Controllers\Superadmin\Payment\MolliePaymentController;
+use App\Http\Controllers\Superadmin\Payment\SkrillPaymentController;
+use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
+use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
+use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
+use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +71,9 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+
 
 require __DIR__ . '/auth.php';
 Route::group(['middleware' => ['Setting', 'xss']], function () {

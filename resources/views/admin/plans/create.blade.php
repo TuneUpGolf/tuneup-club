@@ -25,7 +25,7 @@
                         </div>
 
                         <div class="form-group">
-                            {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
+                            {{ Form::label('price', __('Price (Per Month)'), ['class' => 'form-label']) }}
                             {!! Form::text('price', old('price'), [
                                 'placeholder' => __('Enter price'),
                                 'class' => 'form-control',
@@ -49,7 +49,7 @@
                                     {{ Form::label('durationtype', __('Duration'), ['class' => 'form-label']) }}
                                     {!! Form::select(
                                         'durationtype',
-                                        ['Day' => 'Day', 'Month' => 'Month', 'Year' => 'Year'],
+                                        [ 'Month' => 'Month', 'Year' => 'Year'],
                                         old('durationtype', 'Month'),
                                         [
                                             'class' => 'form-control',

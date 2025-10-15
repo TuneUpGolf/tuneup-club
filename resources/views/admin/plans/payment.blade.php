@@ -64,7 +64,7 @@
                                     <tr class="total_payable">
                                         <td class="text-muted">{{ __('Subscription Fees') }}:</td>
                                         <td>
-                                            {{ $adminPaymentSetting['currency_symbol'] }}{{ number_format($plan->price, 2) }}/{{ $plan->durationtype }}
+                                            {{ $adminPaymentSetting['currency_symbol'] }}{{ number_format($plan->price, 2) }}/Month
                                         </td>
                                     </tr>
                                     <tr>
