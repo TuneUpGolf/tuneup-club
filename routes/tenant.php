@@ -176,6 +176,8 @@ Route::middleware([
         Route::get('follower/purchases', [FollowerController::class, 'purchases'])->name('follower.purchases');
 
         Route::resource('lesson', LessonController::class);
+        Route::post('/lesson/reorder', [LessonController::class, 'reorder'])
+            ->name('lesson.reorder');
         Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
         Route::get('lesson/purchase/all', [LessonController::class, 'availableLessons'])->name('lesson.available');
         Route::get('get/lesson/influencer/', [LessonController::class, 'getAllByInfluencer']);
