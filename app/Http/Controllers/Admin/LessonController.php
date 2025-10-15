@@ -29,19 +29,81 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Stancl\Tenancy\Database\Models\Domain;
+use Yajra\DataTables\Facades\DataTables;
 
 class LessonController extends Controller
 {
     use PurchaseTrait;
 
-    public function index(LessonDataTable $dataTable)
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            $model = new Lesson();
+
+            // ✅ Apply query logic
+            if (tenant('id') == null) {
+                $lessons = $model->newQuery()
+                    ->select(['lessons.*', 'domains.domain'])
+                    ->where('lessons.active_status', true)
+                    ->join('domains', 'domains.tenant_id', '=', 'lessons.tenant_id')
+                    ->where('type', 'Admin')
+                    ->orderBy('column_order', 'asc')
+                    ->get();
+            } elseif (Auth::user()->type == Role::ROLE_ADMIN || Auth::user()->type == Role::ROLE_FOLLOWER) {
+                $lessons = $model->newQuery()
+                    ->where('lessons.tenant_id', tenant('id'))
+                    ->where('lessons.active_status', true)
+                    ->orderBy('column_order', 'asc')
+                    ->get();
+            } else {
+                $lessons = $model->newQuery()
+                    ->where('lessons.active_status', true)
+                    ->where('lessons.created_by', Auth::user()->id)
+                    ->orderBy('column_order', 'asc')
+                    ->get();
+            }
+
+            return datatables()
+                ->of($lessons)
+                ->addIndexColumn()
+                ->editColumn('created_at', fn($lesson) => UtilityFacades::date_time_format($lesson->created_at))
+                ->editColumn('lesson_price', fn($lesson) => UtilityFacades::amount_format($lesson->lesson_price))
+                ->editColumn('created_by', function ($lesson) {
+                    $imageSrc = $lesson?->user?->dp
+                        ? asset('/storage/' . tenant('id') . '/' . $lesson?->user?->dp)
+                        : asset('assets/img/logo/logo.png');
+
+                    return '
+                    <div class="flex justify-start items-center">
+                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                        <span class="px-2">' . e($lesson->user->name ?? 'Unknown') . '</span>
+                    </div>';
+                })
+                ->editColumn('type', function ($lesson) {
+                    $typeLabel = Lesson::TYPE_MAPPING[$lesson->type] ?? 'Unknown';
+                    return '<label class="badge rounded-pill bg-green-600 p-2 px-3">'
+                        . e($typeLabel) . '</label>';
+                })
+                ->addColumn('action', fn($lesson) => view('admin.lessons.action', compact('lesson'))->render())
+                ->rawColumns(['action', 'created_by', 'type'])
+                ->make(true);
+        }
+
+        // Only pass base data (buttons handled in JS)
+        return view('admin.lessons.index');
+    }
+
+
+
+    public function reorder(Request $request)
     {
 
-        if (Auth::user()->can('manage-lessons')) {
-            return $dataTable->render('admin.lessons.index');
-        } else {
-            return redirect()->back()->with('failed', __('Permission denied.'));
+        foreach ($request->order as $item) {
+            \App\Models\Lesson::where('id', $item['id'])
+                ->update(['column_order' => $item['position']]);
         }
+
+        return response()->json(['success' => true]);
     }
 
     public function create()

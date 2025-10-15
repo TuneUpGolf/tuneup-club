@@ -117,68 +117,77 @@ class LessonDataTable extends DataTable
             }')
             ->parameters([
                 "dom"            => "
-                        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>
-                        <'dataTable-botton table-btn col-lg-6 col-sm-12'B><'dataTable-search tb-search col-lg-3 col-sm-12'f>>
-                        <'dataTable-container'<'col-sm-12'tr>>
-                        <'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                        <'col-sm-7'p>>
-                        ",
+        <'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>
+        <'dataTable-botton table-btn col-lg-6 col-sm-12'B>
+        <'dataTable-search tb-search col-lg-3 col-sm-12'f>>
+        <'dataTable-container'<'col-sm-12'tr>>
+        <'dataTable-bottom row'
+            <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+            <'col-sm-7'p>
+        >
+    ",
                 'buttons'        => $buttons,
                 "scrollX"        => true,
                 'headerCallback' => 'function(thead, data, start, end, display) {
-                    $(thead).find("th").css({
-                        "background-color": "rgba(249, 252, 255, 1)",
-                        "font-weight": "400",
-                        "font":"sans",
-                        "border":"none",
-                    });
-                }',
+        $(thead).find("th").css({
+            "background-color": "rgba(249, 252, 255, 1)",
+            "font-weight": "400",
+            "font":"sans",
+            "border":"none"
+        });
+    }',
                 'rowCallback'    => 'function(row, data, index) {
-                    // Make the first column bold
-                    $("td", row).css("font-family", "Helvetica");
-                    $("td", row).css("font-weight", "300");
-                }',
-                "scrollX" => true,
+        $("td", row).css("font-family", "Helvetica");
+        $("td", row).css("font-weight", "300");
+    }',
                 "responsive" => [
                     "scrollX" => false,
                     "details" => [
-                        "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
+                        "display" => "$.fn.dataTable.Responsive.display.childRow",
                         "renderer" => "function (api, rowIdx, columns) {
-                            var data = $('<table/>').addClass('vertical-table');
-                            $.each(columns, function (i, col) {
-                                data.append(
-                                    '<tr>' +
-                                        '<td><strong>' + col.title + '</strong></td>' +
-                                        '<td>' + col.data + '</td>' +
-                                    '</tr>'
-                                );
-                            });
-                            return data;
-                        }"
+                var data = $('<table/>').addClass('vertical-table');
+                $.each(columns, function (i, col) {
+                    data.append(
+                        '<tr>' +
+                            '<td><strong>' + col.title + '</strong></td>' +
+                            '<td>' + col.data + '</td>' +
+                        '</tr>'
+                    );
+                });
+                return data;
+            }"
                     ]
                 ],
+
+                // ✅ Row reorder configuration
+                'rowReorder' => [
+                    'dataSrc' => 'column_order', // Column used for reordering
+                ],
+
+                // ✅ Add your row + draw callbacks again
                 "rowCallback" => 'function(row, data, index) {
-                    $(row).addClass("custom-parent-row"); 
-                }',
-                "drawCallback"   => 'function( settings ) {
-                    var tooltipTriggerList = [].slice.call(
-                        document.querySelectorAll("[data-bs-toggle=tooltip]")
-                      );
-                      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl);
-                      });
-                      var popoverTriggerList = [].slice.call(
-                        document.querySelectorAll("[data-bs-toggle=popover]")
-                      );
-                      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                        return new bootstrap.Popover(popoverTriggerEl);
-                      });
-                      var toastElList = [].slice.call(document.querySelectorAll(".toast"));
-                      var toastList = toastElList.map(function (toastEl) {
-                        return new bootstrap.Toast(toastEl);
-                      });
-                }',
-            ])->language([
+        $(row).addClass("custom-parent-row");
+    }',
+                "drawCallback"   => 'function(settings) {
+        var tooltipTriggerList = [].slice.call(
+            document.querySelectorAll("[data-bs-toggle=tooltip]")
+        );
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        var popoverTriggerList = [].slice.call(
+            document.querySelectorAll("[data-bs-toggle=popover]")
+        );
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
+        var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl);
+        });
+    }',
+            ])
+            ->language([
                 'buttons' => [
                     'create' => __('Create'),
                     'export' => __('Export'),
@@ -195,6 +204,7 @@ class LessonDataTable extends DataTable
     {
 
         return [
+            Column::make('column_order')->title(__('Order'))->orderable(true)->searchable(false),
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('lesson_name')->title(__('Name')),
             Column::make('lesson_price')->title(__('Price')),
