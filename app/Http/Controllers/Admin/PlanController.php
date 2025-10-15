@@ -81,6 +81,7 @@ class PlanController extends Controller
                 'duration'     => 'required',
                 'durationtype' => 'required',
                 'max_users'    => 'required',
+                'lesson_limit' => 'required|integer',
             ]);
             $paymentTypes = UtilityFacades::getpaymenttypes();
 
@@ -147,6 +148,7 @@ class PlanController extends Controller
                 // 'stripe_price_id' => $serviceplane['price_id'] ?? null,
                 'stripe_product_id' => $product->id, // store Stripe IDs!
                 'stripe_price_id'   => $price->id,
+                'lesson_limit' => $request->lesson_limit,
             ]);
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
         } else {
@@ -213,6 +215,8 @@ class PlanController extends Controller
                 'price'     => 'required',
                 'duration'  => 'required',
                 'max_users' => 'required',
+                'lesson_limit' => 'required|integer',
+
             ]);
             $plan                  = Plan::find($id);
 
@@ -276,6 +280,7 @@ class PlanController extends Controller
             $plan->description     = $_POST['description'];
             $plan->is_chat_enabled = $request->input('chat') ? true : false;
             $plan->is_feed_enabled = $request->input('feed') ? true : false;
+            $plan->lesson_limit    = $request->lesson_limit;
             // $plan->stripe_product_id = $serviceplane['product_id'];
             // $plan->stripe_price_id = $serviceplane['price_id'];
             $plan->save();
@@ -392,7 +397,7 @@ class PlanController extends Controller
         return response()->json(['data' => $buyers]);
     }
 
-     public function cancelPlan($encrptedPlanid)
+    public function cancelPlan($encrptedPlanid)
     {
         // Plan id
         $plan_id  = \Illuminate\Support\Facades\Crypt::decrypt($encrptedPlanid);

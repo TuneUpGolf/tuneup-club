@@ -31,7 +31,8 @@ class Plan extends Model
         'is_feed_enabled',
         'influencer_id',
         'stripe_price_id',
-        'stripe_product_id'
+        'stripe_product_id',
+        'lesson_limit'
     ];
 
     /**
