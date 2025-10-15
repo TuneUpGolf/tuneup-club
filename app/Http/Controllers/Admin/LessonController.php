@@ -148,6 +148,8 @@ class LessonController extends Controller
         $validatedData['type']           = $request->type;
         $validatedData['payment_method'] = $request->type === Lesson::LESSON_TYPE_INPERSON ? $request->payment_method : Lesson::LESSON_PAYMENT_ONLINE;
         $validatedData['tenant_id']      = Auth::user()->tenant_id;
+        $maxOrder = Lesson::max('column_order') ?? 0;
+        $validatedData['column_order'] = $maxOrder + 1;
         $lesson                          = Lesson::create($validatedData);
         $followers                       = Follower::whereHas('pushToken')
             ->with('pushToken')

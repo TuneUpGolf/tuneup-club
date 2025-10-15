@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -18,6 +19,12 @@ return new class extends Migration
                 $table->integer('column_order')->default(1)->after('id');
             }
         });
+        $lessons = DB::table('lessons')->orderBy('id')->get();
+        foreach ($lessons as $index => $lesson) {
+            DB::table('lessons')
+                ->where('id', $lesson->id)
+                ->update(['column_order' => $index + 1]);
+        }
     }
 
     /**
