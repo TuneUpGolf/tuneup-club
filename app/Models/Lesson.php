@@ -39,6 +39,7 @@ class Lesson extends Model
         'max_followers',
         'is_package_lesson',
         'short_description',
+        'column_order'
     ];
 
     protected $casts = [
