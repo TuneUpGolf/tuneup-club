@@ -2,41 +2,43 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\SendEmail;
-use App\DataTables\Admin\PurchaseDataTable;
-use App\DataTables\Admin\PurchaseLessonDataTable;
-use App\DataTables\Admin\PurchaseLessonVideoDataTable;
-use App\DataTables\Admin\UpcomingLessonDataTable;
-use App\DataTables\Admin\FollowerPurchasesDataTable;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\PurchaseAPIResource;
-use App\Http\Resources\PurchaseVideoAPIResource;
-use App\Mail\Admin\PurchaseCompleted;
-use App\Mail\Admin\PurchaseFeedback;
-use App\Mail\Admin\VideoAdded;
-use App\Models\Coupon;
-use App\Models\FeedbackContent;
-use App\Models\Follower;
-use App\Models\Lesson;
+use Error;
+use Exception;
+use Carbon\Carbon;
+use Stripe\Stripe;
 use App\Models\Plan;
-use App\Models\Purchase;
-use App\Models\PurchaseVideos;
 use App\Models\Role;
-use App\Models\Slots;
 use App\Models\User;
+use App\Models\Slots;
+use App\Models\Coupon;
+use App\Models\Lesson;
+use App\Models\Follower;
+use App\Models\Purchase;
+use App\Actions\SendEmail;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Stripe\Checkout\Session;
 use App\Services\ChatService;
 use App\Traits\ConvertVideos;
 use App\Traits\PurchaseTrait;
-use Error;
-use Exception;
-use function PHPUnit\Framework\isEmpty;
-use Illuminate\Http\Request;
+use App\Mail\Admin\VideoAdded;
+use App\Models\PurchaseVideos;
+use App\Models\FeedbackContent;
+use App\Models\ClientSubscription;
+use App\Http\Controllers\Controller;
+use App\Mail\Admin\PurchaseFeedback;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\Admin\PurchaseCompleted;
+use function PHPUnit\Framework\isEmpty;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\DataTables\Admin\PurchaseDataTable;
+use App\Http\Resources\PurchaseAPIResource;
 use Illuminate\Validation\ValidationException;
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
+use App\Http\Resources\PurchaseVideoAPIResource;
+use App\DataTables\Admin\PurchaseLessonDataTable;
+use App\DataTables\Admin\UpcomingLessonDataTable;
+use App\DataTables\Admin\FollowerPurchasesDataTable;
+use App\DataTables\Admin\PurchaseLessonVideoDataTable;
 
 /**
  * Controller for managing lesson purchases and related flows (checkout, feedback, videos).
@@ -436,6 +438,41 @@ class PurchaseController extends Controller
                     if ($request->checkout == 1) {
                         $request->merge(['purchase_id' => $purchase->id]);
                         $request->setMethod('POST');
+
+                        // Check if subscriptiom
+                        // Get login user
+                        $student_user = Auth::user();
+
+                        // if any active subscription
+                        $student_subscription = ClientSubscription::where('follower_id', $student_user->id)
+                            ->where('status', 'active')
+                            ->latest()
+                            ->first();
+
+                        // Subscription exists
+                        if ($student_subscription) {
+                            // if ($student_subscription->influencer_id == $purchase->influencer_id) {
+                                // Current monthly online lesson count
+                                $student_monthly_purchase_count = Purchase::where('student_id', $student_user->id)
+                                    // ->where('influencer_id', $purchase->influencer_id)
+                                    ->where('status', 'complete')
+                                    ->where('type', 'online')
+                                    ->whereMonth('created_at', Carbon::now()->month)
+                                    ->whereYear('created_at', Carbon::now()->year)
+                                    ->count();
+
+                                // get subscription plan
+                                $plan = $student_subscription->plan;
+
+                                // Check whats the lesson limit
+                                if ($plan && ($plan->lesson_limit == -1 || $student_monthly_purchase_count < $plan->lesson_limit)) {
+                                    $purchase->status = Purchase::STATUS_COMPLETE;
+                                    $purchase->save();
+                                    return redirect()->route('home')->with('success', 'Video Successfully Added');
+                                }
+                            // }
+                        }
+
                         return $this->confirmPurchaseWithRedirect($request);
                     } else if ($request->redirect == 1) {
                         return redirect()->route('purchase.index')->with('success', 'Video Successfully Added');

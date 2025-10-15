@@ -62,6 +62,28 @@
                                 ]) !!}
                             </div>
                         @endif
+
+                        <div class="form-group mt-3">
+                            {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
+
+                            @php
+                                // Build lesson limit options: 1–10 + Unlimited
+                                $lessonLimits = collect(range(1, 10))
+                                    ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
+                                    ->toArray();
+
+                                $lessonLimits[-1] = 'Unlimited lessons/month';
+
+                                // Preserve old value or model value (default to 3)
+                                $selectedLessonLimit = old('lesson_limit', $model->lesson_limit ?? 3);
+                            @endphp
+
+                            {!! Form::select('lesson_limit', $lessonLimits, $selectedLessonLimit, [
+                                'class' => 'form-select',
+                                'id' => 'lesson_limit',
+                                'placeholder' => 'Select lesson limit',
+                            ]) !!}
+                        </div>
                         <div class="form-group">
                             {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('description', null, [

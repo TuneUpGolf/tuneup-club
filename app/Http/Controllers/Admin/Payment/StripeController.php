@@ -618,11 +618,13 @@ class StripeController extends Controller
                 if ($groupId) {
                     $user->group_id = $groupId;
                 }
+                $user->chat_status = 1;
+                $user->chat_enabled_by = $plan->influencer_id;
+                $user->save();
             }
 
 
             $user->save();
-            
         }
 
 

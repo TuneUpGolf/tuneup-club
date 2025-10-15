@@ -129,15 +129,46 @@ class FollowerDataTable extends DataTable
                 return $status;
             })
             ->addColumn('chat_enabled', function (Follower $user) {
+                // if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
+                //     return '<span title="Follower has subscription to chat">
+                //         <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
+                //     </span>';
+                // }
+                // $checked = ($user->chat_status == 1) ? 'checked' : '';
+                // return '<label class="form-switch">
+                //              <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('follower.chatstatus', $user->id) . '" type="checkbox">
+                //         </label>';
                 if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
-                    return '<span title="Follower has subscription to chat">
-                        <i class="ti ti-alert-triangle" style="font-size: 25px; color:#FFC107;"></i>
-                    </span>';
+
+                    // If the plan belongs to a different instructor → show warning
+                    if ($user->plan->instructor_id != $loggedInUserId) {
+                        return '<span title="Follower has subscription to chat with another instructor">
+                    <i class="ti ti-alert-triangle" style="font-size:25px; color:#FFC107;"></i>
+                </span>';
+                    }
+
+                    // If same instructor → allow toggle
+                    else {
+                        $checked = ($user->chat_status == 1) ? 'checked' : '';
+                        return '<label class="form-switch">
+                    <input class="form-check-input chnageStatus"
+                        ' . $checked . '
+                        data-id="' . $user->id . '"
+                        data-url="' . route('follower.chatstatus', $user->id) . '"
+                        type="checkbox">
+                </label>';
+                    }
                 }
+
+                // Default case (no subscription)
                 $checked = ($user->chat_status == 1) ? 'checked' : '';
                 return '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" ' . $checked . ' class="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('follower.chatstatus', $user->id) . '" type="checkbox">
-                        </label>';
+            <input class="form-check-input chnageStatus"
+                ' . $checked . '
+                data-id="' . $user->id . '"
+                data-url="' . route('follower.chatstatus', $user->id) . '"
+                type="checkbox">
+        </label>';
             })
             ->rawColumns(['role', 'email_verified_at', 'phone_verified_at', 'active_status', 'name', 'chat_enabled']);
         return $data;
