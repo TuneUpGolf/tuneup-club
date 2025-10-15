@@ -14,14 +14,6 @@ return new class extends Migration
      */
     public function up()
     {
-
-        Schema::table('lessons', function (Blueprint $table) {
-            if (!Schema::hasColumn('lessons', 'column_order')) {
-                $table->integer('column_order')->default(1)->after('id');
-            }
-        });
-
-        // Populate column_order for existing rows
         $lessons = DB::table('lessons')->get();
         foreach ($lessons as $index => $lesson) {
             DB::table('lessons')
@@ -30,7 +22,6 @@ return new class extends Migration
         }
     }
 
-
     /**
      * Reverse the migrations.
      *
@@ -38,7 +29,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('lessons', function (Blueprint $table) {
+        Schema::table('lessons2', function (Blueprint $table) {
             //
         });
     }
