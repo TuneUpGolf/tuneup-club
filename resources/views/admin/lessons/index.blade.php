@@ -15,6 +15,7 @@
                         <table class="table table-bordered data-table w-100">
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th>#</th>
                                     <th>Name</th>
                                     <th>Price</th>
@@ -35,52 +36,36 @@
 
 @push('css')
     @include('layouts.includes.datatable_css')
-
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.4.1/css/rowReorder.dataTables.min.css">
     <style>
-        .data-table tbody td:first-child {
-            background-color: #211a1a38 !important;
-            cursor: move !important;
-            text-align: center;
-            width: 40px;
-        }
-
         .drag-handle {
-            cursor: move;
+            cursor: grab;
             font-size: 18px;
-            color: #555;
+            color: #6c757d;
+            user-select: none;
+            transition: color 0.2s ease, transform 0.2s ease;
         }
 
-        .drag-handle:hover {
+        .drag-handle:active {
+            cursor: grabbing;
             color: #000;
+            transform: scale(1.2);
+        }
+
+        tbody tr {
+            transition: transform 0.25s ease, background-color 0.25s ease;
+        }
+
+        tbody tr.dt-rowReorder-moving {
+            background-color: #f1f3f5 !important;
         }
     </style>
 @endpush
+
 @push('javascript')
     @include('layouts.includes.datatable_js')
 
-    <!-- ✅ Bootstrap bundle (includes Popper for popovers) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- ✅ DataTables & Extensions (must match same version) -->
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
-    <!-- Export libraries (needed for Excel & PDF) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-
     <script src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
-
 
     <script>
         $(function() {
@@ -91,13 +76,17 @@
                 serverSide: true,
                 ajax: "{{ route('lesson.index') }}",
                 columns: [{
+                        data: null,
+                        className: 'reorder-handle',
+                        orderable: false,
+                        searchable: false,
+                        render: () => '<span class="drag-handle">⋮⋮</span>'
+                    },
+                    {
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            return `<span class="drag-handle">⋮⋮</span> ${data}`;
-                        }
+                        searchable: false
                     },
                     {
                         data: 'lesson_name',
@@ -128,49 +117,23 @@
                     },
                 ],
                 rowReorder: {
-                    dataSrc: 'column_order'
+                    selector: 'td.reorder-handle',
+                    update: false // disable automatic reordering on the client
                 },
-                dom: "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
-                    "<'dataTable-botton table-btn col-lg-6 col-sm-12'B>" +
-                    "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
-                    "<'dataTable-container'<'col-sm-12'tr>>" +
-                    "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
+                responsive: true,
+                order: [
+                    [1, 'asc']
+                ],
+                dom: "<'dataTable-top row'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+                    "<'dataTable-container'tr>" +
+                    "<'dataTable-bottom row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 buttons: [{
                         text: '<i class="fa fa-plus"></i> Add Lesson',
-                        className: 'btn btn-light-primary no-corner me-1 add_module',
+                        className: 'btn btn-light-primary me-1',
                         action: function() {
                             window.location.href = createUrl;
                         }
                     },
-                    {
-                        extend: 'collection',
-                        text: '<i class="ti ti-download"></i> Export',
-                        className: 'btn btn-light-secondary me-1 dropdown-toggle',
-                        buttons: [{
-                                extend: 'print',
-                                text: '<i class="fas fa-print"></i> Print',
-                                className: 'btn btn-light text-primary dropdown-item'
-                            },
-                            {
-                                extend: 'csv',
-                                text: '<i class="fas fa-file-csv"></i> CSV',
-                                className: 'btn btn-light text-primary dropdown-item'
-                            },
-                            {
-                                extend: 'excel',
-                                text: '<i class="fas fa-file-excel"></i> Excel',
-                                className: 'btn btn-light text-primary dropdown-item'
-                            },
-                            {
-                                extend: 'pdf',
-                                text: '<i class="fas fa-file-pdf"></i> PDF',
-                                className: 'btn btn-light text-primary dropdown-item'
-                            },
-                        ],
-                        popoverTitle: ''
-                    },
-
-
                     {
                         text: '<i class="fa fa-sync"></i> Reset',
                         className: 'btn btn-light-danger me-1',
@@ -185,63 +148,36 @@
                             dt.ajax.reload();
                         }
                     }
-                ],
-
-
-                order: [
-                    [0, 'asc']
-                ],
-                initComplete: function() {
-                    var table = this;
-                    var tableContainer = $(table.api().table().container());
-
-                    // Customize search input
-                    var searchInput = $('#' + table.api().table().container().id +
-                        ' label input[type="search"]');
-                    searchInput.removeClass('form-control form-control-sm').addClass('dataTable-input');
-
-                    // Customize length selector
-                    $(table.api().table().container()).find(".dataTables_length select")
-                        .removeClass('custom-select custom-select-sm form-control form-control-sm')
-                        .addClass('dataTable-selector');
-
-                    // Custom table title
-                    tableContainer.find(".dataTable-title").html(
-                        $("<div>").addClass("flex justify-start items-center").append(
-                            $("<div>").addClass("custom-table-header"),
-                            $("<span>").addClass("font-medium text-2xl pl-4").text("All Lessons")
-                        )
-                    );
-                }
+                ]
             });
 
-            // ✅ Handle reorder event
+            // Smooth reorder handler
             table.on('row-reorder', function(e, diff, edit) {
+                if (diff.length === 0) return;
+
                 let order = [];
                 diff.forEach(function(move) {
                     let rowData = table.row(move.node).data();
                     order.push({
                         id: rowData.id,
-                        position: move.newData
+                        position: move.newPosition + 1
                     });
                 });
 
-                if (order.length > 0) {
-                    $.ajax({
-                        url: "{{ route('lesson.reorder') }}",
-                        method: "POST",
-                        data: {
-                            order: order,
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success: function() {
-                            console.log('Order updated successfully');
-                        },
-                        error: function(err) {
-                            console.error('Error updating order:', err);
-                        }
-                    });
-                }
+                $.ajax({
+                    url: "{{ route('lesson.reorder') }}",
+                    method: "POST",
+                    data: {
+                        order: order,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function() {
+                        table.ajax.reload(null, false);
+                    },
+                    error: function(err) {
+                        console.error('Reorder failed:', err);
+                    }
+                });
             });
         });
     </script>
