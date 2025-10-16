@@ -265,7 +265,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function lessons()
     {
-        return $this->hasMany(Lesson::class, 'created_by');
+        return $this->hasMany(Lesson::class, 'created_by')->orderBy('column_order', 'asc');
     }
 
     public function post(): HasMany
