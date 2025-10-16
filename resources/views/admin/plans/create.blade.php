@@ -77,7 +77,7 @@
 
                             @php
                                 // Generate lesson limits: 1 to 10, plus "Unlimited"
-                                $lessonLimits = collect(range(1, 10))
+                                $lessonLimits = collect(range(0, 10))
                                     ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
                                     ->toArray();
 
