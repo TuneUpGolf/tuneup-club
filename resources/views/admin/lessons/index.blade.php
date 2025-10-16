@@ -15,7 +15,8 @@
                         <table class="table table-bordered data-table w-100">
                             <thead>
                                 <tr>
-                                    <th></th>
+                                    <th id="icon12"></th> <!-- ✅ Responsive control column -->
+                                    <th></th> <!-- ✅ Reorder handle column -->
                                     <th>#</th>
                                     <th>Name</th>
                                     <th>Price</th>
@@ -79,6 +80,15 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 
     <!-- ✅ Export dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables core -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables extensions -->
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
@@ -94,6 +104,11 @@
                 serverSide: true,
                 ajax: "{{ route('lesson.index') }}",
                 columns: [{
+                        className: 'dt-control',
+                        orderable: false,
+                        data: null,
+                        defaultContent: ''
+                    }, {
                         data: null,
                         className: 'reorder-handle',
                         orderable: false,
@@ -136,11 +151,29 @@
                 ],
                 rowReorder: {
                     selector: 'td.reorder-handle',
-                    update: false // disable automatic reordering on the client
+                    update: false
                 },
-                responsive: true,
+
+                responsive: {
+                    details: {
+                        display: $.fn.dataTable.Responsive.display.childRow, // show arrow icon
+                        renderer: function(api, rowIdx, columns) {
+                            let data = $('<table/>').addClass('vertical-table');
+                            $.each(columns, function(i, col) {
+
+                                data.append(
+                                    '<tr>' +
+                                    '<td><strong>' + col.title + '</strong></td>' +
+                                    '<td>' + col.data + '</td>' +
+                                    '</tr>'
+                                );
+                            });
+                            return data;
+                        }
+                    }
+                },
                 order: [
-                    [1, 'asc']
+                    [2, 'asc']
                 ],
                 dom: "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
                     "<'dataTable-botton table-btn col-lg-6 col-sm-12'B>" +
@@ -247,6 +280,24 @@
                         console.error('Reorder failed:', err);
                     }
                 });
+            });
+
+            function handleResponsiveColumn(table) {
+                if (window.innerWidth <= 1300) {
+                    // Show responsive icon column
+                    $('#icon12').show();
+                    table.column(0).visible(true);
+                } else {
+                    // Hide responsive icon column
+                    $('#icon12').hide();
+                    table.column(0).visible(false);
+                }
+            }
+
+            // Run on load and resize
+            handleResponsiveColumn(table);
+            $(window).on('resize', function() {
+                handleResponsiveColumn(table);
             });
         });
     </script>
