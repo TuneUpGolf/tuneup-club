@@ -154,17 +154,18 @@
                     update: false
                 },
 
+
                 responsive: {
                     details: {
-                        display: $.fn.dataTable.Responsive.display.childRow, // show arrow icon
+                        display: $.fn.dataTable.Responsive.display.childRow,
                         renderer: function(api, rowIdx, columns) {
                             let data = $('<table/>').addClass('vertical-table');
                             $.each(columns, function(i, col) {
-
+                                if (i === 0 || i === 1) return; // skip first two columns
                                 data.append(
                                     '<tr>' +
                                     '<td><strong>' + col.title + '</strong></td>' +
-                                    '<td>' + col.data + '</td>' +
+                                    '<td>' + (col.data !== null ? col.data : '') + '</td>' +
                                     '</tr>'
                                 );
                             });
