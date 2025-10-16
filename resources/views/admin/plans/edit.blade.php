@@ -68,7 +68,7 @@
 
                             @php
                                 // Build lesson limit options: 1–10 + Unlimited
-                                $lessonLimits = collect(range(1, 10))
+                                $lessonLimits = collect(range(0, 10))
                                     ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
                                     ->toArray();
 
