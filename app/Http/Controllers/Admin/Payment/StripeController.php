@@ -300,7 +300,7 @@ class StripeController extends Controller
             ], 404);
         }
 
-        // $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
+        $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
         // if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
         //     return response()->json([
         //         'status' => 0,
@@ -364,6 +364,9 @@ class StripeController extends Controller
                     //     'tenant_id' => tenant()->id,
                     //     'instructor_id' => $planDetails->instructor_id,
                     // ],
+                    'subscription_data' => [
+                            'application_fee_percent' => $platform_fee, // Use the platform fee from settings
+                        ],
                     'success_url' => route('stripe.success.pay', Crypt::encrypt([
                         'coupon' => $request->coupon,
                         'plan_id' => $planDetails->id,

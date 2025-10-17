@@ -5,6 +5,11 @@
     </a>
 @endcan --}}
 @can('edit-user')
+    <a class="btn btn-sm small btn btn-secondary action-btn-fix" href="{{ route('users.influencers', $user->id) }}"
+        data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Influencers') }}">
+        <i class="ti ti-user text-white"></i>
+    </a>
+
     <a class="btn btn-sm small btn btn-warning" href="{{ route('users.edit', $user->id) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
         <i class="ti ti-edit text-white"></i>

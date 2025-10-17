@@ -48,7 +48,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     {{ Form::label('max_users', __('Maximum Users'), ['class' => 'form-label']) }}
@@ -89,8 +89,8 @@
                                     ]) !!}
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-group">
+                        </div> --}}
+                        {{-- <div class="form-group">
                             <div class="row">
                                 <div class="col-md-8">
                                     {{ Form::label('discount_setting', __('Discount Setting'), ['class' => 'form-label']) }}
@@ -105,7 +105,7 @@
                                 {{ Form::label('discount', __('Discount'), ['class' => 'form-label']) }}
                                 {{ Form::number('discount', null, ['class' => 'form-control', 'placeholder' => __('Enter discount'), 'step' => '0.01']) }}
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="form-group">
                             {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('description', null, [

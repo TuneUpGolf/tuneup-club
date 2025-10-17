@@ -138,6 +138,9 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
 
     //user
     Route::resource('users', UserController::class);
+    Route::get('users/{id}/influencers', [UserController::class, 'influencers'])->name('users.influencers');
+    Route::get('{tenant_id}/users/{influencer_id}/influencers', [UserController::class, 'edit_influencers'])->name('superadmin.influencer.edit');
+    Route::post('{tenant_id}/users/{influencer_id}/influencers', [UserController::class, 'update_influencers'])->name('superadmin.influencer.update');
     Route::get('users/{id}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
     Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
 

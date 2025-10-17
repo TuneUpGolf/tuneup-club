@@ -68,6 +68,8 @@
 
                             @php
                                 // Build lesson limit options: 1–10 + Unlimited
+                                $lessonLimits[0] = 'Select lesson limit';
+
                                 $lessonLimits = collect(range(0, 10))
                                     ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
                                     ->toArray();
@@ -81,7 +83,7 @@
                             {!! Form::select('lesson_limit', $lessonLimits, $selectedLessonLimit, [
                                 'class' => 'form-select',
                                 'id' => 'lesson_limit',
-                                'placeholder' => 'Select lesson limit',
+                                // 'placeholder' => 'Select lesson limit',
                             ]) !!}
                         </div>
                         <div class="form-group">

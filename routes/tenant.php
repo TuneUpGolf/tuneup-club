@@ -62,6 +62,7 @@ use App\Http\Controllers\Admin\Payment\RazorpayController;
 use App\Http\Controllers\Superadmin\HelpSectionController;
 use App\Http\Controllers\Admin\Payment\PayuMoneyController;
 use App\Http\Controllers\Admin\Payment\ToyyibpayController;
+use App\Http\Controllers\Admin\RestrictInfluencerController;
 use App\Http\Controllers\Admin\Payment\FlutterwaveController;
 use App\Http\Controllers\Admin\NotificationsSettingController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -93,6 +94,15 @@ Route::middleware([
     Route::get('/tenant-impersonate/{token}', function ($token) {
         return UserImpersonation::makeResponse($token);
     });
+
+      Route::get('subscription-inactive', [RestrictInfluencerController::class, 'subscription_inactive'])->name('subscription.inactive');
+    Route::get('subscription-inactive-purchase', [RestrictInfluencerController::class, 'subscription_inactive_purchase'])->name('subscription.inactive.purchase');
+
+    Route::get('instructor-stripe-success-pay/{data}', [RestrictInfluencerController::class, 'instructor_stripe_success_pay'])->name('instructor.stripe.success.pay');
+    Route::get('instructor-stripe-cancel-pay', [RestrictInfluencerController::class, 'instructor_stripe_cancel_pay'])->name('instructor.stripe.cancel.pay');
+
+
+
     Route::group(['middleware' => ['Setting', 'xss']], function () {
         Route::get('redirect/{provider}', [SocialLoginController::class, 'redirect']);
         Route::get('callback/{provider}', [SocialLoginController::class, 'callback'])->name('social.callback');
@@ -121,7 +131,7 @@ Route::middleware([
         Route::resource('help-section', HelpSectionController::class);
     });
 
-    Route::group(['middleware' => ['auth:web,follower', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
+    Route::group(['middleware' => ['auth:web,follower', 'Setting', 'xss', '2fa', 'verified', 'verified_phone', 'restrict_influencer']], function () {
 
         Route::impersonate();
         //help section
