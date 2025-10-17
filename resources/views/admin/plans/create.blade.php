@@ -71,22 +71,22 @@
                             {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
 
                             @php
-                                $lessonLimits[0] = 'Select lesson limit';
-                                // Generate lesson limits: 1 to 10, plus "Unlimited"
-                                $lessonLimits = collect(range(1, 10))
-                                    ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
-                                    ->toArray();
+    // Generate lesson limits: 1 to 10, plus "Unlimited"
+    $lessonLimits = collect(range(1, 10))
+        ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
+        ->toArray();
 
-                                // Add "Unlimited" option (-1)
-                                $lessonLimits[-1] = 'Unlimited lessons/month';
-                            @endphp
+    // Add "Unlimited" option (-1)
+    $lessonLimits[-1] = 'Unlimited lessons/month';
 
+    // Prepend placeholder at the top (key 0)
+    $lessonLimits = [0 => 'Select lesson limit'] + $lessonLimits;
+@endphp
 
-                            {!! Form::select('lesson_limit', $lessonLimits, old('lesson_limit'), [
-                                'class' => 'form-select',
-                                // 'placeholder' => 'Select lesson limit',
-                                'id' => 'lesson_limit',
-                            ]) !!}
+{!! Form::select('lesson_limit', $lessonLimits, old('lesson_limit'), [
+    'class' => 'form-select',
+    'id' => 'lesson_limit',
+]) !!}
 
                         </div>
 
