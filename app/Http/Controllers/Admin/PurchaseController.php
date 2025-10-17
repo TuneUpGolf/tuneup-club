@@ -456,7 +456,7 @@ class PurchaseController extends Controller
                             $student_monthly_purchase_count = Purchase::where('follower_id', $student_user->id)
                                 // ->where('influencer_id', $purchase->influencer_id)
                                 ->where('status', 'complete')
-                                ->where('type', 'online')
+                                // ->where('type', 'online')
                                 ->whereMonth('created_at', Carbon::now()->month)
                                 ->whereYear('created_at', Carbon::now()->year)
                                 ->count();
