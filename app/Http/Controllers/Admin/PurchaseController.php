@@ -453,7 +453,7 @@ class PurchaseController extends Controller
                         if ($student_subscription) {
                             // if ($student_subscription->influencer_id == $purchase->influencer_id) {
                                 // Current monthly online lesson count
-                                $student_monthly_purchase_count = Purchase::where('student_id', $student_user->id)
+                                $student_monthly_purchase_count = Purchase::where('follower_id', $student_user->id)
                                     // ->where('influencer_id', $purchase->influencer_id)
                                     ->where('status', 'complete')
                                     ->where('type', 'online')
