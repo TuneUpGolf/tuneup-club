@@ -452,24 +452,24 @@ class PurchaseController extends Controller
                         // Subscription exists
                         if ($student_subscription) {
                             // if ($student_subscription->influencer_id == $purchase->influencer_id) {
-                                // Current monthly online lesson count
-                                $student_monthly_purchase_count = Purchase::where('student_id', $student_user->id)
-                                    // ->where('influencer_id', $purchase->influencer_id)
-                                    ->where('status', 'complete')
-                                    ->where('type', 'online')
-                                    ->whereMonth('created_at', Carbon::now()->month)
-                                    ->whereYear('created_at', Carbon::now()->year)
-                                    ->count();
+                            // Current monthly online lesson count
+                            $student_monthly_purchase_count = Purchase::where('student_id', $student_user->id)
+                                // ->where('influencer_id', $purchase->influencer_id)
+                                ->where('status', 'complete')
+                                ->where('type', 'online')
+                                ->whereMonth('created_at', Carbon::now()->month)
+                                ->whereYear('created_at', Carbon::now()->year)
+                                ->count();
 
-                                // get subscription plan
-                                $plan = $student_subscription->plan;
+                            // get subscription plan
+                            $plan = $student_subscription->plan;
 
-                                // Check whats the lesson limit
-                                if ($plan && ($plan->lesson_limit == -1 || $student_monthly_purchase_count < $plan->lesson_limit)) {
-                                    $purchase->status = Purchase::STATUS_COMPLETE;
-                                    $purchase->save();
-                                    return redirect()->route('home')->with('success', 'Video Successfully Added');
-                                }
+                            // Check whats the lesson limit
+                            if ($plan && ($plan->lesson_limit == -1 || $student_monthly_purchase_count < $plan->lesson_limit)) {
+                                $purchase->status = Purchase::STATUS_COMPLETE;
+                                $purchase->save();
+                                return redirect()->route('home')->with('success', 'Video Successfully Added');
+                            }
                             // }
                         }
 
