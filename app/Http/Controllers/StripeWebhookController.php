@@ -7,8 +7,10 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use App\Models\ClientSubscription;
 use Illuminate\Support\Facades\Log;
+use App\Models\InfluencerSubscription;
 use App\Models\StripeConnectedAccount;
 use App\Models\ClientSubscriptionDetail;
+use App\Models\InfluencerSubscriptionDetail;
 
 class StripeWebhookController extends Controller
 {
@@ -21,18 +23,20 @@ class StripeWebhookController extends Controller
         $accountId = $payload['account'] ?? null;
         $eventType = $payload['type'] ?? 'unknown';
 
-        $stripe_account_id = StripeConnectedAccount::where('stripe_account_id', $request->account)->first();
-        $tenant = Tenant::find($stripe_account_id->tenant_id); // or however you store tenant IDs
+        if ($accountId) {
+            $stripe_account_id = StripeConnectedAccount::where('stripe_account_id', $request->account)->first();
+            $tenant = Tenant::find($stripe_account_id->tenant_id); // or however you store tenant IDs
 
-        tenancy()->initialize($tenant); // 🔁 switch context to this tenant
+            tenancy()->initialize($tenant); // 🔁 switch context to this tenant
 
-        // Now you're “inside” the tenant’s DB
-        $users = User::where('stripe_account_id', $stripe_account_id->stripe_account_id)->first();
+            // Now you're “inside” the tenant’s DB
+            $users = User::where('stripe_account_id', $stripe_account_id->stripe_account_id)->first();
 
-        // Do your work in this tenant's DB...
-        // Log::info($users);
+            // Do your work in this tenant's DB...
+            // Log::info($users);
 
-        tenancy()->end();
+            tenancy()->end();
+        }
 
         Log::info("🎯 Event Type: {$eventType}");
 
@@ -43,35 +47,61 @@ class StripeWebhookController extends Controller
                 $invoiceId = $payload['data']['object']['id'];
                 $paymentIntentId = $payload['data']['object']['payment_intent'] ?? null;
 
-                tenancy()->initialize($tenant);
+                if ($accountId) {
+                    tenancy()->initialize($tenant);
 
-                $student_subscription = ClientSubscription::where('stripe_subscription_id', $subscriptionId)
-                    ->update(['status' => 'active']);
+                    $student_subscription = ClientSubscription::where('stripe_subscription_id', $subscriptionId)
+                        ->update(['status' => 'active']);
 
-                if ($student_subscription) {
-                    $student_subscription->update(['status' => 'active']);
+                    if ($student_subscription) {
+                        $student_subscription->update(['status' => 'active']);
 
-                    // Create a subscription detail record
-                    ClientSubscriptionDetail::create([
-                        'client_subscription_id' => $student_subscription->id,
-                        'invoice_id' => $invoiceId,
-                        'payment_intent_id' => $paymentIntentId,
-                    ]);
+                        // Create a subscription detail record
+                        ClientSubscriptionDetail::create([
+                            'client_subscription_id' => $student_subscription->id,
+                            'invoice_id' => $invoiceId,
+                            'payment_intent_id' => $paymentIntentId,
+                        ]);
 
-                    Log::info('Invoice payment succeeded', [
-                        'subscription_id' => $subscriptionId,
-                        'invoice_id' => $invoiceId,
-                        'payment_intent_id' => $paymentIntentId,
-                        'tenant_id' => $tenant->id,
-                    ]);
+                        Log::info('Invoice payment succeeded', [
+                            'subscription_id' => $subscriptionId,
+                            'invoice_id' => $invoiceId,
+                            'payment_intent_id' => $paymentIntentId,
+                            'tenant_id' => $tenant->id,
+                        ]);
+                    } else {
+                        Log::warning('Client subscription not found for successful payment', [
+                            'subscription_id' => $subscriptionId,
+                            'invoice_id' => $invoiceId,
+                        ]);
+                    }
+
+                    tenancy()->end();
                 } else {
-                    Log::warning('Client subscription not found for successful payment', [
-                        'subscription_id' => $subscriptionId,
-                        'invoice_id' => $invoiceId,
-                    ]);
-                }
+                    // 🔸 MAIN ACCOUNT HANDLING (Instructor subscriptions)
+                    $instructorSub = InfluencerSubscription::where('stripe_subscription_id', $subscriptionId)->first();
 
-                tenancy()->end();
+
+
+                    if ($instructorSub) {
+
+                        InfluencerSubscriptionDetail::create([
+                            'influencer_subscription_id' => $instructorSub->id,
+                            'invoice_id' => $invoiceId,
+                            'payment_intent_id' => $paymentIntentId,
+                        ]);
+
+                        $instructorSub->update(['status' => 'active']);
+                        Log::info('✅ Instructor subscription payment succeeded (Main Account)', [
+                            'subscription_id' => $subscriptionId,
+                            'invoice_id' => $invoiceId,
+                        ]);
+                    } else {
+                        Log::warning('⚠️ Instructor subscription not found (Main Account)', [
+                            'subscription_id' => $subscriptionId,
+                        ]);
+                    }
+                }
                 Log::info('invoice payment');
                 break;
 
@@ -80,37 +110,57 @@ class StripeWebhookController extends Controller
                 $invoiceId = $payload['data']['object']['id'];
                 $paymentIntentId = $payload['data']['object']['payment_intent'] ?? null;
 
-                tenancy()->initialize($tenant);
+                if ($accountId) {
+                    tenancy()->initialize($tenant);
 
-                $subscription = ClientSubscription::where('stripe_subscription_id', $subscriptionId)->first();
-                if ($subscription && $subscription->status !== 'past_due') {
-                    $subscription->update(['status' => 'past_due']);
-                    Log::info('Subscription updated to past_due due to payment failure', [
-                        'subscription_id' => $subscriptionId,
-                        'invoice_id' => $invoiceId,
-                        'payment_intent_id' => $paymentIntentId,
-                        'tenant_id' => $tenant->id,
-                    ]);
+                    $subscription = ClientSubscription::where('stripe_subscription_id', $subscriptionId)->first();
+                    if ($subscription && $subscription->status !== 'past_due') {
+                        $subscription->update(['status' => 'past_due']);
+                        Log::info('Subscription updated to past_due due to payment failure', [
+                            'subscription_id' => $subscriptionId,
+                            'invoice_id' => $invoiceId,
+                            'payment_intent_id' => $paymentIntentId,
+                            'tenant_id' => $tenant->id,
+                        ]);
+                    } else {
+                        Log::info('Subscription already past_due or not found', [
+                            'subscription_id' => $subscriptionId,
+                            'invoice_id' => $invoiceId,
+                            'payment_intent_id' => $paymentIntentId,
+                            'tenant_id' => $tenant->id,
+                        ]);
+                    }
+                    tenancy()->end();
                 } else {
-                    Log::info('Subscription already past_due or not found', [
-                        'subscription_id' => $subscriptionId,
-                        'invoice_id' => $invoiceId,
-                        'payment_intent_id' => $paymentIntentId,
-                        'tenant_id' => $tenant->id,
-                    ]);
+                    // 🔸 MAIN ACCOUNT PAYMENT FAILURE (Instructor)
+                    $instructorSub = InfluencerSubscription::where('stripe_subscription_id', $subscriptionId)->first();
+                    if ($instructorSub && $instructorSub->status !== 'past_due') {
+                        $instructorSub->update(['status' => 'past_due']);
+                        Log::info('Instructor subscription marked past_due', [
+                            'subscription_id' => $subscriptionId,
+                            'invoice_id' => $invoiceId,
+                        ]);
+                    }
                 }
-                tenancy()->end();
-
                 break;
 
             case 'customer.subscription.deleted':
                 $subscriptionId = $payload['data']['object']['id'];
-                tenancy()->initialize($tenant);
+                if ($accountId) {
+                    tenancy()->initialize($tenant);
 
-                ClientSubscription::where('stripe_subscription_id', $subscriptionId)
-                    ->update(['status' => 'canceled']);
+                    ClientSubscription::where('stripe_subscription_id', $subscriptionId)
+                        ->update(['status' => 'canceled']);
 
-                tenancy()->end();
+                    tenancy()->end();
+                } else {
+                    // 🔸 MAIN ACCOUNT SUBSCRIPTION CANCELED
+                    InfluencerSubscription::where('stripe_subscription_id', $subscriptionId)
+                        ->update(['status' => 'canceled']);
+                    Log::info('Instructor subscription canceled (Main Account)', [
+                        'subscription_id' => $subscriptionId,
+                    ]);
+                }
                 break;
         }
 

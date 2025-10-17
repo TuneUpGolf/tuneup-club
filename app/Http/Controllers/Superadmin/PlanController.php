@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Superadmin;
 
-use App\Http\Controllers\Controller;
-use App\DataTables\Superadmin\PlanDataTable;
-use App\Facades\UtilityFacades;
-use App\Models\Order;
+use Stripe\Price;
+use Stripe\Stripe;
+use Stripe\Product;
 use App\Models\Plan;
-use App\Models\Setting;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\Setting;
 use Illuminate\Http\Request;
+use App\Facades\UtilityFacades;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\DataTables\Superadmin\PlanDataTable;
 
 class PlanController extends Controller
 {
@@ -51,27 +54,52 @@ class PlanController extends Controller
                 'price'         => 'required',
                 'duration'      => 'required',
                 'durationtype'  => 'required',
-                'max_users'     => 'required',
-                'max_roles'     => 'required',
-                'max_documents' => 'required',
-                'max_blogs'     => 'required',
+                // 'max_users'     => 'required',
+                // 'max_roles'     => 'required',
+                // 'max_documents' => 'required',
+                // 'max_blogs'     => 'required',
+                'description'   => 'max:100',
+
             ]);
-            $paymentTypes = UtilityFacades::getpaymenttypes();
-            if (!$paymentTypes) {
-                return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
-            }
+            // $paymentTypes = UtilityFacades::getpaymenttypes();
+            // if (!$paymentTypes) {
+            //     return redirect()->route('plans.index')->with('errors', __('Please on at list one payment type.'));
+            // }
+
+            $currency = UtilityFacades::getsettings('currency') ?? 'usd';
+
+             Stripe::setApiKey(config('services.stripe.secret'));
+
+            $product = Product::create([
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            // 2️⃣ Create a Recurring Price
+            $price = Price::create([
+                'unit_amount' => round($request->price * 100), // Stripe expects cents
+                'currency' => $currency,
+                'recurring' => [
+                    // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
+                    'interval' =>  'month', // "month" or "year"
+                ],
+                'product' => $product->id,
+            ]);
+
             Plan::create([
                 'name'              => $request->name,
                 'price'             => $request->price,
                 'duration'          => $request->duration,
                 'durationtype'      => $request->durationtype,
-                'max_users'         => $request->max_users,
-                'max_roles'         => $request->max_roles,
-                'max_documents'     => $request->max_documents,
-                'max_blogs'         => $request->max_blogs,
-                'discount_setting'  => ($request->discount_setting) ? 'on' : 'off',
-                'discount'          => $request->discount_setting == 'on' ? $request->discount : null,
-                'description'       => $_POST['description'],
+                // 'max_users'         => $request->max_users,
+                // 'max_roles'         => $request->max_roles,
+                // 'max_documents'     => $request->max_documents,
+                // 'max_blogs'         => $request->max_blogs,
+                // 'discount_setting'  => ($request->discount_setting) ? 'on' : 'off',
+                // 'discount'          => $request->discount_setting == 'on' ? $request->discount : null,
+                'description'       => $request->description,
+                 'stripe_product_id' => $product->id, // store Stripe IDs!
+                'stripe_price_id'   => $price->id,
             ]);
             return redirect()->route('plans.index')->with('success', __('Plan created successfully.'));
         } else {
@@ -105,52 +133,97 @@ class PlanController extends Controller
                 'name'          => 'required|max:50|unique:plans,name,' . $id,
                 'price'         => 'required',
                 'duration'      => 'required',
-                'max_users'     => 'required',
-                'max_roles'     => 'required',
-                'max_documents' => 'required',
-                'max_blogs'     => 'required',
+                // 'max_users'     => 'required',
+                // 'max_roles'     => 'required',
+                // 'max_documents' => 'required',
+                // 'max_blogs'     => 'required',
+                'description'   => 'max:100',
             ]);
+
+              Stripe::setApiKey(config('services.stripe.secret'));
+
             $plan = Plan::find($id);
+
+            try {
+                /**
+                 * 1️⃣ Update or Create Stripe Product
+                 */
+                if ($plan->stripe_product_id) {
+                    $product = Product::update(
+                        $plan->stripe_product_id,
+                        [
+                            'name' => $request->name,
+                            'description' => $request->description,
+                        ]
+                    );
+                } else {
+                    $product = Product::create(
+                        [
+                            'name' => $request->name,
+                            'description' => $request->description,
+                        ]
+                    );
+                    $plan->stripe_product_id = $product->id;
+                }
+
+                $price = Price::create(
+                    [
+                        'unit_amount' => round($request->price * 100),
+                        'currency' => 'usd',
+                        'recurring' => [
+                            // 'interval' => strtolower($request->durationtype),
+                            'interval' => 'month',
+
+                        ],
+                        'product' => $plan->stripe_product_id,
+                    ]
+                );
+
+                $plan->stripe_price_id = $price->id;
+            } catch (\Exception $e) {
+                return redirect()->back()->with('failed', __('Stripe Error: ') . $e->getMessage());
+            }
+
             $plan->name             = $request->input('name');
             $plan->price            = $request->input('price');
             $plan->duration         = $request->input('duration');
             $plan->durationtype     = $request->input('durationtype');
-            $plan->max_users        = $request->input('max_users');
-            $plan->max_roles        = $request->input('max_roles');
-            $plan->max_documents    = $request->input('max_documents');
-            $plan->max_blogs        = $request->input('max_blogs');
-            $plan->discount_setting = ($request->discount_setting) ? 'on' : 'off';
-            $plan->discount         = $request->discount_setting == 'on' ? $request->discount : null;
-            $plan->description      = $_POST['description'];
+            // $plan->max_users        = $request->input('max_users');
+            // $plan->max_roles        = $request->input('max_roles');
+            // $plan->max_documents    = $request->input('max_documents');
+            // $plan->max_blogs        = $request->input('max_blogs');
+            // $plan->discount_setting = ($request->discount_setting) ? 'on' : 'off';
+            // $plan->discount         = $request->discount_setting == 'on' ? $request->discount : null;
+            $plan->description      = $request->input('description');
             $plan->save();
 
             // tenant database setting store
-            $users = User::where('plan_id', $id)->first();
-            tenancy()->initialize($users->tenant_id);
-            $plans = [
-                "plan_id"           => $plan->id,
-                "name"              => $plan->name,
-                "price"             => $plan->price,
-                "duration"          => $plan->duration,
-                "durationtype"      => $plan->durationtype,
-                "description"       => $plan->description,
-                "max_users"         => $plan->max_users,
-                "max_roles"         => $plan->max_roles,
-                "max_documents"     => $plan->max_documents,
-                "max_blogs"         => $plan->max_blogs,
-                "discount_setting"  => ($plan->discount_setting == 'on') ? 'on' : 'off',
-                "discount"          => $plan->discount_setting == 'on' ? $plan->discount : null,
-                "tenant_id"         => $plan->tenant_id,
-                "active_status"     => $plan->active_status,
-                "created_at"        => $plan->created_at,
-                "updated_at"        => $plan->updated_at,
-            ];
-            $planSetting = json_encode($plans);
-            Setting::updateOrCreate(
-                ['key'      => 'plan_setting'],
-                ['value'    => $planSetting]
-            );
-            tenancy()->end();
+            // $users = User::where('plan_id', $id)->first();
+            // tenancy()->initialize($users->tenant_id);
+            // $plans = [
+            //     "plan_id"           => $plan->id,
+            //     "name"              => $plan->name,
+            //     "price"             => $plan->price,
+            //     "duration"          => $plan->duration,
+            //     "durationtype"      => $plan->durationtype,
+            //     "description"       => $plan->description,
+            //     "max_users"         => $plan->max_users,
+            //     "max_roles"         => $plan->max_roles,
+            //     "max_documents"     => $plan->max_documents,
+            //     "max_blogs"         => $plan->max_blogs,
+            //     "discount_setting"  => ($plan->discount_setting == 'on') ? 'on' : 'off',
+            //     "discount"          => $plan->discount_setting == 'on' ? $plan->discount : null,
+            //     "tenant_id"         => $plan->tenant_id,
+            //     "active_status"     => $plan->active_status,
+            //     "created_at"        => $plan->created_at,
+            //     "updated_at"        => $plan->updated_at,
+            // ];
+            // $planSetting = json_encode($plans);
+            // Setting::updateOrCreate(
+            //     ['key'      => 'plan_setting'],
+            //     ['value'    => $planSetting]
+            // );
+            // tenancy()->end();
 
             return redirect()->route('plans.index')->with('success', __('Plan updated successfully.'));
         } else {

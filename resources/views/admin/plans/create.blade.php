@@ -47,16 +47,11 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     {{ Form::label('durationtype', __('Duration'), ['class' => 'form-label']) }}
-                                    {!! Form::select(
-                                        'durationtype',
-                                        [ 'Month' => 'Month', 'Year' => 'Year'],
-                                        old('durationtype', 'Month'),
-                                        [
-                                            'class' => 'form-control',
-                                            'required',
-                                            'data-trigger',
-                                        ],
-                                    ) !!}
+                                    {!! Form::select('durationtype', ['Month' => 'Month', 'Year' => 'Year'], old('durationtype', 'Month'), [
+                                        'class' => 'form-control',
+                                        'required',
+                                        'data-trigger',
+                                    ]) !!}
                                 </div>
                             </div>
                         </div>
@@ -72,12 +67,13 @@
                             </div>
                         @endif
 
-                           <div class="form-group mt-3">
+                        <div class="form-group mt-3">
                             {{ Form::label('lesson_limit', __('Lesson Limit'), ['class' => 'form-label d-block']) }}
 
                             @php
+                                $lessonLimits[0] = 'Select lesson limit';
                                 // Generate lesson limits: 1 to 10, plus "Unlimited"
-                                $lessonLimits = collect(range(0, 10))
+                                $lessonLimits = collect(range(1, 10))
                                     ->mapWithKeys(fn($num) => [$num => "{$num} lessons/month"])
                                     ->toArray();
 
@@ -85,13 +81,13 @@
                                 $lessonLimits[-1] = 'Unlimited lessons/month';
                             @endphp
 
-                        
-                                {!! Form::select('lesson_limit', $lessonLimits, old('lesson_limit'), [
-                                    'class' => 'form-select',
-                                    'placeholder' => 'Select lesson limit',
-                                    'id' => 'lesson_limit',
-                                ]) !!}
-                        
+
+                            {!! Form::select('lesson_limit', $lessonLimits, old('lesson_limit'), [
+                                'class' => 'form-select',
+                                // 'placeholder' => 'Select lesson limit',
+                                'id' => 'lesson_limit',
+                            ]) !!}
+
                         </div>
 
                         <div class="form-group">
