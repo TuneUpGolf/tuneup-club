@@ -218,6 +218,12 @@
                                             <span class="text-gray-600"><strong>Total Duration:
                                                     {{ $plan->duration . ' ' . $plan->durationtype }}
                                                 </strong></span>
+                                            <br>
+                                            @if ($plan->lesson_limit != 0)
+                                                <span class="text-gray-600"><strong>Online Lesson Limit:
+                                                        {{ $plan->lesson_limit_label }}
+                                                    </strong></span>
+                                            @endif
                                             <div class="flex gap-1 items-center mt-2 ">
                                                 <p class="text-4xl font-bold">
                                                     {{ '$' . $plan->price }}/</p>

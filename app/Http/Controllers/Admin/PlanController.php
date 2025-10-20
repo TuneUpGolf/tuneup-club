@@ -83,7 +83,7 @@ class PlanController extends Controller
                 'max_users'    => 'required',
                 'lesson_limit' => 'required|integer',
             ]);
-            $paymentTypes = UtilityFacades::getpaymenttypes();
+            // $paymentTypes = UtilityFacades::getpaymenttypes();
 
             // if (! $paymentTypes) {
             //     return redirect()->back()->with('errors', __('Please select at least one payment type from Settings > Payment Settings.'))->withInput();
@@ -92,21 +92,21 @@ class PlanController extends Controller
             $influencerId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
             $tenantId     = Auth::user()->type === Role::ROLE_INFLUENCER ? tenant()->id : null;
 
-            if ($influencerId) {
-                $exists = Plan::where('influencer_id', $influencerId)
-                    ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
-                    ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
-                    ->exists();
+            // if ($influencerId) {
+            //     $exists = Plan::where('influencer_id', $influencerId)
+            //         ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
+            //         ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
+            //         ->exists();
 
-                if ($exists) {
-                    return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
-                }
-            }
+            //     if ($exists) {
+            //         return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
+            //     }
+            // }
             $user  = Auth::user();
-            if (empty($user->stripe_account_id)) {
-                return redirect()->route('plans.myplan')
-                    ->with('failed', __('Please first connect your Stripe account.'));
-            }
+            // if (empty($user->stripe_account_id)) {
+            //     return redirect()->route('plans.myplan')
+            //         ->with('failed', __('Please first connect your Stripe account.'));
+            // }
 
             $instructor = $influencerId ? User::find($influencerId) : null;
 

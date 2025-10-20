@@ -49,4 +49,12 @@ class Plan extends Model
     {
         return $this->belongsTo(User::class, 'influencer_id', 'id');
     }
+
+     public function getLessonLimitLabelAttribute()
+    {
+        return match ($this->lesson_limit) {
+            -1 => 'Unlimited lessons/month',
+            default => "{$this->lesson_limit} lessons/month",
+        };
+    }
 }
