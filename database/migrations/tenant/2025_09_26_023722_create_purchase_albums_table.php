@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('active_status');
             $table->string('session_id', 250)->nullable()->default(null);
             $table->foreign('album_category_id')->references('id')->on('album_categories')->onDelete('cascade');
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
