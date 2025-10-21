@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\AlbumCategoryController;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Follower;
@@ -324,6 +325,15 @@ Route::middleware([
         Route::post('settings/cookie-setting/update', [SettingsController::class, 'cookieSettingUpdate'])->name('settings.cookie.setting.update');
         Route::post('setting/seo/save', [SettingsController::class, 'SeoSetting'])->name('setting.seo.save');
 
+        // Album Category Routes
+        Route::controller(AlbumCategoryController::class)->prefix('album-category')->name('album.category.')->group(function () {
+            Route::get('/', 'index')->name('manage');
+            Route::get('create', 'create')->name('create');
+            Route::post('store', 'store')->name('store');
+            Route::get('edit/{id}', 'edit')->name('edit');
+            Route::patch('update/{id}', 'update')->name('update');
+            Route::delete('delete/{id}', 'destroy')->name('destroy');
+        });
         //frontend
         Route::group(['prefix' => 'landingpage-setting'], function () {
             Route::get('app-setting', [LandingPageController::class, 'landingPageSetting'])->name('landingpage.setting');
