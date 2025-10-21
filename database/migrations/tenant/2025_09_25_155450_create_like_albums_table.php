@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('album_id');
             $table->unsignedBigInteger('instructor_id')->nullable()->default(null);
             $table->unsignedBigInteger('student_id')->nullable()->default(null);
-            $table->unsignedBigInteger('student_id');
             $table->foreign('instructor_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('album_id')->references('id')->on('albums')->onDelete('cascade');
             $table->timestamps();
