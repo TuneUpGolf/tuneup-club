@@ -1,10 +1,11 @@
 <div class="action-btn-fix-wraper">
     @can('edit-blog')
-        <a class="btn btn-sm small btn btn-warning action-btn-fix" href="{{ route('album.category.edit', $post->id) }}"
+        <a href="{{ route('album.category.edit', $post->id) }}" class="btn btn-sm btn-warning action-btn-fix"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
             <i class="ti ti-edit text-white"></i>
         </a>
     @endcan
+
     @can('delete-blog')
         {!! Form::open([
             'method' => 'DELETE',
@@ -12,19 +13,18 @@
             'route' => ['album.category.destroy', $post->id],
             'id' => 'delete-form-' . $post->id,
         ]) !!}
-        <a href="javascript:void(0);" class="btn btn-sm small btn btn-danger show_confirm action-btn-fix"
-            data-bs-toggle="tooltip" data-bs-placement="bottom" id="delete-form-1"
+        <a href="javascript:void(0);" class="btn btn-sm btn-danger show_confirm action-btn-fix"
+            id="delete-form-{{ $post->id }}" data-bs-toggle="tooltip" data-bs-placement="bottom"
             data-bs-original-title="{{ __('Delete') }}">
             <i class="ti ti-trash text-white"></i>
         </a>
         {!! Form::close() !!}
     @endcan
+
     @can('create-blog')
-        <a class="btn btn-sm small btn btn-warning action-btn-fix"
-            href="{{ route('album.category.create-album', $post->id) }}" data-bs-toggle="tooltip" data-bs-placement="bottom"
-            data-bs-original-title="{{ __('Plus') }}">
+        <a href="{{ route('album.category.create-album', $post->id) }}" class="btn btn-sm btn-warning action-btn-fix"
+            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Plus') }}">
             <i class="ti ti-plus text-white"></i>
         </a>
-
-    </div>
-@endcan
+    @endcan
+</div>
