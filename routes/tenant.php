@@ -333,6 +333,7 @@ Route::middleware([
             Route::get('edit/{id}', 'edit')->name('edit');
             Route::patch('update/{id}', 'update')->name('update');
             Route::delete('delete/{id}', 'destroy')->name('destroy');
+            Route::get('create-album/{id}', 'createAlbum')->name('create-album');
         });
         //frontend
         Route::group(['prefix' => 'landingpage-setting'], function () {
