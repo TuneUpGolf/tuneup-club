@@ -16,7 +16,7 @@
             </div>
         </div>
     </div>
-    @if(Auth::user()->type == 'Follower')
+    @if (Auth::user()->type == 'Follower')
         <div class="row">
             <div class="col-xl-12">
                 <div class="card">
