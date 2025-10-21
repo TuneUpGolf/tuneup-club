@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Traits;
 
 use App\Actions\SendPushNotification;
 use App\Actions\SendSMS;
+use App\Models\Lesson;
 use App\Models\Purchase;
 use App\Models\Slots;
 use App\Models\User;
@@ -199,8 +201,8 @@ trait PurchaseTrait
                 }
 
                 return $returnJson
-                ? response()->json(['payment_url' => $session->url], 200)
-                : redirect($session->url);
+                    ? response()->json(['payment_url' => $session->url], 200)
+                    : redirect($session->url);
             }
 
             throw new \Exception('Failed to generate payment link');
@@ -213,6 +215,72 @@ trait PurchaseTrait
             }
 
             return redirect()->back()->withErrors(['failed' => 'Failed to generate payment link, please try again later.' . $e->getMessage()]);
+        }
+    }
+
+    public function createSessionForPaymentNew($lesson_id)
+    {
+        try {
+            $tenantId = tenancy()->tenant->id;
+            tenancy()->central(function () use (&$application_fee_percentage, &$application_currency, $tenantId) {
+                $userData = User::where('tenant_id', $tenantId)
+                    ->select('application_fee_percentage', 'currency')
+                    ->first();
+                $application_fee_percentage = $userData?->application_fee_percentage;
+                $application_currency = $userData?->currency ?? 'usd';
+            });
+
+            $lesson = Lesson::find($lesson_id);
+            $instructor = $lesson?->user;
+            $isInstructorUSA = $instructor?->country == 'United States';
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            $accountId = $instructor?->stripe_account_id;
+            $account = Account::retrieve($accountId);
+            $instructorCurrency = $account?->default_currency ?? 'usd';
+            $convertedAmount = $lesson?->lesson_price * 100;
+
+            // Convert currency if needed
+            if ($instructorCurrency !== $application_currency) {
+                $exchangeRates = \Stripe\ExchangeRate::retrieve($instructorCurrency);
+                $conversionRate = $exchangeRates['rates'][$application_currency] ?? 1;
+                $convertedAmount = round($convertedAmount / $conversionRate);
+            }
+
+            $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount);
+            $success_url = route('purchase.checkout', [
+                'lesson_id' => $lesson_id,
+                'user_id' => Auth::id(),
+            ]) . '&session_id={CHECKOUT_SESSION_ID}';
+            // Create session first (without success/cancel URL)
+            $session = \Stripe\Checkout\Session::create([
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => $instructorCurrency,
+                        'product_data' => [
+                            'name' => "{$instructor->id}-{$lesson->id}",
+                        ],
+                        'unit_amount' => $convertedAmount,
+                    ],
+                    'quantity' => 1,
+                ]],
+                'payment_intent_data' => [
+                    'application_fee_amount' => $applicationFeeAmount,
+                    'transfer_data' => ['destination' => $accountId],
+                ],
+                'mode' => 'payment',
+                'customer' => Auth::user()?->stripe_cus_id ?? null,
+                'success_url' => $success_url,
+                'cancel_url' => route('purchase-cancel', [
+                    'lesson_id' => $lesson_id,
+                    'user_id' => Auth::id(),
+                ]),
+            ]);
+
+            return $session;
+        } catch (\Exception $e) {
+            return redirect()->back()->with('errors', $e->getMessage());
         }
     }
 }

@@ -117,7 +117,7 @@ class PurchaseController extends Controller
 
                     ]);
                     $newPurchase->total_amount = $total_amount;
-                    $newPurchase->status       = Purchase::STATUS_INCOMPLETE;
+                    $newPurchase->status       = Purchase::STATUS_COMPLETE;
                     $newPurchase->lessons_used = 0;
                     $newPurchase->save();
 
@@ -953,5 +953,36 @@ class PurchaseController extends Controller
         return response()->stream(function () use ($filePath) {
             readfile($filePath);
         }, 200, $headers);
+    }
+
+    public function purchasePayment(Request $request)
+    {
+        try {
+            // ✅ Validate that lesson_id is provided
+            $request->validate([
+                'lesson_id' => 'required|exists:lessons,id',
+            ]);
+
+            $lesson = Lesson::find($request->lesson_id);
+
+            $student_user = Auth::user();
+
+
+            // ✅ Create a Stripe Checkout Session
+            $session = $this->createSessionForPaymentNew($lesson->id);
+
+
+            // ✅ Check if session was successfully created
+            if (empty($session) || empty($session->url)) {
+                return redirect()->back()->withErrors('Failed to generate payment link. Please try again.');
+            }
+
+            // ✅ Redirect user to Stripe Checkout
+            return redirect($session->url);
+        } catch (\Exception $e) {
+            // ✅ Handle exceptions gracefully
+            \Log::error('Stripe payment session creation failed: ' . $e->getMessage());
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
 }
