@@ -216,9 +216,8 @@ class PurchaseDataTable extends DataTable
         }')
             ->parameters([
                 "columnDefs" => [
-                    ["responsivePriority" => 1, "targets" => -1], // Always keep Actions visible
-                    ["responsivePriority" => 2, "targets" => 0],  // Keep first column next
-                    ["responsivePriority" => 3, "targets" => 2],  // Then lesson or influencer
+                    ["responsivePriority" => 1, "targets" => 2],
+                    ["responsivePriority" => 2, "targets" => 6],
                 ],
                 "dom" => "
                 <'dataTable-top row'
@@ -294,7 +293,7 @@ class PurchaseDataTable extends DataTable
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)
-                ->addClass('text-center')
+                ->addClass('text-center all-desktop')
                 ->width('20%'),
         ]);
     }

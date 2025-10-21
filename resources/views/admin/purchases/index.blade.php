@@ -32,6 +32,16 @@
 @endsection
 @push('css')
     @include('layouts.includes.datatable_css')
+    <style>
+        @media (max-width: 992px) {
+
+            /* tablets & below */
+            table.dataTable td.all-desktop,
+            table.dataTable th.all-desktop {
+                display: none !important;
+            }
+        }
+    </style>
 @endpush
 @push('javascript')
     @include('layouts.includes.datatable_js')
