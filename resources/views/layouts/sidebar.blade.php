@@ -321,13 +321,13 @@
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
                                 <a href="#!" class="dash-link">
                                     <span class="dash-micon"><i class="ti ti-server"></i></span>
-                                    <span class="dash-mtext">{{ __('Post') }}</span><span class="dash-arrow"><i
+                                    <span class="dash-mtext">{{ __('Tips/Drills') }}</span><span class="dash-arrow"><i
                                             data-feather="chevron-right"></i></span></a>
                                 <ul class="dash-submenu">
                                     @can('create-blog')
                                         <li class="dash-item {{ request()->is('blogs/create') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('blogs.create') }}">{{ __('Create New Post') }}</a>
+                                                href="{{ route('blogs.create') }}">{{ __('Create New Tips/Drills') }}</a>
                                         </li>
                                     @endcan
                                     @can('manage-blog')
@@ -336,14 +336,20 @@
                                         </li>
                                         <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
                                             <a class="dash-link"
-                                                href="{{ route('blogs.manage') }}">{{ __('Manage Posts') }}</a>
+                                                href="{{ route('blogs.manage') }}">{{ __('Manage Tips/Drills') }}</a>
+                                        </li>
+                                    @endcan
+                                    @can('manage-blog')
+                                        <li class="dash-item {{ request()->is('album-category') ? 'active' : '' }}">
+                                            <a class="dash-link"
+                                                href="{{ route('album.category.manage') }}">{{ __('Create/Manage Categories') }}</a>
                                         </li>
                                     @endcan
                                     @if ($users->type == 'Admin')
                                         @can('manage-blog')
                                             <li class="dash-item {{ request()->is('blogs/manage/report') ? 'active' : '' }}">
                                                 <a class="dash-link"
-                                                    href="{{ route('blogs.report') }}">{{ __('Reported Posts') }}</a>
+                                                    href="{{ route('blogs.report') }}">{{ __('Reported Tips/Drills') }}</a>
                                             </li>
                                         @endcan
                                     @endif
@@ -483,26 +489,6 @@
                                 <span class="dash-mtext">{{ __('Chat') }}</span>
                             </a>
                         </li>
-                        @canany(['manage-blog', 'manage-category'])
-                            <li
-                                class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
-                                <a href="#!" class="dash-link">
-                                    <span class="dash-micon"><i class="ti ti-server"></i></span>
-                                    <span class="dash-mtext">{{ __('Tips/Drills') }}</span><span class="dash-arrow"><i
-                                            data-feather="chevron-right"></i></span></a>
-                                <ul class="dash-submenu">
-
-                                    @can('manage-blog')
-                                        <li class="dash-item {{ request()->is('album-category') ? 'active' : '' }}">
-                                            <a class="dash-link"
-                                                href="{{ route('album.category.manage') }}">{{ __('Create/Manage Categories') }}</a>
-                                        </li>
-                                    @endcan
-
-
-                                </ul>
-                            </li>
-                        @endcanany
 
                         <li class="dash-item dash-hasmenu">
                             <a href="{{ route('help-section.index') }}" class="dash-link">
