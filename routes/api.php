@@ -57,7 +57,7 @@ Route::post('/sanctum/token', function (Request $request) {
 Route::group(['middleware' => [
     InitializeTenancyByDomainOrSubdomain::class,
 ]], function () {
-    Route::get('/stripe/success', [StripeController::class, 'redirectFromCreate'])->name('stripe-redirect-create');
+    // Route::get('/stripe/success', [StripeController::class, 'redirectFromCreate'])->name('stripe-redirect-create');
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
