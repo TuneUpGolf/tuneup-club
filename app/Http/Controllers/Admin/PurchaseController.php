@@ -114,6 +114,7 @@ class PurchaseController extends Controller
                         'lesson_id'     => $lesson->id,
                         'coupon_id'     => $coupon,
                         'tenenat_id'    => Auth::user()->tenant_id,
+                        'session_id' => $request->session_id
 
                     ]);
                     $newPurchase->total_amount = $total_amount;
