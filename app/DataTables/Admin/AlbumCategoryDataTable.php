@@ -68,7 +68,7 @@ class AlbumCategoryDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_ADMIN)
             return $model->newQuery();
 
-        if (Auth::user()->type == Role::ROLE_INSTRUCTOR)
+        if (Auth::user()->type == Role::ROLE_INFLUENCER)
             return $model->newQuery()->where('instructor_id', Auth::user()->id);
 
         return $model->newQuery()->where('student_id', Auth::user()->id);
