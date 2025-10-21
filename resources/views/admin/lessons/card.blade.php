@@ -95,7 +95,7 @@
         <div class="w-100 mt-3">
             @if ($model->type === 'online')
                 {!! Form::open([
-                    'route' => ['purchase.store', ['lesson_id' => $model->id]],
+                    'route' => ['purchase.payment', ['lesson_id' => $model->id]],
                     'method' => 'Post',
                     'enctype' => 'multipart/form-data',
                     'class' => 'form-horizontal',

@@ -95,7 +95,7 @@ Route::middleware([
         return UserImpersonation::makeResponse($token);
     });
 
-      Route::get('subscription-inactive', [RestrictInfluencerController::class, 'subscription_inactive'])->name('subscription.inactive');
+    Route::get('subscription-inactive', [RestrictInfluencerController::class, 'subscription_inactive'])->name('subscription.inactive');
     Route::get('subscription-inactive-purchase', [RestrictInfluencerController::class, 'subscription_inactive_purchase'])->name('subscription.inactive.purchase');
 
     Route::get('instructor-stripe-success-pay/{data}', [RestrictInfluencerController::class, 'instructor_stripe_success_pay'])->name('instructor.stripe.success.pay');
@@ -203,7 +203,7 @@ Route::middleware([
         //purchase
         Route::resource('purchase', PurchaseController::class);
         Route::get('/upcoming-lessons/data', [PurchaseController::class, 'upcomingLessonsData'])->name('upcoming-lessons.data');
-        Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
+        Route::post('purchase/payment', [PurchaseController::class, 'purchasePayment'])->name('purchase.payment');
         Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
         Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');
         Route::get('purchase/get/follower', [PurchaseController::class, 'getFollowerPurchases']);
