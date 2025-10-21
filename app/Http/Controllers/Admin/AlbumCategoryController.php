@@ -140,4 +140,24 @@ class AlbumCategoryController extends Controller
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
+    public function createAlbum($id)
+    {
+        if (Auth::user()->can('create-blog')) {
+            $album_category = AlbumCategory::where('id', $id)
+                ->where('instructor_id', Auth::user()->id)
+                ->first(['id', 'title']);
+
+            if (!$album_category) {
+                return redirect()->back()->with('failed', __('Category not found.'));
+            }
+
+            // convert to array for Form::select
+            $album_categories = [$album_category->id => $album_category->title];
+
+            return view('admin.album.create', compact('album_categories', 'album_category'));
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
 }
