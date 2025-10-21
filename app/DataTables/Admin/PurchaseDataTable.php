@@ -216,8 +216,9 @@ class PurchaseDataTable extends DataTable
         }')
             ->parameters([
                 "columnDefs" => [
-                    ["responsivePriority" => 1, "targets" => 2],
-                    ["responsivePriority" => 2, "targets" => 6],
+                    ["responsivePriority" => 1, "targets" => -1], // Always keep Actions visible
+                    ["responsivePriority" => 2, "targets" => 0],  // Keep first column next
+                    ["responsivePriority" => 3, "targets" => 2],  // Then lesson or influencer
                 ],
                 "dom" => "
                 <'dataTable-top row'
