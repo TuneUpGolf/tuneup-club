@@ -8,7 +8,9 @@ use App\Models\AlbumCategory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Error;
 
 class AlbumCategoryController extends Controller
 {
