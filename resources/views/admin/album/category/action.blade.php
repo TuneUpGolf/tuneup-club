@@ -1,4 +1,4 @@
-<div class="action-btn-fix-wraper">
+<div class="action-btn-fix-wraper d-flex align-items-center justify-content-center gap-2">
     @can('edit-blog')
         <a href="{{ route('album.category.edit', $post->id) }}" class="btn btn-sm btn-warning action-btn-fix"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Edit') }}">
