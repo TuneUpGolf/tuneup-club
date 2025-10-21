@@ -474,7 +474,9 @@ class PurchaseController extends Controller
                             // }
                         }
 
-                        return $this->confirmPurchaseWithRedirect($request);
+                        return redirect()
+                            ->route('home')
+                            ->with('success', 'Online Lesson purchased successfully and Video successfully added.');
                     } else if ($request->redirect == 1) {
                         return redirect()->route('purchase.index')->with('success', 'Video Successfully Added');
                     }
