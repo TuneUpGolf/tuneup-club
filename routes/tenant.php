@@ -333,6 +333,10 @@ Route::middleware([
             Route::get('edit/{id}', 'edit')->name('edit');
             Route::patch('update/{id}', 'update')->name('update');
             Route::delete('delete/{id}', 'destroy')->name('destroy');
+            Route::get('show', 'getCategories')->name('show');
+            Route::get('albums/{id}', 'getCategoryAlbums')->name('album');
+            Route::post('album/like', 'likeAlbum')->name('album.like');
+            Route::post('purchase/album/instructor', 'purchaseAlbumCategory')->name('purchase.album.index');
             Route::get('create-album/{id}', 'createAlbum')->name('create-album');
         });
         //frontend
