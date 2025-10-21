@@ -68,10 +68,10 @@ class AlbumCategoryController extends Controller
                 $album_category->save();
                 return redirect()->route('album.category.manage')->with('success', __('Album Category created successfully.'));
             } catch (ValidationException $e) {
-                Log::info($e->getMessage());
+                dd($e->getMessage());
                 return redirect()->back()->withErrors($e->errors())->withInput();
             } catch (\Exception $e) {
-                Log::info($e->getMessage());
+                dd($e->getMessage());
                 return redirect()->back()->with('danger', $e->getMessage())->withInput();
             }
         } else {
