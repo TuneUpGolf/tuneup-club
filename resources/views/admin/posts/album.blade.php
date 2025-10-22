@@ -39,7 +39,7 @@
                                                             </div>
 
                                                             {{-- Check if current request is album detail page --}}
-                                                            @if (Request::is('album-category/albums/*') && \App\Models\Role::ROLE_INSTRUCTOR)
+                                                            @if (Request::is('album-category/albums/*') && \App\Models\Role::ROLE_INFLUENCER)
                                                                 {{-- Show 3-dots dropdown --}}
                                                                 <div class="dropdown">
                                                                     <button class="btn btn-light" type="button"
