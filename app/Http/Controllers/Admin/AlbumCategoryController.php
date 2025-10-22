@@ -223,7 +223,7 @@ class AlbumCategoryController extends Controller
                     'active_status' => false,
                 ]
             );
-            dd($purchasePost);
+
             Stripe::setApiKey(config('services.stripe.secret'));
 
             $session = Session::create(
