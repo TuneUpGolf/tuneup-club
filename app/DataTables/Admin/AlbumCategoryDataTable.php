@@ -49,8 +49,8 @@ class AlbumCategoryDataTable extends DataTable
             })
             ->editColumn('title', function (AlbumCategory $post) {
                 $title = $post->title;
-                // $url = route('album.category.album', $post->id);
-                return  $title;
+                $url = route('album.category.album', $post->id);
+                return '<a href="' . $url . '">' . e($title) . '</a>';
             })
             ->editColumn('sales', function (AlbumCategory $post) {
                 $count = PurchasePost::where('active_status', true)->where('post_id', $post->id)->count();
