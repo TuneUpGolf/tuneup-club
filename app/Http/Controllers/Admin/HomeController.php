@@ -7,6 +7,7 @@ use App\DataTables\Admin\SalesDataTable;
 use App\Facades\Utility;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
+use App\Models\AlbumCategory;
 use App\Models\DocumentGenrator;
 use App\Models\Event;
 use App\Models\Follow;
@@ -81,6 +82,12 @@ class HomeController extends Controller
             if ($tab == 'chat') {
                 $token        = $this->chatService->getChatToken($user->chat_user_id);
             }
+            $category = $request->category ?? 'all_category';
+            $albums = null;
+            if ($category == 'all_category') {
+                $albums = AlbumCategory::get();
+            }
+
 
             return $this->followerDashboard([
                 'dataTable'      => $dataTable,
@@ -94,6 +101,7 @@ class HomeController extends Controller
                 'token'          => $token ?? null,
                 'chatEnabled'    => $chatEnabled,
                 'tab'            => $tab,
+                'albums'         => $albums,
             ], $request);
         }
 
@@ -199,6 +207,7 @@ class HomeController extends Controller
         $chatEnabled    = $data['chatEnabled'];
         $tab            = $data['tab'];
         $posts          = $data['posts'];
+        $albums         = $data['albums'];
 
         $influencer   = User::where('type', Role::ROLE_INFLUENCER)->first();
         $totalLessons = Lesson::where('created_by', $influencer->id)->count();
@@ -242,7 +251,8 @@ class HomeController extends Controller
             'influencer',
             'chatEnabled',
             'token',
-            'tab'
+            'tab',
+            'albums',
         ));
     }
 

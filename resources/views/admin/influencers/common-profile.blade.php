@@ -17,22 +17,22 @@
     $isChatTab = isset($token) ? true : false;
 @endphp
 <style>
-        .cancel-btn {
-            background-color: #ff3a6e !important;
-            transition: color 0.2s ease !important;
-        }
+    .cancel-btn {
+        background-color: #ff3a6e !important;
+        transition: color 0.2s ease !important;
+    }
 
-        .cancel-btn:hover {
-            background-color: #d9315c !important;
-        }
+    .cancel-btn:hover {
+        background-color: #d9315c !important;
+    }
 
-        .lesson-btn:disabled {
-            background: rgba(0, 113, 206, 0.5);
-            /* faded version */
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-    </style>
+    .lesson-btn:disabled {
+        background: rgba(0, 113, 206, 0.5);
+        /* faded version */
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+</style>
 <div class="flex flex-col">
     <div class="profile-backdrop">
         <div class="profile-info-container flex flex-wrap">
@@ -98,38 +98,73 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="">
-                            <div class="focus:outline-none mt-4 mb-5 lg:mt-24">
-                                <div class="infinity">
-                                    <div class="flex flex-wrap w-100">
-                                        @foreach ($posts as $post)
-                                            @php
-                                                $purchasePost = $post->purchasePost->firstWhere(
-                                                    'follower_id',
-                                                    Auth::id(),
-                                                );
-                                                $purchasePost = $purchasePost->active_status ?? false;
-                                            @endphp
-                                            @include('admin.posts.blog', [
-                                                'post' => $post,
-                                                'isInfluencer' => $isInfluencer,
-                                                'isSubscribed' => $isSubscribed,
-                                                'purchasePost' => $purchasePost,
+                        <div class="dataTable-top row">
+
+                            <div class="col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block"></div>
+                            <div class="tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex">
+                                <select id="album-category" class="form-select"
+                                    style="margin-left:auto; max-width: 12.5rem;">
+                                    <option value="" disabled>
+                                        - Select Category -
+                                    </option>
+                                    <option value=""
+                                        {{ request()->query('category') === ' ' ? 'selected' : '' }}>
+                                        View Individual Tips/Drills
+                                    </option>
+                                    <option value="all_category"
+                                        {{ request()->query('category') === 'all_category' ? 'selected' : '' }}>
+                                        View Categories
+                                    </option>
+                                    {{-- @foreach ($album_categories as $category)
+                                                    <option value="{{ $category->id }}"
+                                                        {{ request()->query('category') == $category->id ? 'selected' : '' }}>
+                                                        {{ $category->title }}
+                                                    </option>
+                                                @endforeach --}}
+                                </select>
+                            </div>
+                            <div class="">
+                                <div class="focus:outline-none mt-4 mb-5 lg:mt-24">
+                                    @if (request()->query('category') == 'all_category')
+                                        <div class="infinity">
+                                            @include('admin.posts.album-category-view', [
+                                                'albums' => $albums,
                                             ])
-                                        @endforeach
-                                    </div>
-                                    <div class="float-end">
-                                        {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
-                                    </div>
+                                        </div>
+                                    @else
+                                        <div class="infinity">
+                                            <div class="flex flex-wrap w-100">
+                                                @if (request()->query('category') == 'all_category')
+                                                @endif
+                                                @foreach ($posts as $post)
+                                                    @php
+                                                        $purchasePost = $post->purchasePost->firstWhere(
+                                                            'follower_id',
+                                                            Auth::id(),
+                                                        );
+                                                        $purchasePost = $purchasePost->active_status ?? false;
+                                                    @endphp
+                                                    @include('admin.posts.blog', [
+                                                        'post' => $post,
+                                                        'isInfluencer' => $isInfluencer,
+                                                        'isSubscribed' => $isSubscribed,
+                                                        'purchasePost' => $purchasePost,
+                                                    ])
+                                                @endforeach
+                                            </div>
+                                            <div class="float-end">
+                                                {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @else
-                    <div class='flex flex-col justify-center items-center no-data gap-2'><i class="fa fa-thumbs-down"
-                            aria-hidden="true"></i>There are no posts from
-                        this influencer yet
-                    </div>
+                    @else
+                        <div class='flex flex-col justify-center items-center no-data gap-2'><i
+                                class="fa fa-thumbs-down" aria-hidden="true"></i>There are no posts from
+                            this influencer yet
+                        </div>
                 @endif
             </div>
         @endif
@@ -165,10 +200,7 @@
                                             <!-- Fixed Button Section -->
                                             <div class="mt-4">
                                                 @if ($plan->id != 1)
-                                                    @if (
-                                                        $plan->id == $user->plan_id &&
-                                                            !empty($user->plan_expired_date) &&
-                                                            Carbon::parse($user->plan_expired_date)->gte(now()))
+                                                    @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
                                                         <a href="javascript:void(0)" data-id="{{ $plan->id }}"
                                                             class="w-100 btn btn-secondary fw-bold py-2 rounded-pill mt-auto"
                                                             data-amount="{{ $plan->price }}">
@@ -210,12 +242,12 @@
                                             <span class="text-gray-600"><strong>Total Duration:
                                                     {{ $plan->duration . ' ' . $plan->durationtype }}
                                                 </strong></span>
-                                                <br>
-                                                 @if($plan->lesson_limit != 0)
-                                                             <span class="text-gray-600"><strong>Online Lesson Limit:
-                                                                {{ $plan->lesson_limit_label  }}
-                                                            </strong></span>
-                                                            @endif
+                                            <br>
+                                            @if ($plan->lesson_limit != 0)
+                                                <span class="text-gray-600"><strong>Online Lesson Limit:
+                                                        {{ $plan->lesson_limit_label }}
+                                                    </strong></span>
+                                            @endif
                                             <div class="flex gap-1 items-center mt-2 ">
                                                 <p class="text-4xl font-bold">
                                                     {{ '$' . $plan->price }}/</p>
@@ -437,6 +469,20 @@
 @push('javascript')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script>
+        document.getElementById('album-category').addEventListener('change', function() {
+            let categoryId = this.value;
+
+            // Only redirect if current view is 'posts' (or not in-person/online)
+            const url = new URL(window.location.href);
+            const currentView = url.searchParams.get('tab') || 'posts';
+
+
+            if (currentView === 'posts') {
+                url.searchParams.set('category', categoryId);
+                url.searchParams.delete('category_album');
+                window.location.href = url.toString();
+            }
+        });
         document.getElementById('Lessons').style.display = "{{ $isChatTab ? 'hidden' : 'block' }}";
 
         function openCity(evt, tabName) {

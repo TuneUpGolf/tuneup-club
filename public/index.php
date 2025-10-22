@@ -1,7 +1,7 @@
 <?php
 
-// print_r('hello');
-// die;
+
+
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 
