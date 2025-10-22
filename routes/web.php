@@ -465,4 +465,3 @@ Route::get('/test-email', function () {
     return 'Test email sent to ' . $to;
 });
 Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');
-Route::get('purchase/album/success', [PurchasePostController::class, 'purchaseAllbumsSuccess'])->name('purchase-album-success');
