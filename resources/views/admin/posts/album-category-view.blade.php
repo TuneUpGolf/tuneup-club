@@ -118,8 +118,7 @@
                                                  @if ($post->file_type == 'image')
                                                      @if ($can_view_post)
                                                          <img class=" w-full post-thumbnail open-full-thumbnail"
-                                                             src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}"
-                                                             alt="Profile" />
+                                                             src="{{ asset($post->image) }}" alt="Profile" />
                                                          <div id="imageModal" class="modal">
                                                              <span class="close" id="closeBtn">&times;</span>
                                                              <img class="modal-content" id="fullImage">
@@ -154,9 +153,7 @@
                                                  @else
                                                      @if ($can_view_post)
                                                          <video controls class="w-full post-thumbnail">
-                                                             <source
-                                                                 src="{{ asset('/storage' . '/' . tenant('id') . '/' . $post->image) }}"
-                                                                 type="video/mp4">
+                                                             <source src="{{ asset($post->image) }}" type="video/mp4">
                                                          </video>
                                                      @else
                                                          <div class="relative paid-post-wrap">
