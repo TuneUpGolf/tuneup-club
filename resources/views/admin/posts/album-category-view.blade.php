@@ -269,7 +269,7 @@
                  button.addEventListener('click', function() {
                      const categoryAlbumId = this.getAttribute('data-id');
                      const url = new URL(window.location.href);
-                     const currentView = url.searchParams.get('view') || 'in-person';
+                     const currentView = url.searchParams.get('posts') || 'all_category';
 
                      if (currentView === 'posts') {
                          url.searchParams.set('category_album', categoryAlbumId);
