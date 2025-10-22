@@ -694,5 +694,3 @@ Route::group(['middleware' => [
 ]], function () {
     Route::post('/follower/signup', [FollowerController::class, 'signup']);
 });
-
-Route::get('purchase/album/success', [PurchasePostController::class, 'purchaseAllbumsSuccess'])->name('purchase-album-success');
