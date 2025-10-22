@@ -125,37 +125,42 @@
                             </div>
                             <div class="">
                                 <div class="focus:outline-none mt-4 mb-5 lg:mt-24">
-                                    @if (request()->query('category') == 'all_category')
+                                    @if (request()->query('category_album'))
                                         <div class="infinity">
-                                            @include('admin.posts.album-category-view', [
-                                                'albums' => $albums,
+                                            @include('admin.posts.album-view', [
+                                                'albums' => $albumcategories,
                                             ])
-                                        </div>
-                                    @else
-                                        <div class="infinity">
-                                            <div class="flex flex-wrap w-100">
-                                                @if (request()->query('category') == 'all_category')
-                                                @endif
-                                                @foreach ($posts as $post)
-                                                    @php
-                                                        $purchasePost = $post->purchasePost->firstWhere(
-                                                            'follower_id',
-                                                            Auth::id(),
-                                                        );
-                                                        $purchasePost = $purchasePost->active_status ?? false;
-                                                    @endphp
-                                                    @include('admin.posts.blog', [
-                                                        'post' => $post,
-                                                        'isInfluencer' => $isInfluencer,
-                                                        'isSubscribed' => $isSubscribed,
-                                                        'purchasePost' => $purchasePost,
-                                                    ])
-                                                @endforeach
+                                        @elseif (request()->query('category') == 'all_category')
+                                            <div class="infinity">
+                                                @include('admin.posts.album-category-view', [
+                                                    'albums' => $albums,
+                                                ])
                                             </div>
-                                            <div class="float-end">
-                                                {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
+                                        @else
+                                            <div class="infinity">
+                                                <div class="flex flex-wrap w-100">
+                                                    @if (request()->query('category') == 'all_category')
+                                                    @endif
+                                                    @foreach ($posts as $post)
+                                                        @php
+                                                            $purchasePost = $post->purchasePost->firstWhere(
+                                                                'follower_id',
+                                                                Auth::id(),
+                                                            );
+                                                            $purchasePost = $purchasePost->active_status ?? false;
+                                                        @endphp
+                                                        @include('admin.posts.blog', [
+                                                            'post' => $post,
+                                                            'isInfluencer' => $isInfluencer,
+                                                            'isSubscribed' => $isSubscribed,
+                                                            'purchasePost' => $purchasePost,
+                                                        ])
+                                                    @endforeach
+                                                </div>
+                                                <div class="float-end">
+                                                    {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
+                                                </div>
                                             </div>
-                                        </div>
                                     @endif
                                 </div>
                             </div>
