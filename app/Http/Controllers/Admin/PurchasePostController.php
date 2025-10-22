@@ -110,6 +110,7 @@ class PurchasePostController extends Controller
     public function purchaseAllbumsSuccess(Request $request)
     {
         $purchasePost = PurchaseAlbum::find($request->query('purchase_post_id'));
+        dd($purchasePost);
         try {
             if (!!$purchasePost) {
                 Stripe::setApiKey(config('services.stripe.secret'));
