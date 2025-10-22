@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\AlbumCategoryController;
+use App\Http\Controllers\Admin\AlbumController;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Follower;
@@ -338,6 +339,17 @@ Route::middleware([
             Route::post('album/like', 'likeAlbum')->name('album.like');
             Route::post('purchase/album/instructor', 'purchaseAlbumCategory')->name('purchase.album.index');
             Route::get('create-album/{id}', 'createAlbum')->name('create-album');
+        });
+
+        //Album Routes
+
+        Route::controller(AlbumController::class)->prefix('album')->name('album.')->group(function () {
+            Route::get('/', 'index')->name('manage');
+            Route::get('create', 'create')->name('create');
+            Route::post('store', 'store')->name('store');
+            Route::get('edit/{id}', 'edit')->name('edit');
+            Route::patch('update/{id}', 'update')->name('update');
+            Route::delete('delete/{id}', 'destroy')->name('destroy');
         });
         //frontend
         Route::group(['prefix' => 'landingpage-setting'], function () {
