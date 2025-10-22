@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Album;
 use App\Models\AlbumCategory;
 use App\Models\LikeAlbum;
+use App\Models\PurchaseAlbum;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;

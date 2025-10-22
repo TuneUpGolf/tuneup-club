@@ -30,4 +30,11 @@ class AlbumCategory extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function purchaseAlbum()
+    {
+        return $this->hasOne(PurchaseAlbum::class)->where([
+            ['student_id', $this->student_id],
+            ['album_category_id', $this->album_category_id]
+        ]);
+    }
 }

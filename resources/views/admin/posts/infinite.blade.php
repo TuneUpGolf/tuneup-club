@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-xl-12">
             <div class="card">
-                @if($isFollowing)
+                @if ($isFollowing)
                     <div class="card ctm-post-card">
                         <div id="blog" class="sm:p-4">
                             <div class="dropdown dash-h-item drp-company">
@@ -32,6 +32,7 @@
                                     </a>
                                 </div>
                             </div>
+
                             <div class="">
                                 <div class="focus:outline-none mt-3 mb-5 lg:mt-24">
                                     <div class="infinity">
@@ -39,9 +40,17 @@
                                             @if ($posts->count() > 0)
                                                 @foreach ($posts as $post)
                                                     @php
-                                                        $purchasePost = $post->purchasePost->firstWhere('follower_id', Auth::id());
+                                                        $purchasePost = $post->purchasePost->firstWhere(
+                                                            'follower_id',
+                                                            Auth::id(),
+                                                        );
                                                     @endphp
-                                                    @include('admin.posts.blog', ['post' => $post, 'isInfluencer' => $isInfluencer, 'isSubscribed' => $isSubscribed, 'purchasePost' => $purchasePost])
+                                                    @include('admin.posts.blog', [
+                                                        'post' => $post,
+                                                        'isInfluencer' => $isInfluencer,
+                                                        'isSubscribed' => $isSubscribed,
+                                                        'purchasePost' => $purchasePost,
+                                                    ])
                                                 @endforeach
 
                                                 {{ $posts->links('pagination::bootstrap-4') }}
