@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Follower;
 use App\Models\Post;
+use App\Models\PurchaseAlbum;
 use App\Models\PurchasePost;
 use Error;
 use Illuminate\Http\Request;
@@ -104,5 +105,35 @@ class PurchasePostController extends Controller
         } catch (\Exception $e) {
             return redirect(route('purchase.index'))->with('errors', $e->getMessage());
         }
+    }
+
+    public function purchaseAllbumsSuccess(Request $request)
+    {
+        $purchasePost = PurchaseAlbum::find($request->query('purchase_post_id'));
+        try {
+            if (!!$purchasePost) {
+                Stripe::setApiKey(config('services.stripe.secret'));
+                $session  = Session::retrieve($purchasePost->session_id);
+
+                if ($session->payment_status == "paid") {
+                    $purchasePost->active_status = true;
+                    $purchasePost->session_id = $session->id;
+                    $purchasePost->save();
+                    $student = Follower::find($request->query('student_id'));
+                    if (!isset($student->stripe_cus_id)) {
+                        $student->stripe_cus_id = $session->customer;
+                        $student->save();
+                    }
+                }
+
+                if ($request->redirect == 1) {
+                    return response('Post Purchased Successfully');
+                }
+
+                return redirect()->route('home')->with('success', 'Post Purchased Successfully');
+            }
+        } catch (\Exception $e) {
+            return redirect(route('purchase.index'))->with('errors', $e->getMessage());
+        };
     }
 }
