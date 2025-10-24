@@ -118,7 +118,7 @@ class PurchaseController extends Controller
 
                     ]);
                     $newPurchase->total_amount = $total_amount;
-                    $newPurchase->status       = Purchase::STATUS_COMPLETE;
+                    $newPurchase->status       = Purchase::STATUS_INCOMPLETE;
                     $newPurchase->lessons_used = 0;
                     $newPurchase->save();
 
@@ -473,10 +473,10 @@ class PurchaseController extends Controller
                             }
                             // }
                         }
-
-                        return redirect()
-                            ->route('home')
-                            ->with('success', 'Online Lesson purchased successfully and Video successfully added.');
+                        return $this->confirmPurchaseWithRedirect($request);
+                        // return redirect()
+                        //     ->route('home')
+                        //     ->with('success', 'Online Lesson purchased successfully and Video successfully added.');
                     } else if ($request->redirect == 1) {
                         return redirect()->route('purchase.index')->with('success', 'Video Successfully Added');
                     }
