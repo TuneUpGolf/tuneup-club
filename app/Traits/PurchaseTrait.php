@@ -103,7 +103,7 @@ trait PurchaseTrait
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
-            $accountId = $influencer?->stripe_account_id;
+            $accountId = 'acct_1SJCsLPqL329orP9';
             $account   = Account::retrieve($accountId);
 
             $influencerCurrency = $account?->default_currency ?? 'usd';
