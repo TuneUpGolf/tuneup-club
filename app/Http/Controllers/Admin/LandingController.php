@@ -45,7 +45,7 @@ class LandingController extends Controller
             $plans = null;
             if (!empty($influencerDetails)) {
                 $plans = Plan::where('influencer_id', $influencerDetails->id)
-                    ->where('active_status', 1)->get();
+                    ->where('active_status', 1)->orderBy('column_order', 'asc')->get();
             }
             $admin = User::where('type', Role::ROLE_ADMIN)
                 ->first();

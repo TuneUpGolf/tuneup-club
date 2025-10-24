@@ -225,7 +225,7 @@ class HomeController extends Controller
         $isFollowing  = $follow->where('follower_id', Auth::user()->id)
             ->where('active_status', 1)
             ->exists();
-        $plans             = Plan::where('influencer_id', $influencer->id)->get();
+        $plans             = Plan::where('influencer_id', $influencer->id)->orderBy('column_order', 'asc')->get();
 
         $isInfluencer      = Auth::user()->type === Role::ROLE_INFLUENCER;
         $feedEnabledPlanId = Plan::where('influencer_id', $influencer->id)
