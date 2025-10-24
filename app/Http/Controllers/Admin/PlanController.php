@@ -19,6 +19,7 @@ use App\Services\SubscriptionService;
 use App\Models\StripeConnectedAccount;
 use App\DataTables\Admin\PlanDataTable;
 use App\Models\Follower;
+use Illuminate\Support\Facades\DB;
 use Stripe\Subscription as StripeSubscription;
 
 class PlanController extends Controller
@@ -44,11 +45,15 @@ class PlanController extends Controller
         }
     }
 
-    public function myPlan(PlanDataTable $dataTable)
+    public function myPlan(Request $request)
     {
+        // PlanDataTable $dataTable
         if (Auth::user()->can('manage-plan')) {
             if (Auth::user()->type != 'Follower') {
-                return $dataTable->render('admin.plans.my-plans');
+
+
+                return view('admin.plans.my-plans');
+                // return $dataTable->render('admin.plans.my-plans');
             } else {
                 $plans = Plan::where('tenant_id', null)->get();
                 $user  = User::where('tenant_id', tenant('id'))->where('type', 'Admin')->first();
@@ -58,7 +63,63 @@ class PlanController extends Controller
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+    public function myPlanData(Request $request)
+    {
+        if ($request->ajax()) {
+            $model = new Plan();
+            $plans = $model->newQuery()->withCount([
+                'orders as buyers_count' => function ($q) {
+                    $q->join('followers', 'orders.follower_id', '=', 'followers.id')
+                        ->whereNotNull('followers.plan_expired_date')
+                        ->whereDate('followers.plan_expired_date', '>=', now()->toDateString())
+                        ->whereColumn('followers.plan_id', 'orders.plan_id')
+                        ->select(DB::raw('COUNT(DISTINCT orders.follower_id)'));
+                },
+            ])->where('influencer_id', auth()->user()->id)->orderBy('column_order', 'asc')->get();
+            return datatables()
+                ->of($plans)
+                ->addIndexColumn()
+                ->editColumn('name', function ($plan) {
+                    $url = route('plans.buyers', $plan->id);
+                    return '<a href="#" class="js-plan-buyers" data-plan-id="' . $plan->id . '" data-url="' . $url . '">' . e($plan->name) . '</a>';
+                })
 
+                ->editColumn('created_at', function ($request) {
+                    return UtilityFacades::date_time_format($request->created_at);
+                })
+                ->editColumn('duration', function (plan $plan) {
+                    return $plan->duration . ' ' . $plan->durationtype;
+                })
+                ->editColumn('active_status', function (plan $plan) {
+                    $checked = ($plan->active_status == 1) ? 'checked' : '';
+                    $status   = '<label class="form-switch">
+                             <input class="form-check-input chnageStatus" name="custom-switch-checkbox" ' . $checked . ' data-id="' . $plan->id . '" data-url="' . route('myplan.status', $plan->id) . '" type="checkbox">
+                             </label>';
+                    return $status;
+                })
+                ->addColumn('action', function (plan $plan) {
+                    return view('admin.plans.action', compact('plan'));
+                })
+                ->editColumn('price', function (plan $plan) {
+                    return UtilityFacades::amount_format($plan->price);
+                })
+                ->addColumn('purchases_count', function (Plan $plan) {
+                    return $plan->buyers_count ?? 0;
+                })
+                ->rawColumns(['action', 'active_status', 'name'])
+                ->make(true);
+        }
+    }
+    public function reorder(Request $request)
+    {
+
+        foreach ($request->order as $item) {
+            \App\Models\Plan::where('id', $item['id'])
+                ->update(['column_order' => $item['position']]);
+        }
+
+        return response()->json(['success' => true]);
+    }
     public function createMyPlan()
     {
         if (Auth::user()->can('create-plan')) {
