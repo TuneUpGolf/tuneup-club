@@ -175,14 +175,14 @@ class PostsController extends Controller
                 $post['paid']   = $request?->paid == 'on' ? true : false;
                 $post['price']  = $request?->paid == 'on' && ! empty($request?->price) ? $request?->price : 0;
                 $post['status'] = 'active';
-                if ($request->hasfile('file')) {
-                    $fileName = $request->file('file');
+                if ($request->hasFile('photo')) {
+                    $fileName = $request->file('photo');
                     $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
                     Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
-                    $post['file']      = Storage::disk('spaces')->url($filePath);
-                    $post['file_type'] = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
+                    $post->file      = Storage::disk('spaces')->url($filePath);
+                    $post->file_type = Str::contains($request->file('photo')->getMimeType(), 'video') ? 'video' : 'image';
                 }
-                $post->update();
+                $post->save();
                 return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
             } catch (ValidationException $e) {
                 return redirect()->back()->withErrors($e->errors())->withInput();
@@ -211,7 +211,7 @@ class PostsController extends Controller
             request()->validate([
                 'title'       => 'required|max:50',
                 'description' => 'required',
-                'price'       => ['nullable', 'numeric', 'gt:0.5'],
+                'price'       => ['nullable', 'numeric'],
             ]);
             $post          = Post::find($id);
             $currentDomain = tenant('domains');
