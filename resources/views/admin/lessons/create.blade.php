@@ -44,14 +44,14 @@
                                 ]) !!}
                             </div>
 
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 {{ Form::label('quantity', __('Quantity'), ['class' => 'form-label']) }}
                                 {!! Form::number('lesson_quantity', null, [
                                     'class' => 'form-control',
                                     'required',
                                     'placeholder' => __('Enter Quantity'),
                                 ]) !!}
-                            </div>
+                            </div> --}}
 
                             <div class="form-group">
                                 {{ Form::label('response_time', __('Response Time'), ['class' => 'form-label']) }}
