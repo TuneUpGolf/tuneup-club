@@ -146,6 +146,7 @@ Route::middleware([
         Route::resource('blogs', PostsController::class)->except(['show']);
         Route::get('blogs/manage/posts', [PostsController::class, 'managePosts'])->name('blogs.manage');
         Route::get('blogs/manage/report', [PostsController::class, 'manageReportedPosts'])->name('blogs.report');
+        Route::post('post-reorder', [PostsController::class, 'reorder'])->name('post-reorder');
         Route::post('notification/status/{id}', [NotificationsSettingController::class, 'changeStatus'])->name('notification.status.change');
         Route::resource('support-ticket', SupportTicketController::class);
         Route::resource('email-template', EmailTemplateController::class);

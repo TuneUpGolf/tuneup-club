@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\LikePost;
 use App\Models\Plan;
 use App\Models\Post;
+use App\Models\PurchasePost;
 use App\Models\ReportPost;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\UnauthorizedException;
 use Illuminate\Validation\ValidationException;
+use Yajra\DataTables\Facades\DataTables;
 
 class PostsController extends Controller
 {
@@ -61,11 +63,72 @@ class PostsController extends Controller
         }
     }
 
-    public function managePosts(PostDataTable $dataTable)
+    public function managePosts_old(PostDataTable $dataTable)
     {
         if (Auth::user()->can('manage-blog')) {
             return $dataTable->render('admin.posts.index');
         }
+    }
+
+    public function managePosts(Request $request)
+    {
+        if (!Auth::user()->can('manage-blog')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user = Auth::user();
+
+        $query = Post::query();
+
+        if ($user->type == Role::ROLE_ADMIN) {
+            $posts = $query->orderBy('column_order', 'asc')->get();
+        } elseif ($user->type == Role::ROLE_INFLUENCER) {
+            $posts = $query->where('influencer_id', $user->id)->orderBy('column_order', 'asc')->get();
+        } else {
+            $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
+        }
+
+        if ($request->ajax()) {
+
+            return DataTables::of($posts)
+                ->addIndexColumn()
+                ->addColumn('title', function ($post) {
+                    return $post->title;
+                })->addColumn('paid', function ($post) {
+                    $paid = $post->paid == true ? "Yes"  : "No";
+                    return $paid;
+                })
+                ->addColumn('sales', function (Post $post) {
+                    $count = PurchasePost::where('active_status', true)->where('post_id', $post->id)->count();
+                    return $count;
+                })
+                ->addColumn('price', function (Post $post) {
+                    $price = $post->paid == true ? $post->price : 0;
+                    return $price;
+                })
+                ->addColumn("photo", function (Post $post) {
+                    if ($post->file) {
+                        $imageSrc = $post->file;
+                        if ($post->file_type == 'image') {
+                            $return =  "<img src=' " . $imageSrc . " ' width='50'/>";
+                        } else {
+                            $thumbnail = asset('assets/images/video-thumbanail.jpeg');
+                            $return = "<img src='" . $thumbnail . "' width='50' class='video-thumbnail' data-video='" . $post->file . "' style='cursor:pointer;' />";
+                        }
+                    } else {
+                        $return = "<img src='" . asset('assets/images/image-thumbanail.jpeg') . "' width='50' />";
+                    }
+                    return $return;
+                })
+                ->addColumn('created_at', function ($request) {
+                    $created_at = UtilityFacades::date_time_format($request->created_at);
+                    return $created_at;
+                })
+                ->addColumn('action', function (Post $post) {
+                    return view('admin.posts.action', compact('post'));
+                })->rawColumns(['action',  'photo'])->make(true);
+        }
+        return view('admin.posts.index');
     }
 
     public function manageReportedPosts(ReportedPostDataTable $dataTable)
@@ -489,5 +552,16 @@ class PostsController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error creating post.', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function reorder(Request $request)
+    {
+
+        foreach ($request->order as $item) {
+            Post::where('id', $item['id'])
+                ->update(['column_order' => $item['position']]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }
