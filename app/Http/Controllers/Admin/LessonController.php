@@ -136,7 +136,7 @@ class LessonController extends Controller
                 'lesson_name'        => 'required|string|max:255',
                 'short_description' => 'required|string',
                 'lesson_price'       => 'required|numeric',
-                'lesson_quantity'    => 'required|integer',
+                // 'lesson_quantity'    => 'required|integer',
                 'required_time'      => 'required|integer',
             ]);
         }
@@ -174,7 +174,7 @@ class LessonController extends Controller
             'lesson_name'        => 'required|string|max:255',
             'short_description' => 'required|string',
             'lesson_price'       => 'required|numeric',
-            'lesson_quantity'    => 'integer',
+            // 'lesson_quantity'    => 'integer',
             'required_time'      => 'integer',
             'lesson_duration'    => 'numeric',
             'payment_method'     => 'in:online,cash,both',
@@ -391,7 +391,7 @@ class LessonController extends Controller
                     'lesson_name'        => 'required|string|max:255',
                     'lesson_description' => 'required|string',
                     'lesson_price'       => 'required|numeric',
-                    'lesson_quantity'    => 'integer',
+                    // 'lesson_quantity'    => 'integer',
                     'required_time'      => 'integer',
                     'lesson_duration'    => 'numeric|between:0,99.99',
                     'type'               => ['required', 'in:online,inPerson'],
@@ -405,7 +405,7 @@ class LessonController extends Controller
                 $validatedData['tenant_id']  = Auth::user()->tenant_id;
 
                 if ($validatedData['type'] === Lesson::LESSON_TYPE_INPERSON) {
-                    $validatedData['lesson_quantity'] = 1;
+                    // $validatedData['lesson_quantity'] = 1;
                     $validatedData['required_time']   = 0;
 
                     if (empty($validatedData['max_followers'])) {
@@ -451,7 +451,7 @@ class LessonController extends Controller
             'lesson_name'          => 'string|max:255',
             'lesson_description'   => 'string',
             'lesson_price'         => 'numeric',
-            'lesson_quantity'      => 'integer',
+            // 'lesson_quantity'      => 'integer',
             'lesson_duration'      => 'numeric|between:0,99.99',
             'required_time'        => 'integer',
             'detailed_description' => 'string',

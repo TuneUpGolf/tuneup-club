@@ -141,7 +141,7 @@ class FollowerDataTable extends DataTable
                 if (isset($user->plan->is_chat_enabled) && $user->plan->is_chat_enabled == 1) {
 
                     // If the plan belongs to a different instructor → show warning
-                    if ($user->plan->instructor_id != $loggedInUserId) {
+                    if ($user->plan->instructor_id != Auth::user()->id) {
                         return '<span title="Follower has subscription to chat with another instructor">
                     <i class="ti ti-alert-triangle" style="font-size:25px; color:#FFC107;"></i>
                 </span>';
