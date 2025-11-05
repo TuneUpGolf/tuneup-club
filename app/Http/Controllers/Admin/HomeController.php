@@ -75,7 +75,7 @@ class HomeController extends Controller
                 $posts = $posts->where('paid', 1);
                 break;
         }
-        $posts = $posts->orderBy('created_at', 'desc')->paginate(6);
+        $posts = $posts->orderBy('column_order', 'asc')->paginate(6);
 
         if ($userType == Role::ROLE_FOLLOWER) {
 
