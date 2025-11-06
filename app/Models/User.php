@@ -270,7 +270,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function post(): HasMany
     {
-        return $this->hasMany(Post::class, 'influencer_id');
+        return $this->hasMany(Post::class, 'influencer_id')->orderBy('column_order', 'asc');
     }
 
     public function purchase(): HasMany
