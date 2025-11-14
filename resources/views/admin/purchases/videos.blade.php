@@ -157,6 +157,39 @@
 
 @push('css')
     <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            /* IMP: keep modal above everything */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background: #fff;
+            margin: 10% auto;
+            padding: 0;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            z-index: 10000;
+        }
+    </style>
+
+    <style>
         #videoThumbnail {
             cursor: pointer;
         }
@@ -259,20 +292,21 @@
             const modal = document.getElementById('videoModal' + index);
             const video = document.getElementById('videoPlayer' + index);
             modal.style.display = 'none';
-            video.pause(); // stop video when modal closes
+            video.pause();
         }
 
-        // Optional: click outside modal to close
+        // Close when clicking outside modal area
         window.onclick = function(event) {
             document.querySelectorAll('.modal').forEach(modal => {
-                if (event.target == modal) {
+                if (event.target === modal) {
                     modal.style.display = "none";
-                    const vid = modal.querySelector('video');
-                    if (vid) vid.pause();
+                    const video = modal.querySelector("video");
+                    if (video) video.pause();
                 }
             });
-        }
+        };
     </script>
+
     <script>
         const modal = document.getElementById("videoModal");
         const thumbnail = document.getElementById("videoThumbnail");
