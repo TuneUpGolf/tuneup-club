@@ -26,18 +26,20 @@
                         <div id="video-container">
 
                             {{-- FIRST VIDEO ROW (Required) --}}
-                            <div class="row video-row mb-3 align-items-center">
-                                <div class="col-10">
+                            <div class="row video-row mb-3">
+                                <div class="col-12 col-md-10">
                                     <label class="form-label">Feedback Video (Required)</label>
                                     <input type="file" name="fdbk_video[]" class="form-control" required>
                                 </div>
 
-                                <div class="col-2 text-end">
+                                <div
+                                    class="col-12 col-md-2 d-flex justify-content-start justify-content-md-end mt-2 mt-md-4 gap-2">
                                     <button type="button" class="btn btn-success add-video-btn">+</button>
                                 </div>
                             </div>
 
                         </div>
+
 
                         <div class="form-group mt-3">
                             <label class="form-label">Feedback</label>
@@ -60,8 +62,6 @@
 
 @push('javascript')
 <script>
-    let videoIndex = 1;
-
     function refreshButtons() {
         let rows = document.querySelectorAll('#video-container .video-row');
 
@@ -69,19 +69,18 @@
             let addBtn = row.querySelector('.add-video-btn');
             let removeBtn = row.querySelector('.remove-video-btn');
 
-            // first row
             if (index === 0) {
+                // first row: only + button
                 addBtn.style.display = rows.length === 1 ? 'inline-block' : 'none';
                 if (removeBtn) removeBtn.remove();
             } else {
                 addBtn.style.display = (index === rows.length - 1) ? 'inline-block' : 'none';
 
-                // only create remove button if missing
                 if (!removeBtn) {
-                    let btnCol = row.querySelector('.col-2');
+                    let btnCol = row.querySelector('.col-md-2');
                     let removeButton = document.createElement('button');
                     removeButton.type = 'button';
-                    removeButton.className = 'btn btn-danger remove-video-btn ms-1';
+                    removeButton.classList.add('btn', 'btn-danger', 'remove-video-btn');
                     removeButton.innerText = '–';
                     btnCol.appendChild(removeButton);
                 }
@@ -93,24 +92,24 @@
 
         // ADD NEW ROW
         if (e.target.classList.contains('add-video-btn')) {
+
             let container = document.getElementById('video-container');
 
             let newRow = document.createElement('div');
-            newRow.className = 'row video-row mb-3 align-items-center';
+            newRow.className = 'row video-row mb-3';
 
             newRow.innerHTML = `
-                <div class="col-10">
+                <div class="col-12 col-md-10">
                     <label class="form-label">Additional Video</label>
                     <input type="file" name="fdbk_video[]" class="form-control">
                 </div>
-                <div class="col-2 text-end">
+
+                <div class="col-12 col-md-2 d-flex justify-content-start justify-content-md-end mt-2 mt-md-4 gap-2">
                     <button type="button" class="btn btn-success add-video-btn">+</button>
                 </div>
             `;
 
             container.appendChild(newRow);
-            videoIndex++;
-
             refreshButtons();
         }
 
@@ -119,10 +118,8 @@
             e.target.closest('.video-row').remove();
             refreshButtons();
         }
-
     });
 
-    // initialize button states
     refreshButtons();
 </script>
 @endpush
