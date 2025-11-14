@@ -90,20 +90,39 @@
             <div class="flex flex-wrap items-start gap-4 mt-4">
                 @if ($purVid = $purchase->videos->first())
                     @if ($vid = $purVid->feedbackContent->first())
-                    @dd($vid)
-                        <img class="w-24 h-16 sm:w-32 sm:h-20 rounded cursor-pointer"
-                            src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
 
-                        <!-- Modal -->
-                        <div id="videoModal" class="modal">
-                            <span class="close">&times;</span>
-                            <div class="modal-content">
-                                <video id="videoPlayer" controls>
-                                    <source src="{{ $vid->url }}" type="video/mp4">
-                                    Your browser does not support HTML5 video.
-                                </video>
+                        @php
+                            $videos = $purVid->feedbackContent->first()?->url;
+
+                            if ($videos) {
+                                // Check if JSON
+                                $decoded = json_decode($videos, true);
+                                $videos = is_array($decoded) ? $decoded : [['url' => $videos, 'type' => 'video']];
+                            } else {
+                                $videos = [];
+                            }
+                        @endphp
+
+                        @foreach ($videos as $index => $vid)
+                            <div class="inline-block m-2">
+                                <!-- Thumbnail -->
+                                <img class="w-24 h-16 sm:w-32 sm:h-20 rounded cursor-pointer"
+                                    src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail"
+                                    data-video="{{ $vid['url'] ?? ($vid['url'] ?? '') }}"
+                                    onclick="openVideoModal('{{ $index }}')">
+
+                                <!-- Modal -->
+                                <div id="videoModal{{ $index }}" class="modal">
+                                    <span class="close" onclick="closeVideoModal('{{ $index }}')">&times;</span>
+                                    <div class="modal-content">
+                                        <video id="videoPlayer{{ $index }}" controls>
+                                            <source src="{{ $vid['url'] ?? ($vid['url'] ?? '') }}" type="video/mp4">
+                                            Your browser does not support HTML5 video.
+                                        </video>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     @endif
                 @endif
 
@@ -231,6 +250,29 @@
 @endpush
 
 @push('javascript')
+    <script>
+        function openVideoModal(index) {
+            document.getElementById('videoModal' + index).style.display = 'block';
+        }
+
+        function closeVideoModal(index) {
+            const modal = document.getElementById('videoModal' + index);
+            const video = document.getElementById('videoPlayer' + index);
+            modal.style.display = 'none';
+            video.pause(); // stop video when modal closes
+        }
+
+        // Optional: click outside modal to close
+        window.onclick = function(event) {
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                    const vid = modal.querySelector('video');
+                    if (vid) vid.pause();
+                }
+            });
+        }
+    </script>
     <script>
         const modal = document.getElementById("videoModal");
         const thumbnail = document.getElementById("videoThumbnail");
