@@ -6,19 +6,17 @@
 
     @php
         $purchaseVideo = $purchase->videos->first();
-        $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
+        $purchaseVideo2Url = $purchaseVideo?->video_url_2 ?? '';
     @endphp
-@if ($purchase->videos->first())
-    
 
     <div class="bg-white p-4 rounded-lg flex flex-col lg:flex-row gap-6">
         {{-- Left Column (Videos + Info) --}}
         <div class="flex flex-col lg:flex-row gap-6 w-full lg:w-1/2">
             <div class="video-wrap border-b lg:border-b-0 lg:border-r border-gray-300 pb-4 lg:pb-0 lg:pr-4">
-                <video controls autoplay loop muted src="{{ $purchase->videos->first()->video_url }}"
+                <video controls autoplay loop muted src="{{ $purchase->videos->first()?->video_url }}"
                     class="w-full h-auto rounded-lg object-cover mb-4"></video>
 
-                @if ($purchaseVideo2Url)
+                @if (@$purchaseVideo2Url)
                     <video controls autoplay loop muted src="{{ $purchaseVideo2Url }}"
                         class="w-full h-auto rounded-lg object-cover mb-4"></video>
                 @endif
@@ -29,7 +27,7 @@
                             class="btn btn-warning rounded-full px-4 py-2 text-white font-bold flex items-center gap-2">
                             <i class="ti ti-notebook text-2xl"></i> Feedback
                         </a>
-                        <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchase->videos->first()->video_url }}"
+                        <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchase->videos?->first()->video_url }}"
                             class="btn btn-danger rounded-full px-4 py-2 text-white font-bold flex items-center gap-2">
                             <i class="ti ti-search text-2xl"></i> Analyze
                         </a>
@@ -42,23 +40,23 @@
                 <ul class="space-y-4">
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Lesson Name:</p>
-                        <p class="text-lg sm:text-xl font-semibold break-words">{{ $purchase->lesson->lesson_name }}</p>
+                        <p class="text-lg sm:text-xl font-semibold break-words">{{ $purchase->lesson?->lesson_name }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Date Submitted:</p>
-                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->lesson->created_at }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->lesson?->created_at }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Lesson Number:</p>
-                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->lesson->id }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->lesson?->id }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Follower Name:</p>
-                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->follower->name }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->follower?->name }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Payment:</p>
-                        <p class="text-lg sm:text-xl font-semibold">${{ $purchase->lesson->lesson_price }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">${{ $purchase->lesson?->lesson_price }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Payment Status:</p>
@@ -75,10 +73,10 @@
         {{-- Right Column (Feedback Section) --}}
         <div class="feedback-sec border border-gray-300 rounded-lg p-4 w-full lg:w-1/2">
             <h2 class="font-bold text-2xl sm:text-3xl mb-3 border-b border-gray-400 pb-2">Feedback Provided</h2>
-            <p class="text-lg sm:text-2xl text-gray-700 font-bold">{{ $purchase->lesson->created_at->format('F j, Y') }}
+            <p class="text-lg sm:text-2xl text-gray-700 font-bold">{{ @$purchase->lesson->created_at->format('F j, Y') }}
             </p>
             <p class="text-gray-500">
-                {{ auth()->user()->name == $purchase->follower->name ? 'Your Note' : 'Note by ' . $purchase->follower->name }}:
+                {{ auth()->user()->name == @$purchase->follower->name ? 'Your Note' : 'Note by ' . @$purchase->follower->name }}:
             </p>
             <p class="text-lg sm:text-xl font-semibold break-words">{{ $purchaseVideo->note }}</p>
 
@@ -155,7 +153,6 @@
             </div>
         </div>
     </div>
-    @endif
 @endsection
 
 @push('css')
