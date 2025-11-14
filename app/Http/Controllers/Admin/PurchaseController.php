@@ -758,7 +758,7 @@ public function addFeedBack(Request $request)
             // Save all files as JSON in FeedbackContent
             FeedbackContent::updateOrCreate(
                 ['purchase_video_id' => $purchaseVideo->id],
-                ['content' => json_encode($uploadedPaths)] // <-- store JSON
+                ['url' => json_encode($uploadedPaths)] // <-- store JSON
             );
         }
 
