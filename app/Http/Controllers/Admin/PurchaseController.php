@@ -800,8 +800,7 @@ public function addFeedBack(Request $request)
     {
         if (Auth::user()->can('manage-purchases')) {
             // Clear the feedback field (if stored as a string)
-            $purchaseVideo->feedback = null;
-            $purchaseVideo->save();
+            $purchaseVideo->delete();
 
             return redirect()->back()->with('success', 'Feedback deleted successfully.');
         }
