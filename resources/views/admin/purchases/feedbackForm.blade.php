@@ -22,10 +22,15 @@
                             'data-validate',
                         ]) !!}
                         <div class="row">
-                            <div class="form-group">
-                                {{ Form::label('fdbk_video', _('Feedback Video'), ['class' => 'form-label']) }}
-                                {{ Form::file('fdbk_video[]', ['class' => 'form-control', 'required', 'multiple']) }}
+                            <div id="video-container">
+                                <div class="form-group video-input">
+                                    {{ Form::label('fdbk_video[]', _('Feedback Video'), ['class' => 'form-label']) }}
+                                    {{ Form::file('fdbk_video[]', ['class' => 'form-control', 'required']) }}
+                                </div>
                             </div>
+
+                            <button type="button" id="add-video" class="btn btn-primary mt-2">Add Another Video</button>
+
                             <div class="form-group">
                                 {{ Form::label('feedback', __('Feedback'), ['class' => 'form-label']) }}
                                 *
@@ -39,8 +44,7 @@
                     </div>
                     <div class="card-footer">
                         <div class="float-end">
-                            <a href="{{ url()->previous() }}"
-                                class="btn btn-secondary">{{ __('Cancel') }}</a>
+                            <a href="{{ url()->previous() }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                             {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
                         </div>
                         {!! Form::close() !!}
@@ -53,6 +57,23 @@
 @push('javascript')
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
+    <script>
+        document.getElementById('add-video').addEventListener('click', function() {
+            // Get the container
+            var container = document.getElementById('video-container');
+
+            // Clone the first input
+            var original = container.querySelector('.video-input');
+            var clone = original.cloneNode(true);
+
+            // Clear the cloned input value
+            clone.querySelector('input').value = '';
+
+            // Append the cloned input to the container
+            container.appendChild(clone);
+        });
+    </script>
+
     <script>
         CKEDITOR.replace('short_description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
