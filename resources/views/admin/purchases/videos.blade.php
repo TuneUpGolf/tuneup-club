@@ -90,6 +90,7 @@
             <div class="flex flex-wrap items-start gap-4 mt-4">
                 @if ($purVid = $purchase->videos->first())
                     @if ($vid = $purVid->feedbackContent->first())
+                    @dd($vid)
                         <img class="w-24 h-16 sm:w-32 sm:h-20 rounded cursor-pointer"
                             src="{{ asset('assets/images/video-thumbanail.jpeg') }}" alt="Thumbnail" id="videoThumbnail">
 
