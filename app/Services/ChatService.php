@@ -97,17 +97,17 @@ class ChatService
 
     public function getChatToken(string $chatUserId)
     {
-        $baseUrl = rtrim(env('CHAT_BASE_URL'), '/');
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/user/token', [
+                'userId' => $chatUserId,
+            ]);
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post("$baseUrl/api/v1/user/token", [
-            'userId' => $chatUserId,
-        ]);
-
-        return $response->json()['data'] ?? null;
+            return $response->json()['data'];
+        } catch (\Exception $e) {
+        }
     }
-
 
     public function createGroup(string $chatUserId, string $influencerId): ?string
     {
