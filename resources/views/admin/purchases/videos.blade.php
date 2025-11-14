@@ -283,7 +283,7 @@
 @endpush
 
 @push('javascript')
-    <script>
+     <script>
         function openVideoModal(index) {
             document.getElementById('videoModal' + index).style.display = 'block';
         }
@@ -291,49 +291,28 @@
         function closeVideoModal(index) {
             const modal = document.getElementById('videoModal' + index);
             const video = document.getElementById('videoPlayer' + index);
+
             modal.style.display = 'none';
-            video.pause();
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
         }
 
-        // Close when clicking outside modal area
-        window.onclick = function(event) {
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
             document.querySelectorAll('.modal').forEach(modal => {
                 if (event.target === modal) {
                     modal.style.display = "none";
                     const video = modal.querySelector("video");
-                    if (video) video.pause();
+                    if (video) {
+                        video.pause();
+                        video.currentTime = 0;
+                    }
                 }
             });
-        };
+        });
     </script>
 
-    <script>
-        const modal = document.getElementById("videoModal");
-        const thumbnail = document.getElementById("videoThumbnail");
-        const closeBtn = document.querySelector(".close");
-        const video = document.getElementById("videoPlayer");
-
-        if (thumbnail) {
-            thumbnail.onclick = function() {
-                modal.style.display = "block";
-                video.play();
-            }
-        }
-
-        if (closeBtn) {
-            closeBtn.onclick = function() {
-                modal.style.display = "none";
-                video.pause();
-                video.currentTime = 0;
-            }
-        }
-
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
-                video.pause();
-                video.currentTime = 0;
-            }
-        }
-    </script>
+ 
 @endpush
