@@ -585,88 +585,68 @@ class PurchaseController extends Controller
 
     public function addFeedbackAPI(Request $request)
     {
-        dd($request->all());
         try {
             $request->validate([
                 'purchase_id'       => 'required',
                 'purchase_video_id' => 'required',
                 'feedback'          => 'required',
-                'fdbk_video'        => 'required|array',
+                'fdbk_video'        => 'required',
             ]);
 
-            if (Auth::user()->type != Role::ROLE_INFLUENCER) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
+            if (Auth::user()->type == Role::ROLE_INFLUENCER) {
 
-            $purchase = Purchase::find($request->purchase_id);
-            if (!$purchase) {
-                return response()->json(['error' => 'Purchase does not exist'], 420);
-            }
+                $purchase = Purchase::find($request->purchase_id);
+                if (isset($purchase)) {
+                    $purchaseVideo = $purchase->videos()->find($request->purchase_video_id);
+                    if (isset($purchaseVideo)) {
+                        $purchaseVideo->feedback = $request->feedback;
+                        if ($request?->hasFile('fdbk_video')) {
+                            foreach ($request->file('fdbk_video') as $file) {
+                                $path = $file->store('feedbackContent');
+                                if (Str::endsWith($path, '.mov')) {
+                                    $path = $this->convertSingleVideo($path);
+                                }
 
-            $purchaseVideo = $purchase->videos()->find($request->purchase_video_id);
-            if (!$purchaseVideo) {
-                return response()->json(['error' => 'Purchase Video does not exist'], 420);
-            }
+                                $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
 
-            $purchaseVideo->feedback = $request->feedback;
+                                FeedbackContent::create([
+                                    'purchase_video_id' => $purchaseVideo->id,
+                                    'url'               => $path,
+                                    'type'              => $type,
+                                ]);
+                            }
+                        }
 
-            if ($request->hasFile('fdbk_video')) {
-                $uploadedPaths = [];
+                        $purchaseVideo->isFeedbackComplete = 1;
+                        $purchaseVideo->save();
+                        SendEmail::dispatch($purchase->follower->email, new PurchaseFeedback($purchase));
+                        $message = __(':name, has sent feedback for your online submission.', [
+                            'name' => $purchase->lesson->user->name,
+                        ]);
 
-                foreach ($request->file('fdbk_video') as $file) {
-                    $path = $file->store('feedbackContent');
-
-                    // Convert .mov videos if needed
-                    if (Str::endsWith($path, '.mov')) {
-                        $path = $this->convertSingleVideo($path);
+                        if (isset($purchase->follower->pushToken->token)) {
+                            // SendPushNotification::dispatch($purchase?->follower?->pushToken?->token, 'Feedback Recieved', $message);
+                        }
                     }
-
-                    $uploadedPaths[] = [
-                        'url' => $path,
-                        'type' => Str::contains($file->getMimeType(), 'video') ? 'video' : 'image',
-                    ];
+                    $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
+                    if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
+                        $purchase                     = Purchase::find($purchaseVideo->purchase_id);
+                        $purchase->isFeedbackComplete = 1;
+                        $purchase->save();
+                    }
+                    $purchase->isFeedbackComplete = 1;
+                    $purchase->save();
+                    return response()->json(['message' => 'Feedback Added Successfully', 'purchase Video' => new PurchaseVideoAPIResource($purchaseVideo)], 200);
+                } else {
+                    return response()->json(['error' => 'Purchase doesnot exist'], 420);
                 }
-dd( $uploadedPaths);
-                // Store as JSON in FeedbackContent table
-                FeedbackContent::create([
-                    'purchase_video_id' => $purchaseVideo->id,
-                    'content'           => json_encode($uploadedPaths), // <-- JSON column
-                ]);
+            } else {
+                return response()->json(['error' => 'Unauthorized', 401]);
             }
-
-            $purchaseVideo->isFeedbackComplete = 1;
-            $purchaseVideo->save();
-
-            SendEmail::dispatch($purchase->follower->email, new PurchaseFeedback($purchase));
-
-            $message = __(':name has sent feedback for your online submission.', [
-                'name' => $purchase->lesson->user->name,
-            ]);
-
-            // Push notification if token exists
-            if (isset($purchase->follower->pushToken->token)) {
-                // SendPushNotification::dispatch($purchase->follower->pushToken->token, 'Feedback Received', $message);
-            }
-
-            // Update purchase feedback status
-            $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)
-                ->where('isFeedbackComplete', 0)
-                ->get();
-
-            if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && !$allPurchaseVideosFeedback->isEmpty()) {
-                $purchase->isFeedbackComplete = 1;
-                $purchase->save();
-            }
-
-            return response()->json([
-                'message' => 'Feedback Added Successfully',
-                'purchaseVideo' => new PurchaseVideoAPIResource($purchaseVideo)
-            ], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return throw new Exception($e->getMessage());
         }
     }
-
 
     public function getAll()
     {
@@ -731,79 +711,81 @@ dd( $uploadedPaths);
             return view('admin.purchases.videos', compact('purchase'));
         }
     }
-    public function addFeedBack(Request $request)
-    {
-        $request->validate([
-            'feedback'          => 'required',
-            'purchase_video_id' => 'required',
-            'fdbk_video'        => 'required',
-        ]);
+public function addFeedBack(Request $request)
+{
+    $request->validate([
+        'feedback'          => 'required',
+        'purchase_video_id' => 'required',
+        'fdbk_video'        => 'required|array', // <-- validate as array
+        'fdbk_video.*'      => 'file', // <-- each file should be a file
+    ]);
 
-        try {
-            if (Auth::user()->can('manage-purchases') && $purchaseVideo = PurchaseVideos::find($request->purchase_video_id)) {
-                $purchaseVideo->feedback = $request->feedback;
+    try {
+        $purchaseVideo = PurchaseVideos::findOrFail($request->purchase_video_id);
 
-                $currentDomain = tenant('domains');
-                $currentDomain = $currentDomain[0]->domain;
-                if (count($request->file('fdbk_video')) > 0) {
-                    foreach ($request->file('fdbk_video') as $file) {
-
-                        if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
-                            $localPath = $file->store('feedbackVideos');
-                            $path      = $this->convertSingleVideo($localPath);
-                        } else {
-
-                            $extension      = $file->getClientOriginalExtension();
-                            $randomFileName = Str::random(25) . '.' . $extension;
-                            $filePath       = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
-                            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
-                            $path = Storage::disk('spaces')->url($filePath);
-                        }
-
-                        $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
-                        FeedbackContent::updateOrCreate(
-                            ['purchase_video_id' => $purchaseVideo->id],
-                            [
-                                'url'  => $path,
-                                'type' => $type,
-                            ]
-                        );
-                    }
-                }
-
-                $purchaseVideo->isFeedbackComplete = 1;
-                $purchaseVideo->update();
-
-                $purchaseVideo->load('purchase');
-                $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)->where('isFeedbackComplete', 0)->get();
-
-                SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
-                $message = __(':name, has sent feedback for your online submission.', [
-                    'name' => $purchaseVideo->purchase->lesson->user->name,
-                ]);
-
-                // SendPushNotification::dispatch($purchaseVideo->purchase->follower->pushToken->token, 'Feedback Recieved', $message);
-
-                if (($purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity) && ! ! isEmpty($allPurchaseVideosFeedback)) {
-                    $purchase                     = Purchase::find($purchaseVideo->purchase_id);
-                    $purchase->isFeedbackComplete = 1;
-                    $purchase->save();
-                } else {
-                    $purchase                     = Purchase::find($purchaseVideo->purchase_id);
-                    $purchase->isFeedbackComplete = 1;
-                    $purchase->save();
-                }
-                if ($request->redirect == 1) {
-                    return redirect()->route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id])->with('success', 'Feedback Added Successfully');
-                }
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('errors', $e->getMessage());
-        } {
-            $purchaseVideo = PurchaseVideos::find($request->purchase_video);
-            return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
+        if (!Auth::user()->can('manage-purchases')) {
+            abort(403, 'Unauthorized');
         }
+
+        $purchaseVideo->feedback = $request->feedback;
+
+        $currentDomain = tenant('domains')[0]->domain;
+
+        $uploadedPaths = []; // to store multiple uploaded files
+
+        if ($request->hasFile('fdbk_video')) {
+            foreach ($request->file('fdbk_video') as $file) {
+
+                if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+                    $localPath = $file->store('feedbackVideos');
+                    $path      = $this->convertSingleVideo($localPath);
+                } else {
+                    $extension      = $file->getClientOriginalExtension();
+                    $randomFileName = Str::random(25) . '.' . $extension;
+                    $filePath       = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
+                    Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                    $path = Storage::disk('spaces')->url($filePath);
+                }
+
+                $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
+
+                $uploadedPaths[] = [
+                    'url' => $path,
+                    'type' => $type,
+                ];
+            }
+
+            // Save all files as JSON in FeedbackContent
+            FeedbackContent::updateOrCreate(
+                ['purchase_video_id' => $purchaseVideo->id],
+                ['content' => json_encode($uploadedPaths)] // <-- store JSON
+            );
+        }
+
+        $purchaseVideo->isFeedbackComplete = 1;
+        $purchaseVideo->save();
+
+        SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
+        
+        // Update purchase overall feedback status
+        $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)
+            ->where('isFeedbackComplete', 0)
+            ->get();
+
+        $purchase = Purchase::find($purchaseVideo->purchase_id);
+        $purchase->isFeedbackComplete = 1;
+        $purchase->save();
+
+        if ($request->redirect == 1) {
+            return redirect()->route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id])
+                             ->with('success', 'Feedback Added Successfully');
+        }
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('errors', $e->getMessage());
     }
+}
+
 
     public function addFeedBackIndex(Request $request)
     {
