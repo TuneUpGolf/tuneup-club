@@ -8,6 +8,8 @@
         $purchaseVideo = $purchase->videos->first();
         $purchaseVideo2Url = $purchaseVideo->video_url_2 ?? '';
     @endphp
+@if ($purchase->videos->first())
+    
 
     <div class="bg-white p-4 rounded-lg flex flex-col lg:flex-row gap-6">
         {{-- Left Column (Videos + Info) --}}
@@ -153,6 +155,7 @@
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 @push('css')
