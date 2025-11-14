@@ -22,23 +22,22 @@
                             'data-validate',
                         ]) !!}
                         <div class="row">
-                            <div id="video-container">
-                                <div class="form-group video-input">
-                                    {{ Form::label('fdbk_video[]', _('Feedback Video'), ['class' => 'form-label']) }}
-                                    {{ Form::file('fdbk_video[]', ['class' => 'form-control', 'required']) }}
+                            <div class="container" id="video-container">
+                                <div class="row video-row mb-2">
+                                    <div class="col-10">
+                                        <label for="fdbk_video_0" class="form-label">Feedback Video</label>
+                                        <input type="file" name="fdbk_video[]" id="fdbk_video_0" class="form-control"
+                                            required>
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center">
+                                        <button type="button" class="btn btn-success add-video-btn">+</button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <button type="button" id="add-video" class="btn btn-primary mt-2">Add Another Video</button>
-
-                            <div class="form-group">
-                                {{ Form::label('feedback', __('Feedback'), ['class' => 'form-label']) }}
-                                *
-                                {!! Form::textarea('feedback', $purchaseVideo->feedback ?? '', [
-                                    'class' => 'form-control ',
-                                    'placeholder' => __('Enter Feedback'),
-                                    'required' => 'required',
-                                ]) !!}
+                            <div class="form-group mt-3">
+                                <label for="feedback" class="form-label">Feedback</label>
+                                <textarea name="feedback" id="feedback" class="form-control" placeholder="Enter Feedback" required>{{ $purchaseVideo->feedback ?? '' }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -58,19 +57,53 @@
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
     <script>
-        document.getElementById('add-video').addEventListener('click', function() {
-            // Get the container
-            var container = document.getElementById('video-container');
+        let videoIndex = 1; // to give unique IDs
 
-            // Clone the first input
-            var original = container.querySelector('.video-input');
-            var clone = original.cloneNode(true);
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('add-video-btn')) {
+                var container = document.getElementById('video-container');
 
-            // Clear the cloned input value
-            clone.querySelector('input').value = '';
+                // Create new row
+                var newRow = document.createElement('div');
+                newRow.classList.add('row', 'video-row', 'mb-2');
 
-            // Append the cloned input to the container
-            container.appendChild(clone);
+                // Video input col
+                var colInput = document.createElement('div');
+                colInput.classList.add('col-10');
+
+                var label = document.createElement('label');
+                label.classList.add('form-label');
+                label.setAttribute('for', 'fdbk_video_' + videoIndex);
+                label.innerText = 'Feedback Video';
+
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.name = 'fdbk_video[]';
+                input.id = 'fdbk_video_' + videoIndex;
+                input.classList.add('form-control');
+                // new inputs are NOT required
+
+                colInput.appendChild(label);
+                colInput.appendChild(input);
+
+                // Button col
+                var colButton = document.createElement('div');
+                colButton.classList.add('col-2', 'd-flex', 'align-items-center');
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.classList.add('btn', 'btn-success', 'add-video-btn');
+                button.innerText = '+';
+                colButton.appendChild(button);
+
+                // Append cols to row
+                newRow.appendChild(colInput);
+                newRow.appendChild(colButton);
+
+                // Append row to container
+                container.appendChild(newRow);
+
+                videoIndex++;
+            }
         });
     </script>
 

@@ -625,7 +625,7 @@ class PurchaseController extends Controller
                         'type' => Str::contains($file->getMimeType(), 'video') ? 'video' : 'image',
                     ];
                 }
-
+dd( $uploadedPaths);
                 // Store as JSON in FeedbackContent table
                 FeedbackContent::create([
                     'purchase_video_id' => $purchaseVideo->id,
