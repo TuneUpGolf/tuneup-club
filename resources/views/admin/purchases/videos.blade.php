@@ -13,21 +13,21 @@
         {{-- Left Column (Videos + Info) --}}
         <div class="flex flex-col lg:flex-row gap-6 w-full lg:w-1/2">
             <div class="video-wrap border-b lg:border-b-0 lg:border-r border-gray-300 pb-4 lg:pb-0 lg:pr-4">
-                <video controls autoplay loop muted src="{{ $purchase->videos->first()?->video_url }}"
+                <video controls autoplay loop muted src="{{ @$purchase->videos->first()?->video_url }}"
                     class="w-full h-auto rounded-lg object-cover mb-4"></video>
 
                 @if (@$purchaseVideo2Url)
-                    <video controls autoplay loop muted src="{{ $purchaseVideo2Url }}"
+                    <video controls autoplay loop muted src="{{ @$purchaseVideo2Url }}"
                         class="w-full h-auto rounded-lg object-cover mb-4"></video>
                 @endif
 
                 @if (auth()->user()->type == 'Influencer')
                     <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
+                        <a href="{{ route('purchase.feedback.create', ['purchase_video' => @$purchaseVideo?->video_url]) }}"
                             class="btn btn-warning rounded-full px-4 py-2 text-white font-bold flex items-center gap-2">
                             <i class="ti ti-notebook text-2xl"></i> Feedback
                         </a>
-                        <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchase->videos?->first()->video_url }}"
+                        <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . @$purchase->videos?->first()->video_url }}"
                             class="btn btn-danger rounded-full px-4 py-2 text-white font-bold flex items-center gap-2">
                             <i class="ti ti-search text-2xl"></i> Analyze
                         </a>
@@ -40,23 +40,23 @@
                 <ul class="space-y-4">
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Lesson Name:</p>
-                        <p class="text-lg sm:text-xl font-semibold break-words">{{ $purchase->lesson?->lesson_name }}</p>
+                        <p class="text-lg sm:text-xl font-semibold break-words">{{ @$purchase->lesson?->lesson_name }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Date Submitted:</p>
-                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->lesson?->created_at }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">{{ @$purchase->lesson?->created_at }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Lesson Number:</p>
-                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->lesson?->id }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">{{ @$purchase->lesson?->id }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Follower Name:</p>
-                        <p class="text-lg sm:text-xl font-semibold">{{ $purchase->follower?->name }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">{{ @$purchase->follower?->name }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Payment:</p>
-                        <p class="text-lg sm:text-xl font-semibold">${{ $purchase->lesson?->lesson_price }}</p>
+                        <p class="text-lg sm:text-xl font-semibold">${{ @$purchase->lesson?->lesson_price }}</p>
                     </li>
                     <li>
                         <p class="text-gray-500 text-sm sm:text-base">Payment Status:</p>
@@ -78,18 +78,18 @@
             <p class="text-gray-500">
                 {{ auth()->user()->name == @$purchase->follower->name ? 'Your Note' : 'Note by ' . @$purchase->follower->name }}:
             </p>
-            <p class="text-lg sm:text-xl font-semibold break-words">{{ $purchaseVideo->note }}</p>
+            <p class="text-lg sm:text-xl font-semibold break-words">{{ @$purchaseVideo->note }}</p>
 
             @if ($purchaseVideo->feedback)
                 <br>
                 <p class="text-gray-500">{{ auth()->user()->type == 'Influencer' ? 'Your Feedback' : 'Feedback' }}</p>
-                <p class="text-lg sm:text-xl font-semibold break-words">{{ $purchaseVideo->feedback }}</p>
+                <p class="text-lg sm:text-xl font-semibold break-words">{{ @$purchaseVideo->feedback }}</p>
             @endif
 
             {{-- Feedback Video and Actions --}}
             <div class="flex flex-wrap items-start gap-4 mt-4">
-                @if ($purVid = $purchase->videos->first())
-                    @if ($vid = $purVid->feedbackContent->first())
+                @if ($purVid = @$purchase->videos->first())
+                    @if ($vid = @$purVid->feedbackContent->first())
 
                         @php
                             $videos = $purVid->feedbackContent->first()?->url;
@@ -129,16 +129,16 @@
                 {{-- Action Buttons --}}
                 @if (auth()->user()->type == 'Influencer')
                     <div class="flex flex-wrap gap-2">
-                        <a href="{{ route('purchase.feedback.create', ['purchase_video' => $purchaseVideo->video_url]) }}"
+                        <a href="{{ route('purchase.feedback.create', ['purchase_video' => @$purchaseVideo->video_url]) }}"
                             class="btn btn-outline-secondary rounded-full px-4 py-2 flex items-center gap-1 text-sm sm:text-base">
-                            @if (trim($purchaseVideo->feedback))
+                            @if (trim(@$purchaseVideo->feedback))
                                 <i class="ti ti-pencil text-2xl"></i> Edit Feedback
                             @else
                                 <i class="ti ti-plus text-2xl"></i> Provide Feedback
                             @endif
                         </a>
-                        @if (trim($purchaseVideo->feedback))
-                            <form action="{{ route('purchase.feedback.delete', $purchaseVideo->id) }}" method="POST"
+                        @if (trim(@$purchaseVideo->feedback))
+                            <form action="{{ route('purchase.feedback.delete', @$purchaseVideo->id) }}" method="POST"
                                 onsubmit="return confirm('Are you sure you want to delete this feedback?');">
                                 @csrf
                                 @method('DELETE')
