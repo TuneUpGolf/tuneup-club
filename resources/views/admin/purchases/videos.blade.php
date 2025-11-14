@@ -80,7 +80,7 @@
             </p>
             <p class="text-lg sm:text-xl font-semibold break-words">{{ @$purchaseVideo->note }}</p>
 
-            @if ($purchaseVideo->feedback)
+            @if (@$purchaseVideo->feedback)
                 <br>
                 <p class="text-gray-500">{{ auth()->user()->type == 'Influencer' ? 'Your Feedback' : 'Feedback' }}</p>
                 <p class="text-lg sm:text-xl font-semibold break-words">{{ @$purchaseVideo->feedback }}</p>
@@ -92,7 +92,7 @@
                     @if ($vid = @$purVid->feedbackContent->first())
 
                         @php
-                            $videos = $purVid->feedbackContent->first()?->url;
+                            $videos = @$purVid->feedbackContent->first()?->url;
 
                             if ($videos) {
                                 // Check if JSON
