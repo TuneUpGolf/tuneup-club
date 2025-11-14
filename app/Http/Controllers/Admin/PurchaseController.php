@@ -585,6 +585,7 @@ class PurchaseController extends Controller
 
     public function addFeedbackAPI(Request $request)
     {
+        dd($request->all());
         try {
             $request->validate([
                 'purchase_id'       => 'required',
