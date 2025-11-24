@@ -14,9 +14,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            DB::statement('ALTER TABLE your_table_name MODIFY service_fee DECIMAL(10,2) NULL');
-        });
+        
+            DB::statement('ALTER TABLE users MODIFY service_fee DECIMAL(10,2) NULL');
+       
     }
 
     /**
