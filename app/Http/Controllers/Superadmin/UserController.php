@@ -106,7 +106,7 @@ class UserController extends Controller
                         'id'    => $user->id,
                     ]);
                     $domain     = Domain::create([
-                        'domain'        => $domain,
+                        'domain'        => $actualDomain,
                         'actual_domain' => $actualDomain,
                         'tenant_id'     => $tenant->id,
                     ]);
@@ -162,7 +162,7 @@ class UserController extends Controller
                         'tenancy_db_password'   => $request->db_password,
                     ]);
                     $domain = Domain::create([
-                        'domain'        => $domain,
+                        'domain'        => $actualDomain,
                         'actual_domain' => $actualDomain,
                         'tenant_id'     => $tenant->id,
                     ]);
