@@ -237,7 +237,8 @@ class UserController extends Controller
             $domain     = Domain::where('tenant_id', $user->tenant_id)->first();
             if ($domain) {
                 $domain->domain         = $request->domains;
-                $domain->actual_domain  = $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST);
+                // $domain->actual_domain  = $request->domains . '.' . parse_url(env('APP_URL'), PHP_URL_HOST);
+                $domain->actual_domain = $request->domains . '.' . parse_url(config('services.env.app_url'), PHP_URL_HOST);
 
                 $domain->save();
             }
