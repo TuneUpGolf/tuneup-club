@@ -89,7 +89,9 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 
 Route::middleware([
     'web',
-    InitializeTenancyByDomain::class,
+     app()->environment('local')
+        ? InitializeTenancyByDomain::class
+        : InitializeTenancyByDomainOrSubdomain::class,
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     require __DIR__ . '/auth.php';
