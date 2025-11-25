@@ -14,10 +14,9 @@ return new class extends Migration
      */
     public function up()
     {
-                Schema::table('feedback_content', function (Blueprint $table) {
+        Schema::table('feedback_content', function (Blueprint $table) {
             $table->longText('url')->change(); // Change 'content' column to LONGTEXT
         });
-
     }
 
     /**

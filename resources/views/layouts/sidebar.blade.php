@@ -230,7 +230,7 @@
                                 @can('manage-user')
                                     <li class="dash-item {{ request()->is('influencer*') ? 'active' : '' }}">
                                         <a class="dash-link"
-                                            href="{{ route('influencer.index') }}">{{ __('Influencer') }}</a>
+                                            href="{{ route('influencer.index') }}">{{ __('Instructor') }}</a>
                                     </li>
                                 @endcan
                                 @can('manage-followers')

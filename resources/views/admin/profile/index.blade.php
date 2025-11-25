@@ -98,7 +98,7 @@
                             </div>
                         </div>
                         @if (Auth::user()->type == 'Influencer')
-                            <div class="col-sm-6">
+                            {{-- <div class="col-sm-6">
                                 <div class="form-group">
                                     {{ Form::label('country', __('Country'), ['class' => 'form-label']) }}
                                     <select class="form-control form-control-inline-block" data-trigger name="country"
@@ -117,10 +117,10 @@
                                         </span>
                                     @endif
                                 </div>
-                            </div>
+                            </div> --}}
                         @endif
                         @if (Auth::user()->type == 'Influencer')
-                            <div class="col-sm-6">
+                            {{-- <div class="col-sm-6">
                                 <div class="form-group">
                                     {{ Form::label('address', __('Address'), ['class' => 'form-label']) }}
                                     {!! Form::text('address', $user->address, [
@@ -135,7 +135,7 @@
                                         </span>
                                     @endif
                                 </div>
-                            </div>
+                            </div> --}}
                         @endif
                         <div class="col-sm-6">
                             <div class="form-group">
@@ -174,12 +174,12 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 {{ Form::label('push_token', __('Push Token'), ['class' => 'form-label']) }}
                                 {!! Form::text('push_token', $user?->pushToken?->token ? $user->pushToken->token : 'Push Token Not Set', [
                                     'class' => 'form-control',
                                 ]) !!}
-                            </div>
+                            </div> --}}
                             <div class="form-group">
                                 {{ Form::label('service_fee', __('Service Fee'), ['class' => 'form-label']) }}
                                 {!! Form::text('service_fee', $user?->service_fee ?? 'Service Fee Not Set', [
@@ -194,7 +194,7 @@
                             <div class="form-group">
                                 <label class="mx-auto mb-0 avatar_crop btn btn-primary btn-lg d-block col-sm-12"
                                     for="avatarCrop">
-                                    {{ __('Update Avatar') }}
+                                    {{ __('Update Profile') }}
                                     {{ Form::file('file', ['id' => 'avatarCrop', 'class' => 'd-none', 'accept' => 'image/jpeg, image/png']) }}
                                     {{-- Hidden field to store base64 image --}}
                                     {{ Form::hidden('avatar', null, ['id' => 'avatar-hidden']) }}
@@ -210,7 +210,7 @@
                                             'class' => 'd-none',
                                         ]) !!}
                                         {{ Form::button(__('Rotate Image'), ['id' => 'rotate-image', 'class' => 'btn btn-gradient-info col-sm-12 mb-1']) }}
-                                        {{ Form::button(__('Crop Image'), ['id' => 'crop_image', 'class' => 'btn btn-gradient-primary col-sm-12']) }}
+                                        {{ Form::button(__('Save Updated Image'), ['id' => 'crop_image', 'class' => 'btn btn-gradient-primary col-sm-12']) }}
                                         {{ Form::button(__('Cancel'), ['id' => 'avatar-cancel-btn', 'class' => 'btn btn-gradient-secondary col-sm-12 mt-1']) }}
                                     </div>
                                 </div>
