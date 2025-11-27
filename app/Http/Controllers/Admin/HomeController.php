@@ -76,6 +76,7 @@ class HomeController extends Controller
                 break;
         }
         $posts = $posts->orderBy('column_order', 'asc')->paginate(6);
+     
 
         if ($userType == Role::ROLE_FOLLOWER) {
 
@@ -95,6 +96,7 @@ class HomeController extends Controller
             } else {
                 $albumcategories = null;
             }
+           
 
             return $this->followerDashboard([
                 'dataTable'      => $dataTable,
@@ -237,6 +239,7 @@ class HomeController extends Controller
         $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
         $inPersonCompleted  = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
         $inPersonPending    = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', false)->count();
+     
         return $datatable->render('admin.dashboard.home', compact(
             'user',
             'paymentTypes',

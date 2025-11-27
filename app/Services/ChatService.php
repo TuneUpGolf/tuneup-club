@@ -95,18 +95,19 @@ class ChatService
         return $existingTenantIds;
     }
 
-    public function getChatToken(string $chatUserId)
+     public function getChatToken(?string $chatUserId)
     {
-        try {
+        if ($chatUserId) {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post(env('CHAT_BASE_URL') . '/brainvire-chat-base-app/api/v1/user/token', [
+            ])->post(env('CHAT_BASE_URL') . '/chat-app/api/v1/user/token', [
                 'userId' => $chatUserId,
             ]);
 
             return $response->json()['data'];
-        } catch (\Exception $e) {
         }
+
+        return null;
     }
 
     public function createGroup(string $chatUserId, string $influencerId): ?string

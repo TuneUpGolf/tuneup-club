@@ -147,20 +147,43 @@ body.modal-open .dash-container {
             $shortDescription = \Illuminate\Support\Str::limit($description, 80, '');
             @endphp
 
-            <p class="text-gray-500 text-md mt-1 description font-medium">
-                <div class="description-wrapper relative">
-                    <div class="short-text clamp-text text-gray-500 text-md mt-1 font-medium">
-                        {!! $post->description !!}
-                    </div>
-                    <a href="#" class="read-toggle text-blue-600 font-medium mt-1 inline-block" onclick="toggleRead(this); return false;">
-                        ...Read More >>
-                    </a>
-                </div>
+            <p class="text-gray-500 text-md mt-1 description font-medium ctm-min-h">
+                <a href="javascript:void(0);" class="text-blue-600 font-semibold underline" data-bs-toggle="modal"
+                    data-bs-target="#descriptionModal{{ $post->id }}">
+                    View Description
+                </a>
             </p>
         </div>
     </div>
 </div>
-    
+    <!-- Bootstrap Modal -->
+<div class="modal fade" id="descriptionModal{{ $post->id }}" tabindex="-1" role="dialog"
+    aria-labelledby="descriptionModalLabel{{ $post->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered custom-modal-width" role="document">
+        <div class="modal-content">
+            <div class="modal-header flex justify-between items-center">
+                <h1 class="modal-title font-bold text-lg" id="descriptionModalLabel{{ $post->id }}">
+                    {{ $post->title }}
+                </h1>
+                <button type="button"
+                    class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+                    data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="longDescContentTipandDrills">
+                    {!! nl2br($post->description) !!}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="lesson-btn" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @push('javascript')
 <script>
