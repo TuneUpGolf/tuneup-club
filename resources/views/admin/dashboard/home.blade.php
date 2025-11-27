@@ -42,12 +42,23 @@
 @extends('layouts.main')
 @section('title', __('Dashboard'))
 @section('content')
+    <style>
+        .top-boxes {
+            min-height: 120px;
+        }
+
+        @media (min-width: 786px) {
+            .top-boxes {
+                min-height: unset;
+            }
+        }
+    </style>
     <div class="row">
         <div class="col-xxl-12">
             <div class="row">
                 @can('manage-lessons')
-                    <div class="col-lg-3 col-md-6 col-6 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                    <div class="col-lg-3 col-md-6 col-6 pb-3 ">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96 top-boxes">
                             <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card1 p-2 rounded">
@@ -55,7 +66,7 @@
                                             enable-background="new 0 0 64 64">
                                             <path
                                                 d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
@@ -69,8 +80,8 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-md-6 col-6 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg w-96">
+                    <div class="col-lg-3 col-md-6 col-6 pb-3 top-boxes">
+                        <div class="relative flex flex-col bg-white rounded-lg w-96 top-boxes">
                             <div class="p-2 p-sm-3 flex flex-col">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card4 p-2 rounded">

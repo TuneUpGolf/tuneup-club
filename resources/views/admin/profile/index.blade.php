@@ -154,13 +154,13 @@
                             </div>
                         </div>
                         <div class="col-sm-6">
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 {{ Form::label('role', __('Role'), ['class' => 'form-label']) }}
                                 {!! Form::text('role', $role ? $role->name : 'Role Not Set', [
                                     'class' => 'form-control',
                                     'readonly',
                                 ]) !!}
-                            </div>
+                            </div> --}}
                             @if (Auth::user()->type == 'Influencer')
                                 <div class="col-sm-6">
                                     <div class="form-group">
@@ -180,13 +180,13 @@
                                     'class' => 'form-control',
                                 ]) !!}
                             </div> --}}
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 {{ Form::label('service_fee', __('Service Fee'), ['class' => 'form-label']) }}
                                 {!! Form::text('service_fee', $user?->service_fee ?? 'Service Fee Not Set', [
                                     'class' => 'form-control',
                                     'readonly' => true,
                                 ]) !!}
-                            </div>
+                            </div> --}}
 
 
                         </div>
@@ -194,7 +194,7 @@
                             <div class="form-group">
                                 <label class="mx-auto mb-0 avatar_crop btn btn-primary btn-lg d-block col-sm-12"
                                     for="avatarCrop">
-                                    {{ __('Update Profile') }}
+                                    {{ __('Update Profile Picture') }}
                                     {{ Form::file('file', ['id' => 'avatarCrop', 'class' => 'd-none', 'accept' => 'image/jpeg, image/png']) }}
                                     {{-- Hidden field to store base64 image --}}
                                     {{ Form::hidden('avatar', null, ['id' => 'avatar-hidden']) }}

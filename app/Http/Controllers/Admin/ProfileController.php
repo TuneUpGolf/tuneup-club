@@ -120,17 +120,17 @@ class ProfileController extends Controller
             $user->golf_course = $request?->golf_course;
         }
 
-        if (Auth::user()->type == Role::ROLE_FOLLOWER) {
-            PushToken::updateOrCreate([
-                'follower_id' => Auth::user()->id,
-            ], ['token' => $request->get('push_token')]);
-        }
+        // if (Auth::user()->type == Role::ROLE_FOLLOWER) {
+        //     PushToken::updateOrCreate([
+        //         'follower_id' => Auth::user()->id,
+        //     ], ['token' => $request->get('push_token')]);
+        // }
 
-        if (Auth::user()->type == Role::ROLE_INFLUENCER) {
-            PushToken::updateOrCreate([
-                'influencer_id' => Auth::user()->id,
-            ], ['token' => $request->get('push_token')]);
-        }
+        // if (Auth::user()->type == Role::ROLE_INFLUENCER) {
+        //     PushToken::updateOrCreate([
+        //         'influencer_id' => Auth::user()->id,
+        //     ], ['token' => $request->get('push_token')]);
+        // }
         if ($request->filled('avatar')) {
             $image     = $request->avatar;
             $image     = str_replace('data:image/png;base64,', '', $image);

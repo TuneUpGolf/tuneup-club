@@ -32,6 +32,18 @@
         cursor: not-allowed;
         opacity: 0.6;
     }
+
+
+
+    @media (min-width: 787px) {
+        .text-3xl-c {
+            font-size: 1.5rem !important;
+        }
+    }
+
+    .text-3xl-c {
+        font-size: 1.3rem !important;
+    }
 </style>
 <div class="flex flex-col">
     <div class="profile-backdrop">
@@ -39,7 +51,7 @@
             <img alt="{{ $influencer->name }}" src="{{ $influencer?->logo }}"
                 class="rounded-full align-middle border-1 profile-image">
             <div class="flex flex-col">
-                <span class="font-medium text-3xl mb-2">{{ $influencer->name }}</span>
+                <span class="font-medium text-3xl-c mb-2">{{ $influencer->name }}</span>
                 <div class="flex divide-x divide-solid w-100 gap-2 text-gray-600">
                     <div class="text-sm leading-normal text-gray-600 uppercase">
                         <i class="fas fa-map-marker-alt"></i>

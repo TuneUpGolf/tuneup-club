@@ -153,7 +153,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title font-bold" style="font-size: 20px">Long Description</h1>
+                <h1 class="modal-title font-bold" style="font-size: 20px"></h1>
                 <button type="button"
                     class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
                     onclick="closeLongDescModal()" class="close" data-dismiss="modal" aria-label="Close">
