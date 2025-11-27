@@ -363,7 +363,7 @@
                 </li>
                 <li class="mb-3">
                     <p class="text-gray-500 text-sm">Student Name:</p>
-                    <p class="text-lg font-semibold">{{ $purchase->student->name }}</p>
+                    <p class="text-lg font-semibold">{{ $purchase->follower->name }}</p>
                 </li>
                 <li class="mb-3">
                     <p class="text-gray-500 text-sm">Payment:</p>
@@ -386,7 +386,7 @@
             <div>
                 <p class="text-lg text-gray-700 font-bold">{{ @$purchase->lesson?->created_at->format('F j, Y') }}</p>
                 <p class="text-gray-500">
-                    {{ auth()->user()->name == $purchase->student->name ? 'Your Note' : 'Note by ' . $purchase->student->name }}:
+                    {{ auth()->user()->name == $purchase->follower->name ? 'Your Note' : 'Note by ' . $purchase->follower->name }}:
                 </p>
                 <p class="text-base md:text-lg font-semibold break-words">{{ @$purchaseVideo->note }}</p>
 
