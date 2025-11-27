@@ -14,8 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::table('plans', function (Blueprint $table) {
-            $table->string('stripe_product_id')->nullable();
-            $table->string('stripe_price_id')->nullable();
+            if (!Schema::hasColumn('plans', 'stripe_product_id')) { 
+                $table->string('stripe_product_id')->nullable();
+            }
+
+            if (!Schema::hasColumn('plans', 'stripe_price_id')) {
+                $table->string('stripe_price_id')->nullable()->after('stripe_product_id');
+            }
         });
     }
 
