@@ -74,7 +74,7 @@
             </hr>
         </div>
         @if ($tab == 'lessons')
-            <div id="Lessons" class="tabcontent flex items-center block">
+            <div id="Lessons" class="tabcontent items-center block">
                 @if (!!$totalLessons)
                     <livewire:lessons-grid-view />
                 @else
