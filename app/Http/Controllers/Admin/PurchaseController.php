@@ -905,23 +905,23 @@ class PurchaseController extends Controller
                     ->get();
 
                 // Send email notification
-                SendEmail::dispatch(
-                    $purchaseVideo->purchase->student->email,
-                    new PurchaseFeedback($purchaseVideo->purchase)
-                );
+                // SendEmail::dispatch(
+                //     $purchaseVideo->purchase->student->email,
+                //     new PurchaseFeedback($purchaseVideo->purchase)
+                // );
 
                 // Send push notification
-                $message = __(':name has sent feedback for your online submission.', [
-                    'name' => $purchaseVideo->purchase->lesson->user->name,
-                ]);
+                // $message = __(':name has sent feedback for your online submission.', [
+                //     'name' => $purchaseVideo->purchase->lesson->user->name,
+                // ]);
 
-                if (isset($purchaseVideo->purchase->student->pushToken->token)) {
-                    SendPushNotification::dispatch(
-                        $purchaseVideo->purchase->student->pushToken->token,
-                        'Feedback Received',
-                        $message
-                    );
-                }
+                // if (isset($purchaseVideo->purchase->student->pushToken->token)) {
+                //     SendPushNotification::dispatch(
+                //         $purchaseVideo->purchase->student->pushToken->token,
+                //         'Feedback Received',
+                //         $message
+                //     );
+                // }
 
                 // ✅ Mark purchase feedback complete if all done
                 if (
