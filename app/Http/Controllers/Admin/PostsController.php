@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\Admin\PostDataTable;
-use App\DataTables\Admin\ReportedPostDataTable;
-use App\Facades\UtilityFacades;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\PostAPIResource;
-use App\Models\Category;
-use App\Models\LikePost;
 use App\Models\Plan;
 use App\Models\Post;
-use App\Models\PurchasePost;
-use App\Models\ReportPost;
 use App\Models\Role;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Album;
+use App\Models\Category;
+use App\Models\LikePost;
+use App\Models\ReportPost;
 use Illuminate\Support\Str;
-use Illuminate\Validation\UnauthorizedException;
-use Illuminate\Validation\ValidationException;
+use App\Models\PurchasePost;
+use Illuminate\Http\Request;
+use App\Models\AlbumCategory;
+use App\Facades\UtilityFacades;
+use Illuminate\Support\Collection;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\DataTables\Admin\PostDataTable;
+use App\Http\Resources\PostAPIResource;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Validation\ValidationException;
+use App\DataTables\Admin\ReportedPostDataTable;
+use Illuminate\Validation\UnauthorizedException;
 
 class PostsController extends Controller
 {
@@ -88,6 +90,25 @@ class PostsController extends Controller
             $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
         }
 
+        $albums = Album::where('instructor_id', $user->id)
+            ->where('status', 'active')
+            ->get();
+
+        // Add type "album" + unify file path
+        $albums->map(function ($album) {
+            $album->type = 'album';
+            $album->file = preg_replace('/^\d+\//', '', $album->media);
+            return $album;
+        });
+
+        // -------------------------
+        // MERGE POSTS + ALBUMS
+        // -------------------------
+        $items = $posts->concat($albums);
+
+        // Sort by created_at descending
+        $items = $items->sortByDesc('created_at');
+
         if ($request->ajax()) {
 
             return DataTables::of($posts)
@@ -144,7 +165,9 @@ class PostsController extends Controller
         $plans       = json_decode($settingData, true);
 
         if (Auth::user()->can('create-blog')) {
-            $category = Category::where('status', 1)->pluck('name', 'id');
+            // $category = Category::where('status', 1)->pluck('name', 'id');
+            $categories   = AlbumCategory::pluck('title', 'id');
+
             return view('admin.posts.create', compact('category'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -156,6 +179,16 @@ class PostsController extends Controller
 
         if (Auth::user()->can('create-blog')) {
             try {
+                if ($request->filled('category_id')) {
+                    // Prepare a new request for AlbumController
+                    $albumRequest = $request->merge([
+                        'album_category_id' => $request->input('category_id')
+                    ]);
+
+                    // Call AlbumController's store method
+                    return app(\App\Http\Controllers\Admin\AlbumController::class)->store($albumRequest);
+                }
+
                 request()->validate([
                     'title'       => 'required|string',
                     'short_description' => 'required|string',
