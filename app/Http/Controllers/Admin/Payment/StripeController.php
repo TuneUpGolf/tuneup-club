@@ -300,7 +300,22 @@ class StripeController extends Controller
             ], 404);
         }
 
-        $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
+         $finalAmount = $planDetails->price;  // 649
+                $stripePerc  = 0.029;                 // 2.9%
+                $stripeFixed = 0.30;
+                // dd(UtilityFacades::getsettings('stripe_secret'), $planDetails->instructor->stripe_account_id, $planDetails->stripe_price_id);
+                $platformPercent = UtilityFacades::getsettings('application_fee_percentage') ? floatval(UtilityFacades::getsettings('application_fee_percentage')) : 0;
+
+                // 1️⃣ Calculate net after Stripe fee
+                $net = ($finalAmount - $stripeFixed) * (1 - $stripePerc);
+
+                // 2️⃣ Platform fee = 10% of net
+                $platformFeeAmount = $net * ($platformPercent / 100);
+
+                // 3️⃣ Convert to percent of final amount for Stripe subscription
+                $applicationFeePercent = round(($platformFeeAmount / $finalAmount) * 100, 2);
+
+        // $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
         // if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
         //     return response()->json([
         //         'status' => 0,
@@ -365,7 +380,7 @@ class StripeController extends Controller
                     //     'instructor_id' => $planDetails->instructor_id,
                     // ],
                     'subscription_data' => [
-                            'application_fee_percent' => $platform_fee, // Use the platform fee from settings
+                            'application_fee_percent' => $applicationFeePercent, // Use the platform fee from settings
                         ],
                     'success_url' => route('stripe.success.pay', Crypt::encrypt([
                         'coupon' => $request->coupon,

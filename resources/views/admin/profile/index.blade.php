@@ -634,7 +634,7 @@
                                     <select name="stripe_transaction_fee" id="stripe_transaction_fee"
                                         class="form-select">
                                         <option {{ $user->stripe_transaction_fee == 'instructor' ? 'selected' : '' }}
-                                            value="instructor">Instructor</option>
+                                            value="instructor">Influencer</option>
                                         <option {{ $user->stripe_transaction_fee == 'student' ? 'selected' : '' }}
                                             value="student">Student</option>
                                     </select>
