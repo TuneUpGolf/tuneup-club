@@ -34,6 +34,17 @@
                                     ]) !!}
                                 </div>
 
+                                <div class="form-group">
+                                    {{ Form::label('category_id', __('Category'), ['class' => 'form-label']) }} *
+
+                                    <select name="category_id" id="category_id" class="form-control">
+                                        <option value="">Select Category</option>
+                                        @foreach ($categories as $id => $name)
+                                            <option value="{{ $id }}">{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                                 <div class="form-group mb-3">
                                     {{ Form::label('photo', __('Photo'), ['class' => 'form-label']) }} *
                                     {!! Form::file('photo', [
