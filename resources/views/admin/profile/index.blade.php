@@ -40,6 +40,10 @@
                             class="border-0 list-group-item list-group-item-action">{{ __('Stripe Connect') }}
                             <div class="float-end"><i class="ti ti-chevron-right"></i></div>
                         </a>
+                        <a href="#useradd-9"
+                            class="border-0 list-group-item list-group-item-action">{{ __('Stripe Transaction Fee') }}
+                            <div class="float-end"><i class="ti ti-chevron-right"></i></div>
+                        </a>
                     @endif
                     <a href="#useradd-5" class="border-0 list-group-item list-group-item-action">{{ __('Delete Account') }}
                         <div class="float-end"><i class="ti ti-chevron-right"></i></div>
@@ -615,14 +619,54 @@
                     </div>
                     {{ Form::close() }}
                 </div>
+
+                <div id="useradd-9" class="card">
+                    <div class="card-header">
+                        <h5>{{ __('Stripe Transaction Fee') }}</h5>
+                        <small class="text-muted">{{ __('Who will pay stripe transaction fee') }}</small>
+                    </div>
+                    {{ Form::open(['route' => 'profile.verify.stripe_transaction_fee', 'method' => 'Post', 'class' => 'form-horizontal', 'data-validate']) }}
+                    <div class="card-body">
+                        <div class="row form-group">
+                            <div class="col-sm-8">
+                                <div class="form-group">
+                                    {{ Form::label('stripe_transaction_fee', __('Stripe Transaction Fee'), ['class' => 'form-label']) }}
+                                    <select name="stripe_transaction_fee" id="stripe_transaction_fee"
+                                        class="form-select">
+                                        <option {{ $user->stripe_transaction_fee == 'instructor' ? 'selected' : '' }}
+                                            value="instructor">Instructor</option>
+                                        <option {{ $user->stripe_transaction_fee == 'student' ? 'selected' : '' }}
+                                            value="student">Student</option>
+                                    </select>
+
+                                    @if ($errors->has('stripe_transaction_fee'))
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('stripe_transaction_fee') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="text-end">
+                            {{ Form::button(__('Save'), [
+                                'type' => 'submit',
+                                'class' => 'btn btn-primary',
+                            ]) }}
+                        </div>
+                    </div>
+                    {{ Form::close() }}
+                </div>
             @endif
             <div id="useradd-5" class="card">
                 <div class="card-header">
                     <h5>{{ __('Delete Account') }}</h5>
                     <small
                         class="text-muted">{{ __('Once you delete your account, there is no going back.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                please
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                be certain.') }}</small>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        please
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        be certain.') }}</small>
                 </div>
                 <div class="card-body">
                     <div class="mt-3 row justify-content-between float-end">

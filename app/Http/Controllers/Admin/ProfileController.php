@@ -44,6 +44,20 @@ class ProfileController extends Controller
         ]);
     }
 
+
+    public function verifyStripeTransactionFee(Request $request)
+    {
+        $user = Auth::user();
+
+        request()->validate([
+            'stripe_transaction_fee' => 'required',
+        ]);
+
+        User::find($user->id)->update(['stripe_transaction_fee' => $request->stripe_transaction_fee]);
+
+        return redirect()->back()->with('success', __('Setting Updated.'));
+    }
+
     private function activeTwoFactor()
     {
         $user         = Auth::user();
