@@ -11,7 +11,7 @@
             <div class="col-sm-12 col-md-8 m-auto">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('Add detail for your influencer to view') }}</h5>
+                        <h5>{{ __('Upload videos or images for review') }}</h5>
                     </div>
                     <div class="card-body">
                         {!! Form::open([
@@ -33,7 +33,7 @@
                             {{ Form::file('video_2', ['class' => 'form-control']) }}
                         </div>
                         <div class="form-group">
-                            {{ Form::label('Note', __('Provide a note to your instructor'), ['class' => 'form-label']) }}
+                            {{ Form::label('Note', __('Include a note with your submission'), ['class' => 'form-label']) }}
                             {!! Form::textarea('note', null, [
                                 'class' => 'form-control',
                                 'placeholder' => __('Enter Note'),
