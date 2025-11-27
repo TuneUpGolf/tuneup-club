@@ -86,104 +86,118 @@
             </div>
         @endif
         @if ($tab == 'posts')
-            <div id="Posts" class="tabcontent block">
-                @if (!!$totalLessons)
-                    <div id="blog" class="">
-                        <div class="dropdown dash-h-item drp-company mt-3">
-                            <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                                href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
-                                <span class="hide-mob ms-2 text-lg">Filter</span>
-                                <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
-                            </a>
-                            <div class="dropdown-menu dash-h-dropdown">
-                                <a href="{{ route('home', ['filter' => 'all', 'tab' => 'posts']) }}"
-                                    class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
-                                    <span>{{ __('All') }}</span>
-                                </a>
-                                <a href="{{ route('home', ['filter' => 'free', 'tab' => 'posts']) }}"
-                                    class="dropdown-item  {{ request()->query('filter') === 'free' ? 'active' : '' }}">
-                                    <span>{{ __('Free') }}</span>
-                                </a>
-                                <a href="{{ route('home', ['filter' => 'paid', 'tab' => 'posts']) }}"
-                                    class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
-                                    <span>{{ __('Paid') }}</span>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="dataTable-top row">
+          <div id="Posts" class="tabcontent block">
+    @if (!!$totalLessons)
+        <div id="blog">
 
-                            <div class="col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block"></div>
-                            <div class="tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex">
-                                <select id="album-category" class="form-select"
-                                    style="margin-left:auto; max-width: 12.5rem;">
-                                    <option value="" disabled>
-                                        - Select Category -
-                                    </option>
-                                    <option value=""
-                                        {{ request()->query('category') === ' ' ? 'selected' : '' }}>
-                                        View Individual Tips/Drills
-                                    </option>
-                                    <option value="all_category"
-                                        {{ request()->query('category') === 'all_category' ? 'selected' : '' }}>
-                                        View Categories
-                                    </option>
-                                    {{-- @foreach ($album_categories as $category)
-                                                    <option value="{{ $category->id }}"
-                                                        {{ request()->query('category') == $category->id ? 'selected' : '' }}>
-                                                        {{ $category->title }}
-                                                    </option>
-                                                @endforeach --}}
-                                </select>
-                            </div>
-                            <div class="">
-                                <div class="focus:outline-none mt-4 mb-5 lg:mt-24">
-                                    @if (request()->query('category_album'))
-                                        <div class="infinity">
-                                            @include('admin.posts.album-view', [
-                                                'albums' => $albumcategories,
-                                            ])
-                                        @elseif (request()->query('category') == 'all_category')
-                                            <div class="infinity">
-                                                @include('admin.posts.album-category-view', [
-                                                    'albums' => $albums,
-                                                ])
-                                            </div>
-                                        @else
-                                            <div class="infinity">
-                                                <div class="flex flex-wrap w-100">
-                                                    @if (request()->query('category') == 'all_category')
-                                                    @endif
-                                                    @foreach ($posts as $post)
-                                                        @php
-                                                            $purchasePost = $post->purchasePost->firstWhere(
-                                                                'follower_id',
-                                                                Auth::id(),
-                                                            );
-                                                            $purchasePost = $purchasePost->active_status ?? false;
-                                                        @endphp
-                                                        @include('admin.posts.blog', [
-                                                            'post' => $post,
-                                                            'isInfluencer' => $isInfluencer,
-                                                            'isSubscribed' => $isSubscribed,
-                                                            'purchasePost' => $purchasePost,
-                                                        ])
-                                                    @endforeach
-                                                </div>
-                                                <div class="float-end">
-                                                    {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
-                                                </div>
-                                            </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class='flex flex-col justify-center items-center no-data gap-2'><i
-                                class="fa fa-thumbs-down" aria-hidden="true"></i>There are no posts from
-                            this influencer yet
-                        </div>
-                @endif
+            <!-- Filter Dropdown -->
+            <div class="dropdown dash-h-item drp-company mt-3">
+                <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
+                   href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
+                    <span class="hide-mob ms-2 text-lg">Filter</span>
+                    <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
+                </a>
+
+                <div class="dropdown-menu dash-h-dropdown">
+                    <a href="{{ route('home', ['filter' => 'all', 'tab' => 'posts']) }}"
+                       class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
+                        <span>{{ __('All') }}</span>
+                    </a>
+
+                    <a href="{{ route('home', ['filter' => 'free', 'tab' => 'posts']) }}"
+                       class="dropdown-item {{ request()->query('filter') === 'free' ? 'active' : '' }}">
+                        <span>{{ __('Free') }}</span>
+                    </a>
+
+                    <a href="{{ route('home', ['filter' => 'paid', 'tab' => 'posts']) }}"
+                       class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
+                        <span>{{ __('Paid') }}</span>
+                    </a>
+                </div>
             </div>
+
+            <!-- Responsive Select + Content -->
+            <div class="dataTable-top row align-items-center my-3">
+
+                <!-- Spacer on large screens -->
+                <div class="col-xl-7 col-lg-6 d-none d-lg-block"></div>
+
+                <!-- Category Select (center on mobile, right on desktop) -->
+                 <div class="col-12 d-flex justify-content-end">
+        <select id="album-category" class="form-select" style="max-width: 14rem;">
+            <option value="" disabled>- Select Category -</option>
+
+            <option value=""
+                {{ request()->query('category') === ' ' ? 'selected' : '' }}>
+                View Individual Tips/Drills
+            </option>
+
+            <option value="all_category"
+                {{ request()->query('category') === 'all_category' ? 'selected' : '' }}>
+                View Categories
+            </option>
+        </select>
+    </div>
+
+                <!-- Main Content -->
+                <div class="col-12">
+                    <div class="focus:outline-none mt-4 mb-5">
+
+                        @if (request()->query('category_album'))
+                            <div class="infinity">
+                                @include('admin.posts.album-view', ['albums' => $albumcategories])
+                            </div>
+
+                        @elseif (request()->query('category') == 'all_category')
+                            <div class="infinity">
+                                @include('admin.posts.album-category-view', ['albums' => $albums])
+                            </div>
+
+                        @else
+                            <div class="infinity">
+
+                                <div class="flex flex-wrap w-100">
+
+                                    @foreach ($posts as $post)
+                                        @php
+                                            $purchasePost = $post->purchasePost->firstWhere(
+                                                'follower_id',
+                                                Auth::id(),
+                                            );
+                                            $purchasePost = $purchasePost->active_status ?? false;
+                                        @endphp
+
+                                        @include('admin.posts.blog', [
+                                            'post' => $post,
+                                            'isInfluencer' => $isInfluencer,
+                                            'isSubscribed' => $isSubscribed,
+                                            'purchasePost' => $purchasePost,
+                                        ])
+                                    @endforeach
+
+                                </div>
+
+                                <div class="float-end">
+                                    {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
+                                </div>
+
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    @else
+        <div class='flex flex-col justify-center items-center no-data gap-2'>
+            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+            There are no posts from this influencer yet
+        </div>
+    @endif
+</div>
+
         @endif
         @if ($tab == 'subscriptions')
             <div id="Subscriptions" class="tabcontent block">

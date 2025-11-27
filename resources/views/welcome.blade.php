@@ -154,55 +154,24 @@
             @endif
         </div>
     </section>
+    @if (!$plans->isEmpty())
+        <section class="lession-sec subscription-sec">
+            <div class="container ctm-container">
+                @php
+                    $subscription = DB::table('settings')->where('key', 'subscription_plans')->first();
 
-    <section class="lession-sec subscription-sec">
-        <div class="container ctm-container">
-            @php
-                $subscription = DB::table('settings')->where('key', 'subscription_plans')->first();
-
-            @endphp
-            <h2 class="font-bold text-4xl mb-2">
-                {{ !empty($subscription->value) ? $subscription->value : 'Subscription Plans' }}
-            </h2>
-            <p class="text-xl text-gray-600">
-                Subscription plans give you full access to your coach's posts, training content, and the ability to connect
-                directly.
-            </p>
-            <div class="subscription-slider pt-5">
+                @endphp
+                <h2 class="font-bold text-4xl mb-2">
+                    {{ !empty($subscription->value) ? $subscription->value : 'Subscription Plans' }}
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Subscription plans give you full access to your coach's posts, training content, and the ability to
+                    connect
+                    directly.
+                </p>
                 @if (@$plans)
-                    @if (!$plans->isEmpty())
+                    <div class="row">
                         @foreach ($plans as $plan)
-                            {{-- <div class="px-3 py-4">
-                                <div class="bg-white subs-feature rounded-lg shadow popular-wrap position-relative h-100">
-                                    @if ($plan->is_chat_enabled && $plan->is_feed_enabled)
-                                        <div class="rounded-pill px-4 py-2 popular-plan w-auto bg-primary text-white font-bold position-absolute"
-                                            style="top: -22px; left: 50%; transform: translateX(-50%);">
-                                            POPULAR
-                                        </div>
-                                    @endif
-                                    <div class="relative px-3 py-4  flex flex-col">
-                                        <p class="text-3xl font-bold mb-1">{{ $plan->name }}</p>
-                                        <div class="flex gap-2 items-center my-2 ">
-                                            <p class=" text-6xl font-bold">{{ $currency . ' ' . $plan->price }} /</p>
-                                            <p class="text-2xl text-gray-600">
-                                                {{ $plan->duration . ' ' . $plan->durationtype }}
-                                            </p>
-
-                                        </div>
-                                        <a href="{{ route('login') }}"
-                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                            Purchase
-                                        </a>
-                                    </div>
-                                    <div class="border-t border-gray-300"></div>
-                                    <div class="p-3">
-                                        <p class="font-semibold text-xl mb-2">Features</p>
-                                        <p class="text-gray-600">
-                                            {!! $plan->description !!}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div> --}}
                             <div class="col-xl-3 col-md-6 py-4">
                                 <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"
                                     data-wow-delay="0.2s">
@@ -231,93 +200,23 @@
                                                     Month
                                                 </p>
                                             </div>
+
                                         </div>
                                         <div class="border-t border-gray-300"></div>
-                                        <div class="px-3 py-4">
+                                        <div class="px-3 py-4" id="sub">
                                             @if ($plan->id != 1)
-                                                {{-- @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
-                                                                        <a href="javascript:void(0)"
-                                                                            data-id="{{ $plan->id }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                                            data-amount="{{ $plan->price }}">{{ __('Expire at') }}
-                                                                            {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
-                                                                    @else
-                                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                            @if ($plan->id == $user->plan_id)
-                                                                                {{ __('Renew') }}
-                                                                            @else
-                                                                                {{ __('Buy Plan') }}
-                                                                            @endif
-                                                                        </a>
-                                                                    @endif --}}
-                                                {{-- @dd(auth('student')->user()) --}}
-                                                {{-- @if (auth('student')->user())
-                                                            @if (auth('student')->user()->plan_id != null)
-                                                                @if ($plan->id == auth('student')->user()->plan_id)
-                                                                    @if (!empty(auth('student')->user()->plan_expired_date) && \Carbon\Carbon::parse(auth('student')->user()->plan_expired_date)->gte(now()))
-                                                                        <a href="javascript:void(0)"
-                                                                            data-id="{{ $plan->id }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                                            data-amount="{{ $plan->price }}">{{ __('Expire at') }}
-                                                                            {{ \Carbon\Carbon::parse(auth('student')->user()->plan_expired_date)->format('d/m/Y') }}</a>
-                                                                        <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn">Cancel
-                                                                            Plan</a>
-                                                                    @else
-                                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                            @if ($plan->id == auth('student')->user()->plan_id)
-                                                                                {{ __('Renew') }}
-                                                                            @else
-                                                                                {{ __('Buy Plan') }}
-                                                                            @endif
-                                                                        </a>
-                                                                    @endif
-                                                                @else
-                                                                  
-
-                                                                    <button disabled
-                                                                        class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                        {{ __('Buy Plan') }}
-                                                                    </button>
-                                                                @endif
-                                                            @else
-                                                                <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                    class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                    @if ($plan->id == auth('student')->user()->plan_id)
-                                                                        {{ __('Renew') }}
-                                                                    @else
-                                                                        {{ __('Buy Plan') }}
-                                                                    @endif
-                                                                </a>
-                                                            @endif
-                                                        @else
-                                                            @if (auth('web')->user() || auth('instructors')->user())
-                                                                <button disabled
-                                                                    class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                    {{ __('Buy Plan') }}
-                                                                </button>
-                                                            @else
-                                                                <a href="{{ route('login') }}"
-                                                                    class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                    {{ __('Buy Plan') }}
-                                                                </a>
-                                                            @endif
-                                                        @endif --}}
-
                                                 @php
-                                                    $follower = auth('follower')->user();
+                                                    $student = auth('follower')->user();
                                                     $webUser = auth('web')->user();
-                                                    $influencer = auth('influencers')->user();
+                                                    $instructor = auth('influencers')->user();
 
-                                                    $hasStudent = !is_null($follower);
-                                                    $hasPlan = $hasStudent && !is_null($follower->plan_id);
-                                                    $isCurrentPlan = $hasPlan && $plan->id == $follower->plan_id;
+                                                    $hasStudent = !is_null($student);
+                                                    $hasPlan = $hasStudent && !is_null($student->plan_id);
+                                                    $isCurrentPlan = $hasPlan && $plan->id == $student->plan_id;
                                                     $isActive =
                                                         $isCurrentPlan &&
-                                                        !empty($follower->plan_expired_date) &&
-                                                        \Carbon\Carbon::parse($follower->plan_expired_date)->gte(now());
+                                                        !empty($student->plan_expired_date) &&
+                                                        \Carbon\Carbon::parse($student->plan_expired_date)->gte(now());
                                                 @endphp
 
                                                 @if ($hasStudent)
@@ -328,7 +227,7 @@
                                                                 class="lesson-btn text-center font-bold text-lg mt-auto"
                                                                 data-amount="{{ $plan->price }}">
                                                                 {{ __('Expire at') }}
-                                                                {{ \Carbon\Carbon::parse($follower->plan_expired_date)->format('d/m/Y') }}
+                                                                {{ \Carbon\Carbon::parse($student->plan_expired_date)->format('d/m/Y') }}
                                                             </a>
                                                             <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
                                                                 class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn">
@@ -354,7 +253,7 @@
                                                             {{ __('Buy Plan') }}
                                                         </a>
                                                     @endif
-                                                @elseif ($webUser || $influencer)
+                                                @elseif ($webUser || $instructor)
                                                     {{-- 🚷 Logged in as non-student --}}
                                                     <button disabled
                                                         class="lesson-btn text-center font-bold text-lg mt-auto">
@@ -370,18 +269,31 @@
                                             @endif
                                             <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
                                             <p class="text-gray-600">
+
                                                 {!! $plan->description !!}
                                             </p>
+                                            <style>
+                                                #sub ul,
+                                                ol {
+                                                    margin-left: 27px !important;
+                                                }
+
+                                                #sub ol {
+                                                    list-style: auto;
+                                                }
+                                            </style>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
-                    @endif
+                    </div>
+                @else
+                    <h3>No Subscriptions Found</h3>
                 @endif
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     <section class="lession-sec feed-sec">
         <div class="container ctm-container">
