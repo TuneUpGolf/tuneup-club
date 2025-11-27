@@ -168,7 +168,7 @@ class PostsController extends Controller
             // $category = Category::where('status', 1)->pluck('name', 'id');
             $categories   = AlbumCategory::pluck('title', 'id');
 
-            return view('admin.posts.create', compact('category'));
+            return view('admin.posts.create', compact('categories'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
