@@ -115,7 +115,17 @@ trait PurchaseTrait
                 $convertedAmount = round($convertedAmount / $conversionRate);
             }
 
-            $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount);
+            // $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount);
+
+             $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount);
+
+            if ($influencer?->stripe_transaction_fee != 'instructor') { //keep instructor as it is in db
+                // 🎯 Add Stripe fee recovery here
+                $stripePerc = 0.029;       // 2.9%
+                $stripeFixed = 30;         // $0.30 → 30 cents
+                $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
+                $convertedAmount = round($gross);
+            }
 
             $success_params = [
                 'purchase_id' => $purchase->id,
