@@ -28,6 +28,7 @@ use App\Models\ClientSubscription;
 use App\Http\Controllers\Controller;
 use App\Mail\Admin\PurchaseFeedback;
 use Illuminate\Support\Facades\Auth;
+use App\Actions\SendPushNotification;
 use App\Mail\Admin\PurchaseCompleted;
 use function PHPUnit\Framework\isEmpty;
 use Illuminate\Support\Facades\Storage;
@@ -711,87 +712,403 @@ class PurchaseController extends Controller
             return view('admin.purchases.videos', compact('purchase'));
         }
     }
-    public function addFeedBack(Request $request)
+
+
+    // public function addFeedBack(Request $request)
+    // {
+    //     $request->validate([
+    //         'feedback'          => 'required',
+    //         'purchase_video_id' => 'required',
+    //         'fdbk_video'        => 'required|array', // <-- validate as array
+    //         'fdbk_video.*'      => 'file', // <-- each file should be a file
+    //     ]);
+
+    //     try {
+    //         $purchaseVideo = PurchaseVideos::findOrFail($request->purchase_video_id);
+
+    //         if (!Auth::user()->can('manage-purchases')) {
+    //             abort(403, 'Unauthorized');
+    //         }
+
+    //         $purchaseVideo->feedback = $request->feedback;
+
+    //         $currentDomain = tenant('domains')[0]->domain;
+
+    //         $uploadedPaths = []; // to store multiple uploaded files
+
+    //         if ($request->hasFile('fdbk_video')) {
+    //             foreach ($request->file('fdbk_video') as $file) {
+
+    //                 if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
+    //                     $localPath = $file->store('feedbackVideos');
+    //                     $path      = $this->convertSingleVideo($localPath);
+    //                 } else {
+    //                     $extension      = $file->getClientOriginalExtension();
+    //                     $randomFileName = Str::random(25) . '.' . $extension;
+    //                     $filePath       = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
+    //                     Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+    //                     $path = Storage::disk('spaces')->url($filePath);
+    //                 }
+
+    //                 $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
+
+    //                 $uploadedPaths[] = [
+    //                     'url' => $path,
+    //                     'type' => $type,
+    //                 ];
+    //             }
+
+    //             // Save all files as JSON in FeedbackContent
+    //             FeedbackContent::updateOrCreate(
+    //                 ['purchase_video_id' => $purchaseVideo->id],
+    //                 ['url' => json_encode($uploadedPaths)] // <-- store JSON
+    //             );
+    //         }
+
+    //         $purchaseVideo->isFeedbackComplete = 1;
+    //         $purchaseVideo->save();
+
+    //         SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
+
+    //         // Update purchase overall feedback status
+    //         $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)
+    //             ->where('isFeedbackComplete', 0)
+    //             ->get();
+
+    //         $purchase = Purchase::find($purchaseVideo->purchase_id);
+    //         $purchase->isFeedbackComplete = 1;
+    //         $purchase->save();
+
+    //         if ($request->redirect == 1) {
+    //             return redirect()->route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id])
+    //                 ->with('success', 'Feedback Added Successfully');
+    //         }
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('errors', $e->getMessage());
+    //     }
+    // }
+
+     public function addFeedBack(Request $request)
     {
         $request->validate([
-            'feedback'          => 'required',
-            'purchase_video_id' => 'required',
-            'fdbk_video'        => 'required|array', // <-- validate as array
-            'fdbk_video.*'      => 'file', // <-- each file should be a file
+            'row_feedback'          => 'required|array',
+            'row_feedback.*'        => 'string',
+            'purchase_id'           => 'required',
+            'fdbk_video'            => 'required|array',
+            'fdbk_video.*'          => 'file',
         ]);
 
         try {
-            $purchaseVideo = PurchaseVideos::findOrFail($request->purchase_video_id);
 
-            if (!Auth::user()->can('manage-purchases')) {
-                abort(403, 'Unauthorized');
+            // Custom validation: Ensure every note has a corresponding video and vice versa
+            $noteCount = count($request->row_feedback);
+            $videoCount = count($request->fdbk_video);
+
+            if ($noteCount !== $videoCount) {
+                return redirect()->back()->with('failed', 'Each feedback note must have a corresponding video and each video must have a corresponding note.');
             }
 
-            $purchaseVideo->feedback = $request->feedback;
+            // Custom validation: Check if any feedback note is empty
+            $emptyNotes = array_filter($request->row_feedback, function ($note) {
+                return trim($note) === '';
+            });
 
-            $currentDomain = tenant('domains')[0]->domain;
+            if (!empty($emptyNotes)) {
+                return redirect()->back()->with('failed', 'All feedback notes are required and cannot be empty.');
+            }
 
-            $uploadedPaths = []; // to store multiple uploaded files
+            // Custom validation: Ensure no null or invalid files in videos
+            $invalidVideos = array_filter($request->fdbk_video, function ($video) {
+                return $video === null || !$video->isValid();
+            });
 
-            if ($request->hasFile('fdbk_video')) {
-                foreach ($request->file('fdbk_video') as $file) {
+            if (!empty($invalidVideos)) {
+                return redirect()->back()->with('failed', 'All video files must be valid.');
+            }
 
-                    if (Str::endsWith($file->getClientOriginalName(), '.mov')) {
-                        $localPath = $file->store('feedbackVideos');
-                        $path      = $this->convertSingleVideo($localPath);
-                    } else {
+            $purchaseVideo = PurchaseVideos::firstOrCreate(
+                ['purchase_id' => $request->purchase_id],
+                ['isFeedbackComplete' => 0]
+            );
+
+            if (Auth::user()->can('manage-purchases')) {
+                // Handle feedback notes - ACCUMULATE instead of overwrite
+                $existingFeedback = [];
+
+                // Check if existing feedback is JSON or string and decode properly
+                if (!empty($purchaseVideo->feedback)) {
+                    if (is_string($purchaseVideo->feedback) && $this->isJson($purchaseVideo->feedback)) {
+                        $existingFeedback = json_decode($purchaseVideo->feedback, true);
+                    } elseif (is_string($purchaseVideo->feedback)) {
+                        // It's a plain string, convert to array with single entry
+                        $existingFeedback = [$purchaseVideo->feedback];
+                    } elseif (is_array($purchaseVideo->feedback)) {
+                        $existingFeedback = $purchaseVideo->feedback;
+                    }
+                }
+
+                // Merge new feedback with existing
+                $allFeedback = array_merge($existingFeedback, $request->row_feedback);
+                $purchaseVideo->feedback = json_encode($allFeedback);
+
+                $currentDomain = tenant('domains');
+                $currentDomain = $currentDomain[0]->domain;
+
+                $uploadedPaths = [];
+
+                if ($request->hasFile('fdbk_video')) {
+                    foreach ($request->file('fdbk_video') as $file) {
                         $extension      = $file->getClientOriginalExtension();
                         $randomFileName = Str::random(25) . '.' . $extension;
                         $filePath       = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
                         Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
                         $path = Storage::disk('spaces')->url($filePath);
+
+                        $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
+
+                        $uploadedPaths[] = [
+                            'url' => $path,
+                            'type' => $type,
+                        ];
                     }
 
-                    $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
+                    // Handle feedback content - ACCUMULATE instead of overwrite
+                    $existingFeedbackContent = FeedbackContent::where('purchase_video_id', $purchaseVideo->id)->first();
+                    $existingUrls = [];
 
-                    $uploadedPaths[] = [
-                        'url' => $path,
-                        'type' => $type,
-                    ];
+                    if ($existingFeedbackContent && !empty($existingFeedbackContent->url)) {
+                        if (is_string($existingFeedbackContent->url) && $this->isJson($existingFeedbackContent->url)) {
+                            $existingUrls = json_decode($existingFeedbackContent->url, true);
+                        } elseif (is_string($existingFeedbackContent->url)) {
+                            // It's a plain string, convert to array with single entry
+                            $existingUrls = [['url' => $existingFeedbackContent->url, 'type' => 'unknown']];
+                        } elseif (is_array($existingFeedbackContent->url)) {
+                            $existingUrls = $existingFeedbackContent->url;
+                        }
+                    }
+
+                    // Merge new URLs with existing
+                    $allUrls = array_merge($existingUrls, $uploadedPaths);
+
+                    FeedbackContent::updateOrCreate(
+                        ['purchase_video_id' => $purchaseVideo->id],
+                        ['url' => json_encode($allUrls)]
+                    );
                 }
 
-                // Save all files as JSON in FeedbackContent
-                FeedbackContent::updateOrCreate(
-                    ['purchase_video_id' => $purchaseVideo->id],
-                    ['url' => json_encode($uploadedPaths)] // <-- store JSON
+                $purchaseVideo->isFeedbackComplete = 1;
+                $purchaseVideo->save();
+
+                $purchaseVideo->load('purchase');
+                $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)
+                    ->where('isFeedbackComplete', 0)
+                    ->get();
+
+                // Send email notification
+                SendEmail::dispatch(
+                    $purchaseVideo->purchase->student->email,
+                    new PurchaseFeedback($purchaseVideo->purchase)
                 );
+
+                // Send push notification
+                $message = __(':name has sent feedback for your online submission.', [
+                    'name' => $purchaseVideo->purchase->lesson->user->name,
+                ]);
+
+                if (isset($purchaseVideo->purchase->student->pushToken->token)) {
+                    SendPushNotification::dispatch(
+                        $purchaseVideo->purchase->student->pushToken->token,
+                        'Feedback Received',
+                        $message
+                    );
+                }
+
+                // ✅ Mark purchase feedback complete if all done
+                if (
+                    $purchaseVideo->purchase->lessons_used == $purchaseVideo->purchase->lesson->lesson_quantity &&
+                    $allPurchaseVideosFeedback->isEmpty()
+                ) {
+                    $purchase = Purchase::find($purchaseVideo->purchase_id);
+                    $purchase->isFeedbackComplete = 1;
+                    $purchase->save();
+                }
+
+                if ($request->redirect == 1) {
+                    return redirect(session('previous_url', '/default'))->with('success', 'Feedback Added Successfully');
+                }
+
+                return back()->with('success', 'Feedback Added Successfully');
             }
 
-            $purchaseVideo->isFeedbackComplete = 1;
+            return back()->with('failed', 'You are not authorized to perform this action.');
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->with('failed', $e->getMessage());
+        }
+    }
+
+    public function editFeedBackIndex(Request $request)
+    {
+        if (Auth::user()->can('manage-purchases')) {
+            session()->put('previous_url', url()->previous());
+            $purchase = Purchase::find($request->purchase_id);
+            $purchaseVideo = $purchase->videos?->first();
+            $feedbackContent = FeedbackContent::where('purchase_video_id', $purchaseVideo->id)->first();
+
+            return view('admin.purchases.editFeedback', compact('purchase', 'purchaseVideo', 'feedbackContent'));
+        }
+    }
+
+    public function updateFeedBack(Request $request)
+    {
+        $request->validate([
+            'existing_row_feedback' => 'sometimes|array',
+            'existing_row_feedback.*' => 'required|string',
+            'new_row_feedback' => 'sometimes|array',
+            'new_row_feedback.*' => 'required|string',
+            'existing_fdbk_video' => 'sometimes|array',
+            'existing_fdbk_video.*' => 'sometimes|file',
+            'new_fdbk_video' => 'sometimes|array',
+            'new_fdbk_video.*' => 'required|file',
+            'purchase_video_id' => 'required|exists:purchasevideos,id',
+            'purchase_id' => 'required|exists:purchases,id',
+        ]);
+
+        try {
+            $purchaseVideo = PurchaseVideos::findOrFail($request->purchase_video_id);
+            $feedbackContent = FeedbackContent::where('purchase_video_id', $purchaseVideo->id)->first();
+
+            // Get existing data
+            $existingFeedback = json_decode($purchaseVideo->feedback, true) ?? [];
+            $existingVideos = [];
+            if ($feedbackContent && !empty($feedbackContent->url)) {
+                $existingVideos = is_string($feedbackContent->url)
+                    ? json_decode($feedbackContent->url, true)
+                    : $feedbackContent->url;
+            }
+
+            // Handle deletions first
+            if ($request->has('deleted_indexes')) {
+                $deletedIndexes = $request->deleted_indexes;
+
+                // Sort in descending order to avoid index issues when removing
+                rsort($deletedIndexes);
+
+                foreach ($deletedIndexes as $index) {
+                    // Remove from feedback array
+                    if (isset($existingFeedback[$index])) {
+                        unset($existingFeedback[$index]);
+                    }
+
+                    // Remove video file from storage and array
+                    if (isset($existingVideos[$index])) {
+                        $videoUrl = $existingVideos[$index]['url'];
+                        $this->deleteVideoFromStorage($videoUrl);
+                        unset($existingVideos[$index]);
+                    }
+                }
+
+                // Reindex arrays after deletion
+                $existingFeedback = array_values($existingFeedback);
+                $existingVideos = array_values($existingVideos);
+            }
+
+            // Update existing items
+            if ($request->has('existing_row_feedback')) {
+                foreach ($request->existing_row_feedback as $index => $feedback) {
+                    if (isset($existingFeedback[$index])) {
+                        $existingFeedback[$index] = $feedback;
+                    }
+
+                    // Handle video replacement if new file uploaded
+                    if ($request->hasFile("existing_fdbk_video.{$index}")) {
+                        $file = $request->file("existing_fdbk_video.{$index}");
+
+                        // Delete old video from storage
+                        if (isset($existingVideos[$index])) {
+                            $oldVideoUrl = $existingVideos[$index]['url'];
+                            $this->deleteVideoFromStorage($oldVideoUrl);
+                        }
+
+                        // Upload new video
+                        $currentDomain = tenant('domains')[0]->domain;
+                        $extension = $file->getClientOriginalExtension();
+                        $randomFileName = Str::random(25) . '.' . $extension;
+                        $filePath = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
+                        Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                        $newPath = Storage::disk('spaces')->url($filePath);
+
+                        $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
+
+                        if (isset($existingVideos[$index])) {
+                            $existingVideos[$index] = ['url' => $newPath, 'type' => $type];
+                        }
+                    }
+                }
+            }
+
+            // Add new items
+            if ($request->has('new_row_feedback')) {
+                foreach ($request->new_row_feedback as $index => $newFeedback) {
+                    $existingFeedback[] = $newFeedback;
+
+                    if ($request->hasFile("new_fdbk_video.{$index}")) {
+                        $file = $request->file("new_fdbk_video.{$index}");
+
+                        $currentDomain = tenant('domains')[0]->domain;
+                        $extension = $file->getClientOriginalExtension();
+                        $randomFileName = Str::random(25) . '.' . $extension;
+                        $filePath = $currentDomain . '/' . $purchaseVideo->id . '/' . $randomFileName;
+                        Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+                        $newPath = Storage::disk('spaces')->url($filePath);
+
+                        $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
+                        $existingVideos[] = ['url' => $newPath, 'type' => $type];
+                    }
+                }
+            }
+
+            // Save updated data
+            $purchaseVideo->feedback = json_encode($existingFeedback);
             $purchaseVideo->save();
 
-            SendEmail::dispatch($purchaseVideo->purchase->follower->email, new PurchaseFeedback($purchaseVideo->purchase));
-
-            // Update purchase overall feedback status
-            $allPurchaseVideosFeedback = PurchaseVideos::where('purchase_id', $purchaseVideo->purchase->id)
-                ->where('isFeedbackComplete', 0)
-                ->get();
-
-            $purchase = Purchase::find($purchaseVideo->purchase_id);
-            $purchase->isFeedbackComplete = 1;
-            $purchase->save();
+            if ($feedbackContent) {
+                $feedbackContent->url = json_encode($existingVideos);
+                $feedbackContent->save();
+            } else {
+                FeedbackContent::create([
+                    'purchase_video_id' => $purchaseVideo->id,
+                    'url' => json_encode($existingVideos)
+                ]);
+            }
 
             if ($request->redirect == 1) {
-                return redirect()->route('purchase.feedback.index', ['purchase_id' => $purchaseVideo->purchase_id])
-                    ->with('success', 'Feedback Added Successfully');
+                return redirect(session('previous_url', '/default'))->with('success', 'Feedback Updated Successfully');
             }
+
+            return back()->with('success', 'Feedback Updated Successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('errors', $e->getMessage());
+            // dd($e);
+            report($e);
+            return redirect()->back()->with('failed', $e->getMessage());
         }
     }
 
 
     public function addFeedBackIndex(Request $request)
     {
-        if (Auth::user()->can('manage-purchases')) {
-            $purchaseVideo = PurchaseVideos::where('video_url', $request->purchase_video)->first();
+        // if (Auth::user()->can('manage-purchases')) {
+        //     $purchaseVideo = PurchaseVideos::where('video_url', $request->purchase_video)->first();
 
-            return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
+        //     return view('admin.purchases.feedbackForm', compact('purchaseVideo'));
+        // }
+
+         if(Auth::user()->can('manage-purchases')) {
+            session()->put('previous_url', url()->previous());
+            $purchase = Purchase::find($request->purchase_id);
+            $purchaseVideo = $purchase->videos?->first();
+
+            return view('admin.purchases.feedbackForm', compact('purchase', 'purchaseVideo'));
         }
     }
 

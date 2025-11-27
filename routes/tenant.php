@@ -89,7 +89,7 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 
 Route::middleware([
     'web',
-     app()->environment('local')
+    app()->environment('local')
         ? InitializeTenancyByDomain::class
         : InitializeTenancyByDomainOrSubdomain::class,
     PreventAccessFromCentralDomains::class,
@@ -222,6 +222,8 @@ Route::middleware([
         Route::get('purchase/feedback/all', [PurchaseController::class, 'feedbackIndex'])->name('purchase.feedback.index');
         Route::get('purchase/add/feedback/create', [PurchaseController::class, 'addFeedBackIndex'])->name('purchase.feedback.create');
         Route::post('purchase/add/feedback/add', [PurchaseController::class, 'addFeedBack'])->name('purchase.feedback.add');
+        Route::post('purchase/add/feedback/update', [PurchaseController::class, 'updateFeedBack'])->name('purchase.feedback.update');
+        Route::get('purchase/add/feedback/edit', [PurchaseController::class, 'editFeedBackIndex'])->name('purchase.feedback.edit');
         Route::delete('/purchase-feedback/{purchaseVideo}', [PurchaseController::class, 'deleteFeedback'])->name('purchase.feedback.delete');
         Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
 
