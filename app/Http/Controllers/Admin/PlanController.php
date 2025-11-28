@@ -181,9 +181,18 @@ class PlanController extends Controller
                 'description' => $request->description,
             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
 
+            $convertedAmount = $request->price;
+
+            if ($instructor?->stripe_transaction_fee != 'instructor') {
+                // 🎯 Add Stripe fee recovery here
+                $stripePerc = 0.029;       // 2.9%
+                $stripeFixed = 30;         // $0.30 → 30 cents
+                $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
+                $convertedAmount = round($gross);
+            }
             // 2️⃣ Create a Recurring Price
             $price = Price::create([
-                'unit_amount' => round($request->price * 100), // Stripe expects cents
+                'unit_amount' => round($convertedAmount * 100), // Stripe expects cents
                 'currency' => 'usd',
                 'recurring' => [
                     // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
@@ -314,9 +323,18 @@ class PlanController extends Controller
                     $plan->stripe_product_id = $product->id;
                 }
 
+
+                  $convertedAmount = $request->price;
+                if ($instructor?->stripe_transaction_fee != 'instructor') {
+                    // 🎯 Add Stripe fee recovery here
+                    $stripePerc = 0.029;       // 2.9%
+                    $stripeFixed = 30;         // $0.30 → 30 cents
+                    $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
+                    $convertedAmount = round($gross);
+                }
                 $price = Price::create(
                     [
-                        'unit_amount' => round($request->price * 100),
+                        'unit_amount' => round($convertedAmount * 100),
                         'currency' => 'usd',
                         'recurring' => [
                             // 'interval' => strtolower($request->durationtype),
