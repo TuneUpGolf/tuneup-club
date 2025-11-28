@@ -1310,4 +1310,25 @@ class PurchaseController extends Controller
             return redirect()->back()->withErrors($e->getMessage());
         }
     }
+
+     public function data(Request $request)
+    {
+
+
+        if ($request->slot_id) {
+
+            $slots = Slots::find($request->slot_id);
+
+            $purchases = Purchase::with(['follower', 'lesson', 'lesson.user']) // eager load relationships if needed
+                ->where('slot_id', $request->slot_id)
+                ->where('lesson_id', $request->lesson_id)
+                ->get();
+
+            return  $purchases;
+            
+        }
+
+
+       return [];
+    }
 }

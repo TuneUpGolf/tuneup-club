@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Admin\AlbumCategoryController;
-use App\Http\Controllers\Admin\AlbumController;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Follower;
@@ -21,6 +19,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Validation\ValidationException;
 use Stancl\Tenancy\Features\UserImpersonation;
+use App\Http\Controllers\Admin\AlbumController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\PostsController;
 use App\Http\Controllers\Admin\CouponController;
@@ -40,8 +39,10 @@ use App\Http\Controllers\Admin\PageSettingController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SocialLoginController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DocumentMenuController;
 use App\Http\Controllers\Admin\PurchasePostController;
+use App\Http\Controllers\Admin\AlbumCategoryController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\LoginSecurityController;
 use App\Http\Controllers\Admin\Payment\PaytmController;
@@ -276,6 +277,13 @@ Route::middleware([
         Route::get('event/edit/{event}', [EventController::class, 'edit'])->name('event.edit');
         Route::any('event/update/{event}', [EventController::class, 'update'])->name('event.update');
         Route::DELETE('event/delete/{event}', [EventController::class, 'destroy'])->name('event.destroy');
+        
+        //announcement 
+        Route::resource('announcements', AnnouncementController::class);
+        Route::get('announcements/action', [AnnouncementController::class, 'action'])->name('announcements.action');
+
+        Route::get('/purchases/data', [PurchaseController::class, 'data'])->name('purchase.data');
+
 
         // plans
         Route::resource('plans', PlanController::class);

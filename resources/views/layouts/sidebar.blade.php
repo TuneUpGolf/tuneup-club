@@ -316,7 +316,17 @@
                         </li>
                     @endif
                     @if (in_array($users->type, ['Admin', 'Influencer']))
-                        @canany(['manage-blog', 'manage-category'])
+                        @canany(['manage-blog', 'manage-category', 'manage-announcements'])
+                            @can('manage-announcements')
+                                <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
+                                    <a class="dash-link" href="{{ route('announcements.index') }}">
+                                        <span class="dash-micon"><i class="ti ti-bell"></i></span>
+                                        <span class="dash-mtext">{{ __('Announcements') }}</span>
+                                    </a>
+                                </li>
+                            @endcan
+
+
                             <li
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
                                 <a href="#!" class="dash-link">
