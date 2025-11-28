@@ -11,7 +11,7 @@
             <div class="container-xl">
                 <!-- Logo -->
                 <a class="navbar-brand" href="/">
-                    <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="h-8" alt="..." />
+                    <img src="{{ asset('assets/images/app-dark-logo.png') }}" class="h-8" alt="..." />
                 </a>
                 <!-- Navbar toggle -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
