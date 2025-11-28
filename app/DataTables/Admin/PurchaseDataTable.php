@@ -78,10 +78,14 @@ class PurchaseDataTable extends DataTable
                 }
 
                 return '
-        <div class="flex justify-between items-center">
-            ' . $lessonLink . '
-            <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
-        </div>';
+                    <div class="flex justify-between items-center">
+                        ' . $lessonLink .  $deletedText . '
+                    </div>';
+                // return '
+                //     <div class="flex justify-between items-center">
+                //         ' . $lessonLink . '
+                //         <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
+                //     </div>';
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->follower->dp
