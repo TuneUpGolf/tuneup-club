@@ -355,7 +355,7 @@
                 </li>
                 <li class="mb-3">
                     <p class="text-gray-500 text-sm">Date Submitted:</p>
-                    <p class="text-lg font-semibold">{{ $purchase->lesson->created_at }}</p>
+                    <p class="text-lg font-semibold">{{ $purchase->created_at }}</p>
                 </li>
                 <li class="mb-3">
                     <p class="text-gray-500 text-sm">Lesson Number:</p>
@@ -384,7 +384,7 @@
         <div class="feedback-sec w-full !order-2 md:w-1/3 lg:w-7/20 xl:w-7/20 md:!order-3">
             <h2 class="font-bold text-2xl md:text-3xl mb-3 border-b border-gray-400 pb-2">Feedback Provided</h2>
             <div>
-                <p class="text-lg text-gray-700 font-bold">{{ @$purchase->lesson?->created_at->format('F j, Y') }}</p>
+                <p class="text-lg text-gray-700 font-bold">{{ @$purchase->created_at->format('F j, Y') }}</p>
                 <p class="text-gray-500">
                     {{ auth()->user()->name == $purchase->follower->name ? 'Your Note' : 'Note by ' . $purchase->follower->name }}:
                 </p>
