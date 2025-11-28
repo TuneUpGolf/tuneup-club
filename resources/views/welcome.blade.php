@@ -31,7 +31,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
             <div class="container ctm-container">
                 <a class="navbar-brand" href="/">
-                    <img src="{{ asset('assets/images/app-dark-logo.png') }}" class="h-8" alt="...">
+                    <img src="{{ asset('assets/images/app-dark-logo.png') }}" style="height: 3rem;" class="h-8" alt="...">
                 </a>
                 <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary">
                     <a class="text-white font-bold" href="{{ route('login') }}" style="text-decoration: none">
@@ -427,7 +427,7 @@
     <footer class="foot mt-0">
         <div class="text-center container ctm-container footer-one">
             <div class="flex justify-center">
-                <img src="{{ asset('assets/images/app-dark-logo.png') }}" class="img-fluid"
+                <img src="{{ asset('assets/images/app-dark-logo.png') }}" style="height: 3rem;" class="img-fluid"
                     alt="" />
             </div>
         </div>
