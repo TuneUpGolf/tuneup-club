@@ -95,7 +95,7 @@ class ChatService
         return $existingTenantIds;
     }
 
-     public function getChatToken(?string $chatUserId)
+    public function getChatToken(?string $chatUserId)
     {
         if ($chatUserId) {
             $response = Http::withHeaders([
@@ -104,11 +104,16 @@ class ChatService
                 'userId' => $chatUserId,
             ]);
 
-            return $response->json()['data'];
+            // Decode safely
+            $json = $response->json();
+
+            // Handle errors, unexpected responses, or missing 'data'
+            return $json['data'] ?? null;
         }
 
         return null;
     }
+
 
     public function createGroup(string $chatUserId, string $influencerId): ?string
     {
