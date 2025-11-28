@@ -16,7 +16,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
             <div class="container-xl">
                 <a class="navbar-brand" href="/">
-                    <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" class="h-8" alt="...">
+                    <img src="{{ asset('assets/images/app-dark-logo.png') }}" class="h-8" alt="...">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
                     aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,7 +154,7 @@
         <div class="d-flex justify-content-between container footer-one">
             <div class="d-flex flex-column gap-4">
                 <div>
-                    <img src="{{ asset('assets/images/landing-page-images/logo-1.png') }}" alt="" />
+                    <img src="{{ asset('assets/images/app-dark-logo.png') }}" alt="" />
                 </div>
             </div>
             <div class="d-flex flex-column gap-4 google">
