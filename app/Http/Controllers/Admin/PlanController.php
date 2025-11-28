@@ -186,7 +186,7 @@ class PlanController extends Controller
             if ($instructor?->stripe_transaction_fee != 'instructor') {
                 // 🎯 Add Stripe fee recovery here
                 $stripePerc = 0.029;       // 2.9%
-                $stripeFixed = 30;         // $0.30 → 30 cents
+                $stripeFixed = 0.30;         // $0.30 → 30 cents
                 $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
                 $convertedAmount = round($gross);
             }
@@ -328,7 +328,7 @@ class PlanController extends Controller
                 if ($instructor?->stripe_transaction_fee != 'instructor') {
                     // 🎯 Add Stripe fee recovery here
                     $stripePerc = 0.029;       // 2.9%
-                    $stripeFixed = 30;         // $0.30 → 30 cents
+                    $stripeFixed = 0.30;         // $0.30 → 30 cents
                     $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
                     $convertedAmount = round($gross);
                 }
