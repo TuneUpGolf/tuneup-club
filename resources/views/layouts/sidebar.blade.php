@@ -289,6 +289,16 @@
                             </li>
                         @endcan
                     @endif
+                     @if (in_array($users->type, ['Follower', 'Influencer']))
+                        @can('manage-announcements')
+                            <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
+                                <a class="dash-link" href="{{ route('announcements.index') }}">
+                                    <span class="dash-micon"><i class="ti ti-bell"></i></span>
+                                    <span class="dash-mtext">{{ __('Announcements') }}</span>
+                                </a>
+                            </li>
+                        @endcan
+                    @endif
                     @if ($users->type === 'Follower')
                         <li class="dash-item dash-hasmenu">
                             <a href="{{ route('help-section.index') }}" class="dash-link">
@@ -315,18 +325,9 @@
                             </a>
                         </li>
                     @endif
+                   
                     @if (in_array($users->type, ['Admin', 'Influencer']))
-                        @canany(['manage-blog', 'manage-category', 'manage-announcements'])
-                            @can('manage-announcements')
-                                <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
-                                    <a class="dash-link" href="{{ route('announcements.index') }}">
-                                        <span class="dash-micon"><i class="ti ti-bell"></i></span>
-                                        <span class="dash-mtext">{{ __('Announcements') }}</span>
-                                    </a>
-                                </li>
-                            @endcan
-
-
+                        @canany(['manage-blog', 'manage-category'])
                             <li
                                 class="dash-item dash-hasmenu {{ request()->is('blogs*') || request()->is('category*') ? 'active dash-trigger' : 'collapsed' }}">
                                 <a href="#!" class="dash-link">

@@ -86,117 +86,118 @@
             </div>
         @endif
         @if ($tab == 'posts')
-          <div id="Posts" class="tabcontent block">
-    @if (!!$totalLessons)
-        <div id="blog">
+            <div id="Posts" class="tabcontent block">
+                @if (!!$totalLessons)
+                    <div id="blog">
 
-            <!-- Filter Dropdown -->
-            <div class="dropdown dash-h-item drp-company mt-3">
-                <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
-                   href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
-                    <span class="hide-mob ms-2 text-lg">Filter</span>
-                    <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
-                </a>
+                        <!-- Filter Dropdown -->
+                        <div class="dropdown dash-h-item drp-company mt-3">
+                            <a class="dash-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown"
+                                href="javascript:void(0);" role="button" aria-haspopup="false" aria-expanded="false">
+                                <span class="hide-mob ms-2 text-lg">Filter</span>
+                                <i class="ti ti-chevron-down drp-arrow nocolor hide-mob"></i>
+                            </a>
 
-                <div class="dropdown-menu dash-h-dropdown">
-                    <a href="{{ route('home', ['filter' => 'all', 'tab' => 'posts']) }}"
-                       class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
-                        <span>{{ __('All') }}</span>
-                    </a>
+                            <div class="dropdown-menu dash-h-dropdown">
+                                <a href="{{ route('home', ['filter' => 'all', 'tab' => 'posts']) }}"
+                                    class="dropdown-item {{ request()->query('filter') === 'all' ? 'active' : '' }}">
+                                    <span>{{ __('All') }}</span>
+                                </a>
 
-                    <a href="{{ route('home', ['filter' => 'free', 'tab' => 'posts']) }}"
-                       class="dropdown-item {{ request()->query('filter') === 'free' ? 'active' : '' }}">
-                        <span>{{ __('Free') }}</span>
-                    </a>
+                                <a href="{{ route('home', ['filter' => 'free', 'tab' => 'posts']) }}"
+                                    class="dropdown-item {{ request()->query('filter') === 'free' ? 'active' : '' }}">
+                                    <span>{{ __('Free') }}</span>
+                                </a>
 
-                    <a href="{{ route('home', ['filter' => 'paid', 'tab' => 'posts']) }}"
-                       class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
-                        <span>{{ __('Paid') }}</span>
-                    </a>
-                </div>
-            </div>
+                                <a href="{{ route('home', ['filter' => 'paid', 'tab' => 'posts']) }}"
+                                    class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
+                                    <span>{{ __('Paid') }}</span>
+                                </a>
+                            </div>
+                        </div>
 
-            <!-- Responsive Select + Content -->
-            <div class="dataTable-top row align-items-center my-3">
+                        <!-- Responsive Select + Content -->
+                        <div class="dataTable-top row align-items-center my-3">
 
-                <!-- Spacer on large screens -->
-                <div class="col-xl-7 col-lg-6 d-none d-lg-block"></div>
+                            <!-- Spacer on large screens -->
+                            <div class="col-xl-7 col-lg-6 d-none d-lg-block"></div>
 
-                <!-- Category Select (center on mobile, right on desktop) -->
-                 <div class="col-12 d-flex justify-content-end">
-        <select id="album-category" class="form-select" style="max-width: 14rem;">
-            <option value="" disabled>- Select Category -</option>
+                            <!-- Category Select (center on mobile, right on desktop) -->
+                            <div class="col-12 d-flex justify-content-end">
+                                <select id="album-category" class="form-select" style="max-width: 14rem;">
+                                    <option value="" disabled>- Select Category -</option>
 
-            <option value=""
-                {{ request()->query('category') === ' ' ? 'selected' : '' }}>
-                View Individual Tips/Drills
-            </option>
+                                    <option value=""
+                                        {{ request()->query('category') === ' ' ? 'selected' : '' }}>
+                                        View Individual Tips/Drills
+                                    </option>
 
-            <option value="all_category"
-                {{ request()->query('category') === 'all_category' ? 'selected' : '' }}>
-                View Categories
-            </option>
-        </select>
-    </div>
-
-                <!-- Main Content -->
-                <div class="col-12">
-                    <div class="focus:outline-none mt-4 mb-5">
-
-                        @if (request()->query('category_album'))
-                            <div class="infinity">
-                                @include('admin.posts.album-view', ['albums' => $albumcategories])
+                                    <option value="all_category"
+                                        {{ request()->query('category') === 'all_category' ? 'selected' : '' }}>
+                                        View Categories
+                                    </option>
+                                </select>
                             </div>
 
-                        @elseif (request()->query('category') == 'all_category')
-                            <div class="infinity">
-                                @include('admin.posts.album-category-view', ['albums' => $albums])
-                            </div>
+                            <!-- Main Content -->
+                            <div class="col-12">
+                                <div class="focus:outline-none mt-4 mb-5">
 
-                        @else
-                            <div class="infinity">
+                                    @if (request()->query('category_album'))
+                                        <div class="infinity">
+                                            @include('admin.posts.album-view', [
+                                                'albums' => $albumcategories,
+                                            ])
+                                        </div>
+                                    @elseif (request()->query('category') == 'all_category')
+                                        <div class="infinity">
+                                            @include('admin.posts.album-category-view', [
+                                                'albums' => $albums,
+                                            ])
+                                        </div>
+                                    @else
+                                        <div class="infinity">
 
-                                <div class="flex flex-wrap w-100">
+                                            <div class="flex flex-wrap w-100">
 
-                                    @foreach ($posts as $post)
-                                        @php
-                                            $purchasePost = $post->purchasePost->firstWhere(
-                                                'follower_id',
-                                                Auth::id(),
-                                            );
-                                            $purchasePost = $purchasePost->active_status ?? false;
-                                        @endphp
+                                                @foreach ($posts as $post)
+                                                    @php
+                                                        $purchasePost = $post->purchasePost->firstWhere(
+                                                            'follower_id',
+                                                            Auth::id(),
+                                                        );
+                                                        $purchasePost = $purchasePost->active_status ?? false;
+                                                    @endphp
 
-                                        @include('admin.posts.blog', [
-                                            'post' => $post,
-                                            'isInfluencer' => $isInfluencer,
-                                            'isSubscribed' => $isSubscribed,
-                                            'purchasePost' => $purchasePost,
-                                        ])
-                                    @endforeach
+                                                    @include('admin.posts.blog', [
+                                                        'post' => $post,
+                                                        'isInfluencer' => $isInfluencer,
+                                                        'isSubscribed' => $isSubscribed,
+                                                        'purchasePost' => $purchasePost,
+                                                    ])
+                                                @endforeach
+
+                                            </div>
+
+                                            <div class="float-end">
+                                                {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
+                                            </div>
+
+                                        </div>
+                                    @endif
 
                                 </div>
-
-                                <div class="float-end">
-                                    {{ $posts->withQueryString()->links('pagination::bootstrap-4') }}
-                                </div>
-
                             </div>
-                        @endif
+                        </div>
 
                     </div>
-                </div>
+                @else
+                    <div class='flex flex-col justify-center items-center no-data gap-2'>
+                        <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        There are no posts from this influencer yet
+                    </div>
+                @endif
             </div>
-
-        </div>
-
-    @else
-        <div class='flex flex-col justify-center items-center no-data gap-2'>
-            <i class="fa fa-thumbs-down" aria-hidden="true"></i>
-            There are no posts from this influencer yet
-        </div>
-    @endif
-</div>
 
         @endif
         @if ($tab == 'subscriptions')
@@ -204,60 +205,6 @@
                 <div class="row gy-4 gx-3 ">
                     @foreach ($plans as $plan)
                         @if ($plan->active_status == 1)
-                            {{-- <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 d-flex align-items-stretch">
-                                <div class="card price-card price-1 wow animate__fadeInUp ani-fade w-100 h-100"
-                                    data-wow-delay="0.2s">
-                                    <div
-                                        class="rounded-lg shadow popular-wrap d-flex flex-column justify-content-between h-100">
-
-                                        <!-- Plan Header -->
-                                        <div class="px-4 pt-4 text-center">
-                                            <p class="text-2xl font-bold mb-1">{{ $plan->name }}</p>
-                                            <div class="d-flex justify-content-center align-items-end flex-wrap mt-2">
-                                                <p class="h1 fw-bold mb-0">{{ $currency_symbol . ' ' . $plan->price }}
-                                                </p>
-                                                <p class="text-muted fs-5 mb-1 ms-1">
-                                                    /{{ $plan->duration . ' ' . $plan->durationtype }}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div class="border-top my-3"></div>
-
-                                        <!-- Plan Body -->
-                                        <div class="px-4 pb-4 d-flex flex-column flex-grow-1 justify-content-between">
-
-
-                                            <!-- Fixed Button Section -->
-                                            <div class="mt-4">
-                                                @if ($plan->id != 1)
-                                                    @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
-                                                        <a href="javascript:void(0)" data-id="{{ $plan->id }}"
-                                                            class="w-100 btn btn-secondary fw-bold py-2 rounded-pill mt-auto"
-                                                            data-amount="{{ $plan->price }}">
-                                                            {{ __('Expire at') }}
-                                                            {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                            class="w-100 btn btn-primary fw-bold py-2 rounded-pill mt-auto">
-                                                            @if ($plan->id == $user->plan_id)
-                                                                {{ __('Renew') }}
-                                                            @else
-                                                                {{ __('Buy Plan') }}
-                                                            @endif
-                                                        </a>
-                                                    @endif
-                                                @endif
-                                            </div>
-                                            <div>
-                                                <p class="fw-semibold fs-5 mb-2">Features</p>
-                                                <div class="text-muted small">{!! $plan->description !!}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> --}}
                             <div class="col-xl-3 col-md-6 py-4">
                                 <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"
                                     data-wow-delay="0.2s">
@@ -290,77 +237,6 @@
                                         <div class="border-t border-gray-300"></div>
                                         <div class="px-3 py-4">
                                             @if ($plan->id != 1)
-                                                {{-- @if ($plan->id == $user->plan_id && !empty($user->plan_expired_date) && Carbon::parse($user->plan_expired_date)->gte(now()))
-                                                                        <a href="javascript:void(0)"
-                                                                            data-id="{{ $plan->id }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                                            data-amount="{{ $plan->price }}">{{ __('Expire at') }}
-                                                                            {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
-                                                                    @else
-                                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                            @if ($plan->id == $user->plan_id)
-                                                                                {{ __('Renew') }}
-                                                                            @else
-                                                                                {{ __('Buy Plan') }}
-                                                                            @endif
-                                                                        </a>
-                                                                    @endif --}}
-                                                {{-- @dd(auth('student')->user()) --}}
-                                                {{-- @if (auth('student')->user())
-                                                            @if (auth('student')->user()->plan_id != null)
-                                                                @if ($plan->id == auth('student')->user()->plan_id)
-                                                                    @if (!empty(auth('student')->user()->plan_expired_date) && \Carbon\Carbon::parse(auth('student')->user()->plan_expired_date)->gte(now()))
-                                                                        <a href="javascript:void(0)"
-                                                                            data-id="{{ $plan->id }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                                            data-amount="{{ $plan->price }}">{{ __('Expire at') }}
-                                                                            {{ \Carbon\Carbon::parse(auth('student')->user()->plan_expired_date)->format('d/m/Y') }}</a>
-                                                                        <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn">Cancel
-                                                                            Plan</a>
-                                                                    @else
-                                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                            @if ($plan->id == auth('student')->user()->plan_id)
-                                                                                {{ __('Renew') }}
-                                                                            @else
-                                                                                {{ __('Buy Plan') }}
-                                                                            @endif
-                                                                        </a>
-                                                                    @endif
-                                                                @else
-                                                                  
-
-                                                                    <button disabled
-                                                                        class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                        {{ __('Buy Plan') }}
-                                                                    </button>
-                                                                @endif
-                                                            @else
-                                                                <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                    class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                    @if ($plan->id == auth('student')->user()->plan_id)
-                                                                        {{ __('Renew') }}
-                                                                    @else
-                                                                        {{ __('Buy Plan') }}
-                                                                    @endif
-                                                                </a>
-                                                            @endif
-                                                        @else
-                                                            @if (auth('web')->user() || auth('instructors')->user())
-                                                                <button disabled
-                                                                    class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                    {{ __('Buy Plan') }}
-                                                                </button>
-                                                            @else
-                                                                <a href="{{ route('login') }}"
-                                                                    class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                    {{ __('Buy Plan') }}
-                                                                </a>
-                                                            @endif
-                                                        @endif --}}
-
                                                 @php
                                                     $follower = auth('follower')->user();
                                                     $webUser = auth('web')->user();
@@ -371,6 +247,13 @@
                                                     $isCurrentPlan = $hasPlan && $plan->id == $follower->plan_id;
                                                     $isActive =
                                                         $isCurrentPlan &&
+                                                        !empty($follower->plan_expired_date) &&
+                                                        \Carbon\Carbon::parse($follower->plan_expired_date)->gte(now());
+
+                                                    // NEW: Check if user has any ACTIVE plan (not just any plan)
+                                                    $hasActivePlan =
+                                                        $hasStudent &&
+                                                        $hasPlan &&
                                                         !empty($follower->plan_expired_date) &&
                                                         \Carbon\Carbon::parse($follower->plan_expired_date)->gte(now());
                                                 @endphp
@@ -396,14 +279,14 @@
                                                                 {{ __('Renew') }}
                                                             </a>
                                                         @endif
-                                                    @elseif ($hasPlan)
-                                                        {{-- 🚫 User has another plan --}}
+                                                    @elseif ($hasActivePlan)
+                                                        {{-- 🚫 User has another ACTIVE plan --}}
                                                         <button disabled
                                                             class="lesson-btn text-center font-bold text-lg mt-auto">
                                                             {{ __('Buy Plan') }}
                                                         </button>
                                                     @else
-                                                        {{-- 🛒 No plan yet --}}
+                                                        {{-- 🛒 No active plan or plan expired → Can buy any plan --}}
                                                         <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
                                                             class="lesson-btn text-center font-bold text-lg mt-auto">
                                                             {{ __('Buy Plan') }}

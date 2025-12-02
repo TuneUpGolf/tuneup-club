@@ -175,7 +175,7 @@ class FollowerPurchasesDataTable extends DataTable
                 tableContainer.find(".dataTable-title").html(
                     $("<div>").addClass("flex justify-start items-center").append(
                         $("<div>").addClass("custom-table-header"),
-                        $("<span>").addClass("font-medium text-2xl pl-4").text("My Posts & Subscriptions")
+                        $("<span>").addClass("font-medium text-2xl pl-4").text("Subscriptions & Content Purchase History")
                     )
                 );
             }')

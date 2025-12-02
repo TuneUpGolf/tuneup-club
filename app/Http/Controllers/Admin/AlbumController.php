@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\Admin\AlbumDataTable;
-use App\Http\Controllers\Controller;
 use App\Models\Album;
-use App\Models\AlbumCategory;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\AlbumCategory;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use App\DataTables\Admin\AlbumDataTable;
+use Illuminate\Validation\ValidationException;
 
 class AlbumController extends Controller
 {
@@ -143,6 +144,179 @@ class AlbumController extends Controller
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+    public function uploadChunk(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|file',
+                'chunkIndex' => 'required|integer',
+                'totalChunks' => 'required|integer',
+                'originalName' => 'required|string',
+                'uploadId' => 'required|string'
+            ]);
+
+            $file = $request->file('file');
+            $chunkIndex = (int) $request->chunkIndex;
+            $totalChunks = $request->totalChunks;
+            $originalName = $request->originalName;
+            $uploadId = $request->uploadId;
+            $folderName = isset($request->folderName) ? $request->folderName : 'posts';
+            $tenantId = tenant()->id;
+
+            // Generate unique file name with tenant prefix
+            $fileExtension = pathinfo($originalName, PATHINFO_EXTENSION);
+            $fileName = "{$tenantId}/{$folderName}/" . uniqid() . '_' . time() . '.' . $fileExtension;
+
+            // Initialize multipart upload if this is the first chunk
+            // dd(Storage::disk('spaces')->getClient());
+            if ($chunkIndex === 0) {
+                // $client = Storage::disk('spaces')->getDriver()->getAdapter()->getClient();
+                $client = Storage::disk('spaces')->getClient();
+
+                $multipartUpload = $client->createMultipartUpload([
+                    'Bucket' => env('DO_SPACES_BUCKET'),
+                    'Key'    => $fileName,
+                    'ACL'    => 'public-read',
+                ]);
+
+                // Store uploadId and fileName in session or cache for later use
+                session(["multipart_upload_{$uploadId}" => [
+                    'uploadId' => $multipartUpload['UploadId'],
+                    'fileName' => $fileName
+                ]]);
+            }
+
+            // Get upload details from session
+            $uploadDetails = session("multipart_upload_{$uploadId}");
+            if (!$uploadDetails) {
+                throw new \Exception('Upload session not found');
+            }
+
+            $storedUploadId = $uploadDetails['uploadId'];
+            $storedFileName = $uploadDetails['fileName'];
+
+            // Upload the chunk
+            // $client = Storage::disk('spaces')->getDriver()->getAdapter()->getClient();
+            $client = Storage::disk('spaces')->getClient();
+            $uploadPartResult = $client->uploadPart([
+                'Bucket'     => env('DO_SPACES_BUCKET'),
+                'Key'        => $storedFileName,
+                'UploadId'   => $storedUploadId,
+                'PartNumber' => $chunkIndex + 1, // Part numbers must start from 1
+                'Body'       => fopen($file->getPathname(), 'rb'),
+            ]);
+
+            // Store ETag for completion
+            $parts = session("multipart_parts_{$uploadId}", []);
+            $parts[] = [
+                'ETag' => $uploadPartResult['ETag'],
+                'PartNumber' => $chunkIndex + 1
+            ];
+            session(["multipart_parts_{$uploadId}" => $parts]);
+
+            // Check if this is the last chunk
+            $isComplete = ($chunkIndex === $totalChunks - 1);
+
+            if ($isComplete) {
+                // Complete multipart upload
+                $client->completeMultipartUpload([
+                    'Bucket' => env('DO_SPACES_BUCKET'),
+                    'Key' => $storedFileName,
+                    'UploadId' => $storedUploadId,
+                    'MultipartUpload' => [
+                        'Parts' => session("multipart_parts_{$uploadId}")
+                    ],
+                ]);
+
+                // Clean up session
+                session()->forget("multipart_upload_{$uploadId}");
+                session()->forget("multipart_parts_{$uploadId}");
+
+                // Determine file type
+                $extension = strtolower($fileExtension);
+
+                $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+                $videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'wmv', 'webm'];
+
+                if (in_array($extension, $imageExtensions)) {
+                    $fileType = 'image';
+                } elseif (in_array($extension, $videoExtensions)) {
+                    $fileType = 'video';
+                } else {
+                    $fileType = 'file';
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'chunkIndex' => $chunkIndex,
+                    'completed' => true,
+                    'fileUrl' => Storage::disk('spaces')->url($storedFileName),
+                    'fileName' => $storedFileName,
+                    'fileType' => $fileType // <-- add this
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'chunkIndex' => $chunkIndex,
+                'completed' => false
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Chunk upload failed: ' . $e->getMessage());
+
+            // Clean up session on error
+            $uploadId = $request->uploadId ?? '';
+            if ($uploadId) {
+                session()->forget("multipart_upload_{$uploadId}");
+                session()->forget("multipart_parts_{$uploadId}");
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Chunk upload failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function finalizeUpload(Request $request)
+    {
+        try {
+            $request->validate([
+                'fileName' => 'required|string',
+                'uploadId' => 'required|string'
+            ]);
+
+            $fileName = $request->fileName;
+
+            // Generate the public URL for the uploaded file
+            $fileUrl = Storage::disk('spaces')->url($fileName);
+
+            // Optional: Verify the file exists in Spaces
+            if (!Storage::disk('spaces')->exists($fileName)) {
+                throw new \Exception('File not found in storage');
+            }
+
+            // Optional: Get file size and other metadata
+            $fileSize = Storage::disk('spaces')->size($fileName);
+            $mimeType = Storage::disk('spaces')->mimeType($fileName);
+
+            return response()->json([
+                'success' => true,
+                'fileUrl' => $fileUrl,
+                'fileName' => $fileName,
+                'fileSize' => $fileSize,
+                'mimeType' => $mimeType,
+                'message' => 'File uploaded successfully and is now available'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Finalize upload failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Finalization failed: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
