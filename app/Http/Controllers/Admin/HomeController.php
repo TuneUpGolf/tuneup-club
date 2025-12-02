@@ -84,6 +84,7 @@ class HomeController extends Controller
             if ($tab == 'chat') {
                 $token        = $this->chatService->getChatToken($user->chat_user_id);
             }
+            dd($token);
             $category = $request->category ?? 'all_category';
             $albums = null;
             if ($category == 'all_category') {
