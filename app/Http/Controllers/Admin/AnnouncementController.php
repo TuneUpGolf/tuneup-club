@@ -152,7 +152,7 @@ class AnnouncementController extends Controller
             'content' => 'required|string',
             'recipient_type' => 'required|in:all,specific',
             'recipient_students' => 'required_if:recipient_type,specific|array',
-            'recipient_students.*' => 'exists:students,id',
+            'recipient_students.*' => 'exists:followers,id',
             'is_active' => 'boolean'
         ]);
 
