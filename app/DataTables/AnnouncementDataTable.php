@@ -46,7 +46,7 @@ class AnnouncementDataTable extends DataTable
         // For students: show only announcements where they are recipients
             return $model->newQuery()
                 ->whereHas('recipients', function ($query) use($user) {
-                    $query->where('student_id', $user->id);
+                    $query->where('follower_id', $user->id);
                 });
                 // ->orWhereHas('recipients'); // Optional: include announcements with any recipients
         }
