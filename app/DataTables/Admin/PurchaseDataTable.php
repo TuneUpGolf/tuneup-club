@@ -83,13 +83,13 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->editColumn('follower_name', function ($purchase) {
-                $imageSrc = $purchase->follower->dp
-                    ? $purchase->follower->dp
-                    : asset('assets/img/logo/logo.png');
+                // $imageSrc = $purchase->follower->dp
+                //     ? $purchase->follower->dp
+                //     : asset('assets/img/logo/logo.png');
 
                 return '
                     <div class="flex justify-start items-center">
-                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                     
                         <span class="px-0">' . e($purchase->follower_name) . '</span>
                     </div>';
             })
