@@ -362,7 +362,7 @@
                                         @if ($post->paid && !isset($purchasePost))
                                             <div class="relative paid-post-wrap">
                                                 <video class="w-full post-thumbnail pointer-events-none opacity-50">
-                                                    <source src="{{ $post->file }}" type="video/mp4">
+                                                    <source src="{{ $post->file }}#t=0.001">
                                                 </video>
                                                 <div
                                                     class="absolute inset-0 flex justify-center items-center paid-post flex-col">
@@ -384,7 +384,7 @@
                                             </div>
                                         @else
                                             <video controls class="w-full post-thumbnail">
-                                                <source src="{{ $post->file }}" type="video/mp4">
+                                                <source src="{{ $post->file }}#t=0.001">
                                             </video>
                                         @endif
                                     @endif
