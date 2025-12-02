@@ -106,7 +106,7 @@ class ChatService
 
             // Decode safely
             $json = $response->json();
-            dd($json, $response,env('CHAT_BASE_URL') . '/chat-app/api/v1/user/token');
+            // dd($json, $response,env('CHAT_BASE_URL') . '/chat-app/api/v1/user/token');
             // Handle errors, unexpected responses, or missing 'data'
             return $json['data'] ?? null;
         }
