@@ -106,7 +106,7 @@ class ChatService
 
             // Decode safely
             $json = $response->json();
-            dd($json);
+            dd($json, $response);
             // Handle errors, unexpected responses, or missing 'data'
             return $json['data'] ?? null;
         }
