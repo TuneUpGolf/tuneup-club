@@ -109,7 +109,7 @@ body.modal-open .dash-container {
         @if ($post->paid && !$purchasePost && !$isInfluencer && !$isSubscribed)
         <div class="relative paid-post-wrap">
                 <video class="w-full post-thumbnail pointer-events-none opacity-50" controls playsinline webkit-playsinline>
-                    <source src="{{ $post->file }}" type="video/mp4">
+                    <source src="{{ $post->file }}#t=0.001">
                 </video>
                 <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                 <div
@@ -132,7 +132,7 @@ body.modal-open .dash-container {
         </div>
         @else
         <video controls class="w-full post-thumbnail" controls playsinline webkit-playsinline>
-            <source src="{{ $post->file }}" type="video/mp4">
+            <source src="{{ $post->file }}#t=0.001" >
         </video>
         @endif
         @endif
