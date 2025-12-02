@@ -153,7 +153,7 @@
                                                  @else
                                                      @if ($can_view_post)
                                                          <video controls class="w-full post-thumbnail">
-                                                             <source src="{{ asset($post->image) }}" type="video/mp4">
+                                                             <source src="{{ asset($post->image) }}#t=0.001">
                                                          </video>
                                                      @else
                                                          <div class="relative paid-post-wrap">
