@@ -158,11 +158,11 @@ class PurchaseDataTable extends DataTable
 
     public function html()
     {
-        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 12.5rem;'><option value=''>- Lesson Type -</option>";
-        // foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
-        //     $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
-        // }
-        $lessonTypeFilter .= "</select>";
+        // $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 12.5rem;'><option value=''>- Lesson Type -</option>";
+        // // foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
+        // //     $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
+        // // }
+        // $lessonTypeFilter .= "</select>";
 
         $buttons = [
             // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
