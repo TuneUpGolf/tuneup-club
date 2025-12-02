@@ -38,7 +38,9 @@ class AlbumController extends Controller
                 request()->validate([
                     'title' => 'required|string',
                     'description' => 'required|string',
-                    'album_category_id' => 'required|exists:album_categories,id'
+                    'album_category_id' => 'required|exists:album_categories,id',
+                     'filePath' => 'required',
+                    'fileType' => 'required'
                 ]);
                 $album_category = new Album();
                 $album_category->instructor_id = Auth::user()->id;
@@ -49,22 +51,24 @@ class AlbumController extends Controller
                 $album_category->description = $request->description;
                 // $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
 
-                if ($request->hasfile('file')) {
-                    $tenantId = tenant()->id;
-                    $destination = public_path("{$tenantId}/album");
-                    if (!file_exists($destination)) {
-                        mkdir($destination, 0777, true);
-                    }
-                    $filename = time() . '_' . $request->file('file')->getClientOriginalName();
-                    $request->file('file')->move($destination, $filename);
-                    $album_category->media = "{$tenantId}/album/{$filename}";
-                    $mimeType = $request->file('file')->getClientOriginalExtension();
-                    $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
-                    $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
-                    // $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
-                    // $file = $request->file('file')->store('album');
-                    // $album_category->media = $file ?? null;
-                }
+                   $album_category->media = $request->filePath; // Temporary chunk path
+                $album_category->file_type = $request->fileType;
+                // if ($request->hasfile('file')) {
+                //     $tenantId = tenant()->id;
+                //     $destination = public_path("{$tenantId}/album");
+                //     if (!file_exists($destination)) {
+                //         mkdir($destination, 0777, true);
+                //     }
+                //     $filename = time() . '_' . $request->file('file')->getClientOriginalName();
+                //     $request->file('file')->move($destination, $filename);
+                //     $album_category->media = "{$tenantId}/album/{$filename}";
+                //     $mimeType = $request->file('file')->getClientOriginalExtension();
+                //     $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
+                //     $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
+                //     // $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
+                //     // $file = $request->file('file')->store('album');
+                //     // $album_category->media = $file ?? null;
+                // }
 
                 $album_category->status = 'active';
                 $album_category->save();
@@ -101,29 +105,31 @@ class AlbumController extends Controller
                 'album_category_id' => 'required|exists:album_categories,id'
             ]);
             $album_category   = Album::find($id);
-            if ($request->hasFile('file')) {
-                $tenantId = tenant()->id; // e.g. 3
-                $destination = public_path("{$tenantId}/album");
-                if (!file_exists($destination)) {
-                    mkdir($destination, 0777, true);
-                }
-                $filename = time() . '_' . $request->file('file')->getClientOriginalName();
-                $request->file('file')->move($destination, $filename);
-                $album_category->media = "{$tenantId}/album/{$filename}";
+            // if ($request->hasFile('file')) {
+            //     $tenantId = tenant()->id; // e.g. 3
+            //     $destination = public_path("{$tenantId}/album");
+            //     if (!file_exists($destination)) {
+            //         mkdir($destination, 0777, true);
+            //     }
+            //     $filename = time() . '_' . $request->file('file')->getClientOriginalName();
+            //     $request->file('file')->move($destination, $filename);
+            //     $album_category->media = "{$tenantId}/album/{$filename}";
 
-                $mimeType = $request->file('file')->getClientOriginalExtension();
-                $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
-                $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
-                // $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
-                // $path           = $request->file('file')->store('posts');
-                // $album_category->media    = $path;
-            }
+            //     $mimeType = $request->file('file')->getClientOriginalExtension();
+            //     $video_types = ['mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', '3gp'];
+            //     $album_category->file_type = in_array($mimeType, $video_types) ? 'video' : 'image';
+            //     // $album_category->file_type = Str::contains($mimeType, 'video') ? 'video' : 'image';
+            //     // $path           = $request->file('file')->store('posts');
+            //     // $album_category->media    = $path;
+            // }
             $album_category->instructor_id = Auth::user()->id;
             $album_category->album_category_id = $request->input('album_category_id');
             $album_category->tenant_id = tenant('id');
             $album_category->title = $request->title;
             $album_category->slug = Str::slug($request->title);
             $album_category->description = $request->description;
+             $album_category->media = $request->filePath; // Temporary chunk path
+            $album_category->file_type = $request->fileType;
             // $album_category->file_type = array_key_exists('file',$request->all()) ? (Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image') : $album_category->file_type;
             $album_category->save();
             return redirect()->route('album.category.album', ['id' => $album_category->album_category_id])->with('success', __('Album updated successfully'));
