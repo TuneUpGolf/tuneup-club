@@ -178,8 +178,9 @@ class AlbumCategoryController extends Controller
     public function getCategoryAlbums($id)
     {
         if (Auth::user()->can('manage-blog')) {
+            $album_category = AlbumCategory::find($id);
             $albums = Album::where('album_category_id', $id)->get();
-            return view('admin.posts.album', compact('albums'));
+            return view('admin.posts.album', compact('albums', 'album_category'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
