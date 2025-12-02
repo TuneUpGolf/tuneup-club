@@ -185,6 +185,8 @@
                         </div>
                     </div>
 
+                       <input type="hidden" name="filePath" id="filePath" >
+                <input type="hidden" name="fileType" id="fileType" >
                     <div class="card-footer text-end">
                         <a href="{{ route('blogs.index') }}" class="btn btn-secondary">
                             {{ __('Cancel') }}
