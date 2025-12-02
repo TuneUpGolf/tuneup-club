@@ -31,7 +31,8 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
             <div class="container ctm-container">
                 <a class="navbar-brand" href="/">
-                    <img src="{{ asset('assets/images/app-dark-logo.png') }}" style="height: 3rem;" class="h-8" alt="...">
+                    <img src="{{ asset('assets/images/app-dark-logo.png') }}" style="height: 3rem;" class="h-8"
+                        alt="...">
                 </a>
                 <button class="request-text border-0 rounded-pill demo px-4 py-2 bg-primary">
                     <a class="text-white font-bold" href="{{ route('login') }}" style="text-decoration: none">
@@ -217,6 +218,13 @@
                                                         $isCurrentPlan &&
                                                         !empty($student->plan_expired_date) &&
                                                         \Carbon\Carbon::parse($student->plan_expired_date)->gte(now());
+
+                                                    // NEW: Check if user has any ACTIVE plan (not just any plan)
+                                                    $hasActivePlan =
+                                                        $hasStudent &&
+                                                        $hasPlan &&
+                                                        !empty($student->plan_expired_date) &&
+                                                        \Carbon\Carbon::parse($student->plan_expired_date)->gte(now());
                                                 @endphp
 
                                                 @if ($hasStudent)
@@ -240,14 +248,14 @@
                                                                 {{ __('Renew') }}
                                                             </a>
                                                         @endif
-                                                    @elseif ($hasPlan)
-                                                        {{-- 🚫 User has another plan --}}
+                                                    @elseif ($hasActivePlan)
+                                                        {{-- 🚫 User has another ACTIVE plan --}}
                                                         <button disabled
                                                             class="lesson-btn text-center font-bold text-lg mt-auto">
                                                             {{ __('Buy Plan') }}
                                                         </button>
                                                     @else
-                                                        {{-- 🛒 No plan yet --}}
+                                                        {{-- 🛒 No active plan or plan expired → Can buy any plan --}}
                                                         <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
                                                             class="lesson-btn text-center font-bold text-lg mt-auto">
                                                             {{ __('Buy Plan') }}
@@ -267,32 +275,33 @@
                                                     </a>
                                                 @endif
                                             @endif
-                                            <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
-                                            <p class="text-gray-600">
+                        {{-- @endif --}}
+                        <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
+                        <p class="text-gray-600">
 
-                                                {!! $plan->description !!}
-                                            </p>
-                                            <style>
-                                                #sub ul,
-                                                ol {
-                                                    margin-left: 27px !important;
-                                                }
+                            {!! $plan->description !!}
+                        </p>
+                        <style>
+                            #sub ul,
+                            ol {
+                                margin-left: 27px !important;
+                            }
 
-                                                #sub ol {
-                                                    list-style: auto;
-                                                }
-                                            </style>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                            #sub ol {
+                                list-style: auto;
+                            }
+                        </style>
                     </div>
-                @else
-                    <h3>No Subscriptions Found</h3>
-                @endif
             </div>
-        </section>
+            </div>
+            </div>
+    @endforeach
+    </div>
+@else
+    <h3>No Subscriptions Found</h3>
+    @endif
+    </div>
+    </section>
     @endif
 
     <section class="lession-sec feed-sec">

@@ -193,6 +193,8 @@ class PostsController extends Controller
                     'title'       => 'required|string',
                     'short_description' => 'required|string',
                     'price'       => ['nullable', 'numeric', 'gt:0.5'],
+                    'filePath' => 'required',
+                    'fileType' => 'required'
                 ]);
 
                 if (Auth::user()->type === Role::ROLE_FOLLOWER) {
@@ -205,16 +207,18 @@ class PostsController extends Controller
                 $currentDomain  = tenant('domains');
                 $currentDomain  = $currentDomain[0]->domain;
                 $post           = Post::create($request->all());
-                $post['paid']   = $request?->paid == 'on' ? true : false;
-                $post['price']  = $request?->paid == 'on' && ! empty($request?->price) ? $request?->price : 0;
+                $post['paid']   = $request?->paid == 1 ? true : false;
+                $post['price']  = $request?->paid == 1 && ! empty($request?->price) ? $request?->price : 0;
                 $post['status'] = 'active';
-                if ($request->hasFile('photo')) {
-                    $fileName = $request->file('photo');
-                    $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
-                    Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
-                    $post->file      = Storage::disk('spaces')->url($filePath);
-                    $post->file_type = Str::contains($request->file('photo')->getMimeType(), 'video') ? 'video' : 'image';
-                }
+                $post->file = $request->filePath; // Temporary chunk path
+                $post->file_type = $request->fileType;
+                // if ($request->hasFile('photo')) {
+                //     $fileName = $request->file('photo');
+                //     $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
+                //     Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+                //     $post->file      = Storage::disk('spaces')->url($filePath);
+                //     $post->file_type = Str::contains($request->file('photo')->getMimeType(), 'video') ? 'video' : 'image';
+                // }
                 $post->save();
                 return redirect()->route('blogs.index')->with('success', __('Post created successfully.'));
             } catch (ValidationException $e) {
@@ -249,19 +253,21 @@ class PostsController extends Controller
             $post          = Post::find($id);
             $currentDomain = tenant('domains');
             $currentDomain = $currentDomain[0]->domain;
-            if ($request->hasFile('file')) {
-                $fileName = $request->file('file');
-                $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
-                Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
-                $post->file      = Storage::disk('spaces')->url($filePath);
-                $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
-            }
+            // if ($request->hasFile('file')) {
+            //     $fileName = $request->file('file');
+            //     $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
+            //     Storage::disk('spaces')->put($filePath, file_get_contents($fileName), 'public');
+            //     $post->file      = Storage::disk('spaces')->url($filePath);
+            //     $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
+            // }
             $post->title       = $request->title;
             $post->slug        = $request->slug;
             $post->paid        = $request?->paid == 1 ? true : false;
             $post->price       = $request?->paid == 1 ? $request?->price : 0;
             $post->description = $request->description;
             $post->short_description    = $request->short_description;
+             $post->file = $request->filePath; // Temporary chunk path
+            $post->file_type = $request->fileType;
 
             $post->save();
             return redirect()->route('blogs.manage')->with('success', __('Posts updated successfully'));

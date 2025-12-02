@@ -228,6 +228,9 @@ Route::middleware([
         Route::delete('/purchase-feedback/{purchaseVideo}', [PurchaseController::class, 'deleteFeedback'])->name('purchase.feedback.delete');
         Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
 
+        Route::post('/album/upload-chunk', [AlbumController::class, 'uploadChunk'])->name('album.upload.chunk');
+        Route::post('/album/finalize-upload', [AlbumController::class, 'finalizeUpload'])->name('album.upload.finalize');
+
         //follow
         Route::post('follow/influencer', [FollowController::class, 'followInfluencer'])->name('follow.influencer');
         Route::post('follow/subscribe/influencer', [FollowController::class, 'subscribeInst'])->name('follow.sub.influencer');
