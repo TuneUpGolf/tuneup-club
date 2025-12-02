@@ -197,15 +197,8 @@ class PurchaseDataTable extends DataTable
                         .removeClass(\'custom-select custom-select-sm form-control form-control-sm\')
                         .addClass(\'dataTable-selector\');
 
-                    $(".dataTable-search").prepend("' . $lessonTypeFilter . '").addClass("d-flex");
+                    
 
-                    $("#lessonTypeFilter").on("change", function() {
-                        table.api().ajax.reload();
-                    });
-
-                    $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
-                        data.lesson_type = $("#lessonTypeFilter").val();
-                    });
                 }')
             ->parameters([
                 "columnDefs" => [
