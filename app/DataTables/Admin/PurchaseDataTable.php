@@ -81,11 +81,6 @@ class PurchaseDataTable extends DataTable
                     <div class="flex justify-between items-center">
                         ' . $lessonLink .  $deletedText . '
                     </div>';
-                // return '
-                //     <div class="flex justify-between items-center">
-                //         ' . $lessonLink . '
-                //         <label class="badge rounded-pill ' . $badgeClass . ' p-2 px-3">' . e($s) . '</label>' . $deletedText . '
-                //     </div>';
             })
             ->editColumn('follower_name', function ($purchase) {
                 $imageSrc = $purchase->follower->dp
@@ -99,16 +94,17 @@ class PurchaseDataTable extends DataTable
                     </div>';
             })
             ->addColumn('status', function ($purchase) {
-                $s           = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
-                $statusClass = $purchase->status == Purchase::STATUS_COMPLETE ? 'bg-green-600' : 'bg-red-600';
-
-                return '<label class="badge rounded-pill ' . $statusClass . ' p-2 px-3">' . e($s) . '</label>';
+                $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
+                // Inline styles for modal compatibility (from StudentPurchaseDataTable)
+                $statusStyle = $purchase->status == Purchase::STATUS_COMPLETE
+                    ? 'background-color: #16A34A; color: white; padding: .25rem .75rem; border-radius: 624.9375rem; display: inline-block; font-size: .875rem;'
+                    : 'background-color: #DC2626; color: white; padding: .25rem .75rem; border-radius: 624.9375rem; display: inline-block; font-size: .875rem;';
+                return '<span style="' . $statusStyle . '">' . e($s) . '</span>';
             })
             ->editColumn('due_date', function ($purchase) {
                 return Carbon::parse($purchase->created_at)->toFormattedDateString();
             })
             ->addColumn('action', function ($purchase) {
-
                 return view('admin.purchases.action', compact('purchase'));
             })
             ->rawColumns(['action', 'status', 'follower_name', 'influencer_name', 'lesson_name']);
@@ -162,9 +158,15 @@ class PurchaseDataTable extends DataTable
 
     public function html()
     {
+        $lessonTypeFilter = "<select id='lessonTypeFilter' class='form-select' style='margin-left:auto; max-width: 12.5rem;'><option value=''>- Lesson Type -</option>";
+        // foreach (Lesson::SELECT_TYPE_MAPPING as $key => $label) {
+        //     $lessonTypeFilter .= "<option value='" . $key . "'>" . $label . "</option>";
+        // }
+        $lessonTypeFilter .= "</select>";
+
         $buttons = [
-            ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
-            ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
+            // ['extend' => 'reset', 'className' => 'btn btn-light-danger me-1'],
+            // ['extend' => 'reload', 'className' => 'btn btn-light-warning'],
         ];
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             unset($buttons[0]);
@@ -174,106 +176,124 @@ class PurchaseDataTable extends DataTable
             ->setTableId('purchases-table')
             ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
-            ->ajax([
-                'data' => 'function(d) {
-        d.status = $("#statusFilter").val();
-    }'
-            ])
+            ->minifiedAjax()
             ->orderBy(1)
             ->language([
-                "paginate"          => [
-                    "next"     => '<i class="ti ti-chevron-right"></i>',
-                    "previous" => '<i class="ti ti-chevron-left"></i>',
+                "paginate" => [
+                    "next" => '<i class="ti ti-chevron-right"></i>',
+                    "previous" => '<i class="ti ti-chevron-left"></i>'
                 ],
-                'lengthMenu'        => __('_MENU_ entries per page'),
+                'lengthMenu' => __('_MENU_ entries per page'),
                 "searchPlaceholder" => __('Search'),
-                'search'            => '',
+                'search' => ''
             ])
             ->initComplete('function() {
-            var api = this.api();
+                    var table = this;
+                    var searchInput = $(\'#\' + table.api().table().container().id + \' label input[type="search"]\');
+                    searchInput.removeClass(\'form-control form-control-sm\').addClass(\'dataTable-input\');
 
-            // Create filter form HTML
-            var filterHtml = `
-                <div id="custom-filters" class="d-flex gap-2 mb-3">
-                    <select id="statusFilter" class="form-select">
-                        <option value="">All Submissions</option>
-                        <option value="pending">Pending Submissions</option>
-                        <option value="completed">Completed Submissions</option>
-                    </select>
-                    <button type="button" id="resetFilters" class="btn btn-secondary">Reset</button>
-                </div>
-            `;
+                    var select = $(table.api().table().container())
+                        .find(".dataTables_length select")
+                        .removeClass(\'custom-select custom-select-sm form-control form-control-sm\')
+                        .addClass(\'dataTable-selector\');
 
-            // Append filter form just above the table
-            $(api.table().container()).find(".dataTable-title").append(filterHtml);
+                    $(".dataTable-search").prepend("' . $lessonTypeFilter . '").addClass("d-flex");
 
-            // Filter change event
-            $("#statusFilter").on("change", function() {
-                api.ajax.reload();
-            });
+                    $("#lessonTypeFilter").on("change", function() {
+                        table.api().ajax.reload();
+                    });
 
-            // Reset filters
-            $("#resetFilters").on("click", function() {
-                $("#statusFilter").val("");
-                api.ajax.reload();
-            });
-        }')
+                    $("#purchases-table").DataTable().on("preXhr.dt", function(e, settings, data) {
+                        data.lesson_type = $("#lessonTypeFilter").val();
+                    });
+                }')
             ->parameters([
                 "columnDefs" => [
-                    ["responsivePriority" => 1, "targets" => 2],
-                    ["responsivePriority" => 2, "targets" => 6],
+                    ["responsivePriority" => 1, "targets" => 1],
+                    ["responsivePriority" => 2, "targets" => 4],
                 ],
                 "dom" => "
-                <'dataTable-top row'
-                    <'dataTable-title col-lg-4 col-sm-12'<'custom-title'>>
-                    <'dataTable-search tb-search col-lg-4 col-sm-12'f>
-                >
-                <'dataTable-container'<'col-sm-12'tr>>
-                <'dataTable-bottom row'
-                    <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
-                    <'col-sm-7'p>
-                >
-            ",
-                'buttons' => $buttons,
+                        <'dataTable-top row'
+                            <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
+                            <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>
+                        >
+                        <'dataTable-container'<'col-sm-12'tr>>
+                        <'dataTable-bottom row'
+                            <'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l>
+                            <'col-sm-7'p>
+                        >
+                    ",
+                "buttons" => $buttons,
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow",
-                        "renderer" => "function (api, rowIdx, columns) {
-                        var data = $('<table/>').addClass('vertical-table');
-                        $.each(columns, function (i, col) {
-                            data.append(
-                                '<tr>' +
-                                    '<td><strong>' + col.title + '</strong></td>' +
-                                    '<td>' + col.data + '</td>' +
-                                '</tr>'
-                            );
-                        });
-                        return data;
-                    }"
+                       "renderer" => "function (api, rowIdx, columns) {
+    console.log('Renderer called for rowIdx:', rowIdx); 
+
+    var data = columns.map(function(col) {
+        switch(col.title) {
+            case 'Submission #':
+            case 'Status':
+                return '';
+            default:
+                return '<tr><td style=\"font-weight: bold; padding: 5px;\">' + col.title + ':</td><td style=\"padding: 5px;\">' + (col.data || '-') + '</td></tr>';
+        }
+    }).join('');
+
+    var rowData = api.row(rowIdx).data();
+    console.log('rowData:', rowData); 
+
+    var content = '<div style=\"padding: 0px;\"><table style=\"width: 100%; border-collapse: collapse;\">' + data + '</table></div>';
+
+    Swal.fire({
+        title: 'Purchase Details',
+        html: content,
+        showCloseButton: true,
+        showConfirmButton: false,
+        customClass: {
+            container: 'swal2-responsive-container',
+            popup: 'swal2-responsive-popup'
+        }
+    });
+
+    return false; // Prevent default child row rendering
+}"
+
                     ]
                 ],
-                "rowCallback" => 'function(row, data, index) {
-                $(row).addClass("custom-parent-row");
-            }',
-                'headerCallback' => 'function(thead) {
-                $(thead).find("th").css({
-                    "background-color": "rgba(249, 252, 255, 1)",
-                    "font-weight": "400",
-                    "font":"sans",
-                    "border":"none",
-                });
-            }',
-                'rowCallback' => 'function(row) {
-                $("td", row).css({"font-family": "Helvetica", "font-weight": "300"});
-            }',
+                "rowCallback" => 'function(row) {
+                        $("td", row).css({"font-family":"Helvetica", "font-weight":"300"});
+                        $(row).addClass("custom-parent-row");
+                    }',
+                "headerCallback" => 'function(thead) {
+                        $(thead).find("th").css({
+                            "background-color": "rgba(249, 252, 255, 1)",
+                            "font-weight": "400",
+                            "font": "sans",
+                            "border": "none"
+                        });
+                    }',
                 "drawCallback" => 'function() {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
-                tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }',
+                        var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=tooltip]"));
+                        tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+
+                        var popoverTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle=popover]"));
+                        popoverTriggerList.map(function (el) { return new bootstrap.Popover(el); });
+
+                        var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+                        toastElList.map(function (el) { return new bootstrap.Toast(el); });
+                    }'
+            ])
+            ->language([
+                'buttons' => [
+                    'create' => __('Choose Your Coach'),
+                    'print' => __('Print'),
+                    'reset' => __('Reset'),
+                    'reload' => __('Reload'),
+                    'excel' => __('Excel'),
+                    'csv' => __('CSV'),
+                ]
             ]);
     }
 
@@ -281,26 +301,53 @@ class PurchaseDataTable extends DataTable
     protected function getColumns()
     {
         $columns = [
-            Column::make('No')->title(__('Submission #'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
-            Column::make('lesson_name')->title(__('Lesson'))->searchable(false),
+            Column::make('No')
+                ->title(__('Submission #'))
+                ->data('DT_RowIndex')
+                ->name('DT_RowIndex')
+                ->searchable(false)
+                ->orderable(false)
+                ->addClass('min-desktop'), // always visible
+
+            Column::make('lesson_name')
+                ->title(__('Lesson'))
+                ->searchable(true)
+                ->addClass('all'), // hide on phones, show on tablet/desktop
+
+            Column::make('status')
+                ->title(__('Payment Status'))
+                ->addClass('min-tablet'),
         ];
+
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
-            $columns[] = Column::make('follower_name')->title("Follower")->searchable(true);
+            $columns[] = Column::make('follower_name')->title("Follower")->searchable(true)->addClass('min-tablet');
         } elseif (Auth::user()->type == Role::ROLE_FOLLOWER) {
-            $columns[] = Column::make('influencer_name')->title(__('Influencer'))->searchable(true);
+            $columns[] = Column::make('influencer_name')->title(__('Influencer'))->searchable(true)->addClass('min-tablet');
         }
+
         return array_merge($columns, [
-            Column::make('status')->title(__('Payment Status')),
-            Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
-            Column::make('total_amount')->title(__('Total ($)'))->orderable(false),
-            Column::computed('action')->title(__('Actions'))
+            Column::make("due_date")
+                ->title(__('Submission Date'))
+                ->defaultContent()
+                ->orderable(false)
+                ->searchable(false)
+                ->addClass('all'), // always visible even on mobile
+
+            Column::make('total_amount')
+                ->title(__('Total ($)'))
+                ->orderable(false)
+                ->addClass('min-tablet'),
+
+            Column::computed('action')
+                ->title(__('Actions'))
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)
-                ->addClass('text-center all-desktop')
+                ->addClass('min-desktop')
                 ->width('20%'),
         ]);
     }
+
 
     protected function filename(): string
     {
