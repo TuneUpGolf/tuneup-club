@@ -25,7 +25,7 @@ class FollowerSubscribedMail extends TemplateMailable
         $this->influencer = $influencer->name;
         $this->follower = $follower->name;
         $this->subscriberEmail = $follower->email;
-        $this->plan = $plan->name;
+        $this->plan = $plan?->name;
         $this->datetime = now()->format('F j, Y g:i A');
     }
 
