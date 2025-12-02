@@ -49,7 +49,15 @@ class PurchaseDataTable extends DataTable
                 $query->where('followers.name', 'like', "%{$keyword}%");
             })
             ->editColumn('influencer_name', function ($purchase) {
-                return e($purchase->influencer_name);
+                $imageSrc = $purchase->influencer->logo
+                    ? $purchase->influencer->logo
+                    : asset('assets/img/logo/logo.png');
+
+                return '
+                    <div class="flex justify-start items-center">
+                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                        <span class="px-0">' . e($purchase->influencer_name) . '</span>
+                    </div>';
             })
             ->editColumn('lesson_name', function ($purchase) {
                 $s                    = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
@@ -80,7 +88,15 @@ class PurchaseDataTable extends DataTable
                 //     </div>';
             })
             ->editColumn('follower_name', function ($purchase) {
-                return e($purchase->follower_name);
+                $imageSrc = $purchase->follower->dp
+                    ? $purchase->follower->dp
+                    : asset('assets/img/logo/logo.png');
+
+                return '
+                    <div class="flex justify-start items-center">
+                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                        <span class="px-0">' . e($purchase->follower_name) . '</span>
+                    </div>';
             })
             ->addColumn('status', function ($purchase) {
                 $s           = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
@@ -92,6 +108,7 @@ class PurchaseDataTable extends DataTable
                 return Carbon::parse($purchase->created_at)->toFormattedDateString();
             })
             ->addColumn('action', function ($purchase) {
+
                 return view('admin.purchases.action', compact('purchase'));
             })
             ->rawColumns(['action', 'status', 'follower_name', 'influencer_name', 'lesson_name']);
@@ -203,31 +220,8 @@ class PurchaseDataTable extends DataTable
         }')
             ->parameters([
                 "columnDefs" => [
-                    [
-                        "responsivePriority" => 1, 
-                        "targets" => 0, // Submission # gets highest priority
-                    ],
-                    [
-                        "responsivePriority" => 2, 
-                        "targets" => 5, // Actions
-                    ],
-                    [
-                        "className" => 'all',
-                        "targets" => 0, // Submission # visible on all devices
-                    ],
-                    [
-                        "className" => 'desktop',
-                        "targets" => [1, 2, 3, 4], // Lesson, Influencer/Follower, Status, Submission Date - desktop only
-                    ],
-                    [
-                        "className" => 'mobile-priority',
-                        "targets" => 5, // Actions - mobile priority
-                    ],
-                    // Hide Submission Date and show in mobile view differently
-                    [
-                        "targets" => 4, // Submission Date column
-                        "responsivePriority" => 100,
-                    ],
+                    ["responsivePriority" => 1, "targets" => 2],
+                    ["responsivePriority" => 2, "targets" => 6],
                 ],
                 "dom" => "
                 <'dataTable-top row'
@@ -245,42 +239,19 @@ class PurchaseDataTable extends DataTable
                 "responsive" => [
                     "scrollX" => false,
                     "details" => [
-                        "display" => "$.fn.dataTable.Responsive.display.childRowImmediate",
-                        "type" => 'column',
-                        "target" => 0,
+                        "display" => "$.fn.dataTable.Responsive.display.childRow",
                         "renderer" => "function (api, rowIdx, columns) {
-                            var data = $.map(columns, function (col, i) {
-                                // On mobile, combine Submission # and Lesson in one row
-                                if (col.title === 'Submission #' || col.title === 'Lesson') {
-                                    if (col.title === 'Submission #') {
-                                        return '<tr>' +
-                                            '<td><strong>' + col.title + '</strong>: ' + col.data + 
-                                            ' <span class=\"mobile-lesson\"><strong>Lesson</strong>: ' + 
-                                            api.cell(rowIdx, 1).data() + '</span></td>' +
-                                        '</tr>';
-                                    }
-                                    return '';
-                                }
-                                
-                                // Show Submission Date on mobile
-                                if (col.title === 'Submission Date') {
-                                    return '<tr>' +
-                                        '<td><strong>' + col.title + '</strong>: ' + col.data + '</td>' +
-                                    '</tr>';
-                                }
-                                
-                                // Don't show other columns in mobile view (except actions)
-                                if (col.title === 'Actions') {
-                                    return '<tr>' +
-                                        '<td><strong>' + col.title + '</strong>: ' + col.data + '</td>' +
-                                    '</tr>';
-                                }
-                                
-                                return '';
-                            }).join('');
-                            
-                            return $('<table class=\"mobile-view-table\"/>').append(data);
-                        }"
+                        var data = $('<table/>').addClass('vertical-table');
+                        $.each(columns, function (i, col) {
+                            data.append(
+                                '<tr>' +
+                                    '<td><strong>' + col.title + '</strong></td>' +
+                                    '<td>' + col.data + '</td>' +
+                                '</tr>'
+                            );
+                        });
+                        return data;
+                    }"
                     ]
                 ],
                 "rowCallback" => 'function(row, data, index) {
@@ -302,43 +273,6 @@ class PurchaseDataTable extends DataTable
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
-                
-                // Add CSS for mobile view
-                if (!document.getElementById(\"mobile-table-css\")) {
-                    var css = document.createElement(\"style\");
-                    css.id = \"mobile-table-css\";
-                    css.innerHTML = \`
-                        @media (max-width: 768px) {
-                            .mobile-view-table {
-                                width: 100%;
-                            }
-                            .mobile-view-table tr {
-                                border-bottom: 1px solid #eee;
-                                padding: 8px 0;
-                            }
-                            .mobile-view-table td {
-                                padding: 8px 0;
-                            }
-                            .mobile-lesson {
-                                display: block;
-                                margin-top: 4px;
-                                color: #666;
-                            }
-                            table.dataTable.dtr-column>tbody>tr>td.control {
-                                width: 30px;
-                            }
-                        }
-                        .desktop {
-                            display: table-cell;
-                        }
-                        @media (max-width: 768px) {
-                            .desktop {
-                                display: none;
-                            }
-                        }
-                    \`;
-                    document.head.appendChild(css);
-                }
             }',
             ]);
     }
@@ -350,13 +284,11 @@ class PurchaseDataTable extends DataTable
             Column::make('No')->title(__('Submission #'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('lesson_name')->title(__('Lesson'))->searchable(false),
         ];
-        
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             $columns[] = Column::make('follower_name')->title("Follower")->searchable(true);
         } elseif (Auth::user()->type == Role::ROLE_FOLLOWER) {
             $columns[] = Column::make('influencer_name')->title(__('Influencer'))->searchable(true);
         }
-        
         return array_merge($columns, [
             Column::make('status')->title(__('Payment Status')),
             Column::make("due_date")->title(__('Submission Date'))->defaultContent()->orderable(false)->searchable(false),
