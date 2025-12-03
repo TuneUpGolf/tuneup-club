@@ -49,15 +49,16 @@ class PurchaseDataTable extends DataTable
                 $query->where('followers.name', 'like', "%{$keyword}%");
             })
             ->editColumn('influencer_name', function ($purchase) {
-                $imageSrc = $purchase->influencer->logo
-                    ? $purchase->influencer->logo
-                    : asset('assets/img/logo/logo.png');
+                // $imageSrc = $purchase->influencer->logo
+                //     ? $purchase->influencer->logo
+                //     : asset('assets/img/logo/logo.png');
 
-                return '
-                    <div class="flex justify-start items-center">
-                        <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
-                        <span class="px-0">' . e($purchase->influencer_name) . '</span>
-                    </div>';
+                // return '
+                //     <div class="flex justify-start items-center">
+                //         <img src="' . $imageSrc . '" width="20" class="rounded-full"/>
+                //         <span class="px-0">' . e($purchase->influencer_name) . '</span>
+                //     </div>';
+                return $purchase->influencer_name;
             })
             ->editColumn('lesson_name', function ($purchase) {
                 $s                    = Lesson::TYPE_MAPPING[$purchase->lesson->type] ?? 'N/A';
@@ -87,11 +88,7 @@ class PurchaseDataTable extends DataTable
                 //     ? $purchase->follower->dp
                 //     : asset('assets/img/logo/logo.png');
 
-                return '
-                    <div class="flex justify-start items-center">
-                     
-                        <span class="px-0">' . e($purchase->follower_name) . '</span>
-                    </div>';
+                return $purchase->follower_name;
             })
             ->addColumn('status', function ($purchase) {
                 $s = Purchase::STATUS_MAPPING[$purchase->status] ?? 'Unknown';
@@ -208,7 +205,7 @@ class PurchaseDataTable extends DataTable
                 "dom" => "
                         <'dataTable-top row'
                             <'dataTable-title col-xl-7 col-lg-3 col-sm-6 d-none d-sm-block'>
-                            <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex'f>
+                            <'dataTable-search dataTable-search tb-search col-md-5 col-sm-6 col-lg-6 col-xl-5 col-sm-12 d-flex justify-content-end'f>
                         >
                         <'dataTable-container'<'col-sm-12'tr>>
                         <'dataTable-bottom row'
@@ -221,7 +218,7 @@ class PurchaseDataTable extends DataTable
                 "responsive" => [
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow",
-                       "renderer" => "function (api, rowIdx, columns) {
+                        "renderer" => "function (api, rowIdx, columns) {
     console.log('Renderer called for rowIdx:', rowIdx); 
 
     var data = columns.map(function(col) {
