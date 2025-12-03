@@ -36,6 +36,7 @@ class AlbumCategoryController extends Controller
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
     public function store(Request $request)
     {
         if (Auth::user()->can('create-blog')) {
@@ -108,7 +109,7 @@ class AlbumCategoryController extends Controller
                 'description'   => 'required',
             ]);
             $album_category   = AlbumCategory::find($id);
-              $album_category->image = $request->filePath; // Temporary chunk path
+            $album_category->image = $request->filePath; // Temporary chunk path
             $album_category->file_type = $request->fileType;
             // if ($request->hasFile('file') && $request->file('file')->isValid()) {
             //     // $path           = $request->file('file')->store('album_category');
@@ -179,10 +180,52 @@ class AlbumCategoryController extends Controller
     {
         if (Auth::user()->can('manage-blog')) {
             $album_category = AlbumCategory::find($id);
-            $albums = Album::where('album_category_id', $id)->get();
+            $albums = Album::where('album_category_id', $id)->orderBy('column_order', 'asc')->get();
             return view('admin.posts.album', compact('albums', 'album_category'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+    public function change_order($id)
+    {
+        if (Auth::user()->can('manage-blog')) {
+            $albums = Album::where('album_category_id', $id)
+                ->orderBy('column_order', 'asc')
+                ->get();
+            return view('admin.posts.album-change-order', compact('albums', 'id'));
+        } else {
+            return redirect()->back()->with('failed', __('Permission denied.'));
+        }
+    }
+
+    public function reorder(Request $request, $categoryId)
+    {
+        if (!Auth::user()->can('manage-blog')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permission denied.'
+            ], 403);
+        }
+
+        try {
+            $order = $request->input('order', []);
+
+            foreach ($order as $item) {
+                Album::where('id', $item['id'])
+                    ->where('album_category_id', $categoryId)
+                    ->update(['column_order' => $item['position']]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Album order updated successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update order: ' . $e->getMessage()
+            ], 500);
         }
     }
 

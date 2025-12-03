@@ -352,6 +352,8 @@ Route::middleware([
         // Album Category Routes
         Route::controller(AlbumCategoryController::class)->prefix('album-category')->name('album.category.')->group(function () {
             Route::get('/', 'index')->name('manage');
+            Route::get('change-order/{id}', 'change_order')->name('change-order');
+            Route::post('albums/reorder/{id}', 'reorder')->name('album-reorder');
             Route::get('create', 'create')->name('create');
             Route::post('store', 'store')->name('store');
             Route::get('edit/{id}', 'edit')->name('edit');
