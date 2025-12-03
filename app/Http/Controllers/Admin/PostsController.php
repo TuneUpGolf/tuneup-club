@@ -92,6 +92,7 @@ class PostsController extends Controller
 
         $albums = Album::where('instructor_id', $user->id)
             ->where('status', 'active')
+              ->orderBy('column_order', 'asc')
             ->get();
 
         // Add type "album" + unify file path

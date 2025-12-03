@@ -18,7 +18,8 @@ class Album extends Model
         'media',
         'status',
         'slug',
-        'file_type'
+        'file_type',
+        'column_order'
     ];
 
     protected $casts = [
