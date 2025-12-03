@@ -1,3 +1,21 @@
+<style>
+    /* Default: desktop/laptop — show icon, hide text */
+    .feedback-text {
+        display: none;
+    }
+
+    /* Mobile: show text, hide icon */
+    @media (max-width: 768px) {
+        .feedback-icon {
+            display: none;
+        }
+
+        .feedback-text {
+            display: inline;
+        }
+    }
+</style>
+
 @if ($purchase->status !== 'complete' && Auth::user()->type == 'Follower')
     @can('create-purchases')
         {!! Form::open([
@@ -34,7 +52,9 @@
     <a class="btn btn-sm small btn btn-warning "
         href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
-        <i class="ti ti-eye text-white"></i>
+        <span class="feedback-icon"><i class="ti ti-eye text-white"></i></span>
+        <span class="feedback-text">View Feedback</span>
+
     </a>
 @endif
 
@@ -42,7 +62,8 @@
     <a class="btn btn-sm small btn btn-warning "
         href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}" data-bs-toggle="tooltip"
         data-bs-placement="bottom" data-bs-original-title="{{ __('View Feedback') }}">
-        <i class="ti ti-eye text-white"></i>
+        <span class="feedback-icon"><i class="ti ti-eye text-white"></i></span>
+        <span class="feedback-text">View Feedback</span>
     </a>
 @endif
 
