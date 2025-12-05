@@ -50,6 +50,8 @@
                 alt="hero-banner">
         </div>
     </section>
+
+    @dd($influencerDetails)
     <section class="lession-sec">
         @php
             $name = DB::table('settings')->where('key', 'name')->first();
