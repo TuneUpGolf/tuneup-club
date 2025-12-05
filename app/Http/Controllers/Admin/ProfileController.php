@@ -44,6 +44,21 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function BioUpdate(Request $request)
+    {
+        $userDetail = Auth::user();
+        $user       = User::find(Auth::id());
+
+        request()->validate([
+            'bio' => 'required|max:255',
+        ]);
+
+        $user->bio = $request->bio;
+        $user->save();
+
+        return redirect()->back()->with('success', __('Bio updated successfully.'));
+    }
+
 
     public function verifyStripeTransactionFee(Request $request)
     {

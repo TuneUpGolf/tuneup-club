@@ -328,6 +328,7 @@ Route::middleware([
         Route::post('update-avatar', [ProfileController::class, 'updateAvatar'])->name('update.avatar');
         Route::post('profile/basicinfo/update/', [ProfileController::class, 'BasicInfoUpdate'])->name('profile.update.basicinfo');
         Route::post('profile/socialmedia/update/', [ProfileController::class, 'SocialMediaUpdate'])->name('update.socialmedia');
+        Route::post('profile/bio/update/', [ProfileController::class, 'BioUpdate'])->name('profile.update.bioupdate');
         Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
         Route::post('update-banner-image', [ProfileController::class, 'BannerDetails'])->name('update.banner.image');
 
