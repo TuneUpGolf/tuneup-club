@@ -129,7 +129,7 @@ class ProfileController extends Controller
             'phone'        => 'required',
             'country_code' => 'required',
             'dial_code'    => 'required',
-            'bio'          => 'required',
+            // 'bio'          => '',
             'golf_course'  => 'max:100',
             'token'        => 'max:100',
 
@@ -140,8 +140,9 @@ class ProfileController extends Controller
         $user->country_code = $request?->country_code;
         $user->dial_code    = $request?->dial_code;
         $user->phone        = str_replace(' ', '', $request->phone);
-        $user->bio          = $request?->bio;
-
+        if ($user->type != Role::ROLE_INFLUENCER) {
+            $user->bio          = $request?->bio;
+        }
         if ($user->type === Role::ROLE_INFLUENCER) {
             $user->address = $request?->address;
             $user->country     = $request?->country;

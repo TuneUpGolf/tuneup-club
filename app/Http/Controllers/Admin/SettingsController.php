@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Facades\UtilityFacades;
+use App\Models\User;
 use App\Mail\Admin\TestMail;
-use App\Models\ChangeDomainRequest;
-use App\Models\NotificationsSetting;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Facades\UtilityFacades;
 use Illuminate\Support\Facades\DB;
+use App\Models\ChangeDomainRequest;
+use App\Http\Controllers\Controller;
+use App\Models\NotificationsSetting;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Spatie\MailTemplates\Models\MailTemplate;
+use Illuminate\Support\Facades\Storage;
 use function PHPUnit\Framework\fileExists;
+use Spatie\MailTemplates\Models\MailTemplate;
 
 class SettingsController extends Controller
 {
@@ -39,11 +40,21 @@ class SettingsController extends Controller
         $data = [
             'app_name' => $request->app_name,
         ];
-        if ($request->banner_image) {
-            Storage::delete(UtilityFacades::getsettings('banner_image'));
-            $appBannerName        = 'app-banner.' . $request->banner_image->extension();
-            $request->banner_image->storeAs('banner', $appBannerName);
-            $data['banner_image']   = asset('storage/' . tenant()->id . '/banner/' . $appBannerName);
+        if ($request->hasFile('banner_image')) {
+            $userDetail    = Auth::user();
+            $user          = User::findOrFail($userDetail['id']);
+            $currentDomain = tenant('domains');
+            $currentDomain = $currentDomain[0]->domain;
+            $file     = $request->file('banner_image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+
+            $filePath = $currentDomain . '/' . "uploads/banner/" . Auth::user()->id . '/' . $fileName;
+            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+            $relativePath = Storage::disk('spaces')->url($filePath);
+            // Save relative path in DB
+            $user->update([
+                'banner_image' => $relativePath,
+            ]);
         }
         if ($request->app_logo) {
             Storage::delete(UtilityFacades::getsettings('app_logo'));
