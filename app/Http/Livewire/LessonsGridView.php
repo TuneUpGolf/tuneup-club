@@ -58,7 +58,7 @@ class LessonsGridView extends GridView
 
         return [
              'image' => $model->logo != null
-                ? asset('/storage/' . tenant('id') . '/' . $model->logo)
+                ? $model->logo
                 : (($model->user->avatar) ??
                     asset('assets/img/logo/logo.png')),
             'title' => $model->lesson_name,
