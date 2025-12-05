@@ -64,7 +64,207 @@
             <h3 style="font-size:22px;font-weight:bold;text-align:center">{{ $influencerDetails?->name ?? '' }}</h3>
             @if ($influencerDetails)
                 @if (!$influencerDetails?->lessons->isEmpty())
-                    @foreach ($influencerDetails?->lessons as $lesson)
+                    @forelse($influencerDetails->lessons as $lesson)
+                        @if ($lesson->is_package_lesson == 0)
+                            <div class="col-md-4">
+                                <div class="bg-gray rounded-lg shadow flex flex-col h-full w-full">
+                                    <div class="relative text-center p-3 flex gap-3">
+                                        <img src="{{ $lesson->logo != null ? asset('storage/' . tenant()->id . '/' . $lesson->logo) : asset('/storage/' . tenant('id') . '/' . $lesson->user->avatar) }}"
+                                            alt="{{ $influencerDetails->name }}"
+                                            class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+                                        <div class="text-left">
+                                            <a class="font-bold text-dark text-xl" href="{{ route('login') }}"
+                                                tabindex="0">
+                                                {{ $influencerDetails->name }}
+                                            </a>
+                                            <div class="text-lg font-bold tracking-tight text-primary">
+                                                {{ $lesson?->lesson_price }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @php
+                                        $description = html_entity_decode($lesson->short_description);
+                                        $cleanDescription = strip_tags(
+                                            $description,
+                                            '<ul><ol><li><span><a><strong><em><b><i>',
+                                        );
+                                        $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
+                                        $shortDescription = \Illuminate\Support\Str::limit(
+                                            $cleanShortDescription,
+                                            80,
+                                            '...',
+                                        );
+                                    @endphp
+                                    <div class="text-gray-500 text-md px-2 mb-2">
+                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px;"
+                                            class="font-weight-bolder">
+                                            {{ $lesson->lesson_name }}
+                                        </h3>
+                                    </div>
+
+                                    @if (!empty($description))
+                                        <div class="hidden short-text text-gray-600">
+                                            {!! $description !!}
+                                        </div>
+                                    @endif
+
+                                    <div class="px-3 mt-1 flex flex-col flex-grow">
+                                        <div class="description-wrapper relative mb-[10px]">
+
+                                            <div class="hidden long-text text-gray-600"
+                                                style="font-size: 15px; max-height: 100px; overflow-y: auto;">
+                                                {!! $lesson->lesson_description !!}
+                                            </div>
+                                            <a href="javascript:void(0)" style="font-size: 15px;margin-bottom:10px"
+                                                data-long_description="{!! nl2br($lesson->lesson_description) !!}"
+                                                class="text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                tabindex="0">View Description </a>
+
+                                        </div>
+                                        @if ($lesson?->type == 'online')
+                                            <div
+                                                class="p-3 h-full bg-gray-200 gap-2 rounded-lg flex justify-center items-center">
+                                                <div class="text-center">
+                                                    <span class="text-xl font-bold">{{ $lesson?->required_time }}
+                                                        Days</span>
+                                                    <div class="text-sm rtl:space-x-reverse">Expected Response Time</div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="w-100 my-3 px-3">
+                                        @php
+                                            $button_text = 'Purchase';
+                                            if ($lesson->type == 'package') {
+                                                $button_text = 'Schedule Lesson';
+                                            } elseif ($lesson->type == 'inPerson') {
+                                                $button_text = 'Sign Up';
+                                            }
+                                        @endphp
+                                        <a href="{{ route('login') }}" tabindex="0">
+                                            <button type="submit" class="lesson-btn"
+                                                tabindex="0">{{ $button_text }}</button>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            {{-- Post Section End --}}
+                        @else
+                            @php
+                                $slots = 0;
+                                $slots += $lesson?->packages->sum('number_of_slot');
+                                $packages_array = [];
+                                foreach ($lesson?->packages as $package) {
+                                    $packages_array[] =
+                                        $package->number_of_slot .
+                                        ' Pack ' .
+                                        ' - ' .
+                                        $currency .
+                                        $package->price .
+                                        ' ' .
+                                        $currencySymbol;
+                                }
+                            @endphp
+                            <div class="col-md-4">
+                                <div
+                                    class="w-full bg-gray border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full">
+                                    <div class="relative text-center p-3 flex gap-3">
+
+                                        <img src="{{ isset($lesson->logo) ? asset('storage/' . tenant()->id . '/' . $lesson->logo) : asset('/storage/' . tenant('id') . '/' . $lesson->user->avatar) }}"
+                                            class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
+                                        <div class="text-left">
+                                            <a class="font-bold text-dark text-xl" href="{{ route('login') }}">
+                                                {{ $influencerDetails->name }}
+                                            </a>
+                                            <div class="text-lg font-bold tracking-tight text-primary">
+                                                @if ($lesson?->packages->min('price'))
+                                                    {{ money($lesson?->packages->min('price')) }}
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @php
+                                        $description = html_entity_decode($lesson->short_description);
+                                        $cleanDescription = strip_tags($description, '<ul><ol><li><span><a><em><b><i>');
+                                        $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
+                                        $shortDescription = \Illuminate\Support\Str::limit(
+                                            $cleanShortDescription,
+                                            80,
+                                            '...',
+                                        );
+                                    @endphp
+                                    <div class="text-gray-500 text-md px-2 mb-2">
+                                        <h3 style="font-size:18px;font-weight:bold;margin-left:10px"
+                                            class="font-weight-bolder">
+                                            {{ $lesson->lesson_name }}</h3>
+                                    </div>
+                                    @if (!empty($description))
+                                        <div class="hidden short-text text-gray-600">
+                                            {!! $description !!}
+                                        </div>
+                                    @endif
+
+                                    <div class="px-3 flex flex-col flex-grow">
+
+                                        @if (!empty($lesson?->short_description) || !empty($lesson?->short_description))
+                                            <a href="javascript:void(0)" style="font-size: 15px;margin-bottom:10px"
+                                                data-long_description="{!! $lesson?->short_description !!}"
+                                                class=" text-blue-600 font-medium mt-1 inline-block viewDescription"
+                                                tabindex="0"> View
+                                                Description</a>
+                                        @endif
+
+                                        <div class="p-3 border rounded-lg shadow-sm bg-white">
+                                            <h2 class="text-lg font-semibold flex items-center mb-2">
+                                                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10m-10 4h6m4 8H5a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2h4l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2z">
+                                                    </path>
+                                                </svg>
+                                                Package Options Available
+                                            </h2>
+                                            <select name="package_slot"
+                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                <option value="--">Select Option</option>
+                                                @foreach ($packages_array as $package)
+                                                    <option value="{{ $package }}">{{ $package }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="w-100 my-3 px-3">
+                                        @php
+                                            $button_text = 'Purchase';
+                                            if ($lesson->type == 'package') {
+                                                $button_text = 'Schedule Lesson';
+                                            } elseif ($lesson->type == 'inPerson') {
+                                                $button_text = 'Sign Up';
+                                            }
+                                        @endphp
+                                        <a class="lesson-btn text-center" href="{{ route('login') }}">
+                                            {{ $button_text }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @empty
+                        <h3>No Lessons Found</h3>
+                    @endforelse
+
+
+
+
+
+
+
+
+                    {{-- @foreach ($influencerDetails?->lessons as $lesson)
                         @if ($lesson->active_status)
                             <div class="col-md-4 mb-4">
                                 <div class="bg-gray rounded-lg shadow flex flex-col">
@@ -84,17 +284,14 @@
 
                                     @php
                                         $description = html_entity_decode($lesson->short_description);
-                                        // $cleanShortDescription = strip_tags(
-                                        //     $description,
-                                        //     '<div><ul><ol><li><strong><b><i><span><a>',
-                                        // );
-                                        // $cleanDescription = strip_tags(
-                                        //     $description,
-                                        //     '<div><ul><ol><li><span><a><strong><em><b><i>',
-                                        // );
-                                        $cleanShortDescription = $description;
-                                        $cleanDescription = $description;
-
+                                        $cleanShortDescription = strip_tags(
+                                            $description,
+                                            '<div><ul><ol><li><strong><b><i><span><a>',
+                                        );
+                                        $cleanDescription = strip_tags(
+                                            $description,
+                                            '<div><ul><ol><li><span><a><strong><em><b><i>',
+                                        );
                                         $shortDescription = \Illuminate\Support\Str::limit(
                                             $cleanShortDescription,
                                             80,
@@ -156,7 +353,7 @@
                                 </div>
                             </div>
                         @endif
-                    @endforeach
+                    @endforeach --}}
                 @endif
             @endif
         </div>
@@ -423,18 +620,18 @@
     </section>
 
 
-    <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
+    <div class="modal " id="longDescModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title font-bold" style="font-size: 20px">Long Description</h1>
+                    <h1 class="modal-title font-bold" style="font-size: 20px">Description</h1>
                     <button type="button"
                         class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
                         onclick="closeLongDescModal()" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" style="word-break: break-all;">
+                <div class="modal-body">
                     <div class="longDescContent"></div>
                 </div>
                 <div class="modal-footer">
@@ -568,11 +765,49 @@
                 button.innerText = "Show Less";
             }
         }
+
         $(document).on('click', '.viewDescription', function() {
-            const desc = $(this).siblings('.long-text').html();
+            const parent = $(this).closest('.bg-gray, .w-full, .shadow');
+            const title = parent.find('h3').first().text() || 'Description';
+            const shortDesc = parent.find('.short-text').html() || '';
+            const longDesc = $(this).siblings('.long-text').html() || '';
+
+            $('#longDescModal').find('.lesson-title').text(title);
+
+            let modalContent = '';
+
+            if (shortDesc) {
+                modalContent += `
+                    <div class="shortDescSection border-b pb-4">
+                        
+                        <div class="shortDesc" style="font-size:15px; color:#555; line-height:1.6;">
+                            ${shortDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (longDesc && longDesc.trim() !== '') {
+                modalContent += `
+                    <div class="longDescSection mt-4">
+                        
+                        <div class="longDesc" style="font-size:15px; color:#333; line-height:1.6;">
+                            ${longDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // If both are empty, show fallback text
+            if (!shortDesc && !longDesc) {
+                modalContent = `
+                    <p class="text-gray-600 italic">No description available for this lesson.</p>
+                `;
+            }
+
             $('#longDescModal').modal('show');
-            $('.longDescContent').html(desc);
-        })
+            $('.longDescContent').html(modalContent);
+        });
 
         function closeLongDescModal() {
             $('#longDescModal').modal('hide');
