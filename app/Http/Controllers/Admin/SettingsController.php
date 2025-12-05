@@ -52,10 +52,12 @@ class SettingsController extends Controller
             Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
             $relativePath = Storage::disk('spaces')->url($filePath);
             // Save relative path in DB
-            dd($relativePath);
-            $user->update([
-                'banner_image' => $relativePath,
-            ]);
+            // dd($relativePath);
+            // $user->update([
+            //     'banner_image' => $relativePath,
+            // ]);
+            $user->banner_image = $relativePath;
+            $user->save();
         }
         if ($request->app_logo) {
             Storage::delete(UtilityFacades::getsettings('app_logo'));
