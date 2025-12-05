@@ -51,7 +51,7 @@
         </div>
     </section>
 
-    @dd($influencerDetails)
+    {{-- @dd($influencerDetails) --}}
     <section class="lession-sec">
         @php
             $name = DB::table('settings')->where('key', 'name')->first();
