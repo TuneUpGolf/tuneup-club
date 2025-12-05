@@ -69,7 +69,7 @@
                             <div class="col-md-4">
                                 <div class="bg-gray rounded-lg shadow flex flex-col h-full w-full">
                                     <div class="relative text-center p-3 flex gap-3">
-                                        <img src="{{ $lesson->logo != null ? asset('storage/' . tenant()->id . '/' . $lesson->logo) : asset('/storage/' . tenant('id') . '/' . $lesson->user->avatar) }}"
+                                        <img src="{{ $lesson->logo != null ? asset('storage/' . tenant()->id . '/' . $lesson->logo) : $lesson->user->avatar) }}"
                                             alt="{{ $influencerDetails->name }}"
                                             class="hover:shadow-lg cursor-pointer rounded-lg h-32 w-24 object-cover">
                                         <div class="text-left">
