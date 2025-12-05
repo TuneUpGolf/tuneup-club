@@ -59,7 +59,7 @@ class LessonsGridView extends GridView
         return [
              'image' => $model->logo != null
                 ? asset('/storage/' . tenant('id') . '/' . $model->logo)
-                : (asset('/storage/' . tenant('id') . '/' . $model->user->avatar) ??
+                : (($model->user->avatar) ??
                     asset('assets/img/logo/logo.png')),
             'title' => $model->lesson_name,
             'subtitle' => str_replace(['(', ')'], '', $symbol) . ' ' . $model->lesson_price . ' (' . strtoupper($currency) . ')',
