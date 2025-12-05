@@ -166,28 +166,28 @@ class LessonController extends Controller
 
         if ($request->hasFile('logo')) {
 
-            $tenant_id = Auth::user()->tenant_id;
-            $lesson_id = $lesson->id;
-
-            $path = "tenants/$tenant_id/lessons/$lesson_id";
             $file = $request->file('logo');
 
-            // Generate unique filename
-            $originalName = $file->getClientOriginalName();
-            $fileName = uniqid() . '_' . time() . '_' . $originalName;
+            // Extension
+            $extension = $file->getClientOriginalExtension();
 
-            // Store file in Spaces
-            $filePath = Storage::disk('spaces')->putFileAs(
-                $path,
-                $file,
-                $fileName,
-                'public'
-            );
+            // Random filename
+            $randomFileName = Str::random(25) . '.' . $extension;
 
-            // Save file path in database
-            $lesson->logo = $filePath;
+            // Path in Spaces
+            $filePath = 'lessons/' . $lesson->id . '/' . $randomFileName;
+
+            // Upload to Spaces
+            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+
+            // Get PUBLIC URL
+            $url = Storage::disk('spaces')->url($filePath);
+
+            // Save URL in lesson->logo
+            $lesson->logo = $url;
             $lesson->save();
         }
+
 
 
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson created successfully.');
@@ -217,28 +217,28 @@ class LessonController extends Controller
 
         if ($request->hasFile('logo')) {
 
-            $tenant_id = Auth::user()->tenant_id;
-            $lesson_id = $lesson->id;
-
-            $path = "tenants/$tenant_id/lessons/$lesson_id";
             $file = $request->file('logo');
 
-            // Generate unique filename
-            $originalName = $file->getClientOriginalName();
-            $fileName = uniqid() . '_' . time() . '_' . $originalName;
+            // Extension
+            $extension = $file->getClientOriginalExtension();
 
-            // Store file in Spaces
-            $filePath = Storage::disk('spaces')->putFileAs(
-                $path,
-                $file,
-                $fileName,
-                'public'
-            );
+            // Random filename
+            $randomFileName = Str::random(25) . '.' . $extension;
 
-            // Save file path in database
-            $lesson->logo = $filePath;
+            // Path in Spaces
+            $filePath = 'lessons/' . $lesson->id . '/' . $randomFileName;
+
+            // Upload to Spaces
+            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+
+            // Get PUBLIC URL
+            $url = Storage::disk('spaces')->url($filePath);
+
+            // Save URL in lesson->logo
+            $lesson->logo = $url;
             $lesson->save();
         }
+
 
         return redirect()->route('lesson.index', $lesson)->with('success', 'Lesson updated successfully.');
     }
