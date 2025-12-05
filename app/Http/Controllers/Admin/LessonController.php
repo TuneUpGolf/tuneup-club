@@ -2,34 +2,35 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\SendEmail;
-use App\Actions\SendPushNotification;
-use App\DataTables\Admin\LessonDataTable;
-use App\Facades\UtilityFacades;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\LessonAPIResource;
-use App\Http\Resources\SlotAPIResource;
-use App\Mail\Admin\FollowerPaymentLink;
-use App\Models\Follower;
-use App\Models\Influencer;
-use App\Models\Lesson;
-use App\Models\Purchase;
-use App\Models\Role;
-use App\Models\Slots;
-use App\Models\User;
-use App\Traits\PurchaseTrait;
-use Carbon\Carbon;
-use DateInterval;
-use DatePeriod;
 use Error;
 use Exception;
+use DatePeriod;
+use DateInterval;
+use Carbon\Carbon;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Slots;
+use App\Models\Lesson;
+use App\Models\Follower;
+use App\Models\Purchase;
+use App\Actions\SendEmail;
+use App\Models\Influencer;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Traits\PurchaseTrait;
+use App\Facades\UtilityFacades;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
-use Stancl\Tenancy\Database\Models\Domain;
+use App\Actions\SendPushNotification;
+use App\Http\Resources\SlotAPIResource;
+use App\Mail\Admin\FollowerPaymentLink;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
+use App\DataTables\Admin\LessonDataTable;
+use App\Http\Resources\LessonAPIResource;
+use Stancl\Tenancy\Database\Models\Domain;
+use Illuminate\Validation\ValidationException;
 
 class LessonController extends Controller
 {
@@ -164,18 +165,24 @@ class LessonController extends Controller
         }
 
         if ($request->hasFile('logo')) {
+
             $tenant_id = Auth::user()->tenant_id;
             $lesson_id = $lesson->id;
 
-            $path = "lessons/$lesson_id";
+            $path = "tenants/$tenant_id/lessons/$lesson_id";
             $file = $request->file('logo');
 
             // Generate unique filename
             $originalName = $file->getClientOriginalName();
             $fileName = uniqid() . '_' . time() . '_' . $originalName;
 
-            // Store file in storage/app/{tenant_id}/{lesson_id}/
-            $filePath = $file->storeAs($path, $fileName, 'local');
+            // Store file in Spaces
+            $filePath = Storage::disk('spaces')->putFileAs(
+                $path,
+                $file,
+                $fileName,
+                'public'
+            );
 
             // Save file path in database
             $lesson->logo = $filePath;
@@ -207,20 +214,26 @@ class LessonController extends Controller
         $validatedData['short_description'] = $_POST['short_description'];
         $lesson->update($validatedData);
 
-        
+
         if ($request->hasFile('logo')) {
+
             $tenant_id = Auth::user()->tenant_id;
             $lesson_id = $lesson->id;
 
-            $path = "lessons/$lesson_id";
+            $path = "tenants/$tenant_id/lessons/$lesson_id";
             $file = $request->file('logo');
 
             // Generate unique filename
             $originalName = $file->getClientOriginalName();
             $fileName = uniqid() . '_' . time() . '_' . $originalName;
 
-            // Store file in storage/app/{tenant_id}/{lesson_id}/
-            $filePath = $file->storeAs($path, $fileName, 'local');
+            // Store file in Spaces
+            $filePath = Storage::disk('spaces')->putFileAs(
+                $path,
+                $file,
+                $fileName,
+                'public'
+            );
 
             // Save file path in database
             $lesson->logo = $filePath;
