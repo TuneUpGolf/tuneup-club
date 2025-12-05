@@ -184,10 +184,10 @@
                     [2, 'asc']
                 ],
                dom:
-    "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
-    "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
-    "<'dataTable-container'<'col-sm-12'tr>>" +
-    "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
+                "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
+                "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
+                "<'dataTable-container'<'col-sm-12'tr>>" +
+                "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
 
                 
 
