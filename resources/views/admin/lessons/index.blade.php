@@ -209,18 +209,12 @@
                 order: [
                     [2, 'asc']
                 ],
-                dom: "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
-                    "<'dataTable-botton table-btn col-lg-6 col-sm-12'B>" +
-                    "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
-                    "<'dataTable-container'<'col-sm-12'tr>>" +
-                    "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
-                buttons: [{
-                    text: '<i class="fa fa-calendar" aria-hidden="true"></i> Set Availability',
-                    className: 'btn btn-light-primary no-corner me-1 add_module',
-                    action: function() {
-                        window.location.href = createUrl;
-                    }
-                }],
+               dom:
+    "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
+    "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
+    "<'dataTable-container'<'col-sm-12'tr>>" +
+    "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
+              
 
                 initComplete: function() {
                     var table = this;
