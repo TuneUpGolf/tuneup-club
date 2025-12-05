@@ -18,6 +18,7 @@
                             'route' => ['lesson.update', $user->id],
                             'method' => 'PUT',
                             'data-validate',
+                            'enctype' => 'multipart/form-data',
                         ]) !!}
 
                         @if ($user->is_package_lesson)
@@ -97,6 +98,12 @@
                                 ]) !!}
                             </div>
                         @endif
+
+                           <div class="form-group">
+                            {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
+                            {!! Form::file('logo', ['class' => 'form-control']) !!}
+
+                        </div>
 
                         {{-- ✅ Short Description --}}
                         <div class="form-group">

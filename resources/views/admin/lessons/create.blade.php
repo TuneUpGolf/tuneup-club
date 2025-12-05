@@ -54,6 +54,12 @@
                             </div> --}}
 
                             <div class="form-group">
+                                {{ Form::label('logo', __('Logo'), ['class' => 'form-label']) }}
+                                {!! Form::file('logo', ['class' => 'form-control']) !!}
+
+                            </div>
+
+                            <div class="form-group">
                                 {{ Form::label('response_time', __('Response Time'), ['class' => 'form-label']) }}
                                 {!! Form::number('required_time', null, [
                                     'class' => 'form-control',
