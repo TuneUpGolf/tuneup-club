@@ -140,7 +140,7 @@
                                                             class="py-2 text-center logo-content logo-set-bg app-image-set">
                                                             <a href="{{ Utility::getsettings('banner_image') }}"
                                                                 target="_blank">
-                                                                <img src="{{ Utility::getsettings('banner_image') }}"
+                                                                <img src="{{ \App\Models\User::where('type', '!=', 'Admin')?->first()?->banner_image}}"
                                                                     id="banner_image">
                                                             </a>
                                                         </div>
