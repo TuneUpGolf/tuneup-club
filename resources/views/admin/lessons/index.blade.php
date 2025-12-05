@@ -9,7 +9,7 @@
         .action-btn-fix-wraper {
             justify-content: start !important;
         }
-        
+
         /* Ensure name column is always visible on mobile */
         @media (max-width: 768px) {
             .name-lesson {
@@ -53,7 +53,7 @@
             .card-body {
                 max-height: 100%;
             }
-            
+
             /* Force name column to be visible on mobile */
             .name-lesson {
                 display: table-cell !important;
@@ -81,6 +81,17 @@
         tbody tr.dt-rowReorder-moving {
             background-color: #f1f3f5 !important;
         }
+
+        #down-arrow:before {
+            background-color: #0071ce;
+            border-radius: 5px;
+            width: 20px;
+            text-align: center;
+            color: white !important;
+            content: "\ea5f" !important;
+            font-family: tabler-icons !important;
+            display: inline-block !important;
+        }
     </style>
 @endpush
 @push('javascript')
@@ -105,7 +116,9 @@
                         className: 'dt-control',
                         orderable: false,
                         data: null,
-                        defaultContent: ''
+                        defaultContent: '',
+                        // render: () => '<span id="down-arrow" class="dt-control dtr-control"></span>'
+
                     },
                     {
                         data: null,
@@ -161,6 +174,19 @@
                 },
 
                 responsive: {
+                    breakpoints: [{
+                            name: 'desktop',
+                            width: Infinity
+                        },
+                        {
+                            name: 'tablet',
+                            width: 1024
+                        },
+                        {
+                            name: 'mobile-p',
+                            width: 768
+                        }, // ⬅️ Force responsive arrow below 768px
+                    ],
                     details: {
                         display: $.fn.dataTable.Responsive.display.childRow,
                         renderer: function(api, rowIdx, columns) {
@@ -259,13 +285,13 @@
 
 
             function handleResponsiveColumn(table) {
-                if (window.innerWidth <= 1352) {
+                if (window.innerWidth <= 500) {
                     // Show responsive icon column
-                    $('#icon12').show();
+                    // $('#icon12').show();
                     table.column(0).visible(true);
                 } else {
                     // Hide responsive icon column
-                    $('#icon12').hide();
+                    // $('#icon12').hide();
                     table.column(0).visible(false);
                 }
             }
@@ -274,31 +300,33 @@
                 if (window.innerWidth <= 768) {
                     // Hide drag handle column on mobile
                     table.column('.drag-col').visible(false);
-                    
+                    table.column('.dt-control').visible(true);
+
                     // Ensure name column is always visible on mobile
-                    table.column('.name-lesson').visible(true);
-                    
+                    // table.column('.name-lesson').visible(true);
+
                     // Hide other columns that might be less important on mobile
-                    table.column(4).visible(false); // Price
-                    table.column(5).visible(false); // Quantity
-                    table.column(6).visible(false); // Created At
-                    table.column(7).visible(false); // Type
-                    
+                    // table.column(4).visible(false); // Price
+                    // table.column(5).visible(false); // Quantity
+                    // table.column(6).visible(false); // Created At
+                    // table.column(7).visible(false); // Type
+
                 } else {
                     // Show all columns on desktop
                     table.column('.drag-col').visible(true);
-                    table.column(4).visible(true); // Price
-                    table.column(5).visible(true); // Quantity
-                    table.column(6).visible(true); // Created At
-                    table.column(7).visible(true); // Type
+                    table.column('.dt-control').visible(false);
+                    // table.column(4).visible(true); // Price
+                    // table.column(5).visible(true); // Quantity
+                    // table.column(6).visible(true); // Created At
+                    // table.column(7).visible(true); // Type
                 }
             }
 
             // Run on load and resize
             handleMobileLayout();
-            handleResponsiveColumn(table);
+            // handleResponsiveColumn(table);
             $(window).on('resize', function() {
-                handleResponsiveColumn(table);
+                // handleResponsiveColumn(table);
                 handleMobileLayout();
             });
 
