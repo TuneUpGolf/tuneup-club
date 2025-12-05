@@ -84,14 +84,17 @@
 
                                     @php
                                         $description = html_entity_decode($lesson->short_description);
-                                        $cleanShortDescription = strip_tags(
-                                            $description,
-                                            '<div><ul><ol><li><strong><b><i><span><a>',
-                                        );
-                                        $cleanDescription = strip_tags(
-                                            $description,
-                                            '<div><ul><ol><li><span><a><strong><em><b><i>',
-                                        );
+                                        // $cleanShortDescription = strip_tags(
+                                        //     $description,
+                                        //     '<div><ul><ol><li><strong><b><i><span><a>',
+                                        // );
+                                        // $cleanDescription = strip_tags(
+                                        //     $description,
+                                        //     '<div><ul><ol><li><span><a><strong><em><b><i>',
+                                        // );
+                                        $cleanShortDescription = $description;
+                                        $cleanDescription = $description;
+
                                         $shortDescription = \Illuminate\Support\Str::limit(
                                             $cleanShortDescription,
                                             80,
