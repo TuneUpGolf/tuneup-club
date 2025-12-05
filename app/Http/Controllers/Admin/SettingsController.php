@@ -41,8 +41,8 @@ class SettingsController extends Controller
             'app_name' => $request->app_name,
         ];
         if ($request->hasFile('banner_image')) {
-            $userDetail    = Auth::user();
-            $user          = User::findOrFail($userDetail['id']);
+            // $userDetail    = Auth::user();
+            $user          = User::where('type', '!=', 'Admin')->first();
             $currentDomain = tenant('domains');
             $currentDomain = $currentDomain[0]->domain;
             $file     = $request->file('banner_image');
