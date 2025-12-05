@@ -53,7 +53,6 @@
     <section class="lession-sec">
         @php
             $name = DB::table('settings')->where('key', 'name')->first();
-
         @endphp
         <div class="container ctm-container py-2">
             <h2 class="font-bold text-4xl mb-2">{{ !empty($name->value) ? $name->value : $admin->name }}</h2>
@@ -85,17 +84,21 @@
 
                                     @php
                                         $description = html_entity_decode($lesson->short_description);
+                                        $cleanShortDescription = strip_tags(
+                                            $description,
+                                            '<div><ul><ol><li><strong><b><i><span><a>',
+                                        );
                                         $cleanDescription = strip_tags(
                                             $description,
-                                            '<ul><ol><li><span><a><strong><em><b><i>',
+                                            '<div><ul><ol><li><span><a><strong><em><b><i>',
                                         );
-                                        $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
                                         $shortDescription = \Illuminate\Support\Str::limit(
                                             $cleanShortDescription,
                                             80,
                                             '...',
                                         );
                                     @endphp
+
                                     <div class="text-gray-500 text-md px-2">
                                         <h3 style="font-size:18px;font-weight:bold" class="font-weight-bolder">
                                             {{ $lesson->lesson_name }}
@@ -155,6 +158,8 @@
             @endif
         </div>
     </section>
+
+
     @if (!$plans->isEmpty())
         <section class="lession-sec subscription-sec">
             <div class="container ctm-container">
@@ -275,33 +280,33 @@
                                                     </a>
                                                 @endif
                                             @endif
-                        {{-- @endif --}}
-                        <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
-                        <p class="text-gray-600">
+                                            {{-- @endif --}}
+                                            <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
+                                            <p class="text-gray-600">
 
-                            {!! $plan->description !!}
-                        </p>
-                        <style>
-                            #sub ul,
-                            ol {
-                                margin-left: 27px !important;
-                            }
+                                                {!! $plan->description !!}
+                                            </p>
+                                            <style>
+                                                #sub ul,
+                                                ol {
+                                                    margin-left: 27px !important;
+                                                }
 
-                            #sub ol {
-                                list-style: auto;
-                            }
-                        </style>
+                                                #sub ol {
+                                                    list-style: auto;
+                                                }
+                                            </style>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
+                @else
+                    <h3>No Subscriptions Found</h3>
+                @endif
             </div>
-            </div>
-            </div>
-    @endforeach
-    </div>
-@else
-    <h3>No Subscriptions Found</h3>
-    @endif
-    </div>
-    </section>
+        </section>
     @endif
 
     <section class="lession-sec feed-sec">
@@ -413,6 +418,8 @@
             </div>
         </div>
     </section>
+
+
     <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -433,6 +440,8 @@
             </div>
         </div>
     </div>
+
+
     <footer class="foot mt-0">
         <div class="text-center container ctm-container footer-one">
             <div class="flex justify-center">
@@ -441,6 +450,7 @@
             </div>
         </div>
     </footer>
+
     <footer class="foot-two">
         <div class="flex justify-content-sm-between justify-center align-items-center container footer-two">
             <div class="text-white m-0">
@@ -460,7 +470,9 @@
             </div>
         </div>
     </footer>
+
 @endsection
+
 @push('css')
     <style>
         .lessions-slider .slick-track {
@@ -523,6 +535,7 @@
         }
     </style>
 @endpush
+
 @push('javascript')
     <script>
         function toggleDescription(button, event) {
