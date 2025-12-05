@@ -141,6 +141,8 @@
                                 </div>
                             </div> --}}
                         @endif
+                            @if (Auth::user()->type != 'Influencer')
+
                         <div class="col-sm-6">
                             <div class="form-group">
                                 {{ Form::label('bio', __('Bio'), ['class' => 'form-label']) }}
@@ -157,43 +159,8 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="col-sm-6">
-                            {{-- <div class="form-group">
-                                {{ Form::label('role', __('Role'), ['class' => 'form-label']) }}
-                                {!! Form::text('role', $role ? $role->name : 'Role Not Set', [
-                                    'class' => 'form-control',
-                                    'readonly',
-                                ]) !!}
-                            </div> --}}
-                            @if (Auth::user()->type == 'Influencer')
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        {{ Form::label('stripe_account_id', __('Stripe Account Id'), ['class' => 'form-label']) }}
-                                        {!! Form::text('stripe_account_id', $user->stripe_account_id, [
-                                            'class' => 'form-control',
-                                            'id' => 'stripe_account_id',
-                                            'placeholder' => __('Stripe Account Id'),
-                                            'disabled',
-                                        ]) !!}
-                                    </div>
-                                </div>
-                            @endif
-                            {{-- <div class="form-group">
-                                {{ Form::label('push_token', __('Push Token'), ['class' => 'form-label']) }}
-                                {!! Form::text('push_token', $user?->pushToken?->token ? $user->pushToken->token : 'Push Token Not Set', [
-                                    'class' => 'form-control',
-                                ]) !!}
-                            </div> --}}
-                            {{-- <div class="form-group">
-                                {{ Form::label('service_fee', __('Service Fee'), ['class' => 'form-label']) }}
-                                {!! Form::text('service_fee', $user?->service_fee ?? 'Service Fee Not Set', [
-                                    'class' => 'form-control',
-                                    'readonly' => true,
-                                ]) !!}
-                            </div> --}}
-
-
-                        </div>
+                        @endif
+                        
                         <div class="col-sm-6">
                             <div class="form-group">
                                 <label class="mx-auto mb-0 avatar_crop btn btn-primary btn-lg d-block col-sm-12"
@@ -229,6 +196,45 @@
                 </div>
                 {!! Form::close() !!}
             </div>
+
+              @if (Auth::user()->type == 'Influencer')
+                <div id="bio-3" class="card">
+                    <div class="card-header">
+                        <h5>{{ __('Personal Info') }}</h5>
+                    </div>
+                    {{ Form::open(['route' => 'profile.update.bioupdate', 'method' => 'Post', 'class' => 'form-horizontal', 'data-validate', 'enctype' => 'multipart/form-data']) }}
+                    <div class="card-body">
+                        <div class="row form-group">
+
+
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ Form::label('bio', __('Personal Info'), ['class' => 'form-label']) }}
+                                    {!! Form::textarea('bio', $user->bio, [
+                                        'class' => 'form-control',
+                                        'id' => 'bio',
+                                        'placeholder' => __('Personal Info'),
+                                        'required',
+                                    ]) !!}
+                                    @if ($errors->has('bio'))
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('bio') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="text-end">
+                            {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
+                        </div>
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+            @endif
             @if (Auth::user()->type == 'Influencer')
                 <div id="useradd-7" class="card">
                     <div class="card-header">
