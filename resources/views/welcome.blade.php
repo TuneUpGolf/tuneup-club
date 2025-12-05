@@ -78,7 +78,7 @@
                                                 {{ $influencerDetails->name }}
                                             </a>
                                             <div class="text-lg font-bold tracking-tight text-primary">
-                                                {{ $lesson?->lesson_price }}
+                                                {{ $currency }} {{ $lesson?->lesson_price }} (USD)
                                             </div>
                                         </div>
                                     </div>
