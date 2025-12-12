@@ -9,10 +9,12 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Setting;
+use Stripe\Subscription;
 use Illuminate\Http\Request;
 use App\Facades\UtilityFacades;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\InfluencerSubscription;
 use App\DataTables\Superadmin\PlanDataTable;
 
 class PlanController extends Controller
@@ -52,7 +54,7 @@ class PlanController extends Controller
             request()->validate([
                 'name'          => 'required|max:50|unique:plans,name',
                 'price'         => 'required',
-                'duration'      => 'required',
+                // 'duration'      => 'required',
                 'durationtype'  => 'required',
                 // 'max_users'     => 'required',
                 // 'max_roles'     => 'required',
@@ -68,7 +70,7 @@ class PlanController extends Controller
 
             $currency = UtilityFacades::getsettings('currency') ?? 'usd';
 
-             Stripe::setApiKey(config('services.stripe.secret'));
+            Stripe::setApiKey(config('services.stripe.secret'));
 
             $product = Product::create([
                 'name' => $request->name,
@@ -76,12 +78,21 @@ class PlanController extends Controller
             ]);
 
             // 2️⃣ Create a Recurring Price
+            $interval = 'month';
+            $interval_count = 1;
+
+            if (strtolower($request->durationtype) == 'quarter') {
+                $interval_count = 3;
+            } elseif (strtolower($request->durationtype) == 'year') {
+                $interval = 'year';
+            }
+
             $price = Price::create([
-                'unit_amount' => round($request->price * 100), // Stripe expects cents
+                'unit_amount' => round($request->price * 100),
                 'currency' => $currency,
                 'recurring' => [
-                    // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
-                    'interval' =>  'month', // "month" or "year"
+                    'interval' => $interval,
+                    'interval_count' => $interval_count,
                 ],
                 'product' => $product->id,
             ]);
@@ -89,7 +100,7 @@ class PlanController extends Controller
             Plan::create([
                 'name'              => $request->name,
                 'price'             => $request->price,
-                'duration'          => $request->duration,
+                // 'duration'          => $request->duration,
                 'durationtype'      => $request->durationtype,
                 // 'max_users'         => $request->max_users,
                 // 'max_roles'         => $request->max_roles,
@@ -98,7 +109,7 @@ class PlanController extends Controller
                 // 'discount_setting'  => ($request->discount_setting) ? 'on' : 'off',
                 // 'discount'          => $request->discount_setting == 'on' ? $request->discount : null,
                 'description'       => $request->description,
-                 'stripe_product_id' => $product->id, // store Stripe IDs!
+                'stripe_product_id' => $product->id, // store Stripe IDs!
                 'stripe_price_id'   => $price->id,
             ]);
             return redirect()->route('plans.index')->with('success', __('Plan created successfully.'));
@@ -132,7 +143,7 @@ class PlanController extends Controller
             request()->validate([
                 'name'          => 'required|max:50|unique:plans,name,' . $id,
                 'price'         => 'required',
-                'duration'      => 'required',
+                // 'duration'      => 'required',
                 // 'max_users'     => 'required',
                 // 'max_roles'     => 'required',
                 // 'max_documents' => 'required',
@@ -140,9 +151,11 @@ class PlanController extends Controller
                 'description'   => 'max:100',
             ]);
 
-              Stripe::setApiKey(config('services.stripe.secret'));
+            Stripe::setApiKey(config('services.stripe.secret'));
 
             $plan = Plan::find($id);
+            $currency = UtilityFacades::getsettings('currency') ?? 'usd';
+
 
             try {
                 /**
@@ -166,18 +179,25 @@ class PlanController extends Controller
                     $plan->stripe_product_id = $product->id;
                 }
 
-                $price = Price::create(
-                    [
-                        'unit_amount' => round($request->price * 100),
-                        'currency' => 'usd',
-                        'recurring' => [
-                            // 'interval' => strtolower($request->durationtype),
-                            'interval' => 'month',
+                // 2️⃣ Create a Recurring Price
+                $interval = 'month';
+                $interval_count = 1;
 
-                        ],
-                        'product' => $plan->stripe_product_id,
-                    ]
-                );
+                if (strtolower($request->durationtype) == 'quarter') {
+                    $interval_count = 3;
+                } elseif (strtolower($request->durationtype) == 'year') {
+                    $interval = 'year';
+                }
+
+                $price = Price::create([
+                    'unit_amount' => round($request->price * 100),
+                    'currency' => $currency,
+                    'recurring' => [
+                        'interval' => $interval,
+                        'interval_count' => $interval_count,
+                    ],
+                    'product' => $product->id,
+                ]);
 
                 $plan->stripe_price_id = $price->id;
             } catch (\Exception $e) {
@@ -186,7 +206,7 @@ class PlanController extends Controller
 
             $plan->name             = $request->input('name');
             $plan->price            = $request->input('price');
-            $plan->duration         = $request->input('duration');
+            // $plan->duration         = $request->input('duration');
             $plan->durationtype     = $request->input('durationtype');
             // $plan->max_users        = $request->input('max_users');
             // $plan->max_roles        = $request->input('max_roles');
@@ -263,5 +283,46 @@ class PlanController extends Controller
             'is_success'    => true,
             'message'       => __('Plan status changed successfully.')
         ]);
+    }
+
+    function cancelInfluencerSubscription($tenant_id, $influencer_id)
+    {
+        // Fetch the influencer's subscription
+        $subscription = InfluencerSubscription::where('influencer_id', $influencer_id)
+        ->where('tenant_id', $tenant_id)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$subscription) {
+            return [
+                'success' => false,
+                'message' => 'No active subscription found for this influencer.'
+            ];
+        }
+
+        // Cancel subscription on Stripe
+        if ($subscription->stripe_subscription_id) {
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            try {
+                $stripeSubscription = Subscription::retrieve($subscription->stripe_subscription_id);
+                $stripeSubscription->cancel();
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Stripe cancellation failed: ' . $e->getMessage()
+                ];
+            }
+        }
+
+        // Update subscription status in local database
+        $subscription->status = 'canceled';
+        // $subscription->canceled_at = now(); // optional, if you track cancelation date
+        $subscription->save();
+
+        return [
+            'success' => true,
+            'message' => 'Subscription canceled successfully.'
+        ];
     }
 }

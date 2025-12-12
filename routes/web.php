@@ -60,6 +60,7 @@ use App\Http\Controllers\Superadmin\Payment\BenefitPaymentController;
 use App\Http\Controllers\Superadmin\Payment\EasebuzzPaymentController;
 use App\Http\Controllers\Superadmin\Payment\RazorpayPaymentController;
 use App\Http\Controllers\Admin\Payment\StripeController as PaymentStripeController;
+use App\Http\Controllers\Admin\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -141,6 +142,7 @@ Route::group(['middleware' => ['auth', 'Setting', 'xss', '2fa']], function () {
     Route::resource('users', UserController::class);
     Route::get('users/{id}/influencers', [UserController::class, 'influencers'])->name('users.influencers');
     Route::get('{tenant_id}/users/{influencer_id}/influencers', [UserController::class, 'edit_influencers'])->name('superadmin.influencer.edit');
+    Route::get('{tenant_id}/users/{influencer_id}/influencers/deactive_sub', [PlanController::class, 'cancelInfluencerSubscription'])->name('superadmin.influencer.deactive_sub');
     Route::post('{tenant_id}/users/{influencer_id}/influencers', [UserController::class, 'update_influencers'])->name('superadmin.influencer.update');
     Route::get('users/{id}/impersonate', [UserController::class, 'impersonate'])->name('users.impersonate');
     Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
