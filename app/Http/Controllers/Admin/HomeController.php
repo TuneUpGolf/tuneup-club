@@ -61,8 +61,9 @@ class HomeController extends Controller
             ]);
 
             if ($response->successful()) {
+                $data = $response->json();
                 $messages = $data['data'][0]['data'] ?? [];
-
+                
                 // Count user's messages
                 $userMessageCount = 0;
                 foreach ($messages as $message) {
