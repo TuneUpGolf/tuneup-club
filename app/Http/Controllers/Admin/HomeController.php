@@ -61,7 +61,7 @@ class HomeController extends Controller
             ]);
 
             if ($response->successful()) {
-                dd($response, $response->json());
+                dd($response, $response->json(), $groupId);
                 return $response->json();
             } else {
                 // Handle error response
