@@ -43,7 +43,7 @@ class HomeController extends Controller
         $this->utility = $utility;
     }
 
-    public function testt($page = 15)
+    public function testt($page = 1)
     {
         $chatBaseUrl = env("CHAT_BASE_URL");
         $user = auth()->user();
