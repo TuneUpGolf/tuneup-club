@@ -362,7 +362,7 @@
     </section>
 
 
-    @if (!$plans->isEmpty())
+    @if (!$plans?->isEmpty())
         <section class="lession-sec subscription-sec">
             <div class="container ctm-container">
                 @php
@@ -405,7 +405,7 @@
                                                 <p class="text-4xl font-bold">
                                                     {{ '$' . $plan->price }}/</p>
                                                 <p class="text-2xl text-gray-600">
-                                                    Month
+                                                    {{ $plan->durationtype . 'ly'}}
                                                 </p>
                                             </div>
 

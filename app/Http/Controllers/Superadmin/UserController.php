@@ -57,6 +57,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        // dd("test");
         if (Auth::user()->can('create-user')) {
             \DB::beginTransaction();
             try {
@@ -177,6 +178,7 @@ class UserController extends Controller
                 \Log::info($e);
                 \DB::rollback();
                 echo $e->getMessage();
+                // dd($e);
                 return redirect()->back()->with('errors', 'Please check database name, database user name and database password.' . $e->getMessage());
             }
         } else {
