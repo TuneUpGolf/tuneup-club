@@ -2,35 +2,36 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\Admin\PurchaseDataTable;
-use App\DataTables\Admin\SalesDataTable;
-use App\Facades\Utility;
-use App\Facades\UtilityFacades;
-use App\Http\Controllers\Controller;
-use App\Models\Album;
-use App\Models\AlbumCategory;
-use App\Models\DocumentGenrator;
-use App\Models\Event;
-use App\Models\Follow;
-use App\Models\Follower;
-use App\Models\Lesson;
+use DatePeriod;
+use Carbon\Carbon;
 use App\Models\Plan;
 use App\Models\Post;
-use App\Models\Posts;
-use App\Models\Order;
-use App\Models\Purchase;
 use App\Models\Role;
-use App\Models\SupportTicket;
 use App\Models\User;
-use App\Providers\AuthServiceProvider;
-use App\Services\ChatService;
-use App\Services\InfluncerServices;
-use Carbon\Carbon;
+use App\Models\Album;
+use App\Models\Event;
+use App\Models\Order;
+use App\Models\Posts;
+use App\Models\Follow;
+use App\Models\Lesson;
+use App\Facades\Utility;
+use App\Models\Follower;
+use App\Models\Purchase;
 use Carbon\CarbonInterval;
-use DatePeriod;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\AlbumCategory;
+use App\Models\SupportTicket;
+use App\Services\ChatService;
+use App\Facades\UtilityFacades;
+use App\Models\DocumentGenrator;
 use Illuminate\Support\Facades\DB;
+use App\Services\InfluncerServices;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use App\Providers\AuthServiceProvider;
+use App\DataTables\Admin\SalesDataTable;
+use App\DataTables\Admin\PurchaseDataTable;
 
 class HomeController extends Controller
 {
@@ -40,6 +41,42 @@ class HomeController extends Controller
     {
         $this->chatService = $chatService;
         $this->utility = $utility;
+    }
+
+    public function testt($page = 15)
+    {
+        $chatBaseUrl = env("CHAT_BASE_URL");
+        $user = auth()->user();
+        $token        = $this->chatService->getChatToken($user->chat_user_id);
+        $groupId = $user->group_id;
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $token,
+            ])->post("{$chatBaseUrl}/brainvire-chat-base-app/api/v1/chat/list", [
+                'groupId' => $groupId,
+                'userType' => 'onetoone',
+                'perPage' => 15,
+                'page' => $page,
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            } else {
+                // Handle error response
+                return [
+                    'error' => true,
+                    'status' => $response->status(),
+                    'message' => $response->body()
+                ];
+            }
+        } catch (\Exception $e) {
+            // Handle exception
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
     public function landingPage()

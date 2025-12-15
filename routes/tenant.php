@@ -244,6 +244,7 @@ Route::middleware([
         Route::resource('roles', RoleController::class);
         Route::post('role-permission/{id}', [RoleController::class, 'assignPermission'])->name('role.permission');
 
+        Route::get("yesy", [HomeController::class, 'testt']);
         // home
         Route::post('change/theme/mode', [HomeController::class, 'changeThemeMode'])->name('change.theme.mode');
         Route::get('home', [HomeController::class, 'index'])->name('home');
