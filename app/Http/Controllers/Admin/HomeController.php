@@ -67,7 +67,7 @@ class HomeController extends Controller
                 // Count user's messages
                 $userMessageCount = 0;
                 foreach ($messages as $message) {
-                    dd($message);
+                    // dd($message);
                     if (
                         isset($message['userData']['userId']) &&
                         $message['userData']['userId'] == $user->id
