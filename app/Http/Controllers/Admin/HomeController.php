@@ -61,8 +61,25 @@ class HomeController extends Controller
             ]);
 
             if ($response->successful()) {
-                dd($response, $response->json(), $groupId);
-                return $response->json();
+                $messages = $data['data'][0]['data'] ?? [];
+
+                // Count user's messages
+                $userMessageCount = 0;
+                foreach ($messages as $message) {
+                    if (
+                        isset($message['userData']['userId']) &&
+                        $message['userData']['userId'] == $user->id
+                    ) {
+                        $userMessageCount++;
+                    }
+                }
+
+                return response()->json([
+                    'user_id' => $user->id,
+                    'total_messages_in_response' => count($messages),
+                    'user_messages_count' => $userMessageCount,
+                    'sample_messages' => array_slice($messages, 0, 3) // Show first 3 for debugging
+                ]);
             } else {
                 // Handle error response
                 return [
@@ -114,7 +131,7 @@ class HomeController extends Controller
                 break;
         }
         $posts = $posts->orderBy('column_order', 'asc')->paginate(6);
-     
+
 
         if ($userType == Role::ROLE_FOLLOWER) {
 
@@ -135,7 +152,7 @@ class HomeController extends Controller
             } else {
                 $albumcategories = null;
             }
-           
+
 
             return $this->followerDashboard([
                 'dataTable'      => $dataTable,
@@ -278,7 +295,7 @@ class HomeController extends Controller
         $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
         $inPersonCompleted  = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
         $inPersonPending    = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', false)->count();
-     
+
         return $datatable->render('admin.dashboard.home', compact(
             'user',
             'paymentTypes',
