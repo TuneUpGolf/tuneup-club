@@ -139,7 +139,7 @@ class PlanController extends Controller
             request()->validate([
                 'name'         => 'required|unique:plans,name|max:50',
                 'price'        => 'required',
-                'duration'     => 'required',
+                // 'duration'     => 'required',
                 'durationtype' => 'required',
                 'max_users'    => 'required',
                 'lesson_limit' => 'required|integer',
@@ -190,13 +190,22 @@ class PlanController extends Controller
                 $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
                 $convertedAmount = round($gross);
             }
+
+            $interval = 'month';
+            $interval_count = 1;
+
+            if (strtolower($request->durationtype) == 'quarter') {
+                $interval_count = 3;
+            } elseif (strtolower($request->durationtype) == 'year') {
+                $interval = 'year';
+            }
             // 2️⃣ Create a Recurring Price
             $price = Price::create([
                 'unit_amount' => round($convertedAmount * 100), // Stripe expects cents
                 'currency' => 'usd',
                 'recurring' => [
-                    // 'interval' =>  strtolower($request->durationtype), // "month" or "year"
-                    'interval' =>  'month', // "month" or "year"
+                    'interval' => $interval,
+                    'interval_count' => $interval_count,
                 ],
                 'product' => $product->id,
             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
@@ -206,7 +215,7 @@ class PlanController extends Controller
             Plan::create([
                 'name'            => $request->name,
                 'price'           => $request->price,
-                'duration'        => $request->duration,
+                // 'duration'        => $request->duration,
                 'durationtype'    => $request->durationtype,
                 'tenant_id'       => $tenantId,
                 'max_users'       => $request->max_users,
@@ -324,7 +333,7 @@ class PlanController extends Controller
                 }
 
 
-                  $convertedAmount = $request->price;
+                $convertedAmount = $request->price;
                 if ($instructor?->stripe_transaction_fee != 'instructor') {
                     // 🎯 Add Stripe fee recovery here
                     $stripePerc = 0.029;       // 2.9%
@@ -332,14 +341,24 @@ class PlanController extends Controller
                     $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
                     $convertedAmount = round($gross);
                 }
+
+                $interval = 'month';
+                $interval_count = 1;
+
+                if (strtolower($request->durationtype) == 'quarter') {
+                    $interval_count = 3;
+                } elseif (strtolower($request->durationtype) == 'year') {
+                    $interval = 'year';
+                }
+
+
                 $price = Price::create(
                     [
                         'unit_amount' => round($convertedAmount * 100),
                         'currency' => 'usd',
                         'recurring' => [
-                            // 'interval' => strtolower($request->durationtype),
-                            'interval' => 'month',
-
+                            'interval' => $interval,
+                            'interval_count' => $interval_count,
                         ],
                         'product' => $plan->stripe_product_id,
                     ],
@@ -353,7 +372,7 @@ class PlanController extends Controller
 
             $plan->name            = $request->input('name');
             $plan->price           = $request->input('price');
-            $plan->duration        = $request->input('duration');
+            // $plan->duration        = $request->input('duration');
             $plan->durationtype    = $request->input('durationtype');
             $plan->max_users       = $request->input('max_users');
             $plan->description     = $_POST['description'];
@@ -428,7 +447,12 @@ class PlanController extends Controller
             $paymentTypes        = UtilityFacades::getpaymenttypes();
             $adminPaymentSetting = UtilityFacades::getplansetting();
         }
-
+        // Overriding as curent stripe is handle through env
+        $paymentTypes["stripe"] =  "Stripe";
+        $adminPaymentSetting["stripesetting"] =  "on";
+        $adminPaymentSetting["stripe_key"] =  config('services.stripe.key');
+        $adminPaymentSetting["stripe_secret"] =  config('services.stripe.secret');
+        $adminPaymentSetting["stripe_description"] =  "";
         if ($plan) {
             return view('admin.plans.payment', compact('plan', 'adminPaymentSetting', 'paymentTypes'));
         } else {

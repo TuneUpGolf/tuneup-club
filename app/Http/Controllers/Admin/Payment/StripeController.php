@@ -679,24 +679,24 @@ class StripeController extends Controller
                     ]);
 
                     // Auto-cancel logic
-                    if (strtolower($plan->durationtype) === 'month') {
-                        $cancelAt = now()->addMonths($plan->duration)->timestamp;
-                    } elseif (strtolower($plan->durationtype) === 'day') {
-                        $cancelAt = now()->addDays($plan->duration)->timestamp;
-                    } elseif (strtolower($plan->durationtype) === 'year') {
-                        $cancelAt = now()->addYears($plan->duration)->timestamp;
-                    } else {
-                        // fallback (optional) - e.g., default to months or handle error
-                        $cancelAt = now()->addMonths($plan->duration)->timestamp;
-                    }
+                    // if (strtolower($plan->durationtype) === 'month') {
+                    //     $cancelAt = now()->addMonths($plan->duration)->timestamp;
+                    // } elseif (strtolower($plan->durationtype) === 'day') {
+                    //     $cancelAt = now()->addDays($plan->duration)->timestamp;
+                    // } elseif (strtolower($plan->durationtype) === 'year') {
+                    //     $cancelAt = now()->addYears($plan->duration)->timestamp;
+                    // } else {
+                    //     // fallback (optional) - e.g., default to months or handle error
+                    //     $cancelAt = now()->addMonths($plan->duration)->timestamp;
+                    // }
 
-                    // \Log::info($cancelAt);
+                    // // \Log::info($cancelAt);
 
-                    \Stripe\Subscription::update($subscription_id, [
-                        'cancel_at' => $cancelAt,
-                    ], [
-                        'stripe_account' => $plan->influencer->stripe_account_id // Use the connected account ID
-                    ]);
+                    // \Stripe\Subscription::update($subscription_id, [
+                    //     'cancel_at' => $cancelAt,
+                    // ], [
+                    //     'stripe_account' => $plan->influencer->stripe_account_id // Use the connected account ID
+                    // ]);
                 }
             }
         } catch (\Exception $e) {

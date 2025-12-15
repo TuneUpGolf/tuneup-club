@@ -32,7 +32,7 @@
                             {!! Form::text('price', null, ['placeholder' => __('Enter price'), 'class' => 'form-control', 'required']) !!}
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            {{-- <div class="col-md-6">
                                 <div class="form-group">
                                     {{ Form::label('duration', __('Duration'), ['class' => 'form-label']) }}
                                     {!! Form::number('duration', null, [
@@ -41,11 +41,11 @@
                                         'required',
                                     ]) !!}
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-md-6">
                                 <div class="form-group">
                                     {{ Form::label('durationtype', __('Duration'), ['class' => 'form-label']) }}
-                                    {!! Form::select('durationtype', ['Day' => 'Day', 'Month' => 'Month', 'Year' => 'Year'], $plan->durationtype, [
+                                    {!! Form::select('durationtype', ['Day' => 'Day', 'Month' => 'Month','Quarter' => 'Quarter', 'Year' => 'Year'], $plan->durationtype, [
                                         'class' => 'form-control',
                                         'data-trigger',
                                     ]) !!}
