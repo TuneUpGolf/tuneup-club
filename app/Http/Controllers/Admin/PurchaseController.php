@@ -976,7 +976,7 @@ class PurchaseController extends Controller
 
                     // $type = Str::contains($file->getMimeType(), 'video') ? 'video' : 'image';
 
-                     $uploadedPaths[] = [
+                    $uploadedPaths[] = [
                         'url' => $file,
                         'type' => $request->fdbk_video_type[$index],
                     ];
@@ -984,27 +984,27 @@ class PurchaseController extends Controller
 
                 // Handle feedback content - ACCUMULATE instead of overwrite
                 // Handle feedback content - ACCUMULATE instead of overwrite
-                    $existingFeedbackContent = FeedbackContent::where('purchase_video_id', $purchaseVideo->id)->first();
-                    $existingUrls = [];
+                $existingFeedbackContent = FeedbackContent::where('purchase_video_id', $purchaseVideo->id)->first();
+                $existingUrls = [];
 
-                    if ($existingFeedbackContent && !empty($existingFeedbackContent->url)) {
-                        if (is_string($existingFeedbackContent->url) && $this->isJson($existingFeedbackContent->url)) {
-                            $existingUrls = json_decode($existingFeedbackContent->url, true);
-                        } elseif (is_string($existingFeedbackContent->url)) {
-                            // It's a plain string, convert to array with single entry
-                            $existingUrls = [['url' => $existingFeedbackContent->url, 'type' => 'unknown']];
-                        } elseif (is_array($existingFeedbackContent->url)) {
-                            $existingUrls = $existingFeedbackContent->url;
-                        }
+                if ($existingFeedbackContent && !empty($existingFeedbackContent->url)) {
+                    if (is_string($existingFeedbackContent->url) && $this->isJson($existingFeedbackContent->url)) {
+                        $existingUrls = json_decode($existingFeedbackContent->url, true);
+                    } elseif (is_string($existingFeedbackContent->url)) {
+                        // It's a plain string, convert to array with single entry
+                        $existingUrls = [['url' => $existingFeedbackContent->url, 'type' => 'unknown']];
+                    } elseif (is_array($existingFeedbackContent->url)) {
+                        $existingUrls = $existingFeedbackContent->url;
                     }
+                }
 
-                    // Merge new URLs with existing
-                    $allUrls = array_merge($existingUrls, $uploadedPaths);
+                // Merge new URLs with existing
+                $allUrls = array_merge($existingUrls, $uploadedPaths);
 
-                    FeedbackContent::updateOrCreate(
-                        ['purchase_video_id' => $purchaseVideo->id],
-                        ['url' => json_encode($allUrls)]
-                    );
+                FeedbackContent::updateOrCreate(
+                    ['purchase_video_id' => $purchaseVideo->id],
+                    ['url' => json_encode($allUrls)]
+                );
                 // }
 
                 $purchaseVideo->isFeedbackComplete = 1;
@@ -1017,7 +1017,7 @@ class PurchaseController extends Controller
 
                 // Send email notification
                 SendEmail::dispatch(
-                    $purchaseVideo->purchase->student->email,
+                    $purchaseVideo->purchase->student?->email,
                     new PurchaseFeedback($purchaseVideo->purchase)
                 );
 
@@ -1057,6 +1057,14 @@ class PurchaseController extends Controller
             return redirect()->back()->with('failed', $e->getMessage());
         }
     }
+
+    // Helper function to check if string is JSON
+    private function isJson($string)
+    {
+        json_decode($string);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
 
     public function editFeedBackIndex(Request $request)
     {
@@ -1355,7 +1363,7 @@ class PurchaseController extends Controller
         }
     }
 
-     private function deleteVideoFromStorage($videoUrl)
+    private function deleteVideoFromStorage($videoUrl)
     {
         try {
             // Extract the path from the full URL

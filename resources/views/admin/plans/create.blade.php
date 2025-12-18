@@ -24,34 +24,36 @@
                             {!! Form::text('name', old('name'), ['placeholder' => __('Enter name'), 'class' => 'form-control', 'required']) !!}
                         </div>
 
-                        <div class="form-group">
-                            {{ Form::label('price', __('Price (Per Month)'), ['class' => 'form-label']) }}
-                            {!! Form::text('price', old('price'), [
-                                'placeholder' => __('Enter price'),
-                                'class' => 'form-control',
-                                'required',
-                            ]) !!}
-                        </div>
-
                         <div class="row">
-                            {{-- <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    {{ Form::label('duration', __('Duration'), ['class' => 'form-label']) }}
-                                    {!! Form::number('duration', old('duration'), [
-                                        'placeholder' => __('Enter duration'),
+                                    {{ Form::label('price', __('Monthly Price'), ['class' => 'form-label']) }}
+                                    {!! Form::text('price', old('price'), [
+                                        'placeholder' => __('Enter price'),
                                         'class' => 'form-control',
                                         'required',
                                     ]) !!}
+                                    <small class="text-muted">{{ __('Billed monthly') }}</small>
                                 </div>
-                            </div> --}}
-                            <div class="col-md-12">
+                            </div>
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    {{ Form::label('durationtype', __('Duration'), ['class' => 'form-label']) }}
-                                    {!! Form::select('durationtype', ['Month' => 'Month', 'Quarter' => 'Quarter', 'Year' => 'Year'], old('durationtype', 'Month'), [
+                                    {{ Form::label('price_quarter', __('Quarterly Price'), ['class' => 'form-label']) }}
+                                    {!! Form::text('price_quarter', old('price_quarter'), [
+                                        'placeholder' => __('Enter price'),
                                         'class' => 'form-control',
-                                        'required',
-                                        'data-trigger',
                                     ]) !!}
+                                    <small class="text-muted">{{ __('Billed every 3 months') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ Form::label('price_year', __('Yearly Price'), ['class' => 'form-label']) }}
+                                    {!! Form::text('price_year', old('price_year'), [
+                                        'placeholder' => __('Enter price'),
+                                        'class' => 'form-control',
+                                    ]) !!}
+                                    <small class="text-muted">{{ __('Billed annually') }}</small>
                                 </div>
                             </div>
                         </div>

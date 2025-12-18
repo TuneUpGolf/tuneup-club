@@ -15,6 +15,8 @@ class Plan extends Model
     protected $fillable = [
         'name',
         'price',
+        'price_quarter',
+        'price_year',
         'duration',
         'max_users',
         'max_roles',
@@ -31,6 +33,9 @@ class Plan extends Model
         'is_feed_enabled',
         'influencer_id',
         'stripe_price_id',
+        'stripe_price_quarter_id',
+        'stripe_price_year_id',
+        
         'stripe_product_id',
         'lesson_limit'
     ];

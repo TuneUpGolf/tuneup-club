@@ -55,16 +55,25 @@
                                             <span class="text-gray-800 text-hover-primary">{!! isset($plan->description) ? $plan->description : '--' !!}</span>
                                         </td>
                                     </tr>
+                                    @php
+                                        if(isset($default_sub[$subscription])){
+                                            $duration = ucfirst($default_sub[$subscription]['duration']);
+                                            $price = $default_sub[$subscription]['price'];
+                                        }else{
+                                            $duration = $plan->durationtype;
+                                            $price = $plan->price;
+                                        }
+                                    @endphp
                                     <tr>
                                         <td class="text-muted">{{ __('Subscription Duration') }}:</td>
                                         <td>
-                                            {{ $plan->duration . ' ' . $plan->durationtype }}
+                                            {{ $duration }}
                                         </td>
                                     </tr>
                                     <tr class="total_payable">
                                         <td class="text-muted">{{ __('Subscription Fees') }}:</td>
                                         <td>
-                                            {{ $adminPaymentSetting['currency_symbol'] }}{{ number_format($plan->price, 2) }}/{{$plan->durationtype}}ly
+                                            {{ $adminPaymentSetting['currency_symbol'] }}{{ number_format($price, 2) }}/{{$duration}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -76,7 +85,7 @@
                                     <tr>
                                         <td class="text-muted">{{ __('Total Price') }}:</td>
                                         <td class="final-price">
-                                            {{ $adminPaymentSetting['currency_symbol'] }}{{ number_format($plan->price, 2) }}
+                                            {{ $adminPaymentSetting['currency_symbol'] }}{{ number_format($price, 2) }}
                                         </td>
                                     </tr>
                                 </table>
@@ -341,6 +350,7 @@
                                     </div>
                                     <form role="form" action="{{ $route }}" method="post" name="payuForm"
                                         class="require-validation" id="{{ $id }}">
+                                        <input type="hidden" name="subscription_id" value="{{ $subscription}}">
                                         @csrf
                                         <div class="card-body">
                                             <div class="tab-pane {{ ($adminPaymentSetting['stripesetting'] == 'on' && !empty($adminPaymentSetting['stripe_key']) && !empty($adminPaymentSetting['stripe_secret'])) == 'on' ? 'active' : '' }}"
@@ -602,7 +612,7 @@
                     // ✅ Only publishable key here
                     const stripe = Stripe(adminPaymentSetting.stripe_key);
 
-                    createCheckoutSession(res.plan_id, res.order_id, res.coupon, res.total_price).then(
+                    createCheckoutSession(res.plan_id, res.order_id, res.coupon, res.total_price, res.stripe_price_id).then(
                         function(data) {
                             if (data.sessionId) {
 
@@ -615,7 +625,7 @@
                 });
             }).submit();
 
-            const createCheckoutSession = function(plan_id, order_id, coupon, amount) {
+            const createCheckoutSession = function(plan_id, order_id, coupon, amount, stripe_price_id) {
                 return fetch("{{ route('stripe.session') }}", {
                     method: "POST",
                     headers: {
@@ -628,6 +638,7 @@
                         order_id: order_id,
                         coupon: coupon,
                         amount: amount,
+                        stripe_price_id: stripe_price_id,
                     }),
                 }).then(result => result.json());
             };

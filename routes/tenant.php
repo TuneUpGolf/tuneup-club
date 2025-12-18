@@ -244,7 +244,7 @@ Route::middleware([
         Route::resource('roles', RoleController::class);
         Route::post('role-permission/{id}', [RoleController::class, 'assignPermission'])->name('role.permission');
 
-        Route::get("yesy", [HomeController::class, 'testt']);
+        // Route::get("yesy", [HomeController::class, 'testt']);
         // home
         Route::post('change/theme/mode', [HomeController::class, 'changeThemeMode'])->name('change.theme.mode');
         Route::get('home', [HomeController::class, 'index'])->name('home');
@@ -299,7 +299,7 @@ Route::middleware([
         Route::get('myplans-create', [PlanController::class, 'createMyPlan'])->name('plans.createmyplan');
         Route::get('myplans/{id}/edit', [PlanController::class, 'editMyplan'])->name('requestdomain.editplan');
         Route::post('myplan-status/{id}', [PlanController::class, 'planStatus'])->name('myplan.status');
-        Route::get('payment/{code}', [PlanController::class, 'payment'])->name('payment');
+        Route::get('payment/{code}/{subscription?}', [PlanController::class, 'payment'])->name('payment');
         Route::get('plans/{plan}/buyers', [PlanController::class, 'buyers'])->name('plans.buyers');
         Route::get('cancel-plan/{plan_id}', [PlanController::class, 'cancelPlan'])->name('plans.cancel');
 
