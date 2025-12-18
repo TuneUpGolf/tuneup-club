@@ -184,19 +184,39 @@ class PurchaseDataTable extends DataTable
                 "searchPlaceholder" => __('Search'),
                 'search' => ''
             ])
-            ->initComplete('function() {
-                    var table = this;
-                    var searchInput = $(\'#\' + table.api().table().container().id + \' label input[type="search"]\');
-                    searchInput.removeClass(\'form-control form-control-sm\').addClass(\'dataTable-input\');
+      ->initComplete('function () {
+    var api = this.api();
+    var container = $(api.table().container());
 
-                    var select = $(table.api().table().container())
-                        .find(".dataTables_length select")
-                        .removeClass(\'custom-select custom-select-sm form-control form-control-sm\')
-                        .addClass(\'dataTable-selector\');
+    var filter = container.find(".dataTables_filter");
 
-                    
+    // Remove "Search:" text node
+    filter.find("label").contents().filter(function () {
+        return this.nodeType === 3;
+    }).remove();
 
-                }')
+    // Search input
+    var searchInput = filter.find("input[type=search]")
+        .removeClass("form-control-sm")
+        .addClass("form-control dt-search");
+
+    // Custom select
+    var filterHtml = `
+        <select id="statusFilter" class="form-select dt-select">
+            <option value="">All Submissions</option>
+            <option value="pending">Pending Submissions</option>
+            <option value="completed">Completed Submissions</option>
+        </select>
+    `;
+
+    filter.prepend(filterHtml);
+
+    $("#statusFilter").on("change", function () {
+        api.ajax.reload();
+    });
+}')
+
+
             ->parameters([
                 "columnDefs" => [
                     ["responsivePriority" => 1, "targets" => 1],
