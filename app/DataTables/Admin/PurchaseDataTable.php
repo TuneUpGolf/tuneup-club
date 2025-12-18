@@ -17,16 +17,21 @@ class PurchaseDataTable extends DataTable
         return datatables()
             ->eloquent($query)
             ->filter(function ($query) {
-                if (request()->has('status') && request('status') !== '') {
+
+                // Status filter
+                if (request()->filled('status')) {
+
                     if (request('status') === 'pending') {
-                        $query->where('purchases.isFeedbackComplete', 0);
+                        $query->whereDoesntHave('videos.feedbackContent');
                     }
 
                     if (request('status') === 'completed') {
-                        $query->where('purchases.isFeedbackComplete', 1);
+                        $query->whereHas('videos.feedbackContent');
                     }
                 }
-                if (request()->has('search') && !empty(request('search')['value'])) {
+
+                // Search filter
+                if (request()->filled('search.value')) {
                     $search = request('search')['value'];
 
                     $query->where(function ($q) use ($search) {
@@ -37,6 +42,7 @@ class PurchaseDataTable extends DataTable
                     });
                 }
             })
+
             ->smart(false)
             ->addIndexColumn()
             ->filterColumn('lesson_name', function ($query, $keyword) {
@@ -174,11 +180,11 @@ class PurchaseDataTable extends DataTable
             ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
             ->minifiedAjax()
-    ->ajax([
-        'data' => 'function(d) {
+            ->ajax([
+                'data' => 'function(d) {
             d.status = $("#statusFilter").val();
         }'
-    ])
+            ])
             ->orderBy(1)
             ->language([
                 "paginate" => [
@@ -189,7 +195,7 @@ class PurchaseDataTable extends DataTable
                 "searchPlaceholder" => __('Search'),
                 'search' => ''
             ])
-      ->initComplete('function () {
+            ->initComplete('function () {
     var api = this.api();
     var container = $(api.table().container());
 
