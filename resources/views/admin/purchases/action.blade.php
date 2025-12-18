@@ -40,7 +40,7 @@
     @endcan
 @endif --}}
 
-@if (auth()->user()->type == 'Influencer' && ($purchaseVideo = $purchase->videos->first()))
+{{-- @if (auth()->user()->type == 'Influencer' && ($purchaseVideo = $purchase->videos->first()))
     <a class="btn btn-sm small btn btn-warning "
         href="{{ route('purchase.feedback.create', ['purchase_id' => $purchase->id, 'purchase_video' => $purchaseVideo->video_url]) }}"
         data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Add Feedback') }}">
@@ -65,7 +65,61 @@
         <span class="feedback-icon"><i class="ti ti-eye text-white"></i></span>
         <span class="feedback-text">View Feedback</span>
     </a>
+@endif --}}
+
+
+
+@php
+    $user = auth()->user();
+    $isInfluencer = $user->type === 'Influencer';
+    $isFollower   = $user->type === 'Follower';
+
+    $purchaseVideo = $purchase->videos->first();
+
+    $canAddFeedback =
+        $isInfluencer && $purchaseVideo;
+
+    $canViewFeedback =
+        (
+            $isFollower &&
+            $purchase->status === 'complete' &&
+            $purchase->lesson->type === 'online'
+        ) ||
+        (
+            $isInfluencer &&
+            ($purchaseVideo->feedback ?? false)
+        );
+@endphp
+
+{{-- Add Feedback (Influencer) --}}
+@if ($canAddFeedback)
+    <a class="btn btn-sm small btn-warning"
+        href="{{ route('purchase.feedback.create', [
+            'purchase_id' => $purchase->id,
+            'purchase_video' => $purchaseVideo->video_url
+        ]) }}"
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="{{ __('Add Feedback') }}">
+        <i class="ti ti-plus text-white"></i>
+    </a>
 @endif
+
+{{-- View Feedback (Follower / Influencer) --}}
+@if ($canViewFeedback)
+    <a class="btn btn-sm small btn-warning"
+        href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}"
+        data-bs-toggle="tooltip"
+        data-bs-placement="bottom"
+        title="{{ __('View Feedback') }}">
+        <span class="feedback-icon">
+            <i class="ti ti-eye text-white"></i>
+        </span>
+        <span class="feedback-text">View Feedback</span>
+    </a>
+@endif
+
+
 
 @can('delete-purchases')
     {!! Form::open([
