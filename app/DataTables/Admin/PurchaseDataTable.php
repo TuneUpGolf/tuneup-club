@@ -173,6 +173,11 @@ class PurchaseDataTable extends DataTable
             ->setTableId('purchases-table')
             ->addTableClass('display responsive nowrap')
             ->columns($this->getColumns())
+            ->ajax([
+                'data' => 'function(d) {
+        d.status = $("#statusFilter").val();
+    }'
+            ])
             ->minifiedAjax()
             ->orderBy(1)
             ->language([
