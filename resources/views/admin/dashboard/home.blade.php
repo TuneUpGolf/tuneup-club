@@ -52,14 +52,48 @@
                 min-height: unset;
             }
         }
+/* Filter container */
+.dataTables_filter {
+    display: flex !important;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap !important;
+    width: 100%;
+}
+
+/* Remove label width issue */
+.dataTables_filter label {
+    display: contents !important;
+}
+
+/* Equal width for mobile */
+.dt-search,
+.dt-select {
+    height: 38px;
+    width: 50% !important;
+    flex: 0 0 50% !important;
+    min-width: 0 !important;
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+    .dt-search,
+    .dt-select {
+        width: 220px !important;
+        flex: unset !important;
+    }
+}
+
+
     </style>
     <div class="row">
         <div class="col-xxl-12">
             <div class="row">
                 @can('manage-lessons')
-                    <div class="col-lg-3 col-md-6 col-6 pb-3 ">
-                        <div class="relative flex flex-col bg-white rounded-lg w-96 top-boxes">
-                            <div class="p-2 p-sm-3 flex flex-col">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes">
+                            <div class="p-2 p-sm-3">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card1 p-2 rounded">
                                         <svg width="28" height="28" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"
@@ -80,9 +114,9 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-md-6 col-6 pb-3 top-boxes">
-                        <div class="relative flex flex-col bg-white rounded-lg w-96 top-boxes">
-                            <div class="p-2 p-sm-3 flex flex-col">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes">
+                            <div class="p-2 p-sm-3">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card4 p-2 rounded">
 
@@ -149,9 +183,9 @@
                     </div>
                 @endcan
                 @can('manage-followers')
-                    <div class="col-lg-3 col-md-6 col-6 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-2 p-sm-3 flex flex-col">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg h-100">
+                            <div class="p-2 p-sm-3">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card2 p-2 rounded">
                                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -172,7 +206,7 @@
                                         </svg>
                                     </div>
                                     <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold">{{ __('Total Followers') }}</span>
+                                        <span class="font-roboto font-semibold">{{ __('Total Users') }}</span>
                                     </div>
                                     <p class="order-2 order-sm-3 mb-0 font-sans bg-card2-text text-2xl ml-auto">
                                         {{ $followers }} </p>
@@ -182,9 +216,9 @@
                     </div>
                 @endcan
                 @if (Auth::user()->type == 'Admin' || Auth::user()->type == 'Influencer')
-                    <div class="col-lg-3 col-md-6 col-6 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg w-96">
-                            <div class="p-2 p-sm-3 flex flex-col">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
+                        <div class="relative flex flex-col bg-white rounded-lg h-100">
+                            <div class="p-2 p-sm-3">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
                                     <div class="bg-card3 p-2 rounded">
 
