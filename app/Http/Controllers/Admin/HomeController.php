@@ -243,23 +243,50 @@ class HomeController extends Controller
     }
 
     // Fetch purchase counts based on lesson type
+    // private function fetchPurchaseStats($user, $lessonType)
+    // {
+    //     $query = Purchase::whereHas('lesson', fn($q) => $q->where('type', $lessonType));
+
+    //     if ($user->type == "Influencer") {
+    //         $query->where('influencer_id', $user->id);
+    //     }
+
+    //     if ($lessonType == Lesson::LESSON_TYPE_ONLINE) {
+    //         $query->where('status', Purchase::STATUS_COMPLETE);
+    //     }
+
+    //     $completed  = (clone $query)->where('isFeedbackComplete', true)->count();
+    //     $inprogress = $query->where('isFeedbackComplete', false)->count();
+
+    //     return [$completed, $inprogress];
+    // }
     private function fetchPurchaseStats($user, $lessonType)
-    {
-        $query = Purchase::whereHas('lesson', fn($q) => $q->where('type', $lessonType));
+{
+    $baseQuery = Purchase::whereHas('lesson', fn ($q) =>
+        $q->where('type', $lessonType)
+    );
 
-        if ($user->type == "Influencer") {
-            $query->where('influencer_id', $user->id);
-        }
-
-        if ($lessonType == Lesson::LESSON_TYPE_ONLINE) {
-            $query->where('status', Purchase::STATUS_COMPLETE);
-        }
-
-        $completed  = (clone $query)->where('isFeedbackComplete', true)->count();
-        $inprogress = $query->where('isFeedbackComplete', false)->count();
-
-        return [$completed, $inprogress];
+    if ($user->type === 'Influencer') {
+        $baseQuery->where('influencer_id', $user->id);
     }
+
+    if ($lessonType === Lesson::LESSON_TYPE_ONLINE) {
+        $baseQuery->where('status', Purchase::STATUS_COMPLETE);
+    }
+
+    // Completed: at least one video has feedbackContent
+    $completed = (clone $baseQuery)
+        ->whereHas('videos.feedbackContent')
+        ->count();
+
+    // In progress: no video has feedbackContent
+    $inprogress = (clone $baseQuery)
+        ->whereDoesntHave('videos.feedbackContent')
+        ->count();
+
+    return [$completed, $inprogress];
+}
+
 
     // Follower Dashboard
     private function followerDashboard($data, $request)
