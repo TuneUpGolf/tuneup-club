@@ -27,31 +27,43 @@
                                 {!! Form::text('name', null, ['placeholder' => __('Enter name'), 'class' => 'form-control', 'required']) !!}
                             </div>
                         </div>
-                        <div class="form-group">
-                            {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
-                            {!! Form::text('price', null, ['placeholder' => __('Enter price'), 'class' => 'form-control', 'required']) !!}
-                        </div>
+
                         <div class="row">
-                            {{-- <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    {{ Form::label('duration', __('Duration'), ['class' => 'form-label']) }}
-                                    {!! Form::number('duration', null, [
-                                        'placeholder' => __('Enter duration'),
+                                    {{ Form::label('price', __('Monthly Price'), ['class' => 'form-label']) }}
+                                    {!! Form::text('price', null, [
+                                        'placeholder' => __('Enter price'),
                                         'class' => 'form-control',
                                         'required',
                                     ]) !!}
+                                    <small class="text-muted">{{ __('Billed monthly') }}</small>
                                 </div>
-                            </div> --}}
-                            <div class="col-md-6">
+                            </div>
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    {{ Form::label('durationtype', __('Duration'), ['class' => 'form-label']) }}
-                                    {!! Form::select('durationtype', [ 'Month' => 'Month','Quarter' => 'Quarter', 'Year' => 'Year'], $plan->durationtype, [
+                                    {{ Form::label('price_quarter', __('Quarterly Price'), ['class' => 'form-label']) }}
+                                    {!! Form::text('price_quarter', null, [
+                                        'placeholder' => __('Enter price'),
                                         'class' => 'form-control',
-                                        'data-trigger',
+                                        'required',
                                     ]) !!}
+                                    <small class="text-muted">{{ __('Billed every 3 months') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ Form::label('price_year', __('Yearly Price'), ['class' => 'form-label']) }}
+                                    {!! Form::text('price_year', null, [
+                                        'placeholder' => __('Enter price'),
+                                        'class' => 'form-control',
+                                        'required',
+                                    ]) !!}
+                                    <small class="text-muted">{{ __('Billed annually') }}</small>
                                 </div>
                             </div>
                         </div>
+
                         @if (Auth::user()->type != 'Super Admin')
                             <div class="form-group">
                                 {{ Form::label('max_users', __('Maximum users'), ['class' => 'form-label']) }}
@@ -78,16 +90,16 @@
                                 // Add "Select lesson limit" placeholder at the top
                                 $lessonLimits = [0 => 'Select lesson limit'] + $lessonLimits;
 
-                                // Preserve old value or model value (default to 3)
-                                $selectedLessonLimit = old('lesson_limit', $model->lesson_limit ?? 3);
+                                // Preserve old value or model value
+                                $selectedLessonLimit = old('lesson_limit', $plan->lesson_limit);
                             @endphp
 
                             {!! Form::select('lesson_limit', $lessonLimits, $selectedLessonLimit, [
                                 'class' => 'form-select',
                                 'id' => 'lesson_limit',
                             ]) !!}
-
                         </div>
+
                         <div class="form-group">
                             {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
                             {!! Form::textarea('description', null, [
@@ -95,6 +107,7 @@
                                 'class' => 'form-control form-control-lg form-control-solid',
                             ]) !!}
                         </div>
+
                         @if (Auth::user()->type == 'Influencer')
                             <div class="form-group flex flex-row gap-4">
                                 <div class="flex flex-col">
@@ -115,11 +128,12 @@
                                 </div>
                             </div>
                         @endif
-                    </div>
-                    <div class="card-footer">
-                        <div class="text-end">
-                            <a href="{{ route('plans.myplan') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
-                            {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
+
+                        <div class="card-footer">
+                            <div class="text-end">
+                                <a href="{{ route('plans.myplan') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                                {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary']) }}
+                            </div>
                         </div>
                         {!! Form::close() !!}
                     </div>

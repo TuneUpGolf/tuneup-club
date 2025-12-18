@@ -255,7 +255,7 @@ class StripeController extends Controller
             $resData['order_id']    = $data->id;
             $resData['stripe_account_id']    = $plan->influencer?->stripe_account_id;
             $resData['stripe_product_id']     = $plan->stripe_product_id;
-            $resData['stripe_price_id']     = $plan->stripe_price_id;
+            $resData['stripe_price_id']     = $request->subscription_id;
             // dd($resData);
             return $resData;
         }
@@ -281,6 +281,28 @@ class StripeController extends Controller
 
         // ✅ Always use your platform secret key
 
+        $default_sub = [];
+
+        $default_sub[$planDetails->stripe_price_id] = [
+            'duration' => 'monthly',
+            'price' => $planDetails->price,
+            'key' => $planDetails->stripe_price_id
+        ];
+
+        $default_sub[$planDetails->stripe_price_quarter_id] = [
+            'duration' => 'quarterly',
+            'price' => $planDetails->price_quarter,
+            'key' => $planDetails->stripe_price_id
+        ];
+
+        $default_sub[$planDetails->stripe_price_year_id] = [
+            'duration' => 'yearly',
+            'price' => $planDetails->price,
+            'key' => $planDetails->stripe_price_year_id
+        ];
+
+
+
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $account_id = $planDetails->influencer->stripe_account_id;
@@ -300,7 +322,7 @@ class StripeController extends Controller
             ], 404);
         }
 
-        $finalAmount = $planDetails->price;  // 649
+        $finalAmount = $default_sub[$request->stripe_price_id]['price'];  // 649
         $stripePerc  = 0.029;                 // 2.9%
         $stripeFixed = 0.30;
         // dd(UtilityFacades::getsettings('stripe_secret'), $planDetails->instructor->stripe_account_id, $planDetails->stripe_price_id);
@@ -369,7 +391,7 @@ class StripeController extends Controller
                     'payment_method_types' => ['card'],
                     'mode' => 'subscription',
                     'line_items' => [[
-                        'price' => $planDetails->stripe_price_id,
+                        'price' => $request->stripe_price_id,
                         'quantity' => 1,
                     ]],
                     'customer_email' => Auth::user()->email,

@@ -163,7 +163,7 @@ $(document).ready(function () {
     }
   });
   /******  Nice Select  ******/
-  $("select").niceSelect();
+  // $("select").niceSelect();
   /****  TAB Js ****/
   $("ul.tabs li").click(function () {
     var $this = $(this);

@@ -392,26 +392,37 @@
                                             <span class="text-gray-600"><strong>Influencer:
                                                     {{ $plan->influencer->name }}</strong></span>
                                             <br>
-                                            <span class="text-gray-600"><strong>Total Duration:
+                                            {{-- <span class="text-gray-600"><strong>Total Duration:
                                                     {{ $plan->duration . ' ' . $plan->durationtype }}
                                                 </strong></span>
-                                            <br>
-                                            @if ($plan->lesson_limit != 0)
+                                            <br> --}}
+                                            {{-- @if ($plan->lesson_limit != 0)
                                                 <span class="text-gray-600"><strong>Online Lesson Limit:
                                                         {{ $plan->lesson_limit_label }}
                                                     </strong></span>
-                                            @endif
-                                            <div class="flex gap-1 items-center mt-2 ">
+                                            @endif --}}
+                                            {{-- <div class="flex gap-1 items-center mt-2 ">
                                                 <p class="text-4xl font-bold">
                                                     {{ '$' . $plan->price }}/</p>
                                                 <p class="text-2xl text-gray-600">
                                                     {{ $plan->durationtype . 'ly'}}
                                                 </p>
-                                            </div>
+                                            </div> --}}
 
                                         </div>
                                         <div class="border-t border-gray-300"></div>
+
                                         <div class="px-3 py-4" id="sub">
+                                            <select name="" id="sub_price_dropdown_{{$plan->id}}"
+                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
+                                                >
+                                                <option value="">Select Plan</option>
+                                                <option value="{{ $plan->stripe_price_id }}">Monthly - ${{ $plan->price }}</option>
+                                                <option value="{{ $plan->stripe_price_quarter_id }}">
+                                                    Quarterly - ${{ $plan->price_quarter }}</option>
+                                                <option value="{{ $plan->stripe_price_year_id }}">Yearly - ${{ $plan->price_year }}
+                                                </option>
+                                            </select>
                                             @if ($plan->id != 1)
                                                 @php
                                                     $student = auth('follower')->user();
@@ -450,10 +461,12 @@
                                                             </a>
                                                         @else
                                                             {{-- 🔁 Expired plan → Renew --}}
-                                                            <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                            {{-- <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
                                                                 class="lesson-btn text-center font-bold text-lg mt-auto">
                                                                 {{ __('Renew') }}
-                                                            </a>
+                                                            </a> --}}
+                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto" onclick="submitSubscription({{$plan->id}})">Renew</button>
+
                                                         @endif
                                                     @elseif ($hasActivePlan)
                                                         {{-- 🚫 User has another ACTIVE plan --}}
@@ -463,10 +476,12 @@
                                                         </button>
                                                     @else
                                                         {{-- 🛒 No active plan or plan expired → Can buy any plan --}}
-                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+
+                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto" onclick="submitSubscription({{$plan->id}})">Buy Plan</button>
+                                                        {{-- <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
                                                             class="lesson-btn text-center font-bold text-lg mt-auto">
                                                             {{ __('Buy Plan') }}
-                                                        </a>
+                                                        </a> --}}
                                                     @endif
                                                 @elseif ($webUser || $instructor)
                                                     {{-- 🚷 Logged in as non-student --}}
@@ -813,6 +828,18 @@
 
         function closeLongDescModal() {
             $('#longDescModal').modal('hide');
+        }
+
+        function submitSubscription(planId){
+            let subscription = document.getElementById("sub_price_dropdown_"+planId).value;
+
+            // console.log(subscription);
+            if(subscription == ""){
+                alert("Select a plan before continuing.");
+                return;
+            }
+
+             window.location.href = `/payment/${planId}/${subscription}`;
         }
     </script>
 @endpush
