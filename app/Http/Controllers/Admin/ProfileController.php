@@ -467,6 +467,15 @@ class ProfileController extends Controller
         }
     }
 
+    public function disconnectStripe($userid){
+        $user = User::find($userid);
+        $user->stripe_account_id = null;
+        $user->is_stripe_connected = null;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Stripe Disconnected');
+    }
+
     //API Start
 
     public function setPushToken(Request $request)

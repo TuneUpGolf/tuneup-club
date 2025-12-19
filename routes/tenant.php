@@ -270,6 +270,7 @@ Route::middleware([
 
         //stripe connect
         Route::post('stripe/connect/create', [StripeController::class, 'connectStripe'])->name('stripe.create');
+        Route::get('stripe/connect/disconnect/{userId}', [StripeController::class, 'disconnectStripe'])->name('stripe.disconnect');
         Route::post('profile/stripe/verify', [ProfileController::class, 'verifyStripe'])->name('profile.verify.stripe');
         Route::post('profile/stripe/stripe_transaction_fee', [ProfileController::class, 'verifyStripeTransactionFee'])->name('profile.verify.stripe_transaction_fee');
 

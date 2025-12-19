@@ -608,6 +608,7 @@
                                 <div class="form-group mt-4">
                                     @if (isset($user->is_stripe_connected) && $user->is_stripe_connected)
                                         <span class="badge bg-success p-2">{{ __('Verified') }}</span>
+                                        <a href="{{route('stripe.disconnect', $user->id)}}" class="btn btn-danger">Disconnect Stripe</a>
                                     @else
                                         <span class="badge bg-warning p-2">{{ __('Not Verified') }}</span>
                                     @endif
