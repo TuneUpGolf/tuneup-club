@@ -96,7 +96,7 @@ class RegisteredUserController extends Controller
                 );
             }
 
-            dd($user, $influencer);
+            // dd($user, $influencer);
 
             $groupId = $this->chatService->createGroup($user->chat_user_id, $influencer->chat_user_id);
             if ($groupId) {

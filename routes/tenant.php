@@ -103,12 +103,12 @@ Route::middleware([
         return UserImpersonation::makeResponse($token);
     });
 
-    Route::get("test", function (Request $request) {
-        $user = \App\Models\User::find(2);
-        $chatService = new ChatService(); 
-        $chatService->createUser($user);
-        return "helooooooooooooo";
-    });
+    // Route::get("test", function (Request $request) {
+    //     $user = \App\Models\User::find(2);
+    //     $chatService = new ChatService(); 
+    //     $chatService->createUser($user);
+    //     return "helooooooooooooo";
+    // });
 
     Route::post('/mark-user-offline', function (Request $request) {
         $userId = $request->input('userId');
