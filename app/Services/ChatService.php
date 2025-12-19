@@ -25,11 +25,12 @@ class ChatService
             $responseData = $response->json();
 
             $chatUserId = $responseData['data']['_id'] ?? null;
-            dd($chatUserId, $responseData);
+            // dd($chatUserId, $responseData);
             if ($chatUserId) {
                 $user['chat_user_id'] = $chatUserId;
                 $user->save();
             }
+            dd($user);
             return true;
         } else {
             Log::error('Failed to create chat user', [
