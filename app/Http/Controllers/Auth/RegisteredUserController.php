@@ -85,6 +85,8 @@ class RegisteredUserController extends Controller
                 throw new \Exception('Failed to chat user.');
             }
 
+            dd($chatUserDetails, $created);
+
             $influencer = User::where('type', Role::ROLE_INFLUENCER)->orderBy('id', 'desc')->first();
             if ($influencerId = $influencer->id ?? false) {
                 Follow::updateOrCreate(
