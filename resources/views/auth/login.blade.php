@@ -11,7 +11,7 @@
 @section('content')
     <section>
         <div class="login-container-new">
-            <div class="login-design w-100 h-100">
+            {{-- <div class="login-design w-100 h-100">
                 <div class="login-design-header">
                     <svg width="103" height="73" viewBox="0 0 103 73" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5.1597 58.3703H0V54.9302H14.0487V58.3703H8.88998V71.8862H5.1597V58.3703Z" fill="white" />
@@ -92,7 +92,7 @@
                         </defs>
                     </svg>
                 </div>
-            </div>
+            </div> --}}
             <div class="sign-in-container">
                 <h2>Sign In</h2>
                 <div class="form-container-signin">
