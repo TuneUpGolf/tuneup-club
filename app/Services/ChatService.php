@@ -25,6 +25,7 @@ class ChatService
             $responseData = $response->json();
 
             $chatUserId = $responseData['data']['_id'] ?? null;
+            dd($chatUserId, $responseData);
             if ($chatUserId) {
                 $user['chat_user_id'] = $chatUserId;
                 $user->save();
