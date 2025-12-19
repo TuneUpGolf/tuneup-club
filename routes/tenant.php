@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Follower;
 use Illuminate\Http\Request;
+use App\Services\ChatService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -100,6 +101,13 @@ Route::middleware([
     require __DIR__ . '/auth.php';
     Route::get('/tenant-impersonate/{token}', function ($token) {
         return UserImpersonation::makeResponse($token);
+    });
+
+    Route::get("test", function (Request $request) {
+        $user = \App\Models\User::find(2);
+        $chatService = new ChatService(); 
+        $chatService->createUser($user);
+        return "helooooooooooooo";
     });
 
     Route::post('/mark-user-offline', function (Request $request) {
