@@ -7,6 +7,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use App\Http\Controllers\MessageNotifyController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
@@ -21,6 +22,8 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::post('/notify-message', [MessageNotifyController::class, 'handleNotification']);
 
 Route::post('/stripe/webhook', [StripeController::class, 'handleStripeWebhook']);
 

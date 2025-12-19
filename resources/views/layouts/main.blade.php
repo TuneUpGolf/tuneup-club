@@ -257,20 +257,79 @@
         const wrapper = link.closest('.description-wrapper');
         wrapper.classList.toggle('expanded');
 
-        link.textContent = wrapper.classList.contains('expanded')
-            ? '<< Read Less'
-            : '...Read More >>';
+        link.textContent = wrapper.classList.contains('expanded') ?
+            '<< Read Less' :
+            '...Read More >>';
     }
 
-    $(document).ready(function () {
-            $('.description-wrapper .short-text').each(function () {
+    $(document).ready(function() {
+        $('.description-wrapper .short-text').each(function() {
             if ($(this).height() < 25) {
                 $(this).addClass('single-line')
                 $(this).siblings('.read-toggle').addClass('d-none');
             }
         });
     });
-    
+</script>
+
+<script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+<script>
+    let originalTitle = document.title;
+    let flashInterval;
+
+    function flashTitle(newTitle) {
+        let showingNew = false;
+        clearInterval(flashInterval);
+        flashInterval = setInterval(() => {
+            document.title = showingNew ? originalTitle : newTitle;
+            showingNew = !showingNew;
+        }, 1000);
+
+        // Stop flashing once user focuses the tab again
+        window.addEventListener('focus', () => {
+            clearInterval(flashInterval);
+            document.title = originalTitle;
+        }, {
+            once: true
+        });
+    }
+    // Pusher.logToConsole = true;
+
+    @php
+        $tenantId = tenant('id');
+        $userId = null;
+        $userType = null;
+
+        if (auth('follower')->check()) {
+            $userId = auth('follower')->id();
+            $userType = 'follower';
+        } elseif (auth('web')->check()) {
+            $userId = auth('web')->id();
+            $userType = 'influencer';
+        }
+    @endphp
+
+    @if ($userId && $userType)
+        const pusher = new Pusher("{{ config('broadcasting.connections.pusher.key') }}", {
+            cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}",
+            forceTLS: true
+        });
+
+        // Directly inject the PHP values into the string
+        const channelName = "tenant.{{ $tenantId }}.{{ $userType }}.user.{{ $userId }}";
+        console.log("Subscribing to channel:", channelName);
+
+        const channel = pusher.subscribe(channelName);
+
+        channel.bind('tenant.notification', function(data) {
+            console.log("📨 New Notification:", data);
+            // alert(`New message from ${data.sender}: ${data.message}`);
+            show_toastr('Success!', `New message from ${data.sender}: ${data.message}`, 'success');
+            flashTitle('🔔 New Message!');
+        });
+    @else
+        console.error("No authenticated user found.");
+    @endif
 </script>
 
 @if (Utility::getsettings('cookie_setting_enable') == 'on')
