@@ -14,7 +14,7 @@ class ChatService
             'name'              => $user->name,
             'email'             => $user->email,
             'country'           => ! empty($user->country_code) ? $user->country_code : 'in',
-            'phone'             => $user->phone,
+            'phone'             => $this->keepOnlyNumbers($user->phone),
             'userId'            => (string) $user->id,
             'tenant_id'         => [$user->tenant_id],
             'avatar'            => $user->avatar ?? $user->dp,
@@ -40,6 +40,11 @@ class ChatService
             return false;
         }
     }
+
+    public function keepOnlyNumbers(string $value): string
+{
+    return preg_replace('/\D+/', '', $value);
+}
 
     public function getUserProfile($email)
     {
