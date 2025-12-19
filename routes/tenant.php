@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Follower;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -98,6 +100,18 @@ Route::middleware([
     require __DIR__ . '/auth.php';
     Route::get('/tenant-impersonate/{token}', function ($token) {
         return UserImpersonation::makeResponse($token);
+    });
+
+    Route::post('/mark-user-offline', function (Request $request) {
+        $userId = $request->input('userId');
+
+        // Mark user as offline in Redis (expires in 1 hour)
+        // Redis::setex("user:{$userId}:online",604800, 'offline');
+        mark_user_offline($userId);
+
+        Log::info("User {$userId} marked OFFLINE in Redis via logout");
+
+        return response()->json(['status' => 'offline']);
     });
 
     Route::get('subscription-inactive', [RestrictInfluencerController::class, 'subscription_inactive'])->name('subscription.inactive');
@@ -282,7 +296,7 @@ Route::middleware([
         Route::get('event/edit/{event}', [EventController::class, 'edit'])->name('event.edit');
         Route::any('event/update/{event}', [EventController::class, 'update'])->name('event.update');
         Route::DELETE('event/delete/{event}', [EventController::class, 'destroy'])->name('event.destroy');
-        
+
         //announcement 
         Route::resource('announcements', AnnouncementController::class);
         Route::get('announcements/action', [AnnouncementController::class, 'action'])->name('announcements.action');

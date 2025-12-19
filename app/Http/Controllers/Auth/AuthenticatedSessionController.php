@@ -67,6 +67,9 @@ class AuthenticatedSessionController extends Controller
                         $user_admin->assignPlan(1);
                     }
                     $request->session()->regenerate();
+
+                     mark_user_online($user->id);  // Remove any "offline" flag
+
                     if ($user->phone_verified_at == '' && UtilityFacades::getsettings('sms_verification') == '1') {
                         return redirect()->route('smsindex.noticeverification');
                     } else {
