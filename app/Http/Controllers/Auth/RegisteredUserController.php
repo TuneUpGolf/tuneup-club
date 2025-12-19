@@ -46,6 +46,7 @@ class RegisteredUserController extends Controller
             'name'     => 'required|max:255',
             'email'    => 'required|email|max:255|unique:followers',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'phone'    => 'required|digits_between:8,15',
         ]);
         $current_guard  = 'web';
         DB::beginTransaction();
@@ -85,7 +86,7 @@ class RegisteredUserController extends Controller
                 throw new \Exception('Failed to chat user.');
             }
 
-            dd($chatUserDetails, $created);
+            // dd($chatUserDetails, $created);
 
             $influencer = User::where('type', Role::ROLE_INFLUENCER)->orderBy('id', 'desc')->first();
             if ($influencerId = $influencer->id ?? false) {
