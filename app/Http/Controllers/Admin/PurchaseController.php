@@ -1620,7 +1620,7 @@ class PurchaseController extends Controller
     {
         // dd("test");
         if (Auth::user()->can('manage-purchases')) {
-            $query = ClientSubscription::with(['student', 'plan'])
+            $query = ClientSubscription::with(['follower', 'plan'])
                 ->where('influencer_id', Auth::id());
 
             if ($request->ajax()) {
