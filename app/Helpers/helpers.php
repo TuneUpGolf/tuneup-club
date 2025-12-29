@@ -9,6 +9,10 @@ if (!function_exists('mark_user_online')) {
      */
     function mark_user_online($userId = null): void
     {
+        if (app()->environment('local', 'testing')) {
+            return;
+        }
+
         if (!$userId && Auth::check()) {
             $userId = Auth::id();
         }
@@ -26,6 +30,9 @@ if (!function_exists('extend_user_online')) {
      */
     function extend_user_online($userId = null): void
     {
+        if (app()->environment('local', 'testing')) {
+            return;
+        }
         if (!$userId && Auth::check()) {
             $userId = Auth::id();
         }
@@ -50,6 +57,9 @@ if (!function_exists('mark_user_offline')) {
      */
     function mark_user_offline($userId = null): void
     {
+        if (app()->environment('local', 'testing')) {
+            return;
+        }
         if (!$userId && Auth::check()) {
             $userId = Auth::id();
         }

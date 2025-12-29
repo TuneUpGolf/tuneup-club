@@ -1615,4 +1615,46 @@ class PurchaseController extends Controller
 
         return [];
     }
+
+     public function subscription_index(Request $request)
+    {
+        // dd("test");
+        if (Auth::user()->can('manage-purchases')) {
+            $query = ClientSubscription::with(['student', 'plan'])
+                ->where('influencer_id', Auth::id());
+
+            if ($request->ajax()) {
+                return datatables()
+                    ->eloquent($query)
+                    ->addIndexColumn()
+                    ->addColumn('student_name', function ($subscription) {
+                        return $subscription->follower ? e($subscription->follower->name) : 'N/A';
+                    })
+                    ->addColumn('plan_name', function ($subscription) {
+                        return $subscription->plan ? e($subscription->plan->name) : 'N/A';
+                    })
+                    ->addColumn('created_at_formatted', function ($subscription) {
+                        return $subscription->created_at ? $subscription->created_at->format('M d, Y h:i A') : 'N/A';
+                    })
+                    // ->addColumn('start_date_formatted', function ($subscription) {
+                    //     return $subscription->start_date ? \Carbon\Carbon::parse($subscription->start_date)->format('M d, Y') : 'N/A';
+                    // })
+                    ->addColumn('status_badge', function ($subscription) {
+                        $badgeClass = match ($subscription->status) {
+                            'active' => 'badge bg-success',
+                            'pending' => 'badge bg-warning',
+                            'cancelled' => 'badge bg-danger',
+                            'expired' => 'badge bg-secondary',
+                            default => 'badge bg-secondary'
+                        };
+
+                        return '<span class="' . $badgeClass . '">' . ucfirst($subscription->status) . '</span>';
+                    })
+                    ->rawColumns(['status_badge'])
+                    ->make(true);
+            }
+            // dd("test");
+            return view('admin.subscriptions.index');
+        }
+    }
 }

@@ -57,7 +57,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // dd("test");
+        // dd("test", UtilityFacades::getsettings('domain_config'));
         if (Auth::user()->can('create-user')) {
             \DB::beginTransaction();
             try {
@@ -179,7 +179,7 @@ class UserController extends Controller
                 \DB::rollback();
                 echo $e->getMessage();
                 // dd($e);
-                return redirect()->back()->with('errors', 'Please check database name, database user name and database password.' . $e->getMessage());
+                return redirect()->back()->with('failed', 'Please check database name, database user name and database password.' . $e->getMessage());
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));

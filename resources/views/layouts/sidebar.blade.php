@@ -289,7 +289,7 @@
                             </li>
                         @endcan
                     @endif
-                     @if (in_array($users->type, ['Follower', 'Influencer']))
+                    @if (in_array($users->type, ['Follower', 'Influencer']))
                         @can('manage-announcements')
                             <li class="dash-item dash-hasmenu {{ request()->is('announcements*') ? 'active' : '' }}">
                                 <a class="dash-link" href="{{ route('announcements.index') }}">
@@ -325,7 +325,7 @@
                             </a>
                         </li>
                     @endif
-                   
+
                     @if (in_array($users->type, ['Admin', 'Influencer']))
                         @canany(['manage-blog', 'manage-category'])
                             <li
@@ -390,6 +390,15 @@
                                     <li class="dash-item {{ request()->is('myplan*') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('plans.myplan') }}">{{ __('Manage Subscription Plans') }}</a>
+                                    </li>
+                                @endif
+                                @if ($users->type === 'Influencer')
+                                    <li
+                                        class="dash-item dash-hasmenu {{ request()->is('purchase.subscription') ? 'active' : '' }}">
+                                        <a class="dash-link" href="{{ route('purchase.subscription') }}">
+                                            {{-- <span class="dash-micon"><i class="ti ti-messages"></i></span> --}}
+                                            <span class="dash-mtext">{{ __('Purchased Subscriptions') }}</span>
+                                        </a>
                                     </li>
                                 @endif
                                 @if ($users->type === 'Follower')
