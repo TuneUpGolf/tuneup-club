@@ -230,6 +230,8 @@ Route::middleware([
 
         //purchase
         Route::resource('purchase', PurchaseController::class);
+                Route::get('subscription/purchase', [PurchaseController::class, 'subscription_index'])->name('purchase.subscription');
+
         Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');
         Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
         Route::get('/upcoming-lessons/data', [PurchaseController::class, 'upcomingLessonsData'])->name('upcoming-lessons.data');
