@@ -30,4 +30,15 @@ class ClientSubscription extends Model
     {
         return $this->belongsTo(Plan::class);
     }
+
+
+    public function influencer()
+    {
+        return $this->belongsTo(User::class, 'influencer_id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(ClientSubscriptionDetail::class, 'client_subscription_id');
+    }
 }

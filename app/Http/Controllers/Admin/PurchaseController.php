@@ -1633,12 +1633,40 @@ class PurchaseController extends Controller
                     ->addColumn('plan_name', function ($subscription) {
                         return $subscription->plan ? e($subscription->plan->name) : 'N/A';
                     })
-                    ->addColumn('created_at_formatted', function ($subscription) {
-                        return $subscription->created_at ? $subscription->created_at->format('M d, Y h:i A') : 'N/A';
+                  ->addColumn('subscription_history', function ($subscription) {
+                        $history = '<ul class="subscription-history-list">';
+
+                        // Current subscription info
+                        if ($subscription->plan) {
+                            $history .= '<li class="subscription-history-item">';
+                            $history .= '<span class="history-date">' . $subscription->created_at->format('M d, Y h:i A') . '</span> - ';
+                            $history .= '<span class="history-price">$' . number_format($subscription->plan->price, 2) . '</span>';
+                            $history .= '</li>';
+                        }
+
+                        // Subscription details history
+                        if ($subscription->details->isNotEmpty()) {
+                            foreach ($subscription->details as $detail) {
+                                $history .= '<li class="subscription-history-item">';
+                                $history .= '<span class="history-date">' . $detail->created_at->format('M d, Y h:i A') . '</span> - ';
+
+                                // Get price from associated plan
+                                if ($detail->clientSubscription?->plan) {
+                                    $history .= '<span class="history-price">$' . number_format($detail->clientSubscription?->plan->price, 2) . '</span>';
+                                } elseif ($detail->old_plan_details) {
+                                    $oldDetails = json_decode($detail->old_plan_details, true);
+                                    $history .= '<span class="history-price">$' . number_format($oldDetails['price'] ?? 0, 2) . '</span>';
+                                } else {
+                                    $history .= '<span class="history-price">$0.00</span>';
+                                }
+
+                                $history .= '</li>';
+                            }
+                        }
+
+                        $history .= '</ul>';
+                        return $history;
                     })
-                    // ->addColumn('start_date_formatted', function ($subscription) {
-                    //     return $subscription->start_date ? \Carbon\Carbon::parse($subscription->start_date)->format('M d, Y') : 'N/A';
-                    // })
                     ->addColumn('status_badge', function ($subscription) {
                         $badgeClass = match ($subscription->status) {
                             'active' => 'badge bg-success',
