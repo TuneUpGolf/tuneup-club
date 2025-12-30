@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\Coupon;
 use App\Models\Follower;
 use Stripe\StripeClient;
+use App\Actions\SendEmail;
 use App\Models\UserCoupon;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Stripe\Checkout\Session as StripeSession;
+use App\Mail\Admin\ClientSubscriptionToInstructorMail;
 
 class StripeController extends Controller
 {
@@ -699,6 +701,17 @@ class StripeController extends Controller
                         'stripe_subscription_id' => $subscription_id,
                         'status' => 'active',
                     ]);
+
+                      $influencer = $plan->influencer;
+
+                    SendEmail::dispatch(
+                        $influencer->email,
+                        new ClientSubscriptionToInstructorMail(
+                            $user->name,
+                            $influencer->name,
+                            $plan->name
+                        )
+                    );
 
                     // Auto-cancel logic
                     // if (strtolower($plan->durationtype) === 'month') {
