@@ -18,7 +18,7 @@
                                     <th>Student Name</th>
                                     <th>Plan Name</th>
                                     <th class="mobile-hide">Status</th>
-                                    <th class="">Start Date</th>
+                                    <th class="">History</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -107,6 +107,31 @@
         .badge.bg-secondary {
             background-color: #6c757d !important;
         }
+
+        .subscription-history-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .subscription-history-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .subscription-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .history-price {
+            font-weight: 500;
+            color: #28a745;
+        }
     </style>
 @endpush
 
@@ -139,11 +164,13 @@
                         name: 'status'
                     },
                     {
-                        data: 'created_at_formatted',
-                        name: 'created_at'
+                        data: 'subscription_history',
+                        name: 'subscription_history',
+                        orderable: false,
+                        searchable: false
                     }
                 ],
-                order: [[4, 'desc']],
+                order: [],
                 columnDefs: [{
                         responsivePriority: 1,
                         targets: 0
