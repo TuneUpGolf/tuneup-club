@@ -240,11 +240,24 @@
                                                 class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
                                                 >
                                                 <option value="">Select Plan</option>
-                                                <option value="{{ $plan->stripe_price_id }}">Monthly - ${{ $plan->price }}</option>
-                                                <option value="{{ $plan->stripe_price_quarter_id }}">
-                                                    Quarterly - ${{ $plan->price_quarter }}</option>
-                                                <option value="{{ $plan->stripe_price_year_id }}">Yearly - ${{ $plan->price_year }}
-                                                </option>
+                                                @if ($plan->stripe_price_id)
+                                                    <option value="{{ $plan->stripe_price_id }}">Monthly -
+                                                        ${{ $plan->price }}
+                                                    </option>
+                                                @endif
+
+                                                @if ($plan->stripe_price_quarter_id)
+                                                    <option value="{{ $plan->stripe_price_quarter_id }}">
+                                                        Quarterly -
+                                                        ${{ $plan->price_quarter }}
+                                                    </option>
+                                                @endif
+
+                                                @if ($plan->stripe_price_year_id)
+                                                    <option value="{{ $plan->stripe_price_year_id }}">Yearly -
+                                                        ${{ $plan->price_year }}
+                                                    </option>
+                                                @endif
                                             </select>
                                             @if ($plan->id != 1)
                                                 @php

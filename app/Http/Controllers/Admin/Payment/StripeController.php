@@ -262,6 +262,190 @@ class StripeController extends Controller
             return $resData;
         }
     }
+
+    // public function stripeSession(Request $request)
+    // {
+
+    //     // ✅ Get Plan with Influencer
+    //     if (Auth::user()->type === 'Admin') {
+    //         $planDetails = tenancy()->central(function ($tenant) use ($request) {
+    //             return Plan::with(['influencer'])->find($request->plan_id);
+    //         });
+    //     } else {
+    //         $planDetails = Plan::with(['influencer'])->find($request->plan_id);
+    //     }
+
+    //     if (! $planDetails || empty($planDetails->influencer?->stripe_account_id)) {
+    //         return response()->json([
+    //             'status' => 0,
+    //             'error'  => ['message' => 'Plan or connected account not found.']
+    //         ], 404);
+    //     }
+
+    //     // ✅ Always use your platform secret key
+
+    //     $default_sub = [];
+
+    //     $default_sub[$planDetails->stripe_price_id] = [
+    //         'duration' => 'monthly',
+    //         'price' => $planDetails->price,
+    //         'key' => $planDetails->stripe_price_id
+    //     ];
+
+    //     $default_sub[$planDetails->stripe_price_quarter_id] = [
+    //         'duration' => 'quarterly',
+    //         'price' => $planDetails->price_quarter,
+    //         'key' => $planDetails->stripe_price_id
+    //     ];
+
+    //     $default_sub[$planDetails->stripe_price_year_id] = [
+    //         'duration' => 'yearly',
+    //         'price' => $planDetails->price,
+    //         'key' => $planDetails->stripe_price_year_id
+    //     ];
+
+
+
+    //     Stripe::setApiKey(config('services.stripe.secret'));
+
+    //     $account_id = $planDetails->influencer->stripe_account_id;
+    //     $platformAccount = \Stripe\Account::retrieve();
+
+    //     // Get connected account (influencer’s account)
+    //     $destinationAccount = \Stripe\Account::retrieve($account_id);
+
+
+    //     // (Optional) verify price exists inside the connected account
+    //     try {
+    //         $price  = Price::retrieve($planDetails->stripe_price_id, ['stripe_account' => $account_id]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 0,
+    //             'error'  => ['message' => 'Price not found in connected account: ' . $e->getMessage()]
+    //         ], 404);
+    //     }
+
+    //     $finalAmount = $default_sub[$request->stripe_price_id]['price'];  // 649
+    //     $stripePerc  = 0.029;                 // 2.9%
+    //     $stripeFixed = 0.30;
+    //     // dd(UtilityFacades::getsettings('stripe_secret'), $planDetails->instructor->stripe_account_id, $planDetails->stripe_price_id);
+    //     $platformPercent = UtilityFacades::getsettings('application_fee_percentage') ? floatval(UtilityFacades::getsettings('application_fee_percentage')) : 0;
+
+    //     // 1️⃣ Calculate net after Stripe fee
+    //     $net = ($finalAmount - $stripeFixed) * (1 - $stripePerc);
+
+    //     // 2️⃣ Platform fee = 10% of net
+    //     $platformFeeAmount = $net * ($platformPercent / 100);
+
+    //     // 3️⃣ Convert to percent of final amount for Stripe subscription
+    //     $applicationFeePercent = round(($platformFeeAmount / $finalAmount) * 100, 2);
+
+    //     // $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
+    //     // if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
+    //     //     return response()->json([
+    //     //         'status' => 0,
+    //     //         'error'  => ['message' => 'Platform fee is not set or invalid in settings. It should be between 0 and 100.']
+    //     //     ], 404);
+    //     // }
+
+    //     $response = [];
+
+    //     // ✅ Create checkout session
+    //     if ($request->has('createCheckoutSession')) {
+    //         try {
+    //             // $checkout_session = Session::create([
+    //             //     'payment_method_types' => ['card'],
+    //             //     'mode' => 'subscription',
+    //             //     'line_items' => [[
+    //             //         'price'    => $planDetails->stripe_price_id,
+    //             //         'quantity' => 1,
+    //             //     ]],
+    //             //     'success_url' => route('stripe.success.pay', Crypt::encrypt([
+    //             //         'coupon'   => $request->coupon,
+    //             //         'plan_id'  => $planDetails->id,
+    //             //         'price'    => $request->amount,
+    //             //         'user_id'  => Auth::id(),
+    //             //         'order_id' => $request->order_id,
+    //             //         'stripe_account_id' => $account_id,
+    //             //         'type'     => 'stripe',
+    //             //     ])) . '&session_id={CHECKOUT_SESSION_ID}',
+    //             //     'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
+    //             //         'coupon'   => $request->coupon,
+    //             //         'plan_id'  => $planDetails->id,
+    //             //         'price'    => $request->amount,
+    //             //         'user_id'  => Auth::id(),
+    //             //         'order_id' => $request->order_id,
+    //             //         'type'     => 'stripe',
+    //             //     ])),
+    //             //     'metadata' => [
+    //             //         'plan_id' => $request->plan_id,
+    //             //         'user_id' => Auth::id(),
+    //             //     ],
+    //             //     'subscription_data' => [
+    //             //         'application_fee_percent' => $platform_fee, // Use the platform fee from settings
+
+    //             //     ]
+    //             // ], [
+    //             //     // 👇 THIS IS THE IMPORTANT FIX
+    //             //     'stripe_account' => $account_id
+    //             // ]);
+
+    //             $checkout_session = \Stripe\Checkout\Session::create([
+    //                 'payment_method_types' => ['card'],
+    //                 'mode' => 'subscription',
+    //                 'line_items' => [[
+    //                     'price' => $request->stripe_price_id,
+    //                     'quantity' => 1,
+    //                 ]],
+    //                 'customer_email' => Auth::user()->email,
+    //                 // 'metadata' => [
+    //                 //     'plan_id' => $planDetails->id,
+    //                 //     'student_id' => Auth::user()->id,
+    //                 //     'tenant_id' => tenant()->id,
+    //                 //     'instructor_id' => $planDetails->instructor_id,
+    //                 // ],
+    //                 'subscription_data' => [
+    //                     'application_fee_percent' => $applicationFeePercent, // Use the platform fee from settings
+    //                 ],
+    //                 'success_url' => route('stripe.success.pay', Crypt::encrypt([
+    //                     'coupon' => $request->coupon,
+    //                     'plan_id' => $planDetails->id,
+    //                     'price' => $request->amount,
+    //                     'user_id' => Auth::user()->id,
+    //                     'order_id' => $request->order_id,
+    //                     'type' => 'stripe',
+    //                 ])) . '?session_id={CHECKOUT_SESSION_ID}',
+    //                 'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
+    //                     'coupon' => $request->coupon,
+    //                     'plan_id' => $planDetails->id,
+    //                     'price' => $request->amount,
+    //                     'user_id' => Auth::user()->id,
+    //                     'order_id' => $request->order_id,
+    //                     'type' => 'stripe',
+    //                 ])),
+    //             ], [
+    //                 // ✅ options go here (second argument)
+    //                 'stripe_account' => $planDetails->influencer->stripe_account_id,
+    //             ]);
+
+
+    //             $response = [
+    //                 'status'    => 1,
+    //                 'message'   => 'Checkout session created successfully.',
+    //                 'sessionId' => $checkout_session->id,
+    //                 'url'       => $checkout_session->url,
+    //             ];
+    //         } catch (\Exception $e) {
+    //             $response = [
+    //                 'status' => 0,
+    //                 'error'  => ['message' => 'Checkout session creation failed. ' . $e->getMessage()],
+    //             ];
+    //         }
+    //     }
+
+    //     return response()->json($response);
+    // }
+
     public function stripeSession(Request $request)
     {
 
@@ -314,133 +498,147 @@ class StripeController extends Controller
         $destinationAccount = \Stripe\Account::retrieve($account_id);
 
 
-        // (Optional) verify price exists inside the connected account
-        try {
-            $price  = Price::retrieve($planDetails->stripe_price_id, ['stripe_account' => $account_id]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 0,
-                'error'  => ['message' => 'Price not found in connected account: ' . $e->getMessage()]
-            ], 404);
-        }
+        $instructor = $planDetails->influencer;
 
-        $finalAmount = $default_sub[$request->stripe_price_id]['price'];  // 649
-        $stripePerc  = 0.029;                 // 2.9%
+        $basePrice =  $default_sub[$request->stripe_price_id]['price'];  // Always 300 from database
+
+        // Get platform percentage from settings
+        $platformPercent = UtilityFacades::getsettings('application_fee_percentage') ?
+            floatval(UtilityFacades::getsettings('application_fee_percentage')) : 10; // Default to 10%
+
+        // Stripe fees calculation
+        $stripePerc = 0.029;
         $stripeFixed = 0.30;
-        // dd(UtilityFacades::getsettings('stripe_secret'), $planDetails->instructor->stripe_account_id, $planDetails->stripe_price_id);
-        $platformPercent = UtilityFacades::getsettings('application_fee_percentage') ? floatval(UtilityFacades::getsettings('application_fee_percentage')) : 0;
 
-        // 1️⃣ Calculate net after Stripe fee
-        $net = ($finalAmount - $stripeFixed) * (1 - $stripePerc);
+        $finalAmount = $basePrice; // Start with base 300
+        $applicationFeePercent = 0;
+        $subscriptionData = [];
 
-        // 2️⃣ Platform fee = 10% of net
-        $platformFeeAmount = $net * ($platformPercent / 100);
+        // **Scenario 1: Both fees on instructor**
+        if (
+            $instructor->stripe_transaction_fee == 'instructor' &&
+            $instructor->stripe_tuneup_percentage_fee == 'instructor'
+        ) {
 
-        // 3️⃣ Convert to percent of final amount for Stripe subscription
-        $applicationFeePercent = round(($platformFeeAmount / $finalAmount) * 100, 2);
+            // Student pays: 300
+            $finalAmount = $basePrice; // 300
+            $platformFeeAmount = $basePrice * ($platformPercent / 100); // 30
+            $applicationFeePercent = round(($platformFeeAmount / $finalAmount) * 100, 2); // (30/300)*100 = 10%
 
-        // $platform_fee = UtilityFacades::getsettings('application_fee_percentage') ?? 0;
-        // if (empty($platform_fee) || !is_numeric($platform_fee) || $platform_fee < 0 || $platform_fee > 100) {
-        //     return response()->json([
-        //         'status' => 0,
-        //         'error'  => ['message' => 'Platform fee is not set or invalid in settings. It should be between 0 and 100.']
-        //     ], 404);
-        // }
-
-        $response = [];
-
-        // ✅ Create checkout session
-        if ($request->has('createCheckoutSession')) {
-            try {
-                // $checkout_session = Session::create([
-                //     'payment_method_types' => ['card'],
-                //     'mode' => 'subscription',
-                //     'line_items' => [[
-                //         'price'    => $planDetails->stripe_price_id,
-                //         'quantity' => 1,
-                //     ]],
-                //     'success_url' => route('stripe.success.pay', Crypt::encrypt([
-                //         'coupon'   => $request->coupon,
-                //         'plan_id'  => $planDetails->id,
-                //         'price'    => $request->amount,
-                //         'user_id'  => Auth::id(),
-                //         'order_id' => $request->order_id,
-                //         'stripe_account_id' => $account_id,
-                //         'type'     => 'stripe',
-                //     ])) . '&session_id={CHECKOUT_SESSION_ID}',
-                //     'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
-                //         'coupon'   => $request->coupon,
-                //         'plan_id'  => $planDetails->id,
-                //         'price'    => $request->amount,
-                //         'user_id'  => Auth::id(),
-                //         'order_id' => $request->order_id,
-                //         'type'     => 'stripe',
-                //     ])),
-                //     'metadata' => [
-                //         'plan_id' => $request->plan_id,
-                //         'user_id' => Auth::id(),
-                //     ],
-                //     'subscription_data' => [
-                //         'application_fee_percent' => $platform_fee, // Use the platform fee from settings
-
-                //     ]
-                // ], [
-                //     // 👇 THIS IS THE IMPORTANT FIX
-                //     'stripe_account' => $account_id
-                // ]);
-
-                $checkout_session = \Stripe\Checkout\Session::create([
-                    'payment_method_types' => ['card'],
-                    'mode' => 'subscription',
-                    'line_items' => [[
-                        'price' => $request->stripe_price_id,
-                        'quantity' => 1,
-                    ]],
-                    'customer_email' => Auth::user()->email,
-                    // 'metadata' => [
-                    //     'plan_id' => $planDetails->id,
-                    //     'student_id' => Auth::user()->id,
-                    //     'tenant_id' => tenant()->id,
-                    //     'instructor_id' => $planDetails->instructor_id,
-                    // ],
-                    'subscription_data' => [
-                        'application_fee_percent' => $applicationFeePercent, // Use the platform fee from settings
-                    ],
-                    'success_url' => route('stripe.success.pay', Crypt::encrypt([
-                        'coupon' => $request->coupon,
-                        'plan_id' => $planDetails->id,
-                        'price' => $request->amount,
-                        'user_id' => Auth::user()->id,
-                        'order_id' => $request->order_id,
-                        'type' => 'stripe',
-                    ])) . '?session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
-                        'coupon' => $request->coupon,
-                        'plan_id' => $planDetails->id,
-                        'price' => $request->amount,
-                        'user_id' => Auth::user()->id,
-                        'order_id' => $request->order_id,
-                        'type' => 'stripe',
-                    ])),
-                ], [
-                    // ✅ options go here (second argument)
-                    'stripe_account' => $planDetails->influencer->stripe_account_id,
-                ]);
-
-
-                $response = [
-                    'status'    => 1,
-                    'message'   => 'Checkout session created successfully.',
-                    'sessionId' => $checkout_session->id,
-                    'url'       => $checkout_session->url,
-                ];
-            } catch (\Exception $e) {
-                $response = [
-                    'status' => 0,
-                    'error'  => ['message' => 'Checkout session creation failed. ' . $e->getMessage()],
-                ];
-            }
+            $subscriptionData = [
+                'application_fee_percent' => $applicationFeePercent,
+            ];
         }
+
+        // **Scenario 2: Student pays Stripe fee, Instructor pays Platform fee**
+        elseif (
+            $instructor->stripe_transaction_fee == 'student' &&
+            $instructor->stripe_tuneup_percentage_fee == 'instructor'
+        ) {
+
+            // Student pays: 300 + Stripe fees
+            $finalAmount = ($basePrice + $stripeFixed) / (1 - $stripePerc); // ~309
+            $finalAmount = round($finalAmount, 2);
+
+            // Platform fee is 10% of 300 = 30 (paid by instructor)
+            $platformFeeAmount = $basePrice * ($platformPercent / 100); // 30
+            $applicationFeePercent = round(($platformFeeAmount / $finalAmount) * 100, 2); // (30/309)*100 = ~9.71%
+
+            $subscriptionData = [
+                'application_fee_percent' => $applicationFeePercent,
+            ];
+        }
+
+        // **Scenario 3: Student pays Platform fee, Instructor pays Stripe fee (NEW SCENARIO)**
+        elseif (
+            $instructor->stripe_transaction_fee == 'instructor' &&
+            $instructor->stripe_tuneup_percentage_fee == 'student'
+        ) {
+
+            // Student pays: 300 + Platform fee (10% of 300 = 30)
+            $finalAmount = $basePrice * (1 + ($platformPercent / 100)); // 300 + 30 = 330
+            $finalAmount = round($finalAmount, 2);
+
+            // Platform fee is 10% of 300 = 30
+            // But since student is paying it, we need to calculate what % of 330 is 30
+            $platformFeeAmount = $basePrice * ($platformPercent / 100); // 30
+            $applicationFeePercent = round(($platformFeeAmount / $finalAmount) * 100, 2); // (30/330)*100 = ~9.09%
+
+            $subscriptionData = [
+                'application_fee_percent' => $applicationFeePercent,
+            ];
+        }
+
+        // **Scenario 4: Student pays both fees**
+        elseif (
+            $instructor->stripe_transaction_fee == 'student' &&
+            $instructor->stripe_tuneup_percentage_fee == 'student'
+        ) {
+
+            // First: Add platform fee to base price
+            $priceWithPlatformFee = $basePrice * (1 + ($platformPercent / 100)); // 300 + 30 = 330
+
+            // Then: Add Stripe fees on top
+            $finalAmount = ($priceWithPlatformFee + $stripeFixed) / (1 - $stripePerc); // ~339
+            $finalAmount = round($finalAmount, 2);
+
+            // Platform fee is 10% of 300 = 30
+            $platformFeeAmount = $basePrice * ($platformPercent / 100); // 30
+            $applicationFeePercent = round(($platformFeeAmount / $finalAmount) * 100, 2); // (30/339)*100 = ~8.85%
+
+            $subscriptionData = [
+                'application_fee_percent' => $applicationFeePercent,
+            ];
+        }
+
+        // Prepare checkout session
+        $checkoutSessionData = [
+            'payment_method_types' => ['card'],
+            'mode' => 'subscription',
+            'line_items' => [[
+                // 'price' => $planDetails->stripe_price_id, // Must match the calculated $finalAmount
+                'price' => $request->stripe_price_id,
+
+                'quantity' => 1,
+            ]],
+            'customer_email' => Auth::user()->email,
+            'success_url' => route('stripe.success.pay', Crypt::encrypt([
+                'coupon' => $request->coupon,
+                'plan_id' => $planDetails->id,
+                'price' => $finalAmount,
+                'user_id' => Auth::user()->id,
+                'order_id' => $request->order_id,
+                'type' => 'stripe',
+                'duration' => $default_sub[$request->stripe_price_id]['duration'],
+            ])) . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('stripe.cancel.pay', Crypt::encrypt([
+                'coupon' => $request->coupon,
+                'plan_id' => $planDetails->id,
+                'price' => $finalAmount,
+                'user_id' => Auth::user()->id,
+                'order_id' => $request->order_id,
+                'type' => 'stripe',
+            ])),
+        ];
+
+        // Add subscription_data only if we have application_fee_percent
+        if (!empty($subscriptionData)) {
+            $checkoutSessionData['subscription_data'] = $subscriptionData;
+        }
+
+        // Create checkout session with Stripe Connect account
+        $options = [
+            'stripe_account' => $planDetails->influencer->stripe_account_id,
+        ];
+
+        $checkout_session = \Stripe\Checkout\Session::create($checkoutSessionData, $options);
+
+        $response = [
+            'status'    => 1,
+            'message'   => 'Checkout session created successfully.',
+            'sessionId' => $checkout_session->id,
+            'url'       => $checkout_session->url,
+        ];
 
         return response()->json($response);
     }
@@ -702,7 +900,7 @@ class StripeController extends Controller
                         'status' => 'active',
                     ]);
 
-                      $influencer = $plan->influencer;
+                    $influencer = $plan->influencer;
 
                     SendEmail::dispatch(
                         $influencer->email,

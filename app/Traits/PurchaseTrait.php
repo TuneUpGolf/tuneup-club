@@ -127,6 +127,10 @@ trait PurchaseTrait
                 $convertedAmount = round($gross);
             }
 
+             if ($influencer?->stripe_tuneup_percentage_fee != 'instructor') {
+                $convertedAmount += $applicationFeeAmount;
+            }
+
             $success_params = [
                 'purchase_id' => $purchase->id,
                 'redirect'    => $redirect,
@@ -173,9 +177,9 @@ trait PurchaseTrait
             if (
                 $influencer?->active_status &&
                 ! empty($account->id) &&
-                $account->charges_enabled &&
-                ! empty($account->capabilities['card_payments']) &&
-                $account->capabilities['card_payments'] === 'active'
+                // $account->charges_enabled &&
+                ! empty($account->capabilities['card_payments'])
+                // $account->capabilities['card_payments'] === 'active'
             ) {
                 $session = Session::create($sessionData);
             } else {
@@ -207,6 +211,7 @@ trait PurchaseTrait
                 $session = $this->createSessionForPayment($purchase, true);
 
                 if (empty($session->url)) {
+                   
                     throw new \Exception('Failed to generate payment link');
                 }
 

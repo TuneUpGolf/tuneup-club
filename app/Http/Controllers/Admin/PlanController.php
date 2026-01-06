@@ -237,43 +237,164 @@ class PlanController extends Controller
     //     }
     // }
 
+    // public function store(Request $request)
+    // {
+    //     if (Auth::user()->can('create-plan')) {
+    //         request()->validate([
+    //             'name'           => 'required|unique:plans,name|max:50',
+    //             'price'          => 'required|numeric|min:0',
+    //             'price_quarter'  => 'required|numeric|min:0',
+    //             'price_year'     => 'required|numeric|min:0',
+    //             'max_users'      => 'required|integer|min:1',
+    //             'lesson_limit'   => 'required|integer',
+    //             'description'    => 'nullable|string',
+    //         ]);
+
+    //         $influencerId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
+    //         $tenantId     = Auth::user()->type === Role::ROLE_INFLUENCER ? tenant()->id : null;
+
+    //         // Optional: Check for existing plans with same chat/feed settings
+    //         // if ($influencerId) {
+    //         //     $exists = Plan::where('influencer_id', $influencerId)
+    //         //         ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
+    //         //         ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
+    //         //         ->exists();
+    //         // 
+    //         //     if ($exists) {
+    //         //         return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
+    //         //     }
+    //         // }
+
+    //         $user = Auth::user();
+
+    //         // if (empty($user->stripe_account_id)) {
+    //         //     return redirect()->route('plans.myplan')
+    //         //         ->with('failed', __('Please first connect your Stripe account.'));
+    //         // }
+
+    //         $instructor = $influencerId ? User::find($influencerId) : null;
+    //         $stripeAccountId = $instructor->stripe_account_id ?? null;
+
+    //         Stripe::setApiKey(config('services.stripe.secret'));
+
+    //         // Create Stripe product
+    //         $product = Product::create([
+    //             'name' => $request->name,
+    //             'description' => $request->description ?? '',
+    //         ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+    //         // Function to calculate price with Stripe fee recovery
+    //         $calculatePriceWithFee = function ($amount, $instructor) {
+    //             $convertedAmount = $amount;
+
+    //             if ($instructor && $instructor->stripe_transaction_fee != 'instructor') {
+    //                 $stripePerc = 0.029;  // 2.9%
+    //                 $stripeFixed = 0.30;  // $0.30
+    //                 $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
+    //                 $convertedAmount = round($gross, 2);
+    //             }
+
+    //             return round($convertedAmount * 100); // Convert to cents
+    //         };
+
+    //         // Create Monthly Price
+    //         $monthlyAmount = $calculatePriceWithFee($request->price, $instructor);
+    //         $monthlyPrice = Price::create([
+    //             'unit_amount' => $monthlyAmount,
+    //             'currency' => 'usd',
+    //             'recurring' => [
+    //                 'interval' => 'month',
+    //                 'interval_count' => 1,
+    //             ],
+    //             'product' => $product->id,
+    //         ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+    //         // Create Quarterly Price
+    //         $quarterlyAmount = $calculatePriceWithFee($request->price_quarter, $instructor);
+    //         $quarterlyPrice = Price::create([
+    //             'unit_amount' => $quarterlyAmount,
+    //             'currency' => 'usd',
+    //             'recurring' => [
+    //                 'interval' => 'month',
+    //                 'interval_count' => 3,
+    //             ],
+    //             'product' => $product->id,
+    //         ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+    //         // Create Yearly Price
+    //         $yearlyAmount = $calculatePriceWithFee($request->price_year, $instructor);
+    //         $yearlyPrice = Price::create([
+    //             'unit_amount' => $yearlyAmount,
+    //             'currency' => 'usd',
+    //             'recurring' => [
+    //                 'interval' => 'year',
+    //                 'interval_count' => 1,
+    //             ],
+    //             'product' => $product->id,
+    //         ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+    //         // Save centralized Stripe data if needed
+    //         $this->saveCentralizedStripeData($stripeAccountId, tenant()->id);
+
+    //         // Create Plan record
+    //         Plan::create([
+    //             'name'                 => $request->name,
+    //             'price'                => $request->price,
+    //             'price_quarter'        => $request->price_quarter,
+    //             'price_year'           => $request->price_year,
+    //             'tenant_id'            => $tenantId,
+    //             'max_users'            => $request->max_users,
+    //             'description'          => $request->description ?? '',
+    //             'is_chat_enabled'      => $request->chat == '1' ? 1 : 0,
+    //             'is_feed_enabled'      => $request->feed == '1' ? 1 : 0,
+    //             'influencer_id'        => $influencerId,
+    //             'stripe_product_id'    => $product->id,
+    //             'stripe_price_id'      => $monthlyPrice->id,       // Default monthly price
+    //             'stripe_price_quarter_id' => $quarterlyPrice->id, // Quarterly price
+    //             'stripe_price_year_id' => $yearlyPrice->id,       // Yearly price
+    //             'lesson_limit'         => $request->lesson_limit,
+    //         ]);
+
+    //         return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
+    //     } else {
+    //         return redirect()->back()->with('failed', __('Permission denied.'));
+    //     }
+    // }
+
     public function store(Request $request)
     {
         if (Auth::user()->can('create-plan')) {
             request()->validate([
                 'name'           => 'required|unique:plans,name|max:50',
                 'price'          => 'required|numeric|min:0',
-                'price_quarter'  => 'required|numeric|min:0',
-                'price_year'     => 'required|numeric|min:0',
+                'price_quarter'  => 'nullable|numeric|min:0',
+                'price_year'     => 'nullable|numeric|min:0',
                 'max_users'      => 'required|integer|min:1',
                 'lesson_limit'   => 'required|integer',
                 'description'    => 'nullable|string',
             ]);
 
-            $influencerId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
+            $instructorId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
             $tenantId     = Auth::user()->type === Role::ROLE_INFLUENCER ? tenant()->id : null;
 
-            // Optional: Check for existing plans with same chat/feed settings
-            // if ($influencerId) {
-            //     $exists = Plan::where('influencer_id', $influencerId)
-            //         ->where('is_chat_enabled', $request->chat == '1' ? 1 : 0)
-            //         ->where('is_feed_enabled', $request->feed == '1' ? 1 : 0)
-            //         ->exists();
-            // 
-            //     if ($exists) {
-            //         return redirect()->route('plans.myplan')->with('failed', __('You already have a plan with the same chat and feed settings.'));
-            //     }
-            // }
+            // Get application fee settings
+            $tenantId = tenancy()->tenant->id;
+            tenancy()->central(function () use (&$application_fee_percentage, &$application_currency, $tenantId) {
+                $userData = User::where('tenant_id', $tenantId)
+                    ->select('application_fee_percentage', 'currency')
+                    ->first();
+                $application_fee_percentage = $userData?->application_fee_percentage;
+                $application_currency = $userData?->currency ?? 'usd';
+            });
 
-            $user = Auth::user();
-
-            // if (empty($user->stripe_account_id)) {
-            //     return redirect()->route('plans.myplan')
-            //         ->with('failed', __('Please first connect your Stripe account.'));
-            // }
-
-            $instructor = $influencerId ? User::find($influencerId) : null;
+            $instructor = $instructorId ? User::find($instructorId) : null;
             $stripeAccountId = $instructor->stripe_account_id ?? null;
+
+            // Check if instructor has Stripe account
+            if ($instructorId && empty($stripeAccountId)) {
+                return redirect()->route('plans.myplan')
+                    ->with('failed', __('Please first connect your Stripe account.'));
+            }
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -283,10 +404,11 @@ class PlanController extends Controller
                 'description' => $request->description ?? '',
             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
 
-            // Function to calculate price with Stripe fee recovery
-            $calculatePriceWithFee = function ($amount, $instructor) {
+            // Function to calculate price with Stripe fee recovery and application fee
+            $calculatePriceWithFees = function ($amount, $instructor) use ($application_fee_percentage) {
                 $convertedAmount = $amount;
 
+                // Add Stripe fee recovery if not paid by instructor
                 if ($instructor && $instructor->stripe_transaction_fee != 'instructor') {
                     $stripePerc = 0.029;  // 2.9%
                     $stripeFixed = 0.30;  // $0.30
@@ -294,14 +416,23 @@ class PlanController extends Controller
                     $convertedAmount = round($gross, 2);
                 }
 
+                // Add application fee if not paid by instructor
+                if ($instructor && $instructor->stripe_tuneup_percentage_fee != 'instructor') {
+                    $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount, 2);
+                    $convertedAmount += $applicationFeeAmount;
+                }
+
                 return round($convertedAmount * 100); // Convert to cents
             };
 
-            // Create Monthly Price
-            $monthlyAmount = $calculatePriceWithFee($request->price, $instructor);
+            // Get currency from tenant settings
+            $currency = 'usd';
+
+            // Create Monthly Price (always required)
+            $monthlyAmount = $calculatePriceWithFees($request->price, $instructor);
             $monthlyPrice = Price::create([
                 'unit_amount' => $monthlyAmount,
-                'currency' => 'usd',
+                'currency' => $currency,
                 'recurring' => [
                     'interval' => 'month',
                     'interval_count' => 1,
@@ -309,50 +440,57 @@ class PlanController extends Controller
                 'product' => $product->id,
             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
 
-            // Create Quarterly Price
-            $quarterlyAmount = $calculatePriceWithFee($request->price_quarter, $instructor);
-            $quarterlyPrice = Price::create([
-                'unit_amount' => $quarterlyAmount,
-                'currency' => 'usd',
-                'recurring' => [
-                    'interval' => 'month',
-                    'interval_count' => 3,
-                ],
-                'product' => $product->id,
-            ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+            // Create Quarterly Price if provided
+            $quarterlyPrice = null;
+            if ($request->has('price_quarter') && $request->price_quarter > 0) {
+                $quarterlyAmount = $calculatePriceWithFees($request->price_quarter, $instructor);
+                $quarterlyPrice = Price::create([
+                    'unit_amount' => $quarterlyAmount,
+                    'currency' => $currency,
+                    'recurring' => [
+                        'interval' => 'month',
+                        'interval_count' => 3,
+                    ],
+                    'product' => $product->id,
+                ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+            }
 
-            // Create Yearly Price
-            $yearlyAmount = $calculatePriceWithFee($request->price_year, $instructor);
-            $yearlyPrice = Price::create([
-                'unit_amount' => $yearlyAmount,
-                'currency' => 'usd',
-                'recurring' => [
-                    'interval' => 'year',
-                    'interval_count' => 1,
-                ],
-                'product' => $product->id,
-            ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+            // Create Yearly Price if provided
+            $yearlyPrice = null;
+            if ($request->has('price_year') && $request->price_year > 0) {
+                $yearlyAmount = $calculatePriceWithFees($request->price_year, $instructor);
+                $yearlyPrice = Price::create([
+                    'unit_amount' => $yearlyAmount,
+                    'currency' => $currency,
+                    'recurring' => [
+                        'interval' => 'year',
+                        'interval_count' => 1,
+                    ],
+                    'product' => $product->id,
+                ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+            }
 
-            // Save centralized Stripe data if needed
+            // Save centralized Stripe data
             $this->saveCentralizedStripeData($stripeAccountId, tenant()->id);
 
             // Create Plan record
             Plan::create([
-                'name'                 => $request->name,
-                'price'                => $request->price,
-                'price_quarter'        => $request->price_quarter,
-                'price_year'           => $request->price_year,
-                'tenant_id'            => $tenantId,
-                'max_users'            => $request->max_users,
-                'description'          => $request->description ?? '',
-                'is_chat_enabled'      => $request->chat == '1' ? 1 : 0,
-                'is_feed_enabled'      => $request->feed == '1' ? 1 : 0,
-                'influencer_id'        => $influencerId,
-                'stripe_product_id'    => $product->id,
-                'stripe_price_id'      => $monthlyPrice->id,       // Default monthly price
-                'stripe_price_quarter_id' => $quarterlyPrice->id, // Quarterly price
-                'stripe_price_year_id' => $yearlyPrice->id,       // Yearly price
-                'lesson_limit'         => $request->lesson_limit,
+                'name'                     => $request->name,
+                'price'                    => $request->price,
+                'price_quarter'            => $request->price_quarter,
+                'price_year'               => $request->price_year,
+                'tenant_id'                => $tenantId,
+                'max_users'                => $request->max_users,
+                'description'              => $request->description ?? '',
+                'is_chat_enabled'          => $request->chat == '1' ? 1 : 0,
+                'is_feed_enabled'          => $request->feed == '1' ? 1 : 0,
+                'influencer_id'            => $instructorId,
+                'stripe_product_id'        => $product->id,
+                'stripe_price_id'          => $monthlyPrice->id,
+                'stripe_price_quarter_id'  => $quarterlyPrice?->id,
+                'stripe_price_year_id'     => $yearlyPrice?->id,
+                'lesson_limit'             => $request->lesson_limit,
+                // 'currency'                 => $currency,
             ]);
 
             return redirect()->route('plans.myplan')->with('success', __('Plan created successfully.'));
@@ -360,6 +498,7 @@ class PlanController extends Controller
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
 
     private function saveCentralizedStripeData($stripeAccountId, $tenant_id)
     {
@@ -387,40 +526,72 @@ class PlanController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+
+     public function update(Request $request, $id)
     {
-        $user = Auth::user();
-
-        // Check if user has Stripe account (only for Influencers)
-        if (Auth::user()->type == 'Influencer' && empty($user->stripe_account_id)) {
-            return redirect()->route('plans.myplan')
-                ->with('failed', __('Please first connect your Stripe account.'));
-        }
-
         if (Auth::user()->can('edit-plan')) {
             request()->validate([
                 'name'           => 'required|max:50|unique:plans,name,' . $id,
                 'price'          => 'required|numeric|min:0',
-                'price_quarter'  => 'required|numeric|min:0',
-                'price_year'     => 'required|numeric|min:0',
+                'price_quarter'  => 'nullable|numeric|min:0',
+                'price_year'     => 'nullable|numeric|min:0',
                 'max_users'      => 'required|integer|min:1',
                 'lesson_limit'   => 'required|integer',
-                'description'    => 'nullable|string',
             ]);
 
-            $plan = Plan::find($id);
+            $plan = Plan::findOrFail($id);
 
-            // Determine influencer ID if applicable
-            $influencerId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
-            $instructor = $influencerId ? User::find($influencerId) : null;
+            $instructorId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
+            $tenantId     = Auth::user()->type === Role::ROLE_INFLUENCER ? tenant()->id : null;
+
+            // Get application fee settings
+            $tenantId = tenancy()->tenant->id;
+            tenancy()->central(function () use (&$application_fee_percentage, &$application_currency, $tenantId) {
+                $userData = User::where('tenant_id', $tenantId)
+                    ->select('application_fee_percentage', 'currency')
+                    ->first();
+                $application_fee_percentage = $userData?->application_fee_percentage;
+                $application_currency = $userData?->currency ?? 'usd';
+            });
+
+            $instructor = $instructorId ? User::find($instructorId) : null;
             $stripeAccountId = $instructor->stripe_account_id ?? null;
 
-            // Initialize Stripe
+            // Check if instructor has Stripe account
+            if ($instructorId && empty($stripeAccountId)) {
+                return redirect()->route('plans.myplan')
+                    ->with('failed', __('Please first connect your Stripe account.'));
+            }
+
             Stripe::setApiKey(config('services.stripe.secret'));
 
             try {
+                // Function to calculate price with Stripe fee recovery and application fee
+                $calculatePriceWithFees = function ($amount, $instructor) use ($application_fee_percentage) {
+                    $convertedAmount = $amount;
+
+                    // Add Stripe fee recovery if not paid by instructor
+                    if ($instructor && $instructor->stripe_transaction_fee != 'instructor') {
+                        $stripePerc = 0.029;  // 2.9%
+                        $stripeFixed = 0.30;  // $0.30
+                        $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
+                        $convertedAmount = round($gross, 2);
+                    }
+
+                    // Add application fee if not paid by instructor
+                    if ($instructor && $instructor->stripe_tuneup_percentage_fee != 'instructor') {
+                        $applicationFeeAmount = round(($application_fee_percentage / 100) * $convertedAmount, 2);
+                        $convertedAmount += $applicationFeeAmount;
+                    }
+
+                    return round($convertedAmount * 100); // Convert to cents
+                };
+
+                // Get currency from tenant settings
+                $currency = 'usd';
+
                 /**
-                 * 1️⃣ Update Stripe Product
+                 * 1️⃣ Update or Create Stripe Product
                  */
                 if ($plan->stripe_product_id) {
                     $product = Product::update(
@@ -432,7 +603,6 @@ class PlanController extends Controller
                         $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
                     );
                 } else {
-                    // This should not happen, but handle it just in case
                     $product = Product::create(
                         [
                             'name' => $request->name,
@@ -444,42 +614,28 @@ class PlanController extends Controller
                 }
 
                 /**
-                 * 2️⃣ Function to calculate price with Stripe fee recovery
+                 * 2️⃣ Create new Stripe Prices (old prices are archived automatically)
                  */
-                $calculatePriceWithFee = function ($amount, $instructor) {
-                    $convertedAmount = $amount;
 
-                    if ($instructor && $instructor->stripe_transaction_fee != 'instructor') {
-                        $stripePerc = 0.029;  // 2.9%
-                        $stripeFixed = 0.30;  // $0.30
-                        $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
-                        $convertedAmount = round($gross, 2);
-                    }
-
-                    return round($convertedAmount * 100); // Convert to cents
-                };
-
-                /**
-                 * 3️⃣ Archive old prices and create new ones
-                 */
-                // Monthly Price
+                // Update Monthly Price (always required)
                 if ($plan->stripe_price_id) {
                     // Archive old monthly price
-                    try {
-                        $oldPrice = Price::update(
-                            $plan->stripe_price_id,
-                            ['active' => false],
-                            $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
-                        );
-                    } catch (\Exception $e) {
-                        // Price might not exist, continue anyway
-                    }
+                    // try {
+                    //     Price::update(
+                    //         $plan->stripe_price_id,
+                    //         ['active' => false],
+                    //         $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                    //     );
+                    // } catch (\Exception $e) {
+                    //     // Price might already be archived or doesn't exist
+                    // }
                 }
 
-                $monthlyAmount = $calculatePriceWithFee($request->price, $instructor);
+                // Create new monthly price
+                $monthlyAmount = $calculatePriceWithFees($request->price, $instructor);
                 $monthlyPrice = Price::create([
                     'unit_amount' => $monthlyAmount,
-                    'currency' => 'usd',
+                    'currency' => $currency,
                     'recurring' => [
                         'interval' => 'month',
                         'interval_count' => 1,
@@ -487,95 +643,315 @@ class PlanController extends Controller
                     'product' => $plan->stripe_product_id,
                 ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
 
-                // Quarterly Price
-                if ($plan->stripe_price_quarter_id) {
-                    // Archive old quarterly price
-                    try {
-                        $oldQuarterlyPrice = Price::update(
-                            $plan->stripe_price_quarter_id,
-                            ['active' => false],
-                            $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
-                        );
-                    } catch (\Exception $e) {
-                        // Price might not exist, continue anyway
+                $plan->stripe_price_id = $monthlyPrice->id;
+
+                // Update Quarterly Price if provided
+                if ($request->has('price_quarter') && $request->price_quarter > 0) {
+                    if ($plan->stripe_price_quarter_id) {
+                        // Archive old quarterly price
+                        // try {
+                        //     Price::update(
+                        //         $plan->stripe_price_quarter_id,
+                        //         ['active' => false],
+                        //         $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                        //     );
+                        // } catch (\Exception $e) {
+                        //     // Price might already be archived or doesn't exist
+                        // }
+                    }
+
+                    // Create new quarterly price
+                    $quarterlyAmount = $calculatePriceWithFees($request->price_quarter, $instructor);
+                    $quarterlyPrice = Price::create([
+                        'unit_amount' => $quarterlyAmount,
+                        'currency' => $currency,
+                        'recurring' => [
+                            'interval' => 'month',
+                            'interval_count' => 3,
+                        ],
+                        'product' => $plan->stripe_product_id,
+                    ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+                    $plan->stripe_price_quarter_id = $quarterlyPrice->id;
+                } else {
+                    // If quarterly price is removed, archive existing one
+                    if ($plan->stripe_price_quarter_id) {
+                        // try {
+                        //     Price::update(
+                        //         $plan->stripe_price_quarter_id,
+                        //         ['active' => false],
+                        //         $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                        //     );
+                        // } catch (\Exception $e) {
+                        //     // Price might already be archived or doesn't exist
+                        // }
+                        // $plan->stripe_price_quarter_id = null;
                     }
                 }
 
-                $quarterlyAmount = $calculatePriceWithFee($request->price_quarter, $instructor);
-                $quarterlyPrice = Price::create([
-                    'unit_amount' => $quarterlyAmount,
-                    'currency' => 'usd',
-                    'recurring' => [
-                        'interval' => 'month',
-                        'interval_count' => 3,
-                    ],
-                    'product' => $plan->stripe_product_id,
-                ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+                // Update Yearly Price if provided
+                if ($request->has('price_year') && $request->price_year > 0) {
+                    // if ($plan->stripe_price_year_id) {
+                    //     // Archive old yearly price
+                    //     try {
+                    //         Price::update(
+                    //             $plan->stripe_price_year_id,
+                    //             ['active' => false],
+                    //             $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                    //         );
+                    //     } catch (\Exception $e) {
+                    //         // Price might already be archived or doesn't exist
+                    //     }
+                    // }
 
-                // Yearly Price
-                if ($plan->stripe_price_year_id) {
-                    // Archive old yearly price
-                    try {
-                        $oldYearlyPrice = Price::update(
-                            $plan->stripe_price_year_id,
-                            ['active' => false],
-                            $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
-                        );
-                    } catch (\Exception $e) {
-                        // Price might not exist, continue anyway
-                    }
+                    // Create new yearly price
+                    $yearlyAmount = $calculatePriceWithFees($request->price_year, $instructor);
+                    $yearlyPrice = Price::create([
+                        'unit_amount' => $yearlyAmount,
+                        'currency' => $currency,
+                        'recurring' => [
+                            'interval' => 'year',
+                            'interval_count' => 1,
+                        ],
+                        'product' => $plan->stripe_product_id,
+                    ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+                    $plan->stripe_price_year_id = $yearlyPrice->id;
+                } else {
+                    // If yearly price is removed, archive existing one
+                    // if ($plan->stripe_price_year_id) {
+                    //     try {
+                    //         Price::update(
+                    //             $plan->stripe_price_year_id,
+                    //             ['active' => false],
+                    //             $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+                    //         );
+                    //     } catch (\Exception $e) {
+                    //         // Price might already be archived or doesn't exist
+                    //     }
+                    //     $plan->stripe_price_year_id = null;
+                    // }
                 }
 
-                $yearlyAmount = $calculatePriceWithFee($request->price_year, $instructor);
-                $yearlyPrice = Price::create([
-                    'unit_amount' => $yearlyAmount,
-                    'currency' => 'usd',
-                    'recurring' => [
-                        'interval' => 'year',
-                        'interval_count' => 1,
-                    ],
-                    'product' => $plan->stripe_product_id,
-                ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+                // Save centralized Stripe data
+                $this->saveCentralizedStripeData($stripeAccountId, tenant()->id);
 
                 /**
-                 * 4️⃣ Update Plan record
+                 * 3️⃣ Update Local Plan Data
                  */
-                $plan->name = $request->name;
-                $plan->price = $request->price;
-                $plan->price_quarter = $request->price_quarter;
-                $plan->price_year = $request->price_year;
-                $plan->max_users = $request->max_users;
-                $plan->description = $request->description ?? '';
-                $plan->is_chat_enabled = $request->chat == '1' ? 1 : 0;
-                $plan->is_feed_enabled = $request->feed == '1' ? 1 : 0;
-                $plan->lesson_limit = $request->lesson_limit;
-                $plan->stripe_price_id = $monthlyPrice->id;
-                $plan->stripe_price_quarter_id = $quarterlyPrice->id;
-                $plan->stripe_price_year_id = $yearlyPrice->id;
-
-                // For Super Admin or non-influencer users
-                if (Auth::user()->type != 'Influencer') {
-                    $plan->tenant_id = tenant()->id;
-                    $plan->influencer_id = null;
-                }
+                $plan->name                     = $request->name;
+                $plan->price                    = $request->price;
+                $plan->price_quarter            = $request->price_quarter;
+                $plan->price_year               = $request->price_year;
+                $plan->max_users                = $request->max_users;
+                $plan->description              = $request->description ?? '';
+                $plan->is_chat_enabled          = $request->chat == '1' ? 1 : 0;
+                $plan->is_feed_enabled          = $request->feed == '1' ? 1 : 0;
+                $plan->tenant_id                = $tenantId;
+                $plan->influencer_id            = $instructorId;
+                $plan->lesson_limit             = $request->lesson_limit;
+                // $plan->currency                 = $currency;
 
                 $plan->save();
 
-                // Save centralized Stripe data if needed (for influencers)
-                if ($influencerId) {
-                    $this->saveCentralizedStripeData($stripeAccountId, tenant()->id);
-                }
-
                 return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));
             } catch (\Exception $e) {
-                return redirect()->back()
-                    ->with('failed', __('Stripe Error: ') . $e->getMessage())
-                    ->withInput();
+                return redirect()->back()->with('failed', __('Stripe Error: ') . $e->getMessage());
             }
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
     }
+
+    // public function update(Request $request, $id)
+    // {
+    //     $user = Auth::user();
+
+    //     // Check if user has Stripe account (only for Influencers)
+    //     if (Auth::user()->type == 'Influencer' && empty($user->stripe_account_id)) {
+    //         return redirect()->route('plans.myplan')
+    //             ->with('failed', __('Please first connect your Stripe account.'));
+    //     }
+
+    //     if (Auth::user()->can('edit-plan')) {
+    //         request()->validate([
+    //             'name'           => 'required|max:50|unique:plans,name,' . $id,
+    //             'price'          => 'required|numeric|min:0',
+    //             'price_quarter'  => 'required|numeric|min:0',
+    //             'price_year'     => 'required|numeric|min:0',
+    //             'max_users'      => 'required|integer|min:1',
+    //             'lesson_limit'   => 'required|integer',
+    //             'description'    => 'nullable|string',
+    //         ]);
+
+    //         $plan = Plan::find($id);
+
+    //         // Determine influencer ID if applicable
+    //         $influencerId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
+    //         $instructor = $influencerId ? User::find($influencerId) : null;
+    //         $stripeAccountId = $instructor->stripe_account_id ?? null;
+
+    //         // Initialize Stripe
+    //         Stripe::setApiKey(config('services.stripe.secret'));
+
+    //         try {
+    //             /**
+    //              * 1️⃣ Update Stripe Product
+    //              */
+    //             if ($plan->stripe_product_id) {
+    //                 $product = Product::update(
+    //                     $plan->stripe_product_id,
+    //                     [
+    //                         'name' => $request->name,
+    //                         'description' => $request->description ?? '',
+    //                     ],
+    //                     $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+    //                 );
+    //             } else {
+    //                 // This should not happen, but handle it just in case
+    //                 $product = Product::create(
+    //                     [
+    //                         'name' => $request->name,
+    //                         'description' => $request->description ?? '',
+    //                     ],
+    //                     $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+    //                 );
+    //                 $plan->stripe_product_id = $product->id;
+    //             }
+
+    //             /**
+    //              * 2️⃣ Function to calculate price with Stripe fee recovery
+    //              */
+    //             $calculatePriceWithFee = function ($amount, $instructor) {
+    //                 $convertedAmount = $amount;
+
+    //                 if ($instructor && $instructor->stripe_transaction_fee != 'instructor') {
+    //                     $stripePerc = 0.029;  // 2.9%
+    //                     $stripeFixed = 0.30;  // $0.30
+    //                     $gross = ($convertedAmount + $stripeFixed) / (1 - $stripePerc);
+    //                     $convertedAmount = round($gross, 2);
+    //                 }
+
+    //                 return round($convertedAmount * 100); // Convert to cents
+    //             };
+
+    //             /**
+    //              * 3️⃣ Archive old prices and create new ones
+    //              */
+    //             // Monthly Price
+    //             if ($plan->stripe_price_id) {
+    //                 // Archive old monthly price
+    //                 try {
+    //                     $oldPrice = Price::update(
+    //                         $plan->stripe_price_id,
+    //                         ['active' => false],
+    //                         $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+    //                     );
+    //                 } catch (\Exception $e) {
+    //                     // Price might not exist, continue anyway
+    //                 }
+    //             }
+
+    //             $monthlyAmount = $calculatePriceWithFee($request->price, $instructor);
+    //             $monthlyPrice = Price::create([
+    //                 'unit_amount' => $monthlyAmount,
+    //                 'currency' => 'usd',
+    //                 'recurring' => [
+    //                     'interval' => 'month',
+    //                     'interval_count' => 1,
+    //                 ],
+    //                 'product' => $plan->stripe_product_id,
+    //             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+    //             // Quarterly Price
+    //             if ($plan->stripe_price_quarter_id) {
+    //                 // Archive old quarterly price
+    //                 try {
+    //                     $oldQuarterlyPrice = Price::update(
+    //                         $plan->stripe_price_quarter_id,
+    //                         ['active' => false],
+    //                         $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+    //                     );
+    //                 } catch (\Exception $e) {
+    //                     // Price might not exist, continue anyway
+    //                 }
+    //             }
+
+    //             $quarterlyAmount = $calculatePriceWithFee($request->price_quarter, $instructor);
+    //             $quarterlyPrice = Price::create([
+    //                 'unit_amount' => $quarterlyAmount,
+    //                 'currency' => 'usd',
+    //                 'recurring' => [
+    //                     'interval' => 'month',
+    //                     'interval_count' => 3,
+    //                 ],
+    //                 'product' => $plan->stripe_product_id,
+    //             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+    //             // Yearly Price
+    //             if ($plan->stripe_price_year_id) {
+    //                 // Archive old yearly price
+    //                 try {
+    //                     $oldYearlyPrice = Price::update(
+    //                         $plan->stripe_price_year_id,
+    //                         ['active' => false],
+    //                         $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []
+    //                     );
+    //                 } catch (\Exception $e) {
+    //                     // Price might not exist, continue anyway
+    //                 }
+    //             }
+
+    //             $yearlyAmount = $calculatePriceWithFee($request->price_year, $instructor);
+    //             $yearlyPrice = Price::create([
+    //                 'unit_amount' => $yearlyAmount,
+    //                 'currency' => 'usd',
+    //                 'recurring' => [
+    //                     'interval' => 'year',
+    //                     'interval_count' => 1,
+    //                 ],
+    //                 'product' => $plan->stripe_product_id,
+    //             ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+    //             /**
+    //              * 4️⃣ Update Plan record
+    //              */
+    //             $plan->name = $request->name;
+    //             $plan->price = $request->price;
+    //             $plan->price_quarter = $request->price_quarter;
+    //             $plan->price_year = $request->price_year;
+    //             $plan->max_users = $request->max_users;
+    //             $plan->description = $request->description ?? '';
+    //             $plan->is_chat_enabled = $request->chat == '1' ? 1 : 0;
+    //             $plan->is_feed_enabled = $request->feed == '1' ? 1 : 0;
+    //             $plan->lesson_limit = $request->lesson_limit;
+    //             $plan->stripe_price_id = $monthlyPrice->id;
+    //             $plan->stripe_price_quarter_id = $quarterlyPrice->id;
+    //             $plan->stripe_price_year_id = $yearlyPrice->id;
+
+    //             // For Super Admin or non-influencer users
+    //             if (Auth::user()->type != 'Influencer') {
+    //                 $plan->tenant_id = tenant()->id;
+    //                 $plan->influencer_id = null;
+    //             }
+
+    //             $plan->save();
+
+    //             // Save centralized Stripe data if needed (for influencers)
+    //             if ($influencerId) {
+    //                 $this->saveCentralizedStripeData($stripeAccountId, tenant()->id);
+    //             }
+
+    //             return redirect()->route('plans.myplan')->with('success', __('Plan updated successfully.'));
+    //         } catch (\Exception $e) {
+    //             return redirect()->back()
+    //                 ->with('failed', __('Stripe Error: ') . $e->getMessage())
+    //                 ->withInput();
+    //         }
+    //     } else {
+    //         return redirect()->back()->with('failed', __('Permission denied.'));
+    //     }
+    // }
 
     // public function update(Request $request, $id)
     // {

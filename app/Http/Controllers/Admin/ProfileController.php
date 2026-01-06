@@ -68,7 +68,7 @@ class ProfileController extends Controller
             'stripe_transaction_fee' => 'required',
         ]);
 
-        User::find($user->id)->update(['stripe_transaction_fee' => $request->stripe_transaction_fee]);
+        User::find($user->id)->update(['stripe_transaction_fee' => $request->stripe_transaction_fee, 'stripe_tuneup_percentage_fee' => $request->stripe_tuneup_percentage_fee]);
 
         return redirect()->back()->with('success', __('Setting Updated.'));
     }
@@ -467,7 +467,8 @@ class ProfileController extends Controller
         }
     }
 
-    public function disconnectStripe($userid){
+    public function disconnectStripe($userid)
+    {
         $user = User::find($userid);
         $user->stripe_account_id = null;
         $user->is_stripe_connected = null;

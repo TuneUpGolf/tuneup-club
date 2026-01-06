@@ -413,15 +413,27 @@
                                         <div class="border-t border-gray-300"></div>
 
                                         <div class="px-3 py-4" id="sub">
-                                            <select name="" id="sub_price_dropdown_{{$plan->id}}"
-                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
-                                                >
+                                            <select name="" id="sub_price_dropdown_{{ $plan->id }}"
+                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2">
                                                 <option value="">Select Plan</option>
-                                                <option value="{{ $plan->stripe_price_id }}">Monthly - ${{ $plan->price }}</option>
-                                                <option value="{{ $plan->stripe_price_quarter_id }}">
-                                                    Quarterly - ${{ $plan->price_quarter }}</option>
-                                                <option value="{{ $plan->stripe_price_year_id }}">Yearly - ${{ $plan->price_year }}
-                                                </option>
+                                                @if ($plan->stripe_price_id)
+                                                    <option value="{{ $plan->stripe_price_id }}">Monthly -
+                                                        ${{ $plan->price }}
+                                                    </option>
+                                                @endif
+
+                                                @if ($plan->stripe_price_quarter_id)
+                                                    <option value="{{ $plan->stripe_price_quarter_id }}">
+                                                        Quarterly -
+                                                        ${{ $plan->price_quarter }}
+                                                    </option>
+                                                @endif
+
+                                                @if ($plan->stripe_price_year_id)
+                                                    <option value="{{ $plan->stripe_price_year_id }}">Yearly -
+                                                        ${{ $plan->price_year }}
+                                                    </option>
+                                                @endif
                                             </select>
                                             @if ($plan->id != 1)
                                                 @php
@@ -465,8 +477,9 @@
                                                                 class="lesson-btn text-center font-bold text-lg mt-auto">
                                                                 {{ __('Renew') }}
                                                             </a> --}}
-                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto" onclick="submitSubscription({{$plan->id}})">Renew</button>
-
+                                                            <button
+                                                                class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                                onclick="submitSubscription({{ $plan->id }})">Renew</button>
                                                         @endif
                                                     @elseif ($hasActivePlan)
                                                         {{-- 🚫 User has another ACTIVE plan --}}
@@ -477,7 +490,9 @@
                                                     @else
                                                         {{-- 🛒 No active plan or plan expired → Can buy any plan --}}
 
-                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto" onclick="submitSubscription({{$plan->id}})">Buy Plan</button>
+                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                            onclick="submitSubscription({{ $plan->id }})">Buy
+                                                            Plan</button>
                                                         {{-- <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
                                                             class="lesson-btn text-center font-bold text-lg mt-auto">
                                                             {{ __('Buy Plan') }}
@@ -830,16 +845,16 @@
             $('#longDescModal').modal('hide');
         }
 
-        function submitSubscription(planId){
-            let subscription = document.getElementById("sub_price_dropdown_"+planId).value;
+        function submitSubscription(planId) {
+            let subscription = document.getElementById("sub_price_dropdown_" + planId).value;
 
             // console.log(subscription);
-            if(subscription == ""){
+            if (subscription == "") {
                 alert("Select a plan before continuing.");
                 return;
             }
 
-             window.location.href = `/payment/${planId}/${subscription}`;
+            window.location.href = `/payment/${planId}/${subscription}`;
         }
     </script>
 @endpush
