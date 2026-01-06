@@ -13,6 +13,7 @@ class WelcomeMail extends TemplateMailable
     public $name;
     public $link;
     public $password;
+    public $email;
     /**
      * Create a new message instance.
      *
@@ -20,10 +21,10 @@ class WelcomeMail extends TemplateMailable
      */
     public function __construct($user)
     {
-        //
         $this->name = $user['name'];
-        $this->link = url('/login');
+        $this->link = route('login');
         $this->password = $user['unhashedPass'];
+        $this->email = $user['email'];
     }
 
     public function build()
@@ -33,6 +34,6 @@ class WelcomeMail extends TemplateMailable
 
     public function getHtmlLayout(): string
     {
-        return view('mails.layout', ['data' => $this->name, $this->link, $this->password])->render();
+        return view('mails.layout', ['data' => $this->name, $this->link, $this->email, $this->password])->render();
     }
 }
