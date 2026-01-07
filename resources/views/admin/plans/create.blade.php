@@ -30,8 +30,7 @@
                                     {{ Form::label('price', __('Monthly Price'), ['class' => 'form-label']) }}
                                     {!! Form::text('price', old('price'), [
                                         'placeholder' => __('Enter price'),
-                                        'class' => 'form-control',
-                                        'required',
+                                        'class' => 'form-control'
                                     ]) !!}
                                     <small class="text-muted">{{ __('Billed monthly') }}</small>
                                 </div>

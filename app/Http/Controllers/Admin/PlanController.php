@@ -9,17 +9,18 @@ use App\Models\Plan;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Follower;
 use Illuminate\Http\Request;
 use App\Facades\UtilityFacades;
 use App\Models\ClientSubscription;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Services\SubscriptionService;
 use App\Models\StripeConnectedAccount;
 use App\DataTables\Admin\PlanDataTable;
-use App\Models\Follower;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Stripe\Subscription as StripeSubscription;
 
 class PlanController extends Controller
@@ -366,13 +367,40 @@ class PlanController extends Controller
         if (Auth::user()->can('create-plan')) {
             request()->validate([
                 'name'           => 'required|unique:plans,name|max:50',
-                'price'          => 'required|numeric|min:0',
+                'price'          => 'nullable|numeric|min:0',
                 'price_quarter'  => 'nullable|numeric|min:0',
                 'price_year'     => 'nullable|numeric|min:0',
                 'max_users'      => 'required|integer|min:1',
                 'lesson_limit'   => 'required|integer',
                 'description'    => 'nullable|string',
             ]);
+
+            // Add custom validation to ensure at least one price is provided
+            $validator = Validator::make($request->all(), []);
+
+            $validator->after(function ($validator) use ($request) {
+                // Check if all prices are empty
+                if (empty($request->price) && empty($request->price_quarter) && empty($request->price_year)) {
+                    $validator->errors()->add(
+                        'price',
+                        __('At least one price (monthly, quarterly, or yearly) must be provided.')
+                    );
+                    $validator->errors()->add(
+                        'price_quarter',
+                        __('At least one price (monthly, quarterly, or yearly) must be provided.')
+                    );
+                    $validator->errors()->add(
+                        'price_year',
+                        __('At least one price (monthly, quarterly, or yearly) must be provided.')
+                    );
+                }
+            });
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
 
             $instructorId = Auth::user()->type === Role::ROLE_INFLUENCER ? Auth::user()->id : null;
             $tenantId     = Auth::user()->type === Role::ROLE_INFLUENCER ? tenant()->id : null;
@@ -429,16 +457,19 @@ class PlanController extends Controller
             $currency = 'usd';
 
             // Create Monthly Price (always required)
-            $monthlyAmount = $calculatePriceWithFees($request->price, $instructor);
-            $monthlyPrice = Price::create([
-                'unit_amount' => $monthlyAmount,
-                'currency' => $currency,
-                'recurring' => [
-                    'interval' => 'month',
-                    'interval_count' => 1,
-                ],
-                'product' => $product->id,
-            ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+            $monthlyPrice = null;
+            if ($request->has('price') && $request->price > 0) {
+                $monthlyAmount = $calculatePriceWithFees($request->price, $instructor);
+                $monthlyPrice = Price::create([
+                    'unit_amount' => $monthlyAmount,
+                    'currency' => $currency,
+                    'recurring' => [
+                        'interval' => 'month',
+                        'interval_count' => 1,
+                    ],
+                    'product' => $product->id,
+                ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+            }
 
             // Create Quarterly Price if provided
             $quarterlyPrice = null;
@@ -486,7 +517,7 @@ class PlanController extends Controller
                 'is_feed_enabled'          => $request->feed == '1' ? 1 : 0,
                 'influencer_id'            => $instructorId,
                 'stripe_product_id'        => $product->id,
-                'stripe_price_id'          => $monthlyPrice->id,
+                'stripe_price_id'          => $monthlyPrice?->id,
                 'stripe_price_quarter_id'  => $quarterlyPrice?->id,
                 'stripe_price_year_id'     => $yearlyPrice?->id,
                 'lesson_limit'             => $request->lesson_limit,
@@ -527,17 +558,46 @@ class PlanController extends Controller
     }
 
 
-     public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         if (Auth::user()->can('edit-plan')) {
             request()->validate([
-                'name'           => 'required|max:50|unique:plans,name,' . $id,
-                'price'          => 'required|numeric|min:0',
+                'name'           => 'required|unique:plans,name|max:50',
+                'price'          => 'nullable|numeric|min:0',
                 'price_quarter'  => 'nullable|numeric|min:0',
                 'price_year'     => 'nullable|numeric|min:0',
                 'max_users'      => 'required|integer|min:1',
                 'lesson_limit'   => 'required|integer',
+                'description'    => 'nullable|string',
             ]);
+
+            // Add custom validation to ensure at least one price is provided
+            $validator = Validator::make($request->all(), []);
+
+            $validator->after(function ($validator) use ($request) {
+                // Check if all prices are empty
+                if (empty($request->price) && empty($request->price_quarter) && empty($request->price_year)) {
+                    $validator->errors()->add(
+                        'price',
+                        __('At least one price (monthly, quarterly, or yearly) must be provided.')
+                    );
+                    $validator->errors()->add(
+                        'price_quarter',
+                        __('At least one price (monthly, quarterly, or yearly) must be provided.')
+                    );
+                    $validator->errors()->add(
+                        'price_year',
+                        __('At least one price (monthly, quarterly, or yearly) must be provided.')
+                    );
+                }
+            });
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
 
             $plan = Plan::findOrFail($id);
 
@@ -631,19 +691,22 @@ class PlanController extends Controller
                     // }
                 }
 
-                // Create new monthly price
-                $monthlyAmount = $calculatePriceWithFees($request->price, $instructor);
-                $monthlyPrice = Price::create([
-                    'unit_amount' => $monthlyAmount,
-                    'currency' => $currency,
-                    'recurring' => [
-                        'interval' => 'month',
-                        'interval_count' => 1,
-                    ],
-                    'product' => $plan->stripe_product_id,
-                ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+                if ($request->has('price_quarter') && $request->price_quarter > 0) {
 
-                $plan->stripe_price_id = $monthlyPrice->id;
+                    // Create new monthly price
+                    $monthlyAmount = $calculatePriceWithFees($request->price, $instructor);
+                    $monthlyPrice = Price::create([
+                        'unit_amount' => $monthlyAmount,
+                        'currency' => $currency,
+                        'recurring' => [
+                            'interval' => 'month',
+                            'interval_count' => 1,
+                        ],
+                        'product' => $plan->stripe_product_id,
+                    ], $stripeAccountId ? ['stripe_account' => $stripeAccountId] : []);
+
+                    $plan->stripe_price_id = $monthlyPrice->id;
+                }
 
                 // Update Quarterly Price if provided
                 if ($request->has('price_quarter') && $request->price_quarter > 0) {
