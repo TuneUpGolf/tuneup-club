@@ -686,7 +686,7 @@
     <footer class="foot-two">
         <div class="flex justify-content-sm-between justify-center align-items-center container footer-two">
             <div class="text-white m-0">
-                <p class="fot-p">© 2025 Tuneup. All rights reserved.</p>
+                <p class="fot-p">© {{ now()->year }} Tuneup. All rights reserved.</p>
             </div>
             <div class="icon flex mt-2 sm-mt-0 text-3xl flex gap-3">
                 <a href="{{ $influencerDetails?->social_url_fb }}" class="text-gray-800"><i

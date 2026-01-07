@@ -19,11 +19,12 @@ use App\Http\Controllers\Controller;
 use App\Mail\Superadmin\WelcomeMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\TenantAPIResource;
 use Stancl\Tenancy\Database\Models\Domain;
-use App\DataTables\Superadmin\InfluencerDataTable;
 use App\DataTables\Superadmin\UsersDataTable;
+use App\DataTables\Superadmin\InfluencerDataTable;
 
 class UserController extends Controller
 {
@@ -171,6 +172,10 @@ class UserController extends Controller
                     $user->created_by   = Auth::user()->id;
                     $user->save();
                     \DB::commit();
+                    Artisan::call('cache:clear');
+                    Artisan::call('route:clear');
+                    Artisan::call('view:clear');
+                    Artisan::call('optimize:clear');
                 }
                 // tenant database setting store
                 return redirect()->route('users.index')->with('success', __('User created successfully.'));
@@ -344,7 +349,7 @@ class UserController extends Controller
         ]);
     }
 
-     public function influencers($id, InfluencerDataTable $dataTable)
+    public function influencers($id, InfluencerDataTable $dataTable)
     {
         // dd("hekko");
         $tenant = Tenant::find($id);
@@ -352,7 +357,6 @@ class UserController extends Controller
         return $dataTable->render('superadmin.users.influencers');
 
         tenancy()->end();
-
     }
 
     public function edit_influencers($tenant_id, $influencer_id)
