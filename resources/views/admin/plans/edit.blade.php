@@ -34,8 +34,7 @@
                                     {{ Form::label('price', __('Monthly Price'), ['class' => 'form-label']) }}
                                     {!! Form::text('price', null, [
                                         'placeholder' => __('Enter price'),
-                                        'class' => 'form-control',
-                                        'required',
+                                        'class' => 'form-control'
                                     ]) !!}
                                     <small class="text-muted">{{ __('Billed monthly') }}</small>
                                 </div>
@@ -45,8 +44,7 @@
                                     {{ Form::label('price_quarter', __('Quarterly Price'), ['class' => 'form-label']) }}
                                     {!! Form::text('price_quarter', null, [
                                         'placeholder' => __('Enter price'),
-                                        'class' => 'form-control',
-                                        'required',
+                                        'class' => 'form-control'
                                     ]) !!}
                                     <small class="text-muted">{{ __('Billed every 3 months') }}</small>
                                 </div>
@@ -56,8 +54,7 @@
                                     {{ Form::label('price_year', __('Yearly Price'), ['class' => 'form-label']) }}
                                     {!! Form::text('price_year', null, [
                                         'placeholder' => __('Enter price'),
-                                        'class' => 'form-control',
-                                        'required',
+                                        'class' => 'form-control'
                                     ]) !!}
                                     <small class="text-muted">{{ __('Billed annually') }}</small>
                                 </div>
