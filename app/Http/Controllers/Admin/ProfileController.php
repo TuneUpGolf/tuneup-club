@@ -50,7 +50,7 @@ class ProfileController extends Controller
         $user       = User::find(Auth::id());
 
         request()->validate([
-            'bio' => 'required|max:255',
+            'bio' => 'required',
         ]);
 
         $user->bio = $request->bio;
