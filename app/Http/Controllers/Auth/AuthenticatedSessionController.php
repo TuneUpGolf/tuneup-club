@@ -46,7 +46,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = User::where('email', $request->email)->where('active_status', 1)->first();
 
-        if (! isset($user) && $central_domain != $request->getHost()) {
+        // dd($central_domain, $request->getSchemeAndHttpHost(), $user);
+        if (! isset($user) && $central_domain != $request->getSchemeAndHttpHost()) {
             $user          = Follower::where('email', $request->email)->where('active_status', 1)->first();
             $current_guard = 'follower';
         }
