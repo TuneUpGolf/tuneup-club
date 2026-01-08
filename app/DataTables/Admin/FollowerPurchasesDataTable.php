@@ -40,6 +40,10 @@ class FollowerPurchasesDataTable extends DataTable
                     return 'N/A';
                 })
                 ->editColumn('amount', function ($request) {
+                    if ($request->does_user_have_subscription) {
+                        $planName = $request->userSubscription?->plan?->name ?? 'N/A';
+                        return '<span class="text-green-600 font-semibold">Included in Subscription<br>' . $planName . '</span>';
+                    }
                     if ($request->amount) {
                         return UtilityFacades::amount_format($request->amount);
                     }
@@ -52,7 +56,7 @@ class FollowerPurchasesDataTable extends DataTable
                         return 'Post';
                     }
                 })
-                ->rawColumns(['type'])
+                ->rawColumns(['type', 'amount'])
                 // Global search across unioned/aliased columns
                 ->filter(function ($query) {
                     $search = request('search.value');

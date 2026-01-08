@@ -562,7 +562,7 @@ class PlanController extends Controller
     {
         if (Auth::user()->can('edit-plan')) {
             request()->validate([
-                'name'           => 'required|unique:plans,name|max:50',
+                'name'           => 'required|max:50',
                 'price'          => 'nullable|numeric|min:0',
                 'price_quarter'  => 'nullable|numeric|min:0',
                 'price_year'     => 'nullable|numeric|min:0',

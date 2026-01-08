@@ -54,7 +54,7 @@
                                 {!! Form::hidden('country_code', null, []) !!}
                                 {!! Form::hidden('dial_code', null, []) !!}
                             </div>
-                            <div class="form-group ">
+                            {{-- <div class="form-group ">
                                 {{ Form::label('experience', __('Experience'), ['class' => 'form-label']) }}
                                 {!! Form::number('experience', null, [
                                     'class' => 'form-control',
@@ -62,7 +62,7 @@
                                     'placeholder' => __('Enter years of experience'),
                                     'step' => '0.1',
                                 ]) !!}
-                            </div>
+                            </div> --}}
                             <div class="form-group">
                                 {{ Form::label('file', __('Profile Picture'), ['class' => 'form-label']) }}
                                 {{ Form::file('file', ['class' => 'form-control', 'required', 'accept' => 'image/jpeg, image/png']) }}
