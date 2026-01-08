@@ -25,6 +25,7 @@ class Purchase extends Model
         'slot_id',
         'total_amount',
         'friend_names',
+        'does_user_have_subscription'
     ];
     protected $guarded = [
         'status', // Completed or not
@@ -77,5 +78,11 @@ class Purchase extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class);
+    }
+
+    
+    public function userSubscription()
+    {
+        return $this->belongsTo(ClientSubscription::class, 'does_user_have_subscription', 'id');
     }
 }

@@ -40,10 +40,10 @@
                             <a class="text-white" href="{{ url('request-demo') }}" style="text-decoration: none">
                                 Request a Demo</a>
                         </button>
-                        <button class="request-text border-0 rounded-pill demo mx-2" style="background-color: #0033a1">
+                        {{-- <button class="request-text border-0 rounded-pill demo mx-2" style="background-color: #0033a1">
                             <a class="text-white" href="{{ route('login') }}" style="text-decoration: none">
                                 Login</a>
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>

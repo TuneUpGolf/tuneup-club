@@ -358,7 +358,7 @@ class PurchaseController extends Controller
     public function purchaseCancel(Request $request)
     {
         if ($request->query('redirect') == 1) {
-            return redirect(route('purchase.index'))->with('success', 'Payment Cancelled');
+            return redirect(route('home'))->with('success', 'Payment Cancelled');
         }
         return response("Payment Cancelled Successfully");
     }
@@ -581,6 +581,7 @@ class PurchaseController extends Controller
                             // Check whats the lesson limit
                             if ($plan && ($plan->lesson_limit == -1 || $student_monthly_purchase_count < $plan->lesson_limit)) {
                                 $purchase->status = Purchase::STATUS_COMPLETE;
+                                $purchase->does_user_have_subscription = $student_subscription->id;
                                 $purchase->save();
                                 return redirect()->route('home')->with('success', 'Video Successfully Added');
                             }
