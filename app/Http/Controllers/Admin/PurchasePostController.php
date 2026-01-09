@@ -50,66 +50,205 @@ class PurchasePostController extends Controller
             $instructor = $post->influencer;
 
 
-            $totalPrice = $post->price * 100;
-            $applicationFeeAmount = round(($application_fee_percentage / 100) * $totalPrice);
+            // $totalPrice = $post->price * 100;
+            // $applicationFeeAmount = round(($application_fee_percentage / 100) * $totalPrice);
 
-            if ($instructor?->stripe_transaction_fee != 'instructor') {
+            // if ($instructor?->stripe_transaction_fee != 'instructor') {
+            //     $stripePerc = 0.029;       // 2.9%
+            //     $stripeFixed = 30;         // $0.30 → 30 cents
+            //     $gross = ($totalPrice + $stripeFixed) / (1 - $stripePerc);
+            //     $totalPrice = round($gross);
+            // }
+            // $currency = 'usd';
+            // $minimumCents = 0.50;
+            // $priceInCents = (int) round($totalPrice * 100);
+            // $finalAmountInCents = max($priceInCents, $minimumCents);
+            // $finalPrice = $finalAmountInCents / 100;
+
+            // if ($instructor?->stripe_tuneup_percentage_fee != 'instructor') {
+            //     $totalPrice += $applicationFeeAmount;
+            // }
+
+
+            // $accountId = $instructor?->stripe_account_id;
+            // $account = Account::retrieve($accountId);
+
+            // $sessionData = [
+            //     'line_items' => [[
+            //         'price_data' => [
+            //             'currency' => $currency,
+            //             'product_data' => [
+            //                 'name' => "$post->title",
+            //             ],
+            //             'unit_amount' => $totalPrice,
+            //         ],
+            //         'quantity' => 1,
+            //     ]],
+            //     'payment_intent_data' => [
+            //         'application_fee_amount' => $applicationFeeAmount,
+            //         'transfer_data' => ['destination' => $accountId],
+            //     ],
+            //     'customer' => Auth::user()?->stripe_cus_id ?? null,
+            //     'mode' => 'payment',
+            //     'success_url' => route('purchase-post-success', [
+            //         'purchase_post_id' => $purchasePost?->id,
+            //         'student_id' => Auth::user()->id,
+            //         'redirect' => $request->redirect
+            //     ]),
+            //     'cancel_url' => route('subscription-unsuccess'),
+            // ];
+
+            // //   if (!$isInstructorUSA) {
+            // //     $sessionData['payment_intent_data']['on_behalf_of'] = $accountId;
+            // // }
+
+            // // Also add the same account verification logic as the first function
+            // // dd(!empty($account->capabilities['card_payments']), $instructor?->active_status, !empty($account->id));
+            // if (
+            //     $instructor?->active_status &&
+            //     !empty($account->id) &&
+            //     !empty($account->capabilities['card_payments'])
+            // ) {
+            //     $session = Session::create($sessionData);
+            // } else {
+            //     throw new Exception('There is a problem with purchasing this post. Kindly contact admin.');
+            // }
+
+
+              $isInstructorUSA = $instructor?->country == 'United States';
+
+            // Platform fee percentage
+            $platformPercent = $application_fee_percentage; // e.g., 10
+
+            // Calculate base price in cents
+            $basePrice = $post->price * 100;
+
+            // Initialize variables
+            $convertedAmount = $basePrice;
+            $applicationFeeAmount = 0;
+
+            // **Scenario 1: Instructor pays both fees**
+            if (
+                $instructor?->stripe_transaction_fee == 'instructor' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'instructor'
+            ) {
+                // Student pays: base price only
+                $convertedAmount = $basePrice;
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
+
+                // No Stripe fee recovery needed as instructor pays it
+            }
+
+            // **Scenario 2: Student pays Stripe fee, Instructor pays Platform fee**
+            elseif (
+                $instructor?->stripe_transaction_fee == 'student' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'instructor'
+            ) {
+                // Student pays: base price + Stripe fees
                 $stripePerc = 0.029;       // 2.9%
                 $stripeFixed = 30;         // $0.30 → 30 cents
-                $gross = ($totalPrice + $stripeFixed) / (1 - $stripePerc);
-                $totalPrice = round($gross);
+
+                $gross = ($basePrice + $stripeFixed) / (1 - $stripePerc);
+                $convertedAmount = round($gross);
+
+                // Platform fee is X% of base price (paid by instructor)
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
             }
+
+            // **Scenario 3: Student pays Platform fee, Instructor pays Stripe fee**
+            elseif (
+                $instructor?->stripe_transaction_fee == 'instructor' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'student'
+            ) {
+                // Student pays: base price + Platform fee
+                $convertedAmount = $basePrice * (1 + ($platformPercent / 100));
+                $convertedAmount = round($convertedAmount);
+
+                // Platform fee is X% of base price
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
+
+                // No Stripe fee recovery needed as instructor pays it
+            }
+
+            // **Scenario 4: Student pays both fees**
+            elseif (
+                $instructor?->stripe_transaction_fee == 'student' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'student'
+            ) {
+                // First: Add platform fee to base price
+                $priceWithPlatformFee = $basePrice * (1 + ($platformPercent / 100));
+
+                // Then: Add Stripe fees on top
+                $stripePerc = 0.029;       // 2.9%
+                $stripeFixed = 30;         // $0.30 → 30 cents
+
+                $gross = ($priceWithPlatformFee + $stripeFixed) / (1 - $stripePerc);
+                $convertedAmount = round($gross);
+
+                // Platform fee is X% of base price
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
+            }
+
+            // Round to nearest integer (cents)
+            $convertedAmount = round($convertedAmount);
+            $applicationFeeAmount = round($applicationFeeAmount);
+
+            // Apply minimum amount check
             $currency = 'usd';
             $minimumCents = 0.50;
-            $priceInCents = (int) round($totalPrice * 100);
-            $finalAmountInCents = max($priceInCents, $minimumCents);
+            $finalAmountInCents = max($convertedAmount, $minimumCents);
+
+            // Convert back to dollars for display if needed
             $finalPrice = $finalAmountInCents / 100;
 
-            if ($instructor?->stripe_tuneup_percentage_fee != 'instructor') {
-                $totalPrice += $applicationFeeAmount;
-            }
-
-
+            // Retrieve instructor's Stripe account
             $accountId = $instructor?->stripe_account_id;
             $account = Account::retrieve($accountId);
 
+            // Prepare session data
             $sessionData = [
                 'line_items' => [[
                     'price_data' => [
                         'currency' => $currency,
                         'product_data' => [
-                            'name' => "$post->title",
+                            'name' => $post->title,
                         ],
-                        'unit_amount' => $totalPrice,
+                        'unit_amount' => $finalAmountInCents, // Use the calculated final amount
                     ],
                     'quantity' => 1,
                 ]],
                 'payment_intent_data' => [
                     'application_fee_amount' => $applicationFeeAmount,
-                    'transfer_data' => ['destination' => $accountId],
+                    // 'transfer_data' => ['destination' => $accountId],
                 ],
                 'customer' => Auth::user()?->stripe_cus_id ?? null,
                 'mode' => 'payment',
                 'success_url' => route('purchase-post-success', [
                     'purchase_post_id' => $purchasePost?->id,
-                    'student_id' => Auth::user()->id,
+                    'follower_id' => Auth::user()->id,
                     'redirect' => $request->redirect
                 ]),
                 'cancel_url' => route('subscription-unsuccess'),
             ];
 
-            //   if (!$isInstructorUSA) {
+            // Apply on_behalf_of for non-US instructors
+            // if (!$isInstructorUSA) {
             //     $sessionData['payment_intent_data']['on_behalf_of'] = $accountId;
             // }
 
-            // Also add the same account verification logic as the first function
-            // dd(!empty($account->capabilities['card_payments']), $instructor?->active_status, !empty($account->id));
+            // Verify account and create session
             if (
                 $instructor?->active_status &&
                 !empty($account->id) &&
                 !empty($account->capabilities['card_payments'])
             ) {
-                $session = Session::create($sessionData);
+                $session = Session::create($sessionData, [
+                    'stripe_account' => $instructor->stripe_account_id,
+                ]);
             } else {
                 throw new Exception('There is a problem with purchasing this post. Kindly contact admin.');
             }
@@ -149,7 +288,9 @@ class PurchasePostController extends Controller
         try {
             if (! ! $purchasePost) {
                 Stripe::setApiKey(config('services.stripe.secret'));
-                $session = Session::retrieve($purchasePost->session_id);
+                $session = Session::retrieve($purchasePost->session_id, [
+                    'stripe_account' => $purchasePost->post->influencer->stripe_account_id,
+                ]);
 
                 if ($session->payment_status == "paid") {
                     $purchasePost->active_status = true;
@@ -180,7 +321,9 @@ class PurchasePostController extends Controller
         try {
             if (!!$purchasePost) {
                 Stripe::setApiKey(config('services.stripe.secret'));
-                $session  = Session::retrieve($purchasePost->session_id);
+                $session  = Session::retrieve($purchasePost->session_id, [
+                    'stripe_account' => $purchasePost->albumCategory->instructor->stripe_account_id,
+                ]);
 
                 if ($session->payment_status == "paid") {
                     $purchasePost->active_status = true;

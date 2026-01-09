@@ -6,7 +6,7 @@
     <li class="breadcrumb-item">{{ __('Create Album Category') }}</li>
 @endsection
 @section('content')
-  <style>
+    <style>
         .card-body {
             min-height: unset !important;
         }
@@ -16,7 +16,7 @@
                 max-height: unset !important;
             }
         }
-   
+
         .progress {
             height: 20px;
             margin-bottom: 20px;
@@ -78,13 +78,14 @@
                     <div class="card-header">
                         <h5>{{ __('Create Album Category') }}</h5>
                     </div>
+                    {!! Form::open([
+                        'route' => 'album.category.store',
+                        'method' => 'Post',
+                        'enctype' => 'multipart/form-data',
+                        'data-validate',
+                    ]) !!}
                     <div class="card-body">
-                        {!! Form::open([
-                            'route' => 'album.category.store',
-                            'method' => 'Post',
-                            'enctype' => 'multipart/form-data',
-                            'data-validate',
-                        ]) !!}
+
                         <div class="row">
                             <div class="col-xl-6">
                                 <div class="form-group">
@@ -155,16 +156,17 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <input type="hidden" name="filePath" id="filePath">
                     <input type="hidden" name="fileType" id="fileType">
                     <div class="card-footer">
                         <div class="float-end">
                             <a href="{{ route('blogs.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
-                            {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary',  'id' => 'submitBtn']) }}
+                            {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary', 'id' => 'submitBtn']) }}
                         </div>
-                        {!! Form::close() !!}
+
                     </div>
+                    {!! Form::close() !!}
                 </div>
             </div>
         </section>
@@ -195,7 +197,7 @@
         });
     </script>
 
-      <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const fileInput = document.getElementById('fileInput');
             const uploadBtn = document.getElementById('uploadBtn');
