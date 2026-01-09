@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\Admin\AlbumCategoryDataTable;
-use App\Http\Controllers\Controller;
-use App\Models\Album;
-use App\Models\AlbumCategory;
-use App\Models\LikeAlbum;
-use App\Models\PurchaseAlbum;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use App\Models\Role;
 use Error;
+use Exception;
 use Stripe\Stripe;
+use Stripe\Account;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Album;
+use App\Models\LikeAlbum;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
+use App\Models\AlbumCategory;
+use App\Models\PurchaseAlbum;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use App\DataTables\Admin\AlbumCategoryDataTable;
 
 class AlbumCategoryController extends Controller
 {
@@ -276,28 +279,183 @@ class AlbumCategoryController extends Controller
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
-            $session = Session::create(
-                [
-                    'line_items'            => [[
-                        'price_data'    => [
-                            'currency'      => config('services.stripe.currency'),
-                            'product_data'  => [
-                                'name'      => "$post->title",
-                            ],
-                            'unit_amount'   => $post->price * 100,
+            // $session = Session::create(
+            //     [
+            //         'line_items'            => [[
+            //             'price_data'    => [
+            //                 'currency'      => config('services.stripe.currency'),
+            //                 'product_data'  => [
+            //                     'name'      => "$post->title",
+            //                 ],
+            //                 'unit_amount'   => $post->price * 100,
+            //             ],
+            //             'quantity'      => 1,
+            //         ]],
+            //         'customer' => Auth::user()?->stripe_cus_id,
+            //         'mode' => 'payment',
+            //         'success_url' => route('purchase-album-success', [
+            //             'purchase_post_id' => $purchasePost?->id,
+            //             'student_id' => Auth::user()->id,
+            //             'redirect' => $request->redirect
+            //         ]),
+            //         'cancel_url' => route('subscription-unsuccess'),
+            //     ]
+            // );
+
+             $tenantId = tenancy()->tenant->id;
+            tenancy()->central(function () use (&$application_fee_percentage, &$application_currency, $tenantId) {
+                $userData = User::where('tenant_id', $tenantId)
+                    ->select('application_fee_percentage', 'currency')
+                    ->first();
+                $application_fee_percentage = $userData?->application_fee_percentage;
+                $application_currency = $userData?->currency ?? 'usd';
+            });
+
+            $instructor = $post->instructor;
+
+            // Check if instructor is from USA (same logic as first function)
+            $isInstructorUSA = $instructor?->country == 'United States';
+
+            // Platform fee percentage
+            $platformPercent = $application_fee_percentage; // e.g., 10
+
+            // Calculate base price in cents
+            $basePrice = $post->price * 100;
+
+            // Initialize variables
+            $convertedAmount = $basePrice;
+            $applicationFeeAmount = 0;
+
+            // **Scenario 1: Instructor pays both fees**
+            if (
+                $instructor?->stripe_transaction_fee == 'instructor' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'instructor'
+            ) {
+                // Student pays: base price only
+                $convertedAmount = $basePrice;
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
+
+                // No Stripe fee recovery needed as instructor pays it
+            }
+
+            // **Scenario 2: Student pays Stripe fee, Instructor pays Platform fee**
+            elseif (
+                $instructor?->stripe_transaction_fee == 'student' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'instructor'
+            ) {
+                // Student pays: base price + Stripe fees
+                $stripePerc = 0.029;       // 2.9%
+                $stripeFixed = 30;         // $0.30 → 30 cents
+
+                $gross = ($basePrice + $stripeFixed) / (1 - $stripePerc);
+                $convertedAmount = round($gross);
+
+                // Platform fee is X% of base price (paid by instructor)
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
+            }
+
+            // **Scenario 3: Student pays Platform fee, Instructor pays Stripe fee**
+            elseif (
+                $instructor?->stripe_transaction_fee == 'instructor' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'student'
+            ) {
+                // Student pays: base price + Platform fee
+                $convertedAmount = $basePrice * (1 + ($platformPercent / 100));
+                $convertedAmount = round($convertedAmount);
+
+                // Platform fee is X% of base price
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
+
+                // No Stripe fee recovery needed as instructor pays it
+            }
+
+            // **Scenario 4: Student pays both fees**
+            elseif (
+                $instructor?->stripe_transaction_fee == 'student' &&
+                $instructor?->stripe_tuneup_percentage_fee == 'student'
+            ) {
+                // First: Add platform fee to base price
+                $priceWithPlatformFee = $basePrice * (1 + ($platformPercent / 100));
+
+                // Then: Add Stripe fees on top
+                $stripePerc = 0.029;       // 2.9%
+                $stripeFixed = 30;         // $0.30 → 30 cents
+
+                $gross = ($priceWithPlatformFee + $stripeFixed) / (1 - $stripePerc);
+                $convertedAmount = round($gross);
+
+                // Platform fee is X% of base price
+                $platformFeeAmount = $basePrice * ($platformPercent / 100);
+                $applicationFeeAmount = $platformFeeAmount;
+            }
+
+            // Round to nearest integer (cents)
+            $convertedAmount = round($convertedAmount);
+            $applicationFeeAmount = round($applicationFeeAmount);
+
+            // Apply minimum amount check if needed
+             // Apply minimum amount check
+            $currency = 'usd';
+            $minimumCents = 0.50;
+            $finalAmountInCents = max($convertedAmount, $minimumCents);
+
+            // Prepare session data - SIMPLIFIED like your working example
+            $sessionData = [
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => $currency,
+                        'product_data' => [
+                            'name' => $post->title,
                         ],
-                        'quantity'      => 1,
-                    ]],
-                    'customer' => Auth::user()?->stripe_cus_id,
-                    'mode' => 'payment',
-                    'success_url' => route('purchase-album-success', [
-                        'purchase_post_id' => $purchasePost?->id,
-                        'student_id' => Auth::user()->id,
-                        'redirect' => $request->redirect
-                    ]),
-                    'cancel_url' => route('subscription-unsuccess'),
-                ]
-            );
+                        'unit_amount' => $finalAmountInCents,
+                    ],
+                    'quantity' => 1,
+                ]],
+                'payment_intent_data' => [
+                    'application_fee_amount' => $applicationFeeAmount,
+                    // 'transfer_data' => ['destination' => $instructor->stripe_account_id], // REMOVED
+                ],
+                'customer' => Auth::user()?->stripe_cus_id,
+                'mode' => 'payment',
+                'success_url' => route('purchase-album-success', [
+                    'purchase_post_id' => $purchasePost?->id,
+                    'student_id' => Auth::user()->id,
+                    'redirect' => $request->redirect
+                ]),
+                'cancel_url' => route('subscription-unsuccess'),
+            ];
+
+            // Apply on_behalf_of for non-US instructors
+            // if (!$isInstructorUSA && $instructor && $instructor->stripe_account_id) {
+            //     $sessionData['payment_intent_data']['on_behalf_of'] = $instructor->stripe_account_id;
+            // }
+
+            // Verify account and create session with connected account
+            if ($instructor && $instructor->stripe_account_id) {
+                $account = Account::retrieve($instructor->stripe_account_id);
+
+                if (
+                    $instructor?->active_status &&
+                    !empty($account->id) &&
+                    !empty($account->capabilities['card_payments'])
+                ) {
+                    // Create session with connected account options - SIMPLER APPROACH
+                    $session = Session::create($sessionData, [
+                        'stripe_account' => $instructor->stripe_account_id
+                    ]);
+                } else {
+                    throw new Exception('There is a problem with purchasing this album. Kindly contact admin.');
+                }
+            } else {
+                // Fallback: create regular session without Connect (to platform account)
+                $session = Session::create($sessionData);
+            }
+
+
+
             if (!empty($session?->id)) {
                 $purchasePost->session_id = $session?->id;
                 $purchasePost->save();

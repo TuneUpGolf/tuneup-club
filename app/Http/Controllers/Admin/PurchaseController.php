@@ -267,7 +267,9 @@ class PurchaseController extends Controller
         try {
             if (! empty($purchase)) {
                 Stripe::setApiKey(config('services.stripe.secret'));
-                $session = Session::retrieve($purchase->session_id);
+                $session = Session::retrieve($purchase->session_id, [
+                    'stripe_account' => $purchase->influencer->stripe_account_id,
+                ]);
 
                 if ($session->payment_status == "paid") {
                     $purchase->status = Purchase::STATUS_COMPLETE;
