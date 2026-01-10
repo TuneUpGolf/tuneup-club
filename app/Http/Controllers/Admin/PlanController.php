@@ -512,7 +512,8 @@ class PlanController extends Controller
                 'price_year'               => $request->price_year,
                 'tenant_id'                => $tenantId,
                 'max_users'                => $request->max_users,
-                'description'              => $request->description ?? '',
+                // 'description'              => $request->description ?? '',
+                'description'              => $_POST['description'] ?? '',
                 'is_chat_enabled'          => $request->chat == '1' ? 1 : 0,
                 'is_feed_enabled'          => $request->feed == '1' ? 1 : 0,
                 'influencer_id'            => $instructorId,
@@ -807,7 +808,8 @@ class PlanController extends Controller
                 $plan->price_quarter            = $request->price_quarter;
                 $plan->price_year               = $request->price_year;
                 $plan->max_users                = $request->max_users;
-                $plan->description              = $request->description ?? '';
+                // $plan->description              = $request->description ?? '';
+                $plan->description              = $_POST["description"] ?? '';
                 $plan->is_chat_enabled          = $request->chat == '1' ? 1 : 0;
                 $plan->is_feed_enabled          = $request->feed == '1' ? 1 : 0;
                 $plan->tenant_id                = $tenantId;

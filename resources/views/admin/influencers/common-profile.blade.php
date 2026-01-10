@@ -214,9 +214,9 @@
                                                 {{ $plan->name }}
                                             </p>
 
-                                            <span class="text-gray-600"><strong>Influencer:
+                                            {{-- <span class="text-gray-600"><strong>Influencer:
                                                     {{ $plan->influencer->name }}</strong></span>
-                                            <br>
+                                            <br> --}}
                                             {{-- <span class="text-gray-600"><strong>Total Duration:
                                                     {{ $plan->duration . ' ' . $plan->durationtype }}
                                                 </strong></span>
