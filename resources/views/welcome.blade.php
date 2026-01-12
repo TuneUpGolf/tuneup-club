@@ -373,9 +373,7 @@
                     {{ !empty($subscription->value) ? $subscription->value : 'Subscription Plans' }}
                 </h2>
                 <p class="text-xl text-gray-600">
-                    Subscription plans give you full access to your coach's posts, training content, and the ability to
-                    connect
-                    directly.
+                    {{ $influencerDetails?->subscription_text ?? 'Subscription plans give you full access to your coach\'s posts, training content, and the ability to connect directly. ' }}
                 </p>
                 @if (@$plans)
                     <div class="row">

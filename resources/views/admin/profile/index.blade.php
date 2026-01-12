@@ -43,6 +43,9 @@
                         <a href="#useradd-9" class="border-0 list-group-item list-group-item-action">{{ __('Stripe Fees') }}
                             <div class="float-end"><i class="ti ti-chevron-right"></i></div>
                         </a>
+                        <a href="#useradd-96" class="border-0 list-group-item list-group-item-action">{{ __('Subscription Text') }}
+                            <div class="float-end"><i class="ti ti-chevron-right"></i></div>
+                        </a>
                     @endif
                     <a href="#useradd-5" class="border-0 list-group-item list-group-item-action">{{ __('Delete Account') }}
                         <div class="float-end"><i class="ti ti-chevron-right"></i></div>
@@ -671,6 +674,42 @@
                                     @if ($errors->has('stripe_tuneup_percentage_fee'))
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $errors->first('stripe_tuneup_percentage_fee') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="text-end">
+                            {{ Form::button(__('Save'), [
+                                'type' => 'submit',
+                                'class' => 'btn btn-primary',
+                            ]) }}
+                        </div>
+                    </div>
+                    {{ Form::close() }}
+                </div>
+
+
+                {{-- Subscription Text --}}
+                 <div id="useradd-96" class="card">
+                    <div class="card-header">
+                        <h5>{{ __('Subscription Text') }}</h5>
+                        <small class="text-muted">{{ __('This text will be shown on the Home page') }}</small>
+                    </div>
+                    {{ Form::open(['route' => 'profile.update.subscription_text', 'method' => 'Post', 'class' => 'form-horizontal', 'data-validate']) }}
+                    <div class="card-body">
+                        <div class="row form-group">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    {{ Form::label('subscription_text', __('Subscription Text'), ['class' => 'form-label']) }}
+                                    <textarea name="subscription_text" id="subscription_text" cols="30" rows="10" class="form-control">{{ $user->subscription_text }}</textarea>
+
+                                    @if ($errors->has('subscription_text'))
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('subscription_text') }}</strong>
                                         </span>
                                     @endif
                                 </div>

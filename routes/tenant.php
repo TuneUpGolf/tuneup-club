@@ -355,6 +355,7 @@ Route::middleware([
         Route::post('profile/basicinfo/update/', [ProfileController::class, 'BasicInfoUpdate'])->name('profile.update.basicinfo');
         Route::post('profile/socialmedia/update/', [ProfileController::class, 'SocialMediaUpdate'])->name('update.socialmedia');
         Route::post('profile/bio/update/', [ProfileController::class, 'BioUpdate'])->name('profile.update.bioupdate');
+        Route::post('profile/subscription_text/update/', [ProfileController::class, 'subscriptionTextUpdate'])->name('profile.update.subscription_text');
         Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
         Route::post('update-banner-image', [ProfileController::class, 'BannerDetails'])->name('update.banner.image');
 
