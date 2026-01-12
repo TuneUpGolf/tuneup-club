@@ -63,7 +63,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'chat_user_id',
         'service_earning',
         'stripe_transaction_fee',
-        'stripe_tuneup_percentage_fee'
+        'stripe_tuneup_percentage_fee',
+        'subscription_text',
     ];
 
     protected $hidden = [

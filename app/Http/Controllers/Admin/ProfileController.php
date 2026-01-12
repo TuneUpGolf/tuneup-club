@@ -59,6 +59,21 @@ class ProfileController extends Controller
         return redirect()->back()->with('success', __('Bio updated successfully.'));
     }
 
+    public function subscriptionTextUpdate(Request $request)
+    {
+        $userDetail = Auth::user();
+        $user       = User::find(Auth::id());
+
+        request()->validate([
+            'subscription_text' => 'required',
+        ]);
+
+        $user->subscription_text = $request->subscription_text;
+        $user->save();
+
+        return redirect()->back()->with('success', __('Subscription text updated successfully.'));
+    }
+
 
     public function verifyStripeTransactionFee(Request $request)
     {
