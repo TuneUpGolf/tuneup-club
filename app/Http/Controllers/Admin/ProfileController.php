@@ -70,6 +70,7 @@ class ProfileController extends Controller
         ]);
 
         $user->subscription_text = $request->subscription_text;
+        $user->subscription_heading = $request->subscription_heading;
         $user->save();
 
         return redirect()->back()->with('success', __('Subscription text updated successfully.'));
