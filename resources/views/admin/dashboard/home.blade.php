@@ -114,6 +114,8 @@
                         </div>
                     </div>
 
+                    
+
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes">
                             <div class="p-2 p-sm-3">
@@ -171,7 +173,7 @@
                                         </svg>
                                     </div>
                                     <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold"> {{ __('Pending Submissions') }} </span>
+                                        <span class="font-roboto font-semibold"> {{ __('Pending Submissions') }} &nbsp; </span>
                                     </div>
 
                                     <p class="order-2 order-sm-3 mb-0 font-sans bg-card4-text text-2xl ml-auto">
@@ -181,6 +183,8 @@
                             </div>
                         </div>
                     </div>
+
+
                 @endcan
                 @can('manage-followers')
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">

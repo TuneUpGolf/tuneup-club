@@ -370,7 +370,7 @@
 
                 @endphp
                 <h2 class="font-bold text-4xl mb-2">
-                    {{ !empty($subscription->value) ? $subscription->value : 'Subscription Plans' }}
+                    {{ !empty($influencerDetails?->subscription_heading) ? $influencerDetails?->subscription_heading : 'Subscription Plans' }}
                 </h2>
                 <p class="text-xl text-gray-600">
                     {{ $influencerDetails?->subscription_text ?? 'Subscription plans give you full access to your coach\'s posts, training content, and the ability to connect directly. ' }}

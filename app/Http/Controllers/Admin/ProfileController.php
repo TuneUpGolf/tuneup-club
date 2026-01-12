@@ -66,6 +66,7 @@ class ProfileController extends Controller
 
         request()->validate([
             'subscription_text' => 'required',
+            'subscription_heading' => 'required',
         ]);
 
         $user->subscription_text = $request->subscription_text;
