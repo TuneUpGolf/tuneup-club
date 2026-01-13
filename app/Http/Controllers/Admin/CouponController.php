@@ -18,6 +18,9 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Stripe\Coupon as StripeCoupon;
 use Stripe\PromotionCode;
+use Illuminate\Support\Facades\Log;
+use Stripe\StripeClient;
+use Stripe\Exception\ApiErrorException;
 
 class CouponController extends Controller
 {
@@ -44,100 +47,141 @@ class CouponController extends Controller
     }
 
 
-    public function store(Request $request)
+   public function store(Request $request)
     {
-        if (!\Auth::user()->can('create-coupon')) {
+        if (!Auth::user()->can('create-coupon')) {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
+
         $stripe_account_id = Auth::user()->stripe_account_id;
 
-        // 1️⃣ Basic validation
         if (!$stripe_account_id) {
-            return redirect()->back()->with('failed', __('Stripe account not found.'));
+            return redirect()->back()->with('failed', __('Stripe connected account not found.'));
         }
-        $request->validate([
-            'icon_input' => 'required',
-            'discount' => 'required|numeric|min:1',
-            'discount_type' => 'required|in:percentage,flat',
-            'limit' => 'required|integer|min:1',
+
+        // Validation
+        $validated = $request->validate([
+            'icon_input'     => 'required|in:manual,auto',
+            'manualCode'     => 'required_if:icon_input,manual|string|max:50',
+            'autoCode'       => 'required_if:icon_input,auto|string|max:50',
+            'discount'       => 'required|numeric|min:0.01|max:100',
+            'discount_type'  => 'required|in:percentage,flat',
+            'limit'          => 'required|integer|min:1|max:10000',
         ]);
 
-        // 2️⃣ Resolve coupon code
-        $code = $request->icon_input === 'manual'
-            ? strtoupper($request->manualCode)
-            : strtoupper($request->autoCode);
+        // Determine final code
+        $code = strtoupper(
+            $request->icon_input === 'manual'
+                ? $request->manualCode
+                : $request->autoCode
+        );
 
         if (empty($code)) {
             return back()->with('failed', __('Coupon code is required.'));
         }
 
-        // 3️⃣ DB uniqueness check
-        $request->merge(['code' => $code]);
-        $request->validate([
-            'code' => 'unique:coupons,code',
-        ]);
+        // Check uniqueness in your database
+        if (Coupon::where('code', $code)->exists()) {
+            return back()->with('failed', __('This coupon code already exists.'));
+        }
 
-        // 4️⃣ Save local coupon
-        $coupon = Coupon::create([
-            'discount' => $request->discount,
+        // Prepare local coupon (we'll save it only after Stripe success)
+        $couponData = [
+            'code'          => $code,
+            'discount'      => $request->discount,
             'discount_type' => $request->discount_type,
-            'limit' => $request->limit,
-            'code' => $code,
-        ]);
+            'limit'         => $request->limit,
+            'used_count'    => 0,
+            'is_active'     => true,
+            // add any other fields you have: expires_at, min_amount, etc.
+        ];
 
-        // 5️⃣ Create Stripe Coupon + Promotion Code
         try {
-            Stripe::setApiKey(config('services.stripe.secret'));
+            $stripe = new StripeClient(config('services.stripe.secret'));
 
-            /** 🔴 IMPORTANT FIX #1
-             *  Do NOT send currency for percentage coupons
-             */
-            $stripeCouponData = [
+            // ── 1. Create Stripe Coupon ───────────────────────────────────────
+            $couponParams = [
                 'duration' => 'once',
+                'name'     => "Discount {$request->discount}{$request->discount_type === 'percentage' ? '%' : '$'} - {$code}",
+                'metadata' => [
+                    'created_by' => 'your-app',
+                    'local_id'   => 'will_be_updated',
+                ],
             ];
 
             if ($request->discount_type === 'percentage') {
-                $stripeCouponData['percent_off'] = $request->discount;
+                $couponParams['percent_off'] = (float) $request->discount;
             } else {
-                $stripeCouponData['amount_off'] = $request->discount * 100;
-                $stripeCouponData['currency'] = 'usd'; // MUST match product currency
+                $couponParams['amount_off'] = (int) ($request->discount * 100);
+                $couponParams['currency']   = 'usd'; // ← CHANGE TO YOUR REAL CURRENCY!
             }
 
-            $stripeCoupon = StripeCoupon::create(
-                $stripeCouponData,
-                [
-                    'stripe_account' => $stripe_account_id, // ✅ REQUIRED
-                ]
+            $stripeCoupon = $stripe->coupons->create(
+                $couponParams,
+                ['stripe_account' => $stripe_account_id]
             );
 
-            /** 🔴 IMPORTANT FIX #2
-             *  Promotion code MUST be active
-             */
-            $promotionCode = PromotionCode::create(
-                [
+            // ── 2. Create Promotion Code (customer-facing code) ───────────────
+            $promoParams = [
+                'promotion' => [
+                    'type'   => 'coupon',
                     'coupon' => $stripeCoupon->id,
-                    'code' => $code,
-                    'max_redemptions' => $request->limit,
-                    'active' => true,
                 ],
-                [
-                    'stripe_account' => $stripe_account_id, // ✅ REQUIRED
-                ]
+                'code'            => $code,
+                'active'          => true,
+                'max_redemptions' => (int) $request->limit,
+                // Optional extras you might want:
+                // 'expires_at'      => strtotime('+90 days'),
+                // 'restrictions'    => ['first_time_transaction' => true],
+            ];
+
+            $promotionCode = $stripe->promotionCodes->create(
+                $promoParams,
+                ['stripe_account' => $stripe_account_id]
             );
 
-            // Save Stripe IDs
-            $coupon->update([
-                'stripe_coupon_id' => $stripeCoupon->id,
-                'stripe_promo_id' => $promotionCode->id,
+            // ── Success ── Save to database ───────────────────────────────────
+            $couponData['stripe_coupon_id'] = $stripeCoupon->id;
+            $couponData['stripe_promo_id']  = $promotionCode->id;
+
+            $coupon = Coupon::create($couponData);
+
+            // Optional: update metadata with local ID
+            $stripe->coupons->update(
+                $stripeCoupon->id,
+                ['metadata' => ['local_id' => $coupon->id]],
+                ['stripe_account' => $stripe_account_id]
+            );
+
+            return redirect()
+                ->route('coupon.index')
+                ->with('success', __('Coupon created successfully!'));
+
+        } catch (ApiErrorException $e) {
+            Log::error('Stripe API Error - Coupon Creation', [
+                'message'      => $e->getMessage(),
+                'stripe_code'  => $e->getStripeCode(),
+                'error_type'   => $e->getError()->type ?? 'unknown',
+                'param'        => $e->getError()->param ?? null,
+                'account_id'   => $stripe_account_id,
+                'code_attempt' => $code,
             ]);
 
-        } catch (\Exception $e) {
-            return back()->with('failed', 'Stripe error: ' . $e->getMessage());
-        }
+            $errorMessage = 'Stripe error: ' . ($e->getUserMessage() ?? $e->getMessage());
 
-        return redirect()
-            ->route('coupon.index')
-            ->with('success', __('Coupon created successfully.'));
+            return back()
+                ->withInput()
+                ->with('failed', $errorMessage);
+        } catch (\Exception $e) {
+            Log::error('Coupon Creation General Error', [
+                'message' => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('failed', 'Something went wrong. Please try again.');
+        }
     }
 
 
