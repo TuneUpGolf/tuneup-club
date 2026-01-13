@@ -97,7 +97,7 @@
                             <div id="fileInfo1"></div>
 
                             <button type="button" id="uploadBtn1" class="btn btn-primary btn-sm upload-btn">
-                                {{ __('Upload Video/Image First') }}
+                                {{ __('Click Here - Upload Video/Image First') }}
                             </button>
 
                             <div class="progress" id="progressContainer1">
@@ -122,7 +122,7 @@
                             <div id="fileInfo2"></div>
 
                             <button type="button" id="uploadBtn2" class="btn btn-primary btn-sm upload-btn">
-                                {{ __('Upload Video/Image First') }}
+                                {{ __('Click Here - Upload Video/Image First') }}
                             </button>
 
                             <div class="progress" id="progressContainer2">
@@ -315,7 +315,7 @@
                             console.error('Upload failed:', error);
                             showStatus(config, 'Upload failed: ' + error.message, 'error');
                             config.uploadBtn.disabled = false;
-                            config.uploadBtn.textContent = 'Upload Video/Image First';
+                            config.uploadBtn.textContent = 'Click Here - Upload Video/Image First';
                             uploadInProgress = false;
                             updateSubmitButton();
                         });
