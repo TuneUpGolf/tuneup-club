@@ -340,7 +340,8 @@ class PurchasePostController extends Controller
                     return response('Post Purchased Successfully');
                 }
 
-                return redirect()->route('home')->with('success', 'Post Purchased Successfully');
+               return redirect(url('/home?view=posts'))
+                    ->with('success', 'Album Purchased Successfully');
             }
         } catch (\Exception $e) {
             return redirect(route('purchase.index'))->with('errors', $e->getMessage());

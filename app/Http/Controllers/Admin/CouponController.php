@@ -43,76 +43,89 @@ class CouponController extends Controller
         }
     }
 
-    public function store(Request $request)
-    {
-        // dd($request->all());
-        if (\Auth::user()->can('create-coupon')) {
-            request()->validate([
-                'icon_input' => 'required',
-            ]);
-            if ($request->icon_input == 'manual') {
-                $request->merge(['code' => $request->manualCode]);
-            } else {
-                $request->merge(['code' => $request->autoCode]);
-            }
-            request()->validate([
-                'discount' => 'required',
-                'discount_type' => 'required',
-                'limit' => 'required',
-                'code' => 'required|unique:coupons,code',
-            ]);
-            $coupon = new Coupon();
-            $coupon->discount = $request->discount;
-            $coupon->discount_type = $request->discount_type;
-            $coupon->limit = $request->limit;
-            if ($request->icon_input == 'manual') {
-                if (!empty($request->manualCode)) {
-                    $coupon->code = strtoupper($request->manualCode);
-                } else {
-                    return redirect()->back()->with('failed', __('Manual code is required.'));
-                }
-            } else {
-                if (!empty($request->autoCode)) {
-                    $coupon->code = $request->autoCode;
-                } else {
-                    return redirect()->back()->with('failed', __('Auto code is required.'));
-                }
-            }
-            $coupon->save();
 
-            // 🟢 Create the Stripe coupon and promotion code
-            try {
-                Stripe::setApiKey(config('services.stripe.secret'));
-
-                // 1️⃣ Create a coupon on Stripe
-                $stripeCoupon = StripeCoupon::create([
-                    'percent_off' => $request->discount_type === 'percentage' ? $request->discount : null,
-                    'amount_off' => $request->discount_type === 'flat' ? ($request->discount * 100) : null, // in cents
-                    'currency' => 'usd', // change if needed
-                    'duration' => 'once',
-                ]);
-
-                // 2️⃣ Create a promotion code for that coupon
-                $promotionCode = PromotionCode::create([
-                    'coupon' => $stripeCoupon->id,
-                    'code' => strtoupper($coupon->code),
-                    'max_redemptions' => $request->limit,
-                ]);
-
-                // Optionally store Stripe IDs for reference
-                $coupon->stripe_coupon_id = $stripeCoupon->id;
-                $coupon->stripe_promo_id = $promotionCode->id;
-            } catch (\Exception $e) {
-                return redirect()->back()->with('failed', 'Stripe error: ' . $e->getMessage());
-            }
-
-            $coupon->save();
-
-            return redirect()->route('coupon.index')->with('success', __('Coupon created Successfully.'));
-        } else {
-            return redirect()->back()->with('failed', __('Permission denied.'));
-        }
+public function store(Request $request)
+{
+    if (!\Auth::user()->can('create-coupon')) {
+        return redirect()->back()->with('failed', __('Permission denied.'));
     }
+
+    // 1️⃣ Basic validation
+    $request->validate([
+        'icon_input'     => 'required',
+        'discount'       => 'required|numeric|min:1',
+        'discount_type'  => 'required|in:percentage,flat',
+        'limit'          => 'required|integer|min:1',
+    ]);
+
+    // 2️⃣ Resolve coupon code
+    $code = $request->icon_input === 'manual'
+        ? strtoupper($request->manualCode)
+        : strtoupper($request->autoCode);
+
+    if (empty($code)) {
+        return back()->with('failed', __('Coupon code is required.'));
+    }
+
+    // 3️⃣ DB uniqueness check
+    $request->merge(['code' => $code]);
+    $request->validate([
+        'code' => 'unique:coupons,code',
+    ]);
+
+    // 4️⃣ Save local coupon
+    $coupon = Coupon::create([
+        'discount'       => $request->discount,
+        'discount_type'  => $request->discount_type,
+        'limit'          => $request->limit,
+        'code'           => $code,
+    ]);
+
+    // 5️⃣ Create Stripe Coupon + Promotion Code
+    try {
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        /** 🔴 IMPORTANT FIX #1
+         *  Do NOT send currency for percentage coupons
+         */
+        $stripeCouponData = [
+            'duration' => 'once',
+        ];
+
+        if ($request->discount_type === 'percentage') {
+            $stripeCouponData['percent_off'] = $request->discount;
+        } else {
+            $stripeCouponData['amount_off'] = $request->discount * 100;
+            $stripeCouponData['currency']   = 'usd'; // MUST match product currency
+        }
+
+        $stripeCoupon = StripeCoupon::create($stripeCouponData);
+
+        /** 🔴 IMPORTANT FIX #2
+         *  Promotion code MUST be active
+         */
+        $promotionCode = PromotionCode::create([
+            'coupon'         => $stripeCoupon->id,
+            'code'           => $code,
+            'max_redemptions'=> $request->limit,
+            'active'         => true,
+        ]);
+
+        // Save Stripe IDs
+        $coupon->update([
+            'stripe_coupon_id' => $stripeCoupon->id,
+            'stripe_promo_id'  => $promotionCode->id,
+        ]);
+
+    } catch (\Exception $e) {
+        return back()->with('failed', 'Stripe error: ' . $e->getMessage());
+    }
+
+    return redirect()
+        ->route('coupon.index')
+        ->with('success', __('Coupon created successfully.'));
+}
+
 
     public function show(UserCouponDatatable $dataTable)
     {
