@@ -213,227 +213,166 @@ class CouponController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (\Auth::user()->can('edit-coupon')) {
-            $stripe_account_id = Auth::user()->stripe_account_id;
+        if (!Auth::user()->can('edit-coupon')) {
+            return redirect()->back()->with('error', __('Permission denied.'));
+        }
 
-            // 1️⃣ Basic validation
-            if (!$stripe_account_id) {
-                return redirect()->back()->with('failed', __('Stripe account not found.'));
+        $user = Auth::user();
+        $stripe_account_id = $user->stripe_account_id;
+
+        if (!$stripe_account_id) {
+            return redirect()->back()->with('error', __('Stripe account not found.'));
+        }
+
+        $coupon = Coupon::findOrFail($id);
+
+        $validated = $request->validate([
+            'discount' => 'required|numeric|min:0',
+            'discount_type' => 'required|in:percentage,flat',
+            'limit' => 'required|integer|min:1',
+            'code' => ['required', 'string', 'max:50', Rule::unique('coupons', 'code')->ignore($coupon->id)],
+        ]);
+
+        $newCode = strtoupper(trim($validated['code']));
+        $newDiscount = $validated['discount'];
+        $newDiscountType = $validated['discount_type'];
+        $newMaxRedemptions = (int) $validated['limit'];
+
+        try {
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            // ── 1. Get current Stripe objects (if exist) ───────────────────────────────
+            $currentCoupon = null;
+            $currentPromo = null;
+
+            if ($coupon->stripe_coupon_id) {
+                try {
+                    $currentCoupon = \Stripe\Coupon::retrieve(
+                        $coupon->stripe_coupon_id,
+                        ['stripe_account' => $stripe_account_id]
+                    );
+                } catch (\Stripe\Exception\ApiErrorException $e) {
+                    // Coupon probably deleted or never existed → we'll create new one
+                }
             }
-            $coupon = Coupon::find($id);
 
-            if (!$coupon) {
-                return redirect()->back()->with('error', __('Coupon not found.'));
+            if ($coupon->stripe_promo_id) {
+                try {
+                    $currentPromo = \Stripe\PromotionCode::retrieve(
+                        $coupon->stripe_promo_id,
+                        ['stripe_account' => $stripe_account_id]
+                    );
+                } catch (\Stripe\Exception\ApiErrorException $e) {
+                    // Promotion code gone → we'll create new one
+                }
             }
 
-            // Validate request
-            $request->validate([
-                'discount' => 'required|numeric|min:0',
-                'discount_type' => 'required|in:percentage,flat',
-                'limit' => 'required|integer|min:1',
-                'code' => 'required|unique:coupons,code,' . $id,
-            ]);
+            // ── 2. Decide if we need a new Coupon ──────────────────────────────────────
+            $needsNewCoupon = true;
 
-            // Store old values for Stripe reference
-            $oldStripeCouponId = $coupon->stripe_coupon_id;
-            $oldStripePromoId = $coupon->stripe_promo_id;
-            $oldCode = $coupon->code;
-
-            // Update local coupon
-            $coupon->discount = $request->discount;
-            $coupon->discount_type = $request->discount_type;
-            $coupon->limit = $request->limit;
-            $coupon->code = strtoupper($request->code);
-
-            // 🟢 Update Stripe coupon and promotion code
-            try {
-                Stripe::setApiKey(config('services.stripe.secret'));
-
-                // Check if Stripe IDs exist
-                if ($oldStripeCouponId && $oldStripePromoId) {
-                    try {
-                        // 1️⃣ Update existing promotion code (if only code changed)
-                        if ($oldCode !== $coupon->code) {
-                            try {
-                                $promoCode = PromotionCode::retrieve($oldStripePromoId);
-                                $promoCode->code = strtoupper($coupon->code);
-                                $promoCode->save();
-
-                                // Update coupon with new promo ID if needed
-                                $coupon->stripe_promo_id = $promoCode->id;
-                            } catch (\Exception $e) {
-                                // If can't update, create new promotion code
-                                $promotionCode = PromotionCode::create(
-                                    [
-                                        'coupon' => $oldStripeCouponId,
-                                        'code' => strtoupper($coupon->code),
-                                        'max_redemptions' => $request->limit,
-                                    ],
-                                    [
-                                        'stripe_account' => $stripe_account_id,
-                                    ]
-                                );
-                                $coupon->stripe_promo_id = $promotionCode->id;
-                            }
-                        }
-
-                        // 2️⃣ Update max redemptions on promotion code
-                        try {
-                            $promoCode = PromotionCode::retrieve($coupon->stripe_promo_id);
-                            $promoCode->max_redemptions = $request->limit;
-                            $promoCode->save();
-                        } catch (\Exception $e) {
-                            // Log error but continue
-                            \Log::error('Failed to update Stripe promotion code redemptions: ' . $e->getMessage());
-                        }
-
-                        // 3️⃣ Create a new coupon if discount type/amount changed significantly
-                        // Note: Stripe coupons cannot be updated once created
-                        // We need to create a new one and update the promotion code
-                        $currentCoupon = StripeCoupon::retrieve($oldStripeCouponId);
-
-                        // Check if discount type or amount changed
-                        $needsNewCoupon = false;
-                        if ($request->discount_type === 'percentage') {
-                            if ($currentCoupon->percent_off != $request->discount) {
-                                $needsNewCoupon = true;
-                            }
-                        } else {
-                            // For flat discount, convert to cents
-                            $newAmountCents = $request->discount * 100;
-                            if ($currentCoupon->amount_off != $newAmountCents) {
-                                $needsNewCoupon = true;
-                            }
-                        }
-
-                        if ($needsNewCoupon) {
-                            // Create new Stripe coupon
-                            $stripeCouponData = [
-                                'duration' => 'once',
-                                'currency' => 'usd',
-                            ];
-
-                            if ($request->discount_type === 'percentage') {
-                                $stripeCouponData['percent_off'] = $request->discount;
-                            } else {
-                                $stripeCouponData['amount_off'] = $request->discount * 100; // Convert to cents
-                                $stripeCouponData['currency'] = 'usd';
-                            }
-
-                            $newStripeCoupon = StripeCoupon::create(
-                                $stripeCouponData,
-                                [
-                                    'stripe_account' => $stripe_account_id,
-                                ]
-                            );
-
-                            // Update promotion code to use new coupon
-                            try {
-                                $promoCode = PromotionCode::retrieve($coupon->stripe_promo_id);
-                                $promoCode->coupon = $newStripeCoupon->id;
-                                $promoCode->save();
-                            } catch (\Exception $e) {
-                                // If can't update, create new promotion code
-                                $newPromotionCode = PromotionCode::create(
-                                    [
-                                        'coupon' => $newStripeCoupon->id,
-                                        'code' => strtoupper($coupon->code),
-                                        'max_redemptions' => $request->limit,
-                                    ],
-                                    [
-                                        'stripe_account' => $stripe_account_id,
-                                    ]
-                                );
-                                $coupon->stripe_promo_id = $newPromotionCode->id;
-                            }
-
-                            $coupon->stripe_coupon_id = $newStripeCoupon->id;
-
-                            // Optionally expire old coupon
-                            try {
-                                $currentCoupon = StripeCoupon::retrieve($oldStripeCouponId);
-                                $currentCoupon->delete();
-                            } catch (\Exception $e) {
-                                // Ignore if already deleted
-                            }
-                        }
-
-                    } catch (\Exception $e) {
-                        \Log::error('Stripe update error: ' . $e->getMessage());
-
-                        // If Stripe update fails, create new coupon and promotion code
-                        $stripeCouponData = [
-                            'duration' => 'once',
-                            'currency' => 'usd',
-                        ];
-
-                        if ($request->discount_type === 'percentage') {
-                            $stripeCouponData['percent_off'] = $request->discount;
-                        } else {
-                            $stripeCouponData['amount_off'] = $request->discount * 100;
-                        }
-
-                        $newStripeCoupon = StripeCoupon::create(
-                            $stripeCouponData,
-                            [
-                                'stripe_account' => $stripe_account_id,
-                            ]
-                        );
-
-                        $newPromotionCode = PromotionCode::create([
-                            'coupon' => $newStripeCoupon->id,
-                            'code' => strtoupper($coupon->code),
-                            'max_redemptions' => $request->limit,
-                        ]);
-
-                        $coupon->stripe_coupon_id = $newStripeCoupon->id;
-                        $coupon->stripe_promo_id = $newPromotionCode->id;
-                    }
+            if ($currentCoupon) {
+                if ($newDiscountType === 'percentage') {
+                    $needsNewCoupon = ($currentCoupon->percent_off != $newDiscount);
                 } else {
-                    // No existing Stripe IDs, create new ones
-                    $stripeCouponData = [
-                        'duration' => 'once',
-                        'currency' => 'usd',
-                    ];
+                    $needsNewCoupon = ($currentCoupon->amount_off != ($newDiscount * 100));
+                }
+            }
 
-                    if ($request->discount_type === 'percentage') {
-                        $stripeCouponData['percent_off'] = $request->discount;
-                    } else {
-                        $stripeCouponData['amount_off'] = $request->discount * 100;
-                    }
+            // ── 3. Create / use Coupon ─────────────────────────────────────────────────
+            if ($needsNewCoupon) {
+                $couponParams = [
+                    'duration' => 'once',
+                    'currency' => 'usd',
+                ];
 
-                    $stripeCoupon = StripeCoupon::create($stripeCouponData, [
-                        'stripe_account' => $stripe_account_id,
-                    ]);
-
-                    $promotionCode = PromotionCode::create([
-                        'coupon' => $stripeCoupon->id,
-                        'code' => strtoupper($coupon->code),
-                        'max_redemptions' => $request->limit,
-                    ], [
-                        'stripe_account' => $stripe_account_id,
-                    ]);
-
-                    $coupon->stripe_coupon_id = $stripeCoupon->id;
-                    $coupon->stripe_promo_id = $promotionCode->id;
+                if ($newDiscountType === 'percentage') {
+                    $couponParams['percent_off'] = $newDiscount;
+                } else {
+                    $couponParams['amount_off'] = (int) round($newDiscount * 100);
                 }
 
-            } catch (\Exception $e) {
-                \Log::error('Stripe error in coupon update: ' . $e->getMessage());
+                $stripeCoupon = \Stripe\Coupon::create(
+                    $couponParams,
+                    ['stripe_account' => $stripe_account_id]
+                );
 
-                // Save coupon locally even if Stripe fails, but notify user
-                $coupon->save();
-
-                return redirect()->route('coupon.index')
-                    ->with('warning', __('Coupon updated locally, but there was an issue with Stripe: ') . $e->getMessage());
+                // Optional: mark old one as deprecated (don't delete immediately)
+                if ($currentCoupon) {
+                    try {
+                        \Stripe\Coupon::update($currentCoupon->id, [
+                            'metadata' => ['status' => 'replaced', 'replaced_at' => now()->toIso8601String()]
+                        ], ['stripe_account' => $stripe_account_id]);
+                    } catch (\Throwable $t) {
+                        // silent fail
+                    }
+                }
+            } else {
+                $stripeCoupon = $currentCoupon;
             }
 
-            $coupon->save();
+            // ── 4. Create / Update Promotion Code ──────────────────────────────────────
+            $promoParams = [
+                'coupon' => $stripeCoupon->id,
+                'code' => $newCode,
+                'max_redemptions' => $newMaxRedemptions,
+            ];
+
+            if ($currentPromo && $currentPromo->active) {
+                try {
+                    $stripePromo = \Stripe\PromotionCode::update(
+                        $currentPromo->id,
+                        $promoParams,
+                        ['stripe_account' => $stripe_account_id]
+                    );
+                } catch (\Stripe\Exception\ApiErrorException $e) {
+                    // Most likely can't update code → create new one
+                    $stripePromo = null;
+                }
+            } else {
+                $stripePromo = null;
+            }
+
+            // Fallback: create new promotion code
+            if (!$stripePromo) {
+                $stripePromo = \Stripe\PromotionCode::create(
+                    $promoParams,
+                    ['stripe_account' => $stripe_account_id]
+                );
+            }
+
+            // ── 5. Everything succeeded on Stripe → now update database ────────────────
+            $coupon->update([
+                'code' => $newCode,
+                'discount' => $newDiscount,
+                'discount_type' => $newDiscountType,
+                'limit' => $newMaxRedemptions,
+                'stripe_coupon_id' => $stripeCoupon->id,
+                'stripe_promo_id' => $stripePromo->id,
+            ]);
 
             return redirect()->route('coupon.index')
-                ->with('success', __('Coupon updated successfully'));
-        } else {
-            return redirect()->back()->with('error', __('Permission denied.'));
+                ->with('success', __('Coupon updated successfully on Stripe & database'));
+
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            \Log::error('Stripe coupon/promocode update failed', [
+                'coupon_id' => $coupon->id,
+                'error' => $e->getMessage(),
+                'stripe_code' => $e->getStripeCode() ?? 'unknown'
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('Failed to update coupon on Stripe: ') . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::critical('Critical error during coupon update', [
+                'coupon_id' => $coupon->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('Something went seriously wrong. Please contact support.'));
         }
     }
 

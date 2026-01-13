@@ -276,6 +276,7 @@ class AlbumCategoryController extends Controller
                     'active_status' => false,
                 ]
             );
+            $stripe_account_id = User::where('id', $post->instructor_id)->value('stripe_account_id');
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
