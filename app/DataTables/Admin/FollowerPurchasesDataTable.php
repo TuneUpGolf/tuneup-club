@@ -40,8 +40,8 @@ class FollowerPurchasesDataTable extends DataTable
                     return 'N/A';
                 })
                 ->editColumn('amount', function ($request) {
-                    if ($request->does_user_have_subscription) {
-                        $planName = $request->userSubscription?->plan?->name ?? 'N/A';
+                    if (!empty($request->does_user_have_subscription)) {
+                        $planName = $request->plan_name ?? $request->title ?? 'N/A';
                         return '<span class="text-green-600 font-semibold">Included in Subscription<br>' . $planName . '</span>';
                     }
                     if ($request->amount) {
@@ -115,6 +115,8 @@ class FollowerPurchasesDataTable extends DataTable
                 'post.title',
                 DB::raw('post.price as amount'),
                 'followers.plan_id',
+                DB::raw("CASE WHEN followers.plan_id IS NOT NULL THEN 1 ELSE 0 END as does_user_have_subscription"),
+                DB::raw('plans.name as plan_name'),
                 DB::raw("'post' as type"),
                 'purchasepost.follower_id'
             ])
@@ -130,6 +132,8 @@ class FollowerPurchasesDataTable extends DataTable
                 'plans.name as title',
                 DB::raw("COALESCE(plans.price, 0) as amount"),
                 'followers.plan_id',
+                DB::raw("1 as does_user_have_subscription"),
+                DB::raw('plans.name as plan_name'),
                 DB::raw("'plan' as type"),
                 'followers.id as follower_id'
             ])
