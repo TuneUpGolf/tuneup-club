@@ -112,7 +112,7 @@
 
                                     <!-- Upload Button -->
                                     <button type="button" id="uploadBtn" class="btn btn-primary btn-sm">
-                                        {{ __('Upload Video/Image First') }}
+                                        {{ __('Click Here - Upload Video/Image First') }}
                                     </button>
 
                                     <!-- Progress Bar -->
@@ -401,7 +401,7 @@
                             console.error('Upload failed:', error);
                             showStatus('Upload failed: ' + error.message, 'error');
                             uploadBtn.disabled = false;
-                            uploadBtn.textContent = 'Upload Video/Image First';
+                            uploadBtn.textContent = 'Click Here - Upload Video/Image First';
                         });
                 }
 
