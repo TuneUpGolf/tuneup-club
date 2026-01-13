@@ -28,7 +28,7 @@
                                     </a>
                                     <a href="{{ route('blogs.index', ['filter' => 'paid']) }}"
                                         class="dropdown-item {{ request()->query('filter') === 'paid' ? 'active' : '' }}">
-                                        <span>{{ __('Paid') }}</span>
+                                        <span>{{ __('Locked') }}</span>
                                     </a>
                                 </div>
                             </div>
