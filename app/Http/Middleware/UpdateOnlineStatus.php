@@ -16,9 +16,9 @@ class UpdateOnlineStatus
      */
     public function handle(Request $request, Closure $next)
     {
-        // if (auth()->check()) {
-        //     extend_user_online(); // Adds/resets to 30 minutes
-        // }
+        if (auth()->check()) {
+            extend_user_online(); // Adds/resets to 30 minutes
+        }
 
         return $next($request);
     }
