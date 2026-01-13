@@ -230,7 +230,12 @@ class CouponController extends Controller
             'discount' => 'required|numeric|min:0',
             'discount_type' => 'required|in:percentage,flat',
             'limit' => 'required|integer|min:1',
-            'code' => ['required', 'string', 'max:50', Rule::unique('coupons', 'code')->ignore($coupon->id)],
+            'code' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('coupons', 'code')->ignore($coupon->id),
+            ],
         ]);
 
         $newCode = strtoupper(trim($validated['code']));
@@ -241,7 +246,7 @@ class CouponController extends Controller
         try {
             Stripe::setApiKey(config('services.stripe.secret'));
 
-            // ── 1. Get current Stripe objects (if exist) ───────────────────────────────
+            // ── 1. Load current Stripe objects (if they exist) ───────────────────────
             $currentCoupon = null;
             $currentPromo = null;
 
@@ -252,7 +257,7 @@ class CouponController extends Controller
                         ['stripe_account' => $stripe_account_id]
                     );
                 } catch (\Stripe\Exception\ApiErrorException $e) {
-                    // Coupon probably deleted or never existed → we'll create new one
+                    // Coupon probably deleted or invalid → we'll create new
                 }
             }
 
@@ -263,22 +268,23 @@ class CouponController extends Controller
                         ['stripe_account' => $stripe_account_id]
                     );
                 } catch (\Stripe\Exception\ApiErrorException $e) {
-                    // Promotion code gone → we'll create new one
+                    // Promo probably deleted → we'll create new
                 }
             }
 
-            // ── 2. Decide if we need a new Coupon ──────────────────────────────────────
+            // ── 2. Determine if we need a new Coupon ─────────────────────────────────
             $needsNewCoupon = true;
+            $stripeCoupon = null;
 
             if ($currentCoupon) {
                 if ($newDiscountType === 'percentage') {
                     $needsNewCoupon = ($currentCoupon->percent_off != $newDiscount);
                 } else {
-                    $needsNewCoupon = ($currentCoupon->amount_off != ($newDiscount * 100));
+                    $needsNewCoupon = ($currentCoupon->amount_off != (int) round($newDiscount * 100));
                 }
             }
 
-            // ── 3. Create / use Coupon ─────────────────────────────────────────────────
+            // ── 3. Create or reuse Coupon ────────────────────────────────────────────
             if ($needsNewCoupon) {
                 $couponParams = [
                     'duration' => 'once',
@@ -296,11 +302,14 @@ class CouponController extends Controller
                     ['stripe_account' => $stripe_account_id]
                 );
 
-                // Optional: mark old one as deprecated (don't delete immediately)
+                // Optional: mark old coupon as deprecated
                 if ($currentCoupon) {
                     try {
                         \Stripe\Coupon::update($currentCoupon->id, [
-                            'metadata' => ['status' => 'replaced', 'replaced_at' => now()->toIso8601String()]
+                            'metadata' => [
+                                'status' => 'replaced',
+                                'replaced_at' => now()->toIso8601String(),
+                            ]
                         ], ['stripe_account' => $stripe_account_id]);
                     } catch (\Throwable $t) {
                         // silent fail
@@ -310,37 +319,58 @@ class CouponController extends Controller
                 $stripeCoupon = $currentCoupon;
             }
 
-            // ── 4. Create / Update Promotion Code ──────────────────────────────────────
+            // ── 4. Handle Promotion Code ─────────────────────────────────────────────
             $promoParams = [
                 'coupon' => $stripeCoupon->id,
                 'code' => $newCode,
                 'max_redemptions' => $newMaxRedemptions,
             ];
 
-            if ($currentPromo && $currentPromo->active) {
+            $createNewPromo = true;
+            $stripePromo = null;
+
+            // Case 1: Same code + promo still active → try to update allowed fields
+            if ($currentPromo && $currentPromo->active && $currentPromo->code === $newCode) {
                 try {
                     $stripePromo = \Stripe\PromotionCode::update(
                         $currentPromo->id,
-                        $promoParams,
+                        [
+                            'max_redemptions' => $newMaxRedemptions,
+                            // metadata if you want
+                        ],
                         ['stripe_account' => $stripe_account_id]
                     );
+                    $createNewPromo = false;
                 } catch (\Stripe\Exception\ApiErrorException $e) {
-                    // Most likely can't update code → create new one
-                    $stripePromo = null;
+                    // Update failed → fallback to create new
                 }
-            } else {
-                $stripePromo = null;
             }
 
-            // Fallback: create new promotion code
-            if (!$stripePromo) {
+            // Always deactivate old promo code if it exists (safety first)
+            if ($currentPromo) {
+                try {
+                    \Stripe\PromotionCode::update(
+                        $currentPromo->id,
+                        ['active' => false],
+                        ['stripe_account' => $stripe_account_id]
+                    );
+                } catch (\Throwable $t) {
+                    \Log::warning('Failed to deactivate old promo code', [
+                        'promo_id' => $currentPromo->id,
+                        'error' => $t->getMessage()
+                    ]);
+                }
+            }
+
+            // Case 2: Create new promotion code (most common when code changes)
+            if ($createNewPromo) {
                 $stripePromo = \Stripe\PromotionCode::create(
                     $promoParams,
                     ['stripe_account' => $stripe_account_id]
                 );
             }
 
-            // ── 5. Everything succeeded on Stripe → now update database ────────────────
+            // ── 5. Update local database ─────────────────────────────────────────────
             $coupon->update([
                 'code' => $newCode,
                 'discount' => $newDiscount,
@@ -351,7 +381,7 @@ class CouponController extends Controller
             ]);
 
             return redirect()->route('coupon.index')
-                ->with('success', __('Coupon updated successfully on Stripe & database'));
+                ->with('success', __('Coupon updated successfully'));
 
         } catch (\Stripe\Exception\ApiErrorException $e) {
             \Log::error('Stripe coupon/promocode update failed', [
@@ -362,7 +392,7 @@ class CouponController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', __('Failed to update coupon on Stripe: ') . $e->getMessage());
+                ->with('error', __('Failed to update on Stripe: ') . $e->getMessage());
         } catch (\Throwable $e) {
             \Log::critical('Critical error during coupon update', [
                 'coupon_id' => $coupon->id,
