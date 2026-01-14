@@ -109,7 +109,7 @@ class HomeController extends Controller
     }
     public function index(PurchaseDataTable $dataTable, Request $request)
     {
-
+        // dd("sss");
         $user     = Auth::user();
         $userType = $user->type;
 
@@ -216,8 +216,10 @@ class HomeController extends Controller
         }
 
 
+
         [$purchaseComplete, $purchaseInprogress] = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_ONLINE);
         [$inPersonCompleted, $inPersonPending]   = $this->fetchPurchaseStats($user, Lesson::LESSON_TYPE_INPERSON);
+        // dd($purchaseComplete);
 
         return $dataTable->render('admin.dashboard.home', compact(
             'user',
@@ -320,11 +322,25 @@ class HomeController extends Controller
 
         $isSubscribed = in_array(Auth::user()->plan_id, $feedEnabledPlanId);
 
-        $purchaseComplete   = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', true)->count();
-        $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->where('isFeedbackComplete', false)->count();
+        $purchaseComplete   = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->whereHas('videos', function ($q) {
+            $q->whereHas('feedbackContent');
+        })->count();
+        // $purchaseInprogress = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_ONLINE))->where('status', Purchase::STATUS_COMPLETE)->whereHas('videos', function ($q) {
+        //     $q->whereNotHas('feedbackContent');
+        // })->count();
+        $purchaseInprogress = Purchase::where('follower_id', $user->id)
+            ->whereHas('lesson', fn ($q) =>
+                $q->where('type', Lesson::LESSON_TYPE_ONLINE)
+            )
+            ->where('status', Purchase::STATUS_COMPLETE)
+            ->whereDoesntHave('videos.feedbackContent')
+            ->count();
+
+
         $inPersonCompleted  = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', true)->count();
         $inPersonPending    = Purchase::where('follower_id', $user->id)->whereHas('lesson', fn($q) => $q->where('type', Lesson::LESSON_TYPE_INPERSON))->where('isFeedbackComplete', false)->count();
 
+        // dd($purchaseInprogress);
         return $datatable->render('admin.dashboard.home', compact(
             'user',
             'paymentTypes',

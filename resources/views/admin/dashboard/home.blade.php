@@ -108,7 +108,8 @@
                                         <span class="font-roboto font-semibold"> {{ __('Completed Submissions') }} </span>
                                     </div>
                                     <p class="order-2 order-sm-3 mb-0 font-sans  bg-card-text text-2xl ml-auto">
-                                        {{ $purchaseComplete }} </p>
+                                        {{ $purchaseComplete }}
+                                     </p>
                                 </div>
                             </div>
                         </div>
@@ -175,7 +176,8 @@
                                     </div>
 
                                     <p class="order-2 order-sm-3 mb-0 font-sans bg-card4-text text-2xl ml-auto">
-                                        {{ $purchaseInprogress }} </p>
+                                            {{ $purchaseInprogress }}
+                                         </p>
 
                                 </div>
                             </div>

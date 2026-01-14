@@ -230,7 +230,11 @@ Route::middleware([
 
         //purchase
         Route::resource('purchase', PurchaseController::class);
-                Route::get('subscription/purchase', [PurchaseController::class, 'subscription_index'])->name('purchase.subscription');
+        Route::get('subscription/purchase', [PurchaseController::class, 'subscription_index'])->name('purchase.subscription');
+
+        ////download
+        Route::get('streamM3U8ToMov/{id}', [PurchaseController::class, 'smartVideoDownload'])->name('streamM3U8ToMov');
+        Route::get('streamM3U8ToMov2/{id}', [PurchaseController::class, 'smartVideoDownload2'])->name('streamM3U8ToMov2');
 
         Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');
         Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');

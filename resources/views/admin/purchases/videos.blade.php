@@ -22,6 +22,9 @@
                             class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
                             <i class="ti ti-search text-xl"></i> Analyze
                         </a>
+                        
+
+                     
                     </div>
                 @endif
 
@@ -35,6 +38,8 @@
                                 class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
                                 <i class="ti ti-search text-xl"></i> Analyze
                             </a>
+
+                         
                         </div>
                     @endif
                 @endif
@@ -328,6 +333,13 @@
                         class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
                         <i class="ti ti-search text-xl"></i> Analyze
                     </a>
+
+                     <a href="{{ route('streamM3U8ToMov', $purchase->id) }}"
+                            class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
+                            <i class="ti ti-download text-xl"></i> Download
+                    </a>
+
+                   
                 </div>
             @endif
 
@@ -340,6 +352,11 @@
                         <a href="{{ 'https://annotation.tuneup.golf?userid=' . Auth::user()->uuid . '&videourl=' . $purchaseVideo2Url }}"
                             class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
                             <i class="ti ti-search text-xl"></i> Analyze
+                        </a>
+
+                        <a href="{{ route('streamM3U8ToMov2', $purchase->id) }}"
+                                class="rounded-full px-4 py-2 text-white font-bold flex items-center gap-1 btn btn-danger text-sm md:text-base">
+                                <i class="ti ti-download text-xl"></i> Download
                         </a>
                     </div>
                 @endif

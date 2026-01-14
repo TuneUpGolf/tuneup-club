@@ -95,26 +95,26 @@
         <span class="text-xl font-semibold text-dark mb-2">{!! $title !!}</span>
 
         @php
-            $description = html_entity_decode($short_description);
-            $cleanDescription = strip_tags($description, '<ul><ol><li><span><a><strong><em><b><i>');
+            $description1 = html_entity_decode($short_description);
+            $cleanDescription = strip_tags($description1, '<ul><ol><li><span><a><strong><em><b><i>');
             $cleanShortDescription = strip_tags($description, '<ul><ol><li><strong><b><i>');
-            $shortDescription = \Illuminate\Support\Str::limit($cleanShortDescription, 80, '...');
+            $cleanShortDescription = \Illuminate\Support\Str::limit($cleanShortDescription, 80, '...');
         @endphp
 
 
         {{-- <div class="text-gray-500 text-md description font-medium ctm-min-h"> --}}
-        @if (!empty($short_description))
+        @if (!empty($cleanDescription))
             <div class="hidden short-text text-gray-600">
-                {!! $short_description !!}
+                {!! $cleanDescription !!}
             </div>
         @endif
         
         <div class="description-wrapper relative expanded mb-2">
            
             <div class="hidden long-text text-gray-600" style="font-size: 15px; max-height: 100px; overflow-y: auto;">
-                {!! $long_description !!}
+                {!! $description !!}
             </div>
-            <a href="javascript:void(0)" data-long_description="{{ e($long_description) }}"
+            <a href="javascript:void(0)" data-long_description="{{ e($description) }}"
                 class="text-blue-600 font-medium mt-1 inline-block viewDescription" tabindex="0">
                 View Description
             </a>
