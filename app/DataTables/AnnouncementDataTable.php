@@ -71,11 +71,15 @@ class AnnouncementDataTable extends DataTable
             ->columns($this->getColumns())
             ->minifiedAjax()
             ->orderBy(1)
-            ->parameters([
-                'dom' => 'Bfrtip',
-                'stateSave' => true,
-                'buttons' => [],
-            ]);
+           ->parameters([
+            'dom'        => "<'row'<'col-12'f>>" .
+                            "<'row'<'col-12'tr>>" .
+                            "<'row'<'col-12 col-md-5'i><'col-12 col-md-7'p>>",
+            'stateSave'  => true,
+            'buttons'    => [],
+            'responsive' => true,
+            'scrollX'    => true,
+        ]);
     }
 
     /**
