@@ -165,7 +165,7 @@
             allowedContent: true,
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form',
-            removeButtons: 'Link,Unlink'
+            removeButtons: 'Link,Unlink,NumberedList'
         });
 
         CKEDITOR.replace('short_description', {
