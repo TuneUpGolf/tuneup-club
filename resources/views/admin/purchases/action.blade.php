@@ -106,17 +106,19 @@
 @endif
 
 {{-- View Feedback (Follower / Influencer) --}}
-@if ($canViewFeedback)
-    <a class="btn btn-sm small btn-warning"
-        href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}"
-        data-bs-toggle="tooltip"
-        data-bs-placement="bottom"
-        title="{{ __('View Feedback') }}">
-        <span class="feedback-icon">
-            <i class="ti ti-eye text-white"></i>
-        </span>
-        <span class="feedback-text">View Feedback</span>
+@if ($canViewFeedback && $purchase->videos?->first()?->feedbackContent?->first())
+
+      <a class="btn btn-sm small btn-warning"
+       href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}"
+       data-bs-toggle="tooltip"
+       data-bs-placement="bottom"
+       title="{{ __('View Feedback') }}">
+        View Feedback
     </a>
+    @else
+      <button class="btn btn-sm small btn-secondary" disabled>
+        Pending Feedback
+    </button>
 @endif
 
 

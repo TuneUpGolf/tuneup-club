@@ -195,29 +195,91 @@ class PurchaseDataTable extends DataTable
                 "searchPlaceholder" => __('Search'),
                 'search' => ''
             ])
-            ->initComplete('function () {
+          ->initComplete('function () {
     var api = this.api();
     var container = $(api.table().container());
-
     var filter = container.find(".dataTables_filter");
 
-    // Remove "Search:" text node
+    // Inject CSS once
+    if (!document.getElementById("dt-inline-style")) {
+        $("head").append(`
+            <style id="dt-inline-style">
+                .dt-filter-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .dt-select-wrapper {
+                    min-width: 200px;
+                }
+
+                .dt-search-wrapper input {
+                    min-width: 250px;
+                }
+
+                .dataTables_filter label {
+                    margin-bottom: 0;
+                }
+
+                 @media (max-width: 576px) {
+                    .dt-filter-row {
+                        display: flex;
+                        flex-direction: row;
+                        flex-wrap: nowrap;
+                        align-items: center;
+                        gap: 4px; /* smaller gap */
+                        width: 100%;
+                        box-sizing: border-box;
+                    }
+
+                    .dt-select-wrapper {
+                        flex: 0 0 30%;   /* MUCH smaller dropdown */
+                        max-width: 30%;
+                    }
+
+                    .dt-search-wrapper {
+                        flex: 1 1 70%;
+                        max-width: 70%;
+                    }
+
+                    .dt-select-wrapper select,
+                    .dt-search-wrapper input {
+                        width: 100%;
+                        font-size: 12px;       /* smaller text */
+                        padding: 4px 6px;     /* reduce height */
+                        height: 32px;         /* fixed mobile height */
+                        box-sizing: border-box;
+                    }
+                }
+            </style>
+        `);
+    }
+
+    // Remove "Search:" text
     filter.find("label").contents().filter(function () {
         return this.nodeType === 3;
     }).remove();
+
+    // Make filter flex
+    filter.addClass("dt-filter-row");
 
     // Search input
     var searchInput = filter.find("input[type=search]")
         .removeClass("form-control-sm")
         .addClass("form-control dt-search");
 
-    // Custom select
+    searchInput.wrap("<div class=\'dt-search-wrapper\'></div>");
+
+    // Dropdown
     var filterHtml = `
-        <select id="statusFilter" class="form-select dt-select">
-            <option value="">All Submissions</option>
-            <option value="pending">Pending Submissions</option>
-            <option value="completed">Completed Submissions</option>
-        </select>
+        <div class="dt-select-wrapper">
+            <select id="statusFilter" class="form-select dt-select">
+                <option value="">All Submissions</option>
+                <option value="pending">Pending Submissions</option>
+                <option value="completed">Completed Submissions</option>
+            </select>
+        </div>
     `;
 
     filter.prepend(filterHtml);
@@ -226,6 +288,8 @@ class PurchaseDataTable extends DataTable
         api.ajax.reload();
     });
 }')
+
+
 
 
             ->parameters([
@@ -343,7 +407,7 @@ class PurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             $columns[] = Column::make('follower_name')->title("Follower")->searchable(true)->addClass('min-tablet');
         } elseif (Auth::user()->type == Role::ROLE_FOLLOWER) {
-            $columns[] = Column::make('influencer_name')->title(__('Influencer'))->searchable(true)->addClass('min-tablet');
+            $columns[] = Column::make('influencer_name')->title(__('Instructor Name'))->searchable(true)->addClass('min-tablet');
         }
 
         return array_merge($columns, [

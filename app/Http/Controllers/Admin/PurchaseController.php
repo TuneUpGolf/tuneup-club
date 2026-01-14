@@ -1688,4 +1688,190 @@ class PurchaseController extends Controller
             return view('admin.subscriptions.index');
         }
     }
+
+     public function smartVideoDownload($id)
+    {
+        $purchase = Purchase::findOrFail($id);
+        $url = trim($purchase->videos->first()?->video_url ?? '');
+
+        if (empty($url)) {
+            abort(404, 'Video URL not found');
+        }
+
+        // ── Filename handling ───────────────────────────────────────────────
+        $parsedUrl = parse_url($url);
+        $path = $parsedUrl['path'] ?? '';
+        $originalFilename = basename($path);
+
+        $baseName = pathinfo($originalFilename, PATHINFO_FILENAME);
+        $extension = strtolower(pathinfo($originalFilename, PATHINFO_EXTENSION));
+
+        $baseName = preg_replace('/[^a-zA-Z0-9-_]/', '-', $baseName);
+        $downloadName = $baseName ?: 'video';
+
+        // ── Is m3u8? ─────────────────────────────────────────────────────────
+        $isM3u8 = false;
+        $lowerUrl = strtolower($url);
+
+        if (
+            str_ends_with($lowerUrl, '.m3u8') ||
+            strpos($lowerUrl, '.m3u8?') !== false ||
+            strpos($lowerUrl, '/playlist.m3u8') !== false ||
+            strpos($lowerUrl, '/master.m3u8') !== false ||
+            strpos($lowerUrl, '/index.m3u8') !== false
+        ) {
+            $isM3u8 = true;
+            $downloadName .= '.mov';
+        } else {
+            $downloadName .= $extension ? '.' . $extension : '.mp4';
+        }
+
+        // Common headers
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        if ($isM3u8) {
+            header('Content-Type: video/mp4');  // ← change to mp4 mime
+            header('Content-Disposition: attachment; filename="' . str_replace('.mov', '.mp4', $downloadName) . '"');
+
+            $cmd = "ffmpeg " .
+                "-protocol_whitelist file,http,https,tcp,tls,crypto " .
+                "-i " . escapeshellarg($url) . " " .
+                "-map 0:v? -map 0:a? " .
+                "-c:v copy " .
+                "-c:a aac -b:a 160k -ar 48000 " .
+                "-af aformat=channel_layouts=stereo " .
+                "-bsf:a aac_adtstoasc " .
+                "-f mp4 " .                                 // ← important: mp4 instead of mov
+                "-movflags frag_keyframe+empty_moov+omit_tfhd_offset+default_base_moof " .  // better fragmentation flags
+                "pipe:1 2>/dev/null";
+
+            set_time_limit(0);
+            passthru($cmd);
+            exit;
+        } else {
+            // ── Direct files (mp4, mov, webm, etc.) ──────────────────────────
+            header('Content-Type: video/mp4');
+            header('Content-Disposition: attachment; filename="' . $downloadName . '"');
+
+            set_time_limit(0);
+
+            // Try simple readfile first
+            if (@readfile($url) === false) {
+                $context = stream_context_create([
+                    'http' => [
+                        'timeout' => 600,
+                        'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n" .
+                            "Referer: " . request()->getSchemeAndHttpHost() . "\r\n"
+                    ]
+                ]);
+
+                $stream = @fopen($url, 'rb', false, $context);
+                if ($stream) {
+                    fpassthru($stream);
+                    fclose($stream);
+                } else {
+                    http_response_code(503);
+                    echo "Cannot access the video file at the moment.";
+                    exit;
+                }
+            }
+
+            exit;
+        }
+    }
+    public function smartVideoDownload2($id)
+    {
+        $purchase = Purchase::findOrFail($id);
+        $url = trim($purchase->videos->first()?->video_url_2 ?? '');
+
+        if (empty($url)) {
+            abort(404, 'Video URL not found');
+        }
+
+        // ── Filename handling ───────────────────────────────────────────────
+        $parsedUrl = parse_url($url);
+        $path = $parsedUrl['path'] ?? '';
+        $originalFilename = basename($path);
+
+        $baseName = pathinfo($originalFilename, PATHINFO_FILENAME);
+        $extension = strtolower(pathinfo($originalFilename, PATHINFO_EXTENSION));
+
+        $baseName = preg_replace('/[^a-zA-Z0-9-_]/', '-', $baseName);
+        $downloadName = $baseName ?: 'video';
+
+        // ── Is m3u8? ─────────────────────────────────────────────────────────
+        $isM3u8 = false;
+        $lowerUrl = strtolower($url);
+
+        if (
+            str_ends_with($lowerUrl, '.m3u8') ||
+            strpos($lowerUrl, '.m3u8?') !== false ||
+            strpos($lowerUrl, '/playlist.m3u8') !== false ||
+            strpos($lowerUrl, '/master.m3u8') !== false ||
+            strpos($lowerUrl, '/index.m3u8') !== false
+        ) {
+            $isM3u8 = true;
+            $downloadName .= '.mov';
+        } else {
+            $downloadName .= $extension ? '.' . $extension : '.mp4';
+        }
+
+        // Common headers
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        if ($isM3u8) {
+            header('Content-Type: video/mp4');  // ← change to mp4 mime
+            header('Content-Disposition: attachment; filename="' . str_replace('.mov', '.mp4', $downloadName) . '"');
+
+            $cmd = "ffmpeg " .
+                "-protocol_whitelist file,http,https,tcp,tls,crypto " .
+                "-i " . escapeshellarg($url) . " " .
+                "-map 0:v? -map 0:a? " .
+                "-c:v copy " .
+                "-c:a aac -b:a 160k -ar 48000 " .
+                "-af aformat=channel_layouts=stereo " .
+                "-bsf:a aac_adtstoasc " .
+                "-f mp4 " .                                 // ← important: mp4 instead of mov
+                "-movflags frag_keyframe+empty_moov+omit_tfhd_offset+default_base_moof " .  // better fragmentation flags
+                "pipe:1 2>/dev/null";
+
+            set_time_limit(0);
+            passthru($cmd);
+            exit;
+        } else {
+            // ── Direct files (mp4, mov, webm, etc.) ──────────────────────────
+            header('Content-Type: video/mp4');
+            header('Content-Disposition: attachment; filename="' . $downloadName . '"');
+
+            set_time_limit(0);
+
+            // Try simple readfile first
+            if (@readfile($url) === false) {
+                $context = stream_context_create([
+                    'http' => [
+                        'timeout' => 600,
+                        'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n" .
+                            "Referer: " . request()->getSchemeAndHttpHost() . "\r\n"
+                    ]
+                ]);
+
+                $stream = @fopen($url, 'rb', false, $context);
+                if ($stream) {
+                    fpassthru($stream);
+                    fclose($stream);
+                } else {
+                    http_response_code(503);
+                    echo "Cannot access the video file at the moment.";
+                    exit;
+                }
+            }
+
+            exit;
+        }
+    }
+
 }

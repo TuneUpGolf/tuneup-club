@@ -624,22 +624,46 @@
                                         @endif
                                     @endif
 
-
                                     <div class="px-4 py-2 border-t border-gray-500">
                                         <h1 class="text-xl font-bold truncate">
                                             {{ $post->title }}
                                         </h1>
+
                                         <div class="description-wrapper relative">
-                                            <div class="short-text clamp-text text-gray-500 text-md mt-1 font-medium">
+                                            <!-- <div class="short-text clamp-text text-gray-500 text-md mt-1 font-medium">
                                                 {!! $post->description !!}
-                                            </div>
-                                            <a href="#"
-                                                class="read-toggle text-blue-600 font-medium mt-1 inline-block"
-                                                onclick="toggleRead(this); return false;">
-                                                ...Read More >>
+                                            </div> -->
+
+                                            <!-- View Description Anchor -->
+                                            <a href="#" class="text-blue-600 font-medium mt-2 inline-block"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#descriptionModal-{{ $post->id }}">
+                                                View Description
                                             </a>
                                         </div>
                                     </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="descriptionModal-{{ $post->id }}" tabindex="-1" aria-labelledby="descriptionModalLabel-{{ $post->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content rounded-lg border-0 shadow">
+                                                <div class="modal-header border-0">
+                                                    <h5 class="modal-title" id="descriptionModalLabel-{{ $post->id }}">
+                                                        {{ $post->title }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body text-gray-700">
+                                                    {!! $post->description !!}
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                   
                                 </div>
                             </div>
                         @endforeach
