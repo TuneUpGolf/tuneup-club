@@ -399,9 +399,9 @@ class PurchaseDataTable extends DataTable
                 ->searchable(true)
                 ->addClass('all'), // hide on phones, show on tablet/desktop
 
-            Column::make('status')
-                ->title(__('Payment Status'))
-                ->addClass('min-tablet'),
+            // Column::make('status')
+            //     ->title(__('Payment Status'))
+            //     ->addClass('min-tablet'),
         ];
 
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {

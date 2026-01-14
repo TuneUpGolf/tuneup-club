@@ -94,15 +94,16 @@
 {{-- Add Feedback (Influencer) --}}
 @if ($canAddFeedback)
     <a class="btn btn-sm small btn-warning"
-        href="{{ route('purchase.feedback.create', [
-            'purchase_id' => $purchase->id,
-            'purchase_video' => $purchaseVideo->video_url
-        ]) }}"
-        data-bs-toggle="tooltip"
-        data-bs-placement="bottom"
-        title="{{ __('Add Feedback') }}">
-        <i class="ti ti-plus text-white"></i>
-    </a>
+   href="{{ route('purchase.feedback.create', [
+        'purchase_id' => $purchase->id,
+        'purchase_video' => $purchaseVideo->video_url
+   ]) }}"
+   data-bs-toggle="tooltip"
+   data-bs-placement="bottom"
+   title="{{ __('Add Feedback') }}">
+    Add Feedback
+</a>
+
 @endif
 
 {{-- View Feedback (Follower / Influencer) --}}
