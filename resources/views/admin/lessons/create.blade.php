@@ -126,12 +126,20 @@
     <script>
         const MAX_SHORT = 300;
 
+        // CKEDITOR.replace('lesson_description', {
+        //     allowedContent: true,
+        //     filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+        //     filebrowserUploadMethod: 'form',
+        //     removeButtons: 'Link,Unlink'
+        // });
+
         CKEDITOR.replace('lesson_description', {
             allowedContent: true,
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form',
-            removeButtons: 'Link,Unlink'
+            removeButtons: 'Link,Unlink,NumberedList'
         });
+
 
         CKEDITOR.replace('short_description', {
             toolbar: [{
