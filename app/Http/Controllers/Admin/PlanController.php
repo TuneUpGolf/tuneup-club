@@ -372,7 +372,7 @@ class PlanController extends Controller
                 'price_year'     => 'nullable|numeric|min:0',
                 'max_users'      => 'required|integer|min:1',
                 'lesson_limit'   => 'required|integer',
-                'description'    => 'nullable|string',
+                'description'    => 'required|string',
             ]);
 
             // Add custom validation to ensure at least one price is provided
