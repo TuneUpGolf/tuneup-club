@@ -168,6 +168,8 @@
                                                         );
                                                         $purchasePost = $purchasePost->active_status ?? false;
                                                     @endphp
+                                                                                    @dd($purchasePost, $isSubscribed, $isInfluencer, $post->id);
+
 
                                                     @include('admin.posts.blog', [
                                                         'post' => $post,

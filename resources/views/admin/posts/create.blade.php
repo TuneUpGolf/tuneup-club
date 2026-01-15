@@ -3,10 +3,12 @@
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('blogs.index') }}">{{ __('Posts') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Create Posts') }}</li>
+    <li class="breadcrumb-item">{{ __('Create Post') }}</li>
 @endsection
+
 @section('content')
-<style>
+
+    <style>
         .progress {
             height: 20px;
             margin-bottom: 20px;
@@ -58,243 +60,331 @@
             display: none;
             margin-top: 10px;
             margin-bottom: 10px;
+        }
 
+        .switch-button-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .switch-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0;
+        }
+
+        .price-container {
+            transition: all 0.3s ease;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            padding: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .text-end {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .required::after {
+            content: "*";
+            color: #dc3545;
+            margin-left: 4px;
         }
     </style>
+
     <div class="main-content">
         <section class="section">
-            <div class="col-sm-12 col-md-8 m-auto">
+            <div class="col-lg-10 col-xl-8 m-auto">
                 <div class="card">
                     <div class="card-header">
                         <h5>{{ __('Create Post') }}</h5>
                     </div>
-
-                    {!! Form::open([
-                        'route' => 'blogs.store',
-                        'method' => 'POST',
-                        'enctype' => 'multipart/form-data',
-                        'data-validate',
-                    ]) !!}
-
                     <div class="card-body">
+                        {!! Form::open([
+                            'route' => 'blogs.store',
+                            'method' => 'POST',
+                            'class' => 'form-horizontal',
+                            'data-validate',
+                            'enctype' => 'multipart/form-data',
+                            'id' => 'postForm',
+                        ]) !!}
+                        
                         <div class="row">
                             <!-- Left Column -->
-                            <div class="col-xl-6">
-                                <div class="form-group mb-3">
-                                    {{ Form::label('title', __('Title'), ['class' => 'form-label']) }} *
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="title" class="form-label required">{{ __('Title') }}</label>
                                     {!! Form::text('title', null, [
                                         'class' => 'form-control',
                                         'placeholder' => __('Enter title'),
-                                        'required',
+                                        'required' => 'required',
+                                        'id' => 'title'
                                     ]) !!}
                                 </div>
 
                                 <div class="form-group">
-                                    {{ Form::label('category_id', __('Category'), ['class' => 'form-label']) }} *
-
-                                    <select name="category_id" id="category_id" class="form-control">
-                                        <option value="">Select Category</option>
+                                    <label for="category_id" class="form-label">{{ __('Category') }}</label>
+                                    <select name="category_id" id="category_id" class="form-select">
+                                        <option value="">Select Category (Optional)</option>
                                         @foreach ($categories as $id => $name)
                                             <option value="{{ $id }}">{{ $name }}</option>
                                         @endforeach
                                     </select>
+                                    <small class="text-muted">If no category is selected, price settings will be available</small>
                                 </div>
 
-                               <div class="form-group">
-                                    {{ Form::label('file', __('Photo / Video'), ['class' => 'form-label']) }} *
-                                    {!! Form::file('file', [
-                                        'class' => 'form-control',
-                                        'id' => 'fileInput',
-                                        'accept' => 'image/*,video/*',
-                                        'required' => 'required',
-                                    ]) !!}
-                                    <div id="fileInfo"></div>
-
-                                    <!-- Upload Button -->
-                                    <button type="button" id="uploadBtn" class="btn btn-primary btn-sm">
-                                        {{ __('Click Here - Upload Video/Image First') }}
-                                    </button>
-
-                                    <!-- Progress Bar -->
-                                    <div class="progress" id="progressContainer">
-                                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;">
-                                            0%
+                                <!-- Price and Switch Container - Only show for non-Student users -->
+                                @if (Auth::user()->type != 'Student')
+                                    <div id="priceSwitchContainer" class="price-container">
+                                        <div class="switch-button-container">
+                                            <div>
+                                                <label class="switch-label">{{ __('Paid Content') }}</label>
+                                                <div class="form-check form-switch">
+                                                    {!! Form::checkbox('paid', 1, true, [
+                                                        'class' => 'form-check-input',
+                                                        'id' => 'paidSwitch',
+                                                        'role' => 'switch',
+                                                        'style' => 'width: 3em; height: 1.5em;'
+                                                    ]) !!}
+                                                    <label class="form-check-label" for="paidSwitch"></label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="priceFieldContainer">
+                                                <div class="form-group" style="margin-bottom: 0;">
+                                                    <label for="price" class="form-label">{{ __('Price') }}</label>
+                                                    {!! Form::number('price', null, [
+                                                        'class' => 'form-control',
+                                                        'placeholder' => __('0.00'),
+                                                        'step' => '0.01',
+                                                        'min' => '0',
+                                                        'id' => 'price'
+                                                    ]) !!}
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <!-- Upload Status -->
-                                    <div class="upload-status" id="uploadStatus"></div>
-
-                                    <!-- Hidden field for chunk path -->
-                                    <input type="hidden" name="chunk_path" id="chunkPath">
-                                </div>
-
-
-                            </div>
-                            <div class="form-group mb-3">
-                                {{ Form::label('short_description', __('Short Description'), ['class' => 'form-label']) }}
-                                *
-                                {!! Form::textarea('short_description', null, [
-                                    'class' => 'form-control',
-                                    'placeholder' => __('Enter short description'),
-                                    'required',
-                                    'rows' => 3,
-                                ]) !!}
-                                <small class="text-muted">
-                                    Characters: <span id="short-desc-count">0</span> / 300
-                                </small>
-                                <div id="short-desc-warning" class="text-danger" style="display: none;">
-                                    {{ __('Maximum 300 characters allowed.') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                {{ Form::label('description', __('Long Description'), ['class' => 'form-label']) }} *
-                                {!! Form::textarea('description', null, [
-                                    'class' => 'form-control',
-                                    'placeholder' => __('Enter description'),
-                                    'rows' => 5,
-                                ]) !!}
-                                <small class="text-muted">
-                                    Characters: <span id="long-desc-count">0</span>
-                                </small>
-                            </div>
-                            <!-- Right Column -->
-                            <div class="col-xl-6">
-                                @if (Auth::user()->type != 'Follower')
-                                    <div class="form-group mb-3">
-                                        {{ Form::label('paid', __('Paid *'), ['class' => 'form-label d-block']) }}
-                                        <div class="form-check form-switch">
-                                            {!! Form::checkbox('paid', 1, false, [
-                                                'class' => 'form-check-input',
-                                                'id' => 'paidSwitch',
-                                            ]) !!}
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
-                                        {!! Form::number('price', null, [
-                                            'class' => 'form-control',
-                                            'placeholder' => __('Enter price'),
-                                            'step' => '0.01',
-                                        ]) !!}
                                     </div>
                                 @endif
                             </div>
+
+                            <!-- Right Column -->
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="description" class="form-label required">{{ __('Description') }}</label>
+                                    {!! Form::textarea('description', null, [
+                                        'class' => 'form-control',
+                                        'placeholder' => __('Enter description'),
+                                        'required' => 'required',
+                                        'rows' => '8',
+                                        'id' => 'description'
+                                    ]) !!}
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                       <input type="hidden" name="filePath" id="filePath" >
-                <input type="hidden" name="fileType" id="fileType" >
-                    <div class="card-footer text-end">
-                        <a href="{{ route('blogs.index') }}" class="btn btn-secondary">
-                            {{ __('Cancel') }}
-                        </a>
-                        {{ Form::button(__('Save'), ['type' => 'submit', 'class' => 'btn btn-primary', 'id' => 'saveButton']) }}
-                    </div>
+                        <!-- File Upload Section - Full Width -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="file" class="form-label required">{{ __('Photo / Video') }}</label>
+                                    <div class="input-group">
+                                        {!! Form::file('file', [
+                                            'class' => 'form-control',
+                                            'id' => 'fileInput',
+                                            'accept' => 'image/*,video/*',
+                                            'required' => 'required',
+                                        ]) !!}
+                                        <button type="button" id="uploadBtn" class="btn btn-primary">
+                                            {{ __('Upload') }}
+                                        </button>
+                                    </div>
+                                    <div id="fileInfo" class="mt-2"></div>
 
-                    {!! Form::close() !!}
+                                    <!-- Progress Bar -->
+                                    <div class="progress mt-2" id="progressContainer">
+                                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;">0%</div>
+                                    </div>
+
+                                    <!-- Upload Status -->
+                                    <div class="upload-status mt-2" id="uploadStatus"></div>
+
+                                    <!-- Hidden fields -->
+                                    <input type="hidden" name="chunk_path" id="chunkPath">
+                                    <input type="hidden" name="filePath" id="filePath">
+                                    <input type="hidden" name="fileType" id="fileType">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0">
+                            <div class="text-end pt-3">
+                                <a href="{{ route('blogs.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                                {!! Form::button(__('Save Changes'), [
+                                    'type' => 'submit',
+                                    'class' => 'btn btn-primary',
+                                    'id' => 'submitBtn',
+                                    'disabled' => true
+                                ]) !!}
+                            </div>
+                        </div>
+                        {!! Form::close() !!}
+                    </div>
                 </div>
             </div>
         </section>
     </div>
 @endsection
+
 @push('javascript')
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
     <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
-    <script>
-        const MAX_SHORT = 300;
-        CKEDITOR.replace('short_description', {
-            toolbar: [{
-                    name: 'basicstyles',
-                    items: ['Bold', 'Italic']
-                },
-                {
-                    name: 'paragraph',
-                    items: ['BulletedList']
-                }
-            ],
-            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
-            filebrowserUploadMethod: 'form',
-
-        });
+    <script type="text/javascript">
+        // Initialize CKEditor
         CKEDITOR.replace('description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form',
-            removeButtons: 'Link,Unlink'
-        });
-        document.addEventListener("DOMContentLoaded", function() {
-            const shortCount = document.getElementById("short-desc-count");
-            const longCount = document.getElementById("long-desc-count");
-            const shortWarning = document.getElementById("short-desc-warning");
-            const form = document.querySelector("form");
-
-            function getPlainText(editor) {
-                return editor.getData().replace(/<[^>]*>/g, '').trim();
-            }
-
-            function updateShortCount(evt) {
-                const editor = evt.editor;
-                const text = getPlainText(editor);
-                const length = text.length;
-
-                shortCount.textContent = length;
-
-                if (length >= MAX_SHORT) {
-                    editor.container.addClass('is-invalid');
-                    shortWarning.style.display = 'block';
-                } else {
-                    editor.container.removeClass('is-invalid');
-                    shortWarning.style.display = 'none';
-                }
-            }
-
-            function updateLongCount(evt) {
-                const editor = evt.editor;
-                const text = getPlainText(editor);
-                longCount.textContent = text.length;
-            }
-
-            // ✅ Live word count + prevent typing after limit
-            CKEDITOR.instances.short_description.on('key', function(evt) {
-                const text = getPlainText(evt.editor);
-                if (text.length >= MAX_SHORT && evt.data.keyCode != 8 && evt.data.keyCode != 46) {
-                    // allow backspace(8) and delete(46)
-                    evt.cancel(); // stop the keystroke
-
-                }
-            });
-
-            // ✅ Update counts on change
-            CKEDITOR.instances.short_description.on('change', updateShortCount);
-            CKEDITOR.instances.description.on('change', updateLongCount);
-
-            // ✅ Form validation
-            form.addEventListener("submit", function(e) {
-                const shortText = getPlainText(CKEDITOR.instances.short_description);
-                if (shortText.length > MAX_SHORT) {
-                    e.preventDefault();
-
-                }
-            });
+            height: 300
         });
 
+        // Initialize Choices.js
         document.addEventListener('DOMContentLoaded', function() {
-            var genericExamples = document.querySelectorAll('[data-trigger]');
-            for (var i = 0; i < genericExamples.length; ++i) {
-                var element = genericExamples[i];
-                new Choices(element, {
-                    placeholderValue: element.getAttribute('placeholder') || 'Select an option',
-                    searchPlaceholderValue: 'Search...',
-                    removeItemButton: element.multiple ? true : false,
-                    shouldSort: false,
+            var categorySelect = document.getElementById('category_id');
+            if (categorySelect) {
+                new Choices(categorySelect, {
+                    removeItemButton: true,
+                    searchEnabled: true,
+                    placeholder: true,
+                    searchPlaceholderValue: 'Search categories...'
                 });
+            }
+
+            // Toggle price field based on paid switch
+            const paidSwitch = document.getElementById('paidSwitch');
+            const priceFieldContainer = document.getElementById('priceFieldContainer');
+            
+            if (paidSwitch) {
+                paidSwitch.addEventListener('change', function() {
+                    if (this.checked) {
+                        priceFieldContainer.style.display = 'block';
+                        document.getElementById('price').focus();
+                    } else {
+                        priceFieldContainer.style.display = 'none';
+                        document.getElementById('price').value = '';
+                    }
+                });
+
+                // Initialize based on initial state
+                if (paidSwitch.checked) {
+                    priceFieldContainer.style.display = 'block';
+                } else {
+                    priceFieldContainer.style.display = 'none';
+                }
+            }
+
+            // Toggle price/switch container based on category selection
+            const categorySelectElement = document.getElementById('category_id');
+            const priceSwitchContainer = document.getElementById('priceSwitchContainer');
+            
+            if (categorySelectElement && priceSwitchContainer) {
+                categorySelectElement.addEventListener('change', function() {
+                    if (this.value) {
+                        // Category selected - hide price/switch container
+                        priceSwitchContainer.classList.add('hidden');
+                    } else {
+                        // No category selected - show price/switch container
+                        priceSwitchContainer.classList.remove('hidden');
+                    }
+                });
+
+                // Initialize on page load
+                if (categorySelectElement.value) {
+                    priceSwitchContainer.classList.add('hidden');
+                }
             }
         });
     </script>
-
-      <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const fileInput = document.getElementById('fileInput');
             const uploadBtn = document.getElementById('uploadBtn');
@@ -304,54 +394,52 @@
             const chunkPathInput = document.getElementById('chunkPath');
             const submitBtn = document.getElementById('submitBtn');
             const fileInfo = document.getElementById('fileInfo');
-            const saveBtn = document.getElementById('saveButton');
 
             let uploadId = null;
 
-            // Show upload button when file is selected
             fileInput.addEventListener('change', function(e) {
-                saveBtn.disabled = false;
                 const file = e.target.files[0];
                 if (file) {
                     const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-                    fileInfo.innerHTML = `Selected: ${file.name} (${fileSize} MB)`;
+                    const fileType = file.type.split('/')[0];
+                    fileInfo.innerHTML = `
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <div>
+                                Selected: <strong>${file.name}</strong><br>
+                                Size: ${fileSize} MB | Type: ${fileType.charAt(0).toUpperCase() + fileType.slice(1)}
+                            </div>
+                        </div>
+                    `;
 
-                    // Show upload button for large files
-                    // if (file.size > 10 * 1024 * 1024) { // 10MB+
+                    // Show upload button for all files (not just large ones)
                     uploadBtn.style.display = 'block';
-                    chunkPathInput.value = ''; // Reset previous upload
-                    saveBtn.disabled = true;
-                    // } else {
-                    //     uploadBtn.style.display = 'none';
-                    //     chunkPathInput.value = 'direct_upload'; // Small files upload directly
-                    // }
+                    chunkPathInput.value = '';
+                    submitBtn.disabled = true;
                 }
             });
 
-            // Handle chunk upload
             uploadBtn.addEventListener('click', function() {
                 const file = fileInput.files[0];
-                if (!file) return;
-
+                if (!file) {
+                    showStatus('Please select a file first.', 'error');
+                    return;
+                }
                 uploadVideoChunks(file);
             });
 
-            // Form submission validation
-            document.getElementById('albumForm').addEventListener('submit', function(e) {
+            document.getElementById('postForm').addEventListener('submit', function(e) {
                 const file = fileInput.files[0];
-
-                if (file && file.size > 10 * 1024 * 1024 && !chunkPathInput.value) {
+                if (file && !chunkPathInput.value) {
                     e.preventDefault();
-                    showStatus('Please upload the video first before submitting the form.', 'error');
+                    showStatus('Please upload the file first before submitting the form.', 'error');
                 }
             });
 
             function uploadVideoChunks(file) {
-                const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+                const CHUNK_SIZE = 5 * 1024 * 1024;
                 const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
                 let currentChunk = 0;
-
-                // Generate unique upload ID
                 uploadId = 'upload_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
                 uploadBtn.disabled = true;
@@ -373,7 +461,6 @@
                     formData.append('folderName', 'posts');
                     formData.append('_token', '{{ csrf_token() }}');
 
-                    // Update progress
                     const progress = ((currentChunk + 1) / totalChunks) * 100;
                     progressBar.style.width = progress + '%';
                     progressBar.textContent = Math.round(progress) + '%';
@@ -386,11 +473,9 @@
                         .then(data => {
                             if (data.success) {
                                 currentChunk++;
-
                                 if (currentChunk < totalChunks) {
                                     uploadChunk();
                                 } else {
-                                    // All chunks uploaded
                                     finalizeUpload(data.fileUrl, data.fileType);
                                 }
                             } else {
@@ -401,7 +486,7 @@
                             console.error('Upload failed:', error);
                             showStatus('Upload failed: ' + error.message, 'error');
                             uploadBtn.disabled = false;
-                            uploadBtn.textContent = 'Click Here - Upload Video/Image First';
+                            uploadBtn.textContent = 'Upload';
                         });
                 }
 
@@ -409,46 +494,13 @@
             }
 
             function finalizeUpload(filePath, fileType) {
-
                 document.getElementById('filePath').value = filePath;
                 document.getElementById('fileType').value = fileType;
                 chunkPathInput.value = filePath;
 
-                showStatus('Video uploaded successfully! You can now submit the form.', 'success');
+                showStatus('File uploaded successfully! You can now submit the form.', 'success');
                 uploadBtn.style.display = 'none';
-                saveBtn.disabled = false;
-                // fetch('{{ route('album.upload.finalize') }}', {
-                //         method: 'POST',
-                //         headers: {
-                //             'Content-Type': 'application/json',
-                //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                //         },
-                //         body: JSON.stringify({
-                //             fileName: fileName,
-                //             uploadId: uploadId
-                //         })
-                //     })
-                //     .then(response => response.json())
-                //     .then(data => {
-                //         if (data.success) {
-                //             // Store both chunk path AND original filename
-                //             chunkPathInput.value = data.chunkPath + '|' + fileName;
-                //             showStatus('Video uploaded successfully! You can now submit the form.', 'success');
-
-                //             uploadBtn.style.display = 'none';
-                //             saveBtn.disabled = false; 
-                //         } else {
-                //             throw new Error(data.message || 'Finalization failed');
-                //             saveBtn.disabled = false; 
-                //         }
-                //     })
-                //     .catch(error => {
-                //         showStatus('Finalization failed: ' + error.message, 'error');
-                //         uploadBtn.disabled = false;
-                //         uploadBtn.textContent = 'Upload Video First';
-                //             saveBtn.disabled = false; 
-
-                //     });
+                submitBtn.disabled = false;
             }
 
             function showStatus(message, type) {
@@ -462,6 +514,7 @@
                 } else {
                     uploadStatus.style.backgroundColor = '#d1ecf1';
                     uploadStatus.style.color = '#0c5460';
+                    uploadStatus.classList.add('upload-info');
                 }
 
                 uploadStatus.style.display = 'block';

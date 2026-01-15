@@ -552,7 +552,7 @@
                 @if (@$influencerDetails)
                     @if (!$influencerDetails?->post->isEmpty())
                         @foreach ($influencerDetails?->post as $post)
-                            <div class="max-w-sm w-full">
+                            {{-- <div class="max-w-sm w-full">
                                 <div class="shadow rounded-2 overflow-hidden position-relative">
                                     @if ($post->paid && !isset($purchasePost))
                                         <?php $cls = 'p-3 position-absolute left-0 top-0 z-1 w-full'; ?>
@@ -666,7 +666,33 @@
 
                                    
                                 </div>
-                            </div>
+                            </div> --}}
+
+                            {{-- @dd(auth()->guard('follower')->check()) --}}
+                            @php
+                                if (auth()->guard('follower')->check()) {
+                                    $purchasePost = $post->purchasePost->firstWhere('follower_id', auth()->guard('follower')->user()->id);
+                                    // dd($purchasePost, $post->purchasePost, auth()->guard('follower')->user()->id);
+                                    $purchasePost = $purchasePost->active_status ?? false;
+                                } else {
+                                    $purchasePost = false;
+                                }
+                                if(auth()->check() && auth()->user()->hasRole('influencer')){
+                                    $isInfluencer = true;
+                                } else {
+                                    $isInfluencer = false;
+                                }
+                                $isSubscribed = in_array(Auth::user()?->plan_id, $feedEnabledPlanId);
+                               
+                            @endphp
+                                                                                    {{-- @dd($purchasePost, $isSubscribed, $isInfluencer, $post->id); --}}
+
+                            @include('admin.posts.blog', [
+                                'post' => $post,
+                                'isInfluencer' => $isInfluencer,
+                                'isSubscribed' => $isSubscribed,
+                                'purchasePost' => $purchasePost,
+                            ])
                         @endforeach
                     @endif
                 @endif

@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Facades\UtilityFacades;
-use App\Models\Plan;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\Admin\ConatctMail;
-use App\Models\Posts;
-use Spatie\MailTemplates\Models\MailTemplate;
 use App\Models\Faq;
-use App\Models\NotificationsSetting;
+use App\Models\Plan;
 use App\Models\Role;
-use App\Notifications\Admin\ConatctNotification;
+use App\Models\User;
+use App\Models\Posts;
+use Illuminate\Http\Request;
+use App\Facades\UtilityFacades;
+use App\Mail\Admin\ConatctMail;
+use App\Http\Controllers\Controller;
+use App\Models\NotificationsSetting;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cookie;
+use Spatie\MailTemplates\Models\MailTemplate;
+use App\Notifications\Admin\ConatctNotification;
 
 class LandingController extends Controller
 {
@@ -51,11 +52,19 @@ class LandingController extends Controller
                 ->first();
             if (UtilityFacades::getsettings('landing_page_status') == '1') {
 
+            
+                $feedEnabledPlanId = Plan::where('influencer_id', $influencerDetails->id)
+                    ->where('is_feed_enabled', true)->pluck('id')->toArray();
+                $isSubscribed = in_array(Auth::user()?->plan_id, $feedEnabledPlanId);
+
+
+
                 return view('welcome', compact(
                     'lang',
                     'influencerDetails',
                     'plans',
-                    'admin'
+                    'admin',
+                    'feedEnabledPlanId'
                 ));
             } else {
                 return redirect()->route('home');

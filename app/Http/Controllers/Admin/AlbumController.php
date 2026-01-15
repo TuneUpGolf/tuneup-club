@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Post;
 use App\Models\Album;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -42,8 +43,8 @@ class AlbumController extends Controller
                      'filePath' => 'required',
                     'fileType' => 'required'
                 ]);
-                $album_category = new Album();
-                $album_category->instructor_id = Auth::user()->id;
+                $album_category = new Post();
+                $album_category->influencer_id = Auth::user()->id;
                 $album_category->album_category_id = $request->input('album_category_id');
                 $album_category->tenant_id = tenant('id');
                 $album_category->title = $request->title;
@@ -88,7 +89,7 @@ class AlbumController extends Controller
     public function destroy($id)
     {
         if (Auth::user()->can('delete-blog')) {
-            $post = Album::find($id);
+            $post = Post::find($id);
             $post->delete();
             return redirect()->route('album.category.album', ['id' => $post->album_category_id])->with('success', __('Album deleted successfully.'));
         } else {
@@ -104,7 +105,7 @@ class AlbumController extends Controller
                 'description'   => 'required',
                 'album_category_id' => 'required|exists:album_categories,id'
             ]);
-            $album_category   = Album::find($id);
+            $album_category   = Post::find($id);
             // if ($request->hasFile('file')) {
             //     $tenantId = tenant()->id; // e.g. 3
             //     $destination = public_path("{$tenantId}/album");
@@ -141,7 +142,7 @@ class AlbumController extends Controller
     public function edit($id)
     {
         if (Auth::user()->can('edit-blog')) {
-            $posts      = Album::find($id);
+            $posts      = Post::find($id);
             if (!is_null($posts)) {
                 $album_categories = AlbumCategory::where('instructor_id', Auth::user()->id)->get(['id', 'title']);
                 return  view('admin.album.edit', compact('posts', 'album_categories'));

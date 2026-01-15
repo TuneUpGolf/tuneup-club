@@ -19,12 +19,19 @@ class Post extends Model
         'isFollowerPost',
         'short_description',
         'file_type',
+        'album_category_id',
+        'file',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function albumCategory()
+    {
+        return $this->belongsTo(AlbumCategory::class, 'album_category_id');
+    }
 
     public function influencer()
     {
