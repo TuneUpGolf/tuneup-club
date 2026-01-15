@@ -44,6 +44,15 @@
     .text-3xl-c {
         font-size: 1.3rem !important;
     }
+
+    .plan-name {
+        /* display: -webkit-box;
+        -webkit-line-clamp: 1; */
+        /* -webkit-box-orient: vertical;
+        overflow: hidden; */
+        min-height: 5.6rem; /* locks height */
+    }
+
 </style>
 <div class="flex flex-col">
     {{-- <div class="profile-backdrop">
@@ -71,6 +80,9 @@
                 onclick="window.location.href='home?tab=subscriptions'">Subscriptions</button>
             <button class="tablinks {{ $isChatTab ? 'active' : '' }}"
                 onclick="window.location.href='home?tab=chat'">Chat</button>
+
+            <button class="tablinks {{ $tab == 'purchases' ? 'active' : '' }}"
+                onclick="window.location.href='home?tab=purchases'">My Purchases</button>
             </hr>
         </div>
         @if ($tab == 'lessons')
@@ -212,7 +224,7 @@
                                     data-wow-delay="0.2s">
                                     <div class="rounded-lg shadow popular-wrap h-100">
                                         <div class="px-3 pt-4 ">
-                                            <p class="text-2xl font-bold mb-1">
+                                            <p class="text-2xl font-bold mb-1 plan-name">
                                                 {{ $plan->name }}
                                             </p>
 
@@ -223,11 +235,12 @@
                                                     {{ $plan->duration . ' ' . $plan->durationtype }}
                                                 </strong></span>
                                             <br> --}}
-                                            @if ($plan->lesson_limit != 0)
-                                                <span class="text-gray-600"><strong>Online Lesson Limit:
-                                                        {{ $plan->lesson_limit_label }}
-                                                    </strong></span>
-                                            @endif
+                                         <span class="text-gray-600 d-block min-h-[24px]">
+                                            <strong class="{{ $plan->lesson_limit == 0 ? 'invisible' : '' }}">
+                                                Online Lesson Limit: {{ $plan->lesson_limit_label }}
+                                            </strong>
+                                        </span>
+
                                             {{-- <div class="flex gap-1 items-center mt-2 ">
                                                 <p class="text-4xl font-bold">
                                                     {{ '$' . $plan->price }}/</p>
@@ -349,6 +362,15 @@
             </div>
 
         @endif
+
+        @if($tab == 'purchases')
+            {!! $dataTable->table([
+                'class' => 'table table-bordered table-striped',
+                'style' => 'width:100%',
+                'id' => 'purchases-table'
+            ]) !!}                           
+        @endif
+
         @if ($isChatTab)
 
             <div id="Chat" class="tabcontent block">

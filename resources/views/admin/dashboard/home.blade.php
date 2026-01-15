@@ -68,13 +68,6 @@
 }
 
 /* Equal width for mobile */
-.dt-search,
-.dt-select {
-    height: 38px;
-    width: 50% !important;
-    flex: 0 0 50% !important;
-    min-width: 0 !important;
-}
 
 /* Desktop */
 @media (min-width: 769px) {
@@ -91,7 +84,7 @@
         <div class="col-xxl-12">
             <div class="row">
                 @can('manage-lessons')
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes">
                             <div class="p-2 p-sm-3">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
@@ -104,9 +97,21 @@
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
+                                    <!-- <div class="order-3 order-sm-2">
+                                        <span class="font-roboto font-semibold"> {{ __('Completed') }} </span>
+                                    </div> -->
                                     <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold"> {{ __('Completed Submissions') }} </span>
+                                        <!-- Desktop / Tablet text -->
+                                        <span class="font-roboto font-semibold d-none d-md-inline">
+                                            {{ __('Completed Submissions') }}
+                                        </span>
+
+                                        <!-- Mobile text -->
+                                        <span class="font-roboto font-semibold d-inline d-md-none">
+                                            {{ __('Completed') }}
+                                        </span>
                                     </div>
+
                                     <p class="order-2 order-sm-3 mb-0 font-sans  bg-card-text text-2xl ml-auto">
                                         {{ $purchaseComplete }}
                                      </p>
@@ -115,7 +120,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-6 pb-3">
                         <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes">
                             <div class="p-2 p-sm-3">
                                 <div class="flex flex-row flex-wrap items-center gap-3">
@@ -171,8 +176,19 @@
                                             </g>
                                         </svg>
                                     </div>
-                                    <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold"> {{ __('Pending Submissions') }} </span>
+                                    <!-- <div class="order-3 order-sm-2">
+                                        <span class="font-roboto font-semibold"> {{ __('Pending') }} </span>
+                                    </div> -->
+                                     <div class="order-3 order-sm-2">
+                                        <!-- Desktop / Tablet text -->
+                                        <span class="font-roboto font-semibold d-none d-md-inline">
+                                            {{ __('Pending Submissions') }}
+                                        </span>
+
+                                        <!-- Mobile text -->
+                                        <span class="font-roboto font-semibold d-inline d-md-none">
+                                            {{ __('Pending') }}
+                                        </span>
                                     </div>
 
                                     <p class="order-2 order-sm-3 mb-0 font-sans bg-card4-text text-2xl ml-auto">

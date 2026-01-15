@@ -212,12 +212,7 @@ class FollowerDataTable extends DataTable
                 searchInput.removeClass(\'form-control form-control-sm\');
                 searchInput.addClass(\'dataTable-input\');
                 var select = $(table.api().table().container()).find(".dataTables_length select").removeClass(\'custom-select custom-select-sm form-control form-control-sm\').addClass(\'dataTable-selector\');
-                tableContainer.find(".dataTable-title").html(
-                    $("<div>").addClass("flex justify-start items-center").append(
-                        $("<div>").addClass("custom-table-header"),
-                        $("<span>").addClass("font-medium text-2xl pl-4").text("All ' . ($this->module == 'follower' ? 'Followers' : 'Chats') . '")
-                    )
-                );
+              
             }')
             ->parameters([
                 "dom"            => "

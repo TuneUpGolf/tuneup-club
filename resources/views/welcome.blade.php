@@ -26,6 +26,14 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+        .plan-name {
+            /* display: -webkit-box;
+            -webkit-line-clamp: 1; */
+            /* -webkit-box-orient: vertical;
+            overflow: hidden; */
+            min-height: 5.6rem; /* locks height */
+        }
+
     </style>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-white px-0 py-3">
@@ -383,7 +391,7 @@
                                     data-wow-delay="0.2s">
                                     <div class="rounded-lg shadow popular-wrap h-100">
                                         <div class="px-3 pt-4 ">
-                                            <p class="text-2xl font-bold mb-1">
+                                            <p class="text-2xl font-bold mb-1 plan-name">
                                                 {{ $plan->name }}
                                             </p>
 
@@ -394,11 +402,18 @@
                                                     {{ $plan->duration . ' ' . $plan->durationtype }}
                                                 </strong></span>
                                             <br> --}}
-                                            {{-- @if ($plan->lesson_limit != 0)
+
+                                              <!-- <span class="text-gray-600 d-block min-h-[24px]">
+                                                <strong class="{{ $plan->lesson_limit == 0 ? 'invisible' : '' }}">
+                                                    Online Lesson Limit: {{ $plan->lesson_limit_label }}
+                                                </strong>
+                                            </span> -->
+
+                                            <!-- @if ($plan->lesson_limit != 0)
                                                 <span class="text-gray-600"><strong>Online Lesson Limit:
                                                         {{ $plan->lesson_limit_label }}
                                                     </strong></span>
-                                            @endif --}}
+                                            @endif -->
                                             {{-- <div class="flex gap-1 items-center mt-2 ">
                                                 <p class="text-4xl font-bold">
                                                     {{ '$' . $plan->price }}/</p>
