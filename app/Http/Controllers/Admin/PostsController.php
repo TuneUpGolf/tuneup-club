@@ -193,7 +193,7 @@ class PostsController extends Controller
 
                 request()->validate([
                     'title'       => 'required|string',
-                    'short_description' => 'required|string',
+                    // 'short_description' => 'required|string',
                     'price'       => ['nullable', 'numeric', 'gt:0.5'],
                     'filePath' => 'required',
                     'fileType' => 'required'
@@ -225,6 +225,9 @@ class PostsController extends Controller
                 $post->file = $request->filePath; // Temporary chunk path
                 $post->file_type = $request->fileType;
                 $post->album_category_id = $request->album_category_id;
+                $post->description = $_POST['description'];
+                $post->short_description = $_POST['short_description'];
+
                 // if ($request->hasFile('photo')) {
                 //     $fileName = $request->file('photo');
                 //     $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
@@ -260,7 +263,7 @@ class PostsController extends Controller
         if (Auth::user()->can('edit-blog')) {
             request()->validate([
                 'title'       => 'required|max:50',
-                'description' => 'required',
+                // 'description' => 'required',
                 'price'       => ['nullable', 'numeric'],
             ]);
             $post          = Post::find($id);
@@ -285,8 +288,10 @@ class PostsController extends Controller
             // $post->slug        = $request->slug;
             $post->paid        = $paid;
             $post->price       = $price;
-            $post->description = $request->description;
-            $post->short_description    = $request->short_description;
+            // $post->description = $request->description;
+            // $post->short_description    = $request->short_description;
+              $post->description = $_POST['description'];
+                $post->short_description = $_POST['short_description'];
             $post->file = $request->filePath; // Temporary chunk path
             $post->file_type = $request->fileType;
             $post->album_category_id = $request->album_category_id;

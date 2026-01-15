@@ -120,14 +120,16 @@
             margin-bottom: 0.5rem;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border-radius: 8px;
             border: 1px solid #ced4da;
             padding: 0.75rem;
             transition: all 0.3s;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
@@ -189,7 +191,7 @@
                             'enctype' => 'multipart/form-data',
                             'id' => 'postForm',
                         ]) !!}
-                        
+
                         <div class="row">
                             <!-- Left Column -->
                             <div class="col-lg-6">
@@ -199,7 +201,7 @@
                                         'class' => 'form-control',
                                         'placeholder' => __('Enter title'),
                                         'required' => 'required',
-                                        'id' => 'title'
+                                        'id' => 'title',
                                     ]) !!}
                                 </div>
 
@@ -211,7 +213,8 @@
                                             <option value="{{ $id }}">{{ $name }}</option>
                                         @endforeach
                                     </select>
-                                    <small class="text-muted">If no category is selected, price settings will be available</small>
+                                    <small class="text-muted">If no category is selected, price settings will be
+                                        available</small>
                                 </div>
 
                                 <!-- Price and Switch Container - Only show for non-Student users -->
@@ -225,12 +228,12 @@
                                                         'class' => 'form-check-input',
                                                         'id' => 'paidSwitch',
                                                         'role' => 'switch',
-                                                        'style' => 'width: 3em; height: 1.5em;'
+                                                        'style' => 'width: 3em; height: 1.5em;',
                                                     ]) !!}
                                                     <label class="form-check-label" for="paidSwitch"></label>
                                                 </div>
                                             </div>
-                                            
+
                                             <div id="priceFieldContainer">
                                                 <div class="form-group" style="margin-bottom: 0;">
                                                     <label for="price" class="form-label">{{ __('Price') }}</label>
@@ -239,7 +242,7 @@
                                                         'placeholder' => __('0.00'),
                                                         'step' => '0.01',
                                                         'min' => '0',
-                                                        'id' => 'price'
+                                                        'id' => 'price',
                                                     ]) !!}
                                                 </div>
                                             </div>
@@ -257,10 +260,23 @@
                                         'placeholder' => __('Enter description'),
                                         'required' => 'required',
                                         'rows' => '8',
-                                        'id' => 'description'
+                                        'id' => 'description',
+                                    ]) !!}
+                                </div>
+                                  <div class="form-group">
+                                    <label for="short_description"
+                                        class="form-label required">{{ __('Short Description') }}</label>
+                                    {!! Form::textarea('short_description', null, [
+                                        'class' => 'form-control',
+                                        'placeholder' => __('Enter short_description'),
+                                        'required' => 'required',
+                                        'rows' => '8',
+                                        'id' => 'short_description',
                                     ]) !!}
                                 </div>
                             </div>
+
+                          
                         </div>
 
                         <!-- File Upload Section - Full Width -->
@@ -283,7 +299,8 @@
 
                                     <!-- Progress Bar -->
                                     <div class="progress mt-2" id="progressContainer">
-                                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;">0%</div>
+                                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;">0%
+                                        </div>
                                     </div>
 
                                     <!-- Upload Status -->
@@ -304,7 +321,7 @@
                                     'type' => 'submit',
                                     'class' => 'btn btn-primary',
                                     'id' => 'submitBtn',
-                                    'disabled' => true
+                                    'disabled' => true,
                                 ]) !!}
                             </div>
                         </div>
@@ -327,6 +344,12 @@
             height: 300
         });
 
+        CKEDITOR.replace('short_description', {
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form',
+            height: 300
+        });
+
         // Initialize Choices.js
         document.addEventListener('DOMContentLoaded', function() {
             var categorySelect = document.getElementById('category_id');
@@ -342,7 +365,7 @@
             // Toggle price field based on paid switch
             const paidSwitch = document.getElementById('paidSwitch');
             const priceFieldContainer = document.getElementById('priceFieldContainer');
-            
+
             if (paidSwitch) {
                 paidSwitch.addEventListener('change', function() {
                     if (this.checked) {
@@ -365,7 +388,7 @@
             // Toggle price/switch container based on category selection
             const categorySelectElement = document.getElementById('category_id');
             const priceSwitchContainer = document.getElementById('priceSwitchContainer');
-            
+
             if (categorySelectElement && priceSwitchContainer) {
                 categorySelectElement.addEventListener('change', function() {
                     if (this.value) {
