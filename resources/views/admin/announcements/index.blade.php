@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header card-body table-border-style">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5>{{ __('Announcements') }}</h5>
+                        <!-- <h5>{{ __('Announcements') }}</h5> -->
                         @can('create-announcements')
                             <a href="{{ route('announcements.create') }}" class="btn btn-primary btn-sm">
                                 <i class="ti ti-plus me-2"></i>{{ __('Add Announcement') }}

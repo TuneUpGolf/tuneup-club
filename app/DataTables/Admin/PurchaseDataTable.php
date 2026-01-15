@@ -210,17 +210,7 @@ class PurchaseDataTable extends DataTable
                     gap: 10px;
                 }
 
-                .dt-select-wrapper {
-                    min-width: 200px;
-                }
-
-                .dt-search-wrapper input {
-                    min-width: 250px;
-                }
-
-                .dataTables_filter label {
-                    margin-bottom: 0;
-                }
+               
 
                  @media (max-width: 576px) {
                     .dt-filter-row {
@@ -233,24 +223,24 @@ class PurchaseDataTable extends DataTable
                         box-sizing: border-box;
                     }
 
-                    .dt-select-wrapper {
-                        flex: 0 0 30%;   /* MUCH smaller dropdown */
-                        max-width: 30%;
-                    }
-
-                    .dt-search-wrapper {
-                        flex: 1 1 70%;
-                        max-width: 70%;
+                  
+                   
+                    .dt-search-wrapper input {
+                        width: 130px !important;
                     }
 
                     .dt-select-wrapper select,
                     .dt-search-wrapper input {
-                        width: 100%;
+                        // width: 100%;
                         font-size: 12px;       /* smaller text */
                         padding: 4px 6px;     /* reduce height */
                         height: 32px;         /* fixed mobile height */
                         box-sizing: border-box;
                     }
+                    .dt-select{
+                        width : 180px !important
+                    }
+
                 }
             </style>
         `);

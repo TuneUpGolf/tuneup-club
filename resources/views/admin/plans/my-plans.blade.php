@@ -18,7 +18,7 @@
                                 <tr>
                                     <th id="icon12"></th>
                                     <th></th>
-                                    <th>NO</th>
+                                    <!-- <th>NO</th> -->
                                     <th>Name</th>
                                     <th>Price</th>
                                     <th>Duration</th>
@@ -161,12 +161,12 @@
                         searchable: false,
                         render: () => '<span class="drag-handle">⋮⋮</span>'
                     },
-                    {
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'DT_RowIndex',
+                    //     name: 'DT_RowIndex',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
                     {
                         data: 'name',
                         name: 'name'
