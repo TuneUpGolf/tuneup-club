@@ -178,11 +178,13 @@
     <script>
         CKEDITOR.replace('short_description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
-            filebrowserUploadMethod: 'form'
+            filebrowserUploadMethod: 'form',
+            removeButtons: 'NumberedList'
         });
         CKEDITOR.replace('description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
-            filebrowserUploadMethod: 'form'
+            filebrowserUploadMethod: 'form',
+            removeButtons: 'NumberedList'
         });
 
         document.addEventListener('DOMContentLoaded', function() {

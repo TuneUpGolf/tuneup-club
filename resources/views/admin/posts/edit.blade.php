@@ -187,7 +187,7 @@
                             'method' => 'Patch',
                             'class' => 'form-horizontal',
                             'data-validate',
-                            'enctype' => 'multipart/form-data',
+                            // 'enctype' => 'multipart/form-data',
                             'id' => 'postForm',
                         ]) !!}
                         
@@ -334,13 +334,15 @@
         CKEDITOR.replace('description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form',
-            height: 300
+            height: 300,
+            removeButtons: 'NumberedList'
         });
 
          CKEDITOR.replace('short_description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form',
-            height: 300
+            height: 300,
+            removeButtons: 'NumberedList'
         });
         // Initialize Choices.js
         document.addEventListener('DOMContentLoaded', function() {
