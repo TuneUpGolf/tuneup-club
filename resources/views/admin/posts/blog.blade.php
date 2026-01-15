@@ -148,11 +148,20 @@
     </div>
 </div>
 
+<style>
+    .longDescContentTipandDrills li{
+        list-style: disc;
+    }
+    .longDescContentTipandDrills{
+        margin-left: 10px;
+    }
+</style>
+
 <!-- Bootstrap Modal -->
 <div class="modal fade" id="descriptionModal{{ $post->id }}" tabindex="-1" role="dialog"
     aria-labelledby="descriptionModalLabel{{ $post->id }}" aria-hidden="true" style="z-index: 1072;">
-    <div class="modal-dialog modal-dialog-centered custom-modal-width" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered custom-modal-width" role="document" >
+        <div class="modal-content" style="width: 100%;">
             <div class="modal-header flex justify-between items-center">
                 <h1 class="modal-title font-bold text-lg" id="descriptionModalLabel{{ $post->id }}">
                     {{ $post->title }}
@@ -167,7 +176,7 @@
             <div class="modal-body">
                 {{-- Full Description --}}
                 <div class="longDescContentTipandDrills">
-                    {!! nl2br($post->description) !!}
+                    {!! $post->description !!}
                 </div>
 
                 {{-- Breaker Line --}}
@@ -184,7 +193,7 @@
                 {{-- Short Description --}}
                 @if ($post->short_description)
                     <div class="longDescContentTipandDrills">
-                        {!! nl2br($post->short_description) !!}
+                        {!! $post->short_description !!}
                     </div>
                 @endif
             </div>

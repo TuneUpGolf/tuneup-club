@@ -177,7 +177,7 @@ class PostsController extends Controller
 
     public function store(Request $request)
     {
-                    // dd($request->all());
+                    // dd($_POST['description']);
         if (Auth::user()->can('create-blog')) {
             try {
                 // if ($request->filled('category_id')) {

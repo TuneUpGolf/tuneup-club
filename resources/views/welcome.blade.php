@@ -548,7 +548,7 @@
             <h2 class="font-bold text-4xl mb-2">{{ !empty($feed->value) ? $feed->value : 'Feed' }}</h2>
             <br>
 
-            <div class="flex flex-wrap gap-3 w-100">
+            <div class="flex flex-wrap gap-3 justify-center w-100">
                 @if (@$influencerDetails)
                     @if (!$influencerDetails?->post->isEmpty())
                         @foreach ($influencerDetails?->post as $post)
@@ -701,7 +701,7 @@
     </section>
 
 
-    <div class="modal " id="longDescModal" tabindex="-1" role="dialog">
+    <div class="modal " id="longDescModal" tabindex="-1" role="dialog" style="z-index: 1072;">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
