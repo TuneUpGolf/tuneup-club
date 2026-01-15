@@ -548,7 +548,7 @@
             <h2 class="font-bold text-4xl mb-2">{{ !empty($feed->value) ? $feed->value : 'Feed' }}</h2>
             <br>
 
-            <div class="flex flex-wrap gap-5 w-100">
+            <div class="flex flex-wrap gap-3 w-100">
                 @if (@$influencerDetails)
                     @if (!$influencerDetails?->post->isEmpty())
                         @foreach ($influencerDetails?->post as $post)
