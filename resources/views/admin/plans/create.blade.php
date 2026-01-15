@@ -92,7 +92,7 @@
                         </div>
 
                         <div class="form-group">
-                            {{ Form::label('description', __('Description'), ['class' => 'form-label']) }}
+                            {{ Form::label('description', __('Description *'), ['class' => 'form-label']) }}
                             {!! Form::textarea('description', old('description'), [
                                 'placeholder' => __('Enter description'),
                                 'class' => 'form-control',
