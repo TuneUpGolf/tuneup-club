@@ -56,7 +56,7 @@ class AlbumCategoryController extends Controller
                 $album_category->tenant_id = tenant('id');
                 $album_category->title = $request->title;
                 $album_category->slug = Str::slug($request->title);
-                $album_category->description = $request->description;
+                $album_category->description = $_POST['description'];
                 $album_category->payment_mode = array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' ? "paid" : "un-paid") : "un-paid";
                 $album_category->price =  array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0) : 0;
                 // $album_category->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
@@ -134,7 +134,7 @@ class AlbumCategoryController extends Controller
             $album_category->tenant_id = tenant('id');
             $album_category->title = $request->title;
             $album_category->slug = Str::slug($request->title);
-            $album_category->description = $request->description;
+            $album_category->description = $_POST['description'];
             $album_category->payment_mode = array_key_exists('paid', $request->all()) ? ($request?->paid == 'on' ? 'paid' : 'un-paid') : 'un-paid';
             $album_category->price = array_key_exists('paid', $request->all()) && $request?->paid == 'on' && !empty($request?->price) ? $request?->price : 0;
             $album_category->save();

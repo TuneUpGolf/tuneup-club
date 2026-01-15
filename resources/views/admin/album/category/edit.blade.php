@@ -83,7 +83,7 @@
                             'method' => 'Patch',
                             'class' => 'form-horizontal',
                             'data-validate',
-                            'enctype' => 'multipart/form-data',
+                            // 'enctype' => 'multipart/form-data',
                         ]) !!}
                         <div class="row">
                             <div class="col-sm-6">
@@ -101,7 +101,6 @@
                                         'class' => 'form-control',
                                         'id' => 'fileInput',
                                         'accept' => 'image/*,video/*',
-                                        'required' => 'required',
                                     ]) !!}
                                     <div id="fileInfo"></div>
 
@@ -171,11 +170,13 @@
     <script type="text/javascript">
         CKEDITOR.replace('short_description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
-            filebrowserUploadMethod: 'form'
+            filebrowserUploadMethod: 'form',
+            removeButtons: 'NumberedList'
         });
         CKEDITOR.replace('description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
-            filebrowserUploadMethod: 'form'
+            filebrowserUploadMethod: 'form',
+            removeButtons: 'NumberedList'
         });
 
         document.addEventListener('DOMContentLoaded', function() {
