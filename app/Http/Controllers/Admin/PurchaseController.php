@@ -1681,7 +1681,7 @@ class PurchaseController extends Controller
 
                         return '<span class="' . $badgeClass . '">' . ucfirst($subscription->status) . '</span>';
                     })
-                    ->rawColumns(['status_badge'])
+                    ->rawColumns(['status_badge', 'subscription_history'])
                     ->make(true);
             }
             // dd("test");
