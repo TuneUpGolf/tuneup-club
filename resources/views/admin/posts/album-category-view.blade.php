@@ -237,6 +237,11 @@
              </div>
          </div>
      </div>
+     <style>
+        .longDescContent li{
+            list-style: disc;
+        }
+     </style>
      <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
          <div class="modal-dialog" role="document">
              <div class="modal-content">
@@ -248,6 +253,7 @@
                          <span aria-hidden="true">&times;</span>
                      </button>
                  </div>
+
                  <div class="modal-body">
                      <div class="longDescContent"></div>
                  </div>
