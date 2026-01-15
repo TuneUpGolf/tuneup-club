@@ -14,7 +14,6 @@
                             <thead>
                                 <tr>
                                     <th id="icon12"></th> <!-- ✅ Responsive control column -->
-                                    <th></th> <!-- ✅ Reorder handle column -->
                                     <th>#</th>
                                     <th>Title</th>
                                     <th>Paid</th>
@@ -47,12 +46,9 @@
     @include('layouts.includes.datatable_css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.4.1/css/rowReorder.dataTables.min.css">
-
     <style>
         #videoThumbnail {
             cursor: pointer;
-
         }
 
         .modal {
@@ -126,14 +122,14 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 
-    <!-- ✅ RowReorder + Responsive -->
-    <script src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
+    <!-- ✅ Responsive -->
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
     <script>
         $(function() {
             let createUrl = "{{ route('blogs.create') }}";
+            let reorderUrl = "{{ route('post.reorder') }}"; // You'll need to create this route
 
             let table = $('.data-table').DataTable({
                 processing: true,
@@ -144,12 +140,6 @@
                         orderable: false,
                         data: null,
                         defaultContent: ''
-                    }, {
-                        data: null,
-                        className: 'reorder-handle',
-                        orderable: false,
-                        searchable: false,
-                        render: () => '<span class="drag-handle">⋮⋮</span>'
                     },
                     {
                         data: 'DT_RowIndex',
@@ -189,19 +179,13 @@
                         searchable: false
                     },
                 ],
-                rowReorder: {
-                    selector: 'td.reorder-handle',
-                    update: false
-                },
-
-
                 responsive: {
                     details: {
                         display: $.fn.dataTable.Responsive.display.childRow,
                         renderer: function(api, rowIdx, columns) {
                             let data = $('<table/>').addClass('vertical-table');
                             $.each(columns, function(i, col) {
-                                if (i === 0 || i === 1) return; // skip first two columns
+                                if (i === 0) return; // skip responsive control column
                                 data.append(
                                     '<tr>' +
                                     '<td><strong>' + col.title + '</strong></td>' +
@@ -214,20 +198,29 @@
                     }
                 },
                 order: [
-                    [2, 'asc']
+                    [1, 'asc']
                 ],
                 dom: "<'dataTable-top row'<'dataTable-title col-lg-3 col-sm-12'<'custom-title'>>" +
                     "<'dataTable-botton table-btn col-lg-6 col-sm-12'B>" +
                     "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
                     "<'dataTable-container'<'col-sm-12'tr>>" +
                     "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
-                buttons: [{
-                    text: '<i class="fa fa-plus"></i> Create',
-                    className: 'btn btn-light-primary no-corner me-1 add_module',
-                    action: function() {
-                        window.location.href = createUrl;
+                buttons: [
+                    {
+                        text: '<i class="fa fa-plus"></i> Create',
+                        className: 'btn btn-light-primary no-corner me-1 add_module',
+                        action: function() {
+                            window.location.href = createUrl;
+                        }
+                    },
+                    {
+                        text: '<i class="fa fa-sort"></i> Reorder Posts',
+                        className: 'btn btn-light-info no-corner me-1 reorder-posts',
+                        action: function() {
+                            window.location.href = reorderUrl;
+                        }
                     }
-                }],
+                ],
                 initComplete: function() {
                     var table = this;
                     var tableContainer = $(table.api().table().container());
@@ -250,35 +243,6 @@
                         )
                     );
                 }
-            });
-
-            // Smooth reorder handler
-            table.on('row-reorder', function(e, diff, edit) {
-                if (diff.length === 0) return;
-
-                let order = [];
-                diff.forEach(function(move) {
-                    let rowData = table.row(move.node).data();
-                    order.push({
-                        id: rowData.id,
-                        position: move.newPosition + 1
-                    });
-                });
-
-                $.ajax({
-                    url: "{{ route('post-reorder') }}",
-                    method: "POST",
-                    data: {
-                        order: order,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function() {
-                        table.ajax.reload(null, false);
-                    },
-                    error: function(err) {
-                        console.error('Reorder failed:', err);
-                    }
-                });
             });
 
             function handleResponsiveColumn(table) {

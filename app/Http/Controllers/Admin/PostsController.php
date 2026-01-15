@@ -55,7 +55,7 @@ class PostsController extends Controller
                 case ('influencer'):
                     $posts = $posts->where('isFollowerPost', false);
             }
-            $posts = $posts->where('influencer_id', $influencerId)->orderBy('created_at', 'desc')->paginate(6);
+            $posts = $posts->where('influencer_id', $influencerId)->orderBy('column_order', 'asc')->paginate(6);
             $posts->load('influencer');
             $posts->load('follower');
             $posts->load('purchasePost');
@@ -107,8 +107,7 @@ class PostsController extends Controller
         // -------------------------
         $items = $posts;
 
-        // Sort by created_at descending
-        $items = $items->sortByDesc('created_at');
+        $items = $items->sortBy('column_order');
 
         if ($request->ajax()) {
 
@@ -630,5 +629,85 @@ class PostsController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function reorder1()
+{
+    if (!Auth::user()->can('manage-blog')) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $user = Auth::user();
+    $query = Post::query();
+
+    if ($user->type == Role::ROLE_ADMIN) {
+        $posts = $query->orderBy('column_order', 'asc')->get();
+    } elseif ($user->type == Role::ROLE_INFLUENCER) {
+        $posts = $query->where('influencer_id', $user->id)->orderBy('column_order', 'asc')->get();
+    } else {
+        $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
+    }
+
+    return view('admin.posts.reorder', compact('posts'));
+}
+
+  public function updateOrder(Request $request)
+    {
+        if (!Auth::user()->can('manage-blog')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action.'
+            ], 403);
+        }
+
+        try {
+            $order = $request->input('order');
+            
+            if (empty($order)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No order data provided.'
+                ]);
+            }
+            
+            foreach ($order as $item) {
+                Post::where('id', $item['id'])->update([
+                    'column_order' => $item['position']
+                ]);
+            }
+            
+            // Get updated order for response (optional)
+            $user = Auth::user();
+            $query = Post::query();
+            
+            if ($user->type == Role::ROLE_ADMIN) {
+                $posts = $query->orderBy('column_order', 'asc')->get();
+            } elseif ($user->type == Role::ROLE_INFLUENCER) {
+                $posts = $query->where('influencer_id', $user->id)->orderBy('column_order', 'asc')->get();
+            } else {
+                $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
+            }
+            
+            $newOrder = $posts->map(function($post) {
+                return [
+                    'id' => $post->id,
+                    'column_order' => $post->column_order
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Order updated successfully.',
+                'new_order' => $newOrder
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Reorder error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating order: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
