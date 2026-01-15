@@ -308,8 +308,8 @@
 
                                     <!-- Hidden fields -->
                                     <input type="hidden" name="chunk_path" id="chunkPath">
-                                    <input type="hidden" name="filePath" value="test" id="filePath">
-                                    <input type="hidden" name="fileType" value="image" id="fileType">
+                                    <input type="hidden" name="filePath"  id="filePath">
+                                    <input type="hidden" name="fileType"  id="fileType">
                                 </div>
                             </div>
                         </div>
