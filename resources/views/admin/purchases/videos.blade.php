@@ -324,7 +324,7 @@
 
         <!-- Video Section -->
         <div class="video-wrap w-full md:w-1/4 lg:w-1/5 xl:w-1/5 !order-1">
-            <video controls autoplay loop muted src="{{ $purchase->videos->first()?->video_url }}"
+            <video controls autoplay loop muted src="{{ $purchase->videos->first()?->video_url }}#t=0.001"
                 class="w-full sm:w-80 md:w-96 lg:w-[28rem] h-auto rounded-lg shadow"></video>
 
             @if (auth()->user()->type == 'Influencer')
@@ -344,7 +344,7 @@
             @endif
 
             @if ($purchaseVideo2Url)
-                <video controls autoplay loop muted src="{{ $purchaseVideo2Url }}"
+                <video controls autoplay loop muted src="{{ $purchaseVideo2Url }}#t=0.001"
                     class="w-full sm:w-80 md:w-96 lg:w-[28rem] h-auto rounded-lg mt-4 shadow"></video>
 
                 @if (auth()->user()->type == 'Influencer')
@@ -513,7 +513,7 @@
                                             <img src="{{ $vid['url'] }}" class="img-fluid" style="max-width:100%;">
                                         @elseif ($isVideo)
                                             <video id="videoPlayer{{ $i }}" controls>
-                                                <source src="{{ $vid['url'] }}">
+                                                <source src="{{ $vid['url'] }}#t=0.001">
                                             </video>
                                         @else
                                             <p>Unsupported file type</p>
@@ -555,7 +555,7 @@
                                             <img src="{{ $vid['url'] }}" class="img-fluid" style="max-width:100%;">
                                         @elseif ($isVideo)
                                             <video id="videoPlayer{{ $i }}" controls>
-                                                <source src="{{ $vid['url'] }}">
+                                                <source src="{{ $vid['url'] }}#t=0.001">
                                             </video>
                                         @else
                                             <p>Unsupported file type</p>
