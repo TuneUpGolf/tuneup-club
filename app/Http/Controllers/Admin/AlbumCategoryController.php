@@ -6,6 +6,7 @@ use Error;
 use Exception;
 use Stripe\Stripe;
 use Stripe\Account;
+use App\Models\Post;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Album;
@@ -183,7 +184,7 @@ class AlbumCategoryController extends Controller
     {
         if (Auth::user()->can('manage-blog')) {
             $album_category = AlbumCategory::find($id);
-            $albums = Album::where('album_category_id', $id)->orderBy('column_order', 'asc')->get();
+            $albums = Post::where('album_category_id', $id)->orderBy('column_order', 'asc')->get();
             return view('admin.posts.album', compact('albums', 'album_category'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
@@ -193,7 +194,7 @@ class AlbumCategoryController extends Controller
     public function change_order($id)
     {
         if (Auth::user()->can('manage-blog')) {
-            $albums = Album::where('album_category_id', $id)
+            $albums = Post::where('album_category_id', $id)
                 ->orderBy('column_order', 'asc')
                 ->get();
             return view('admin.posts.album-change-order', compact('albums', 'id'));
@@ -215,7 +216,7 @@ class AlbumCategoryController extends Controller
             $order = $request->input('order', []);
 
             foreach ($order as $item) {
-                Album::where('id', $item['id'])
+                Post::where('id', $item['id'])
                     ->where('album_category_id', $categoryId)
                     ->update(['column_order' => $item['position']]);
             }
@@ -235,7 +236,7 @@ class AlbumCategoryController extends Controller
     public function likeAlbum()
     {
         try {
-            $post = Album::find(request()->post_id);
+            $post = Post::find(request()->post_id);
             if (!!$post) {
                 $postLike = Auth::user()->likeAlbum->firstWhere('album_id', $post->id);
 

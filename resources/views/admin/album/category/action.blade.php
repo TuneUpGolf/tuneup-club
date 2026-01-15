@@ -1,12 +1,12 @@
 <div class="action-btn-fix-wraper d-flex align-items-center justify-content-center gap-2">
    @can('edit-blog')
-    <a href="{{ route('album.category.change-order', $post->id) }}" 
+    {{-- <a href="{{ route('album.category.change-order', $post->id) }}" 
         class="btn btn-sm btn-warning action-btn-fix"
         data-bs-toggle="tooltip" 
         data-bs-placement="bottom" 
         data-bs-original-title="{{ __('Change Order') }}">
         <i class="ti ti-arrows-sort text-white"></i>
-    </a>
+    </a> --}}
 @endcan
     @can('edit-blog')
         <a href="{{ route('album.category.edit', $post->id) }}" class="btn btn-sm btn-warning action-btn-fix"
@@ -30,10 +30,10 @@
         {!! Form::close() !!}
     @endcan
 
-    @can('create-blog')
+    {{-- @can('create-blog')
         <a href="{{ route('album.category.create-album', $post->id) }}" class="btn btn-sm btn-warning action-btn-fix"
             data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ __('Plus') }}">
             <i class="ti ti-plus text-white"></i>
         </a>
-    @endcan
+    @endcan --}}
 </div>

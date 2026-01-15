@@ -150,7 +150,7 @@ class HomeController extends Controller
 
             $categoryAlbum = $request->category_album;
             if ($categoryAlbum) {
-                $albumcategories = Album::where('album_category_id', $categoryAlbum)->orderBy('column_order', 'asc')->get();
+                $albumcategories = Post::where('album_category_id', $categoryAlbum)->orderBy('column_order', 'asc')->get();
             } else {
                 $albumcategories = null;
             }

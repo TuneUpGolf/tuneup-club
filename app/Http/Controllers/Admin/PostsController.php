@@ -90,22 +90,22 @@ class PostsController extends Controller
             $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
         }
 
-        $albums = Album::where('instructor_id', $user->id)
-            ->where('status', 'active')
-              ->orderBy('column_order', 'asc')
-            ->get();
+        // $albums = Post::where('influencer_id', $user->id)
+        //     ->where('status', 'active')
+        //     ->orderBy('column_order', 'asc')
+        //     ->get();
 
-        // Add type "album" + unify file path
-        $albums->map(function ($album) {
-            $album->type = 'album';
-            $album->file = preg_replace('/^\d+\//', '', $album->media);
-            return $album;
-        });
+        // // Add type "album" + unify file path
+        // $albums->map(function ($album) {
+        //     $album->type = 'album';
+        //     $album->file = preg_replace('/^\d+\//', '', $album->media);
+        //     return $album;
+        // });
 
         // -------------------------
         // MERGE POSTS + ALBUMS
         // -------------------------
-        $items = $posts->concat($albums);
+        $items = $posts;
 
         // Sort by created_at descending
         $items = $items->sortByDesc('created_at');
@@ -117,15 +117,16 @@ class PostsController extends Controller
                 ->addColumn('title', function ($post) {
                     return $post->title;
                 })->addColumn('paid', function ($post) {
-                    $paid = $post->paid == true ? "Yes"  : "No";
+                    $paid = $post->album_category_id ? '-' : ($post->paid == true ? "Yes"  : "No");
                     return $paid;
                 })
                 ->addColumn('sales', function (Post $post) {
-                    $count = PurchasePost::where('active_status', true)->where('post_id', $post->id)->count();
+
+                    $count = $post->album_category_id ? '-' :  PurchasePost::where('active_status', true)->where('post_id', $post->id)->count();
                     return $count;
                 })
                 ->addColumn('price', function (Post $post) {
-                    $price = $post->paid == true ? $post->price : 0;
+                    $price = $post->album_category_id ? '-' :  ($post->paid == true ? $post->price : 0);
                     return $price;
                 })
                 ->addColumn("photo", function (Post $post) {
@@ -180,15 +181,15 @@ class PostsController extends Controller
 
         if (Auth::user()->can('create-blog')) {
             try {
-                if ($request->filled('category_id')) {
-                    // Prepare a new request for AlbumController
-                    $albumRequest = $request->merge([
-                        'album_category_id' => $request->input('category_id')
-                    ]);
+                // if ($request->filled('category_id')) {
+                //     // Prepare a new request for AlbumController
+                //     $albumRequest = $request->merge([
+                //         'album_category_id' => $request->input('category_id')
+                //     ]);
 
-                    // Call AlbumController's store method
-                    return app(\App\Http\Controllers\Admin\AlbumController::class)->store($albumRequest);
-                }
+                //     // Call AlbumController's store method
+                //     return app(\App\Http\Controllers\Admin\AlbumController::class)->store($albumRequest);
+                // }
 
                 request()->validate([
                     'title'       => 'required|string',
@@ -208,11 +209,22 @@ class PostsController extends Controller
                 $currentDomain  = tenant('domains');
                 $currentDomain  = $currentDomain[0]->domain;
                 $post           = Post::create($request->all());
-                $post['paid']   = $request?->paid == 1 ? true : false;
-                $post['price']  = $request?->paid == 1 && ! empty($request?->price) ? $request?->price : 0;
+
+                if (empty($request->album_category_id)) {
+                    // $request->slug = Str::slug($request->title);
+                    $paid = 0;
+                    $price = 0;
+                } else {
+                    $paid =  $request?->paid == 1 ? true : false;
+                    $price = $request?->paid == 1 ? $request?->price : 0;
+                }
+
+                $post['paid']   = $paid;
+                $post['price']  = $price;
                 $post['status'] = 'active';
                 $post->file = $request->filePath; // Temporary chunk path
                 $post->file_type = $request->fileType;
+                $post->album_category_id = $request->album_category_id;
                 // if ($request->hasFile('photo')) {
                 //     $fileName = $request->file('photo');
                 //     $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
@@ -236,8 +248,8 @@ class PostsController extends Controller
     {
         if (Auth::user()->can('edit-blog')) {
             $posts    = Post::find($id);
-            $category = Category::where('status', 1)->pluck('name', 'id');
-            return view('admin.posts.edit', compact('posts', 'category'));
+            $categories = AlbumCategory::all();
+            return view('admin.posts.edit', compact('posts', 'categories'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }
@@ -261,14 +273,24 @@ class PostsController extends Controller
             //     $post->file      = Storage::disk('spaces')->url($filePath);
             //     $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             // }
+            if (empty($request->album_category_id)) {
+                // $request->slug = Str::slug($request->title);
+                $paid = 0;
+                $price = 0;
+            } else {
+                $paid =  $request?->paid == 1 ? true : false;
+                $price = $request?->paid == 1 ? $request?->price : 0;
+            }
             $post->title       = $request->title;
-            $post->slug        = $request->slug;
-            $post->paid        = $request?->paid == 1 ? true : false;
-            $post->price       = $request?->paid == 1 ? $request?->price : 0;
+            // $post->slug        = $request->slug;
+            $post->paid        = $paid;
+            $post->price       = $price;
             $post->description = $request->description;
             $post->short_description    = $request->short_description;
-             $post->file = $request->filePath; // Temporary chunk path
+            $post->file = $request->filePath; // Temporary chunk path
             $post->file_type = $request->fileType;
+            $post->album_category_id = $request->album_category_id;
+
 
             $post->save();
             return redirect()->route('blogs.manage')->with('success', __('Posts updated successfully'));
