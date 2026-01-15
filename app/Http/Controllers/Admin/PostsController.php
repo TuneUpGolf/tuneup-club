@@ -177,7 +177,7 @@ class PostsController extends Controller
 
     public function store(Request $request)
     {
-
+                    dd($request->all());
         if (Auth::user()->can('create-blog')) {
             try {
                 // if ($request->filled('category_id')) {
@@ -209,7 +209,7 @@ class PostsController extends Controller
                 $currentDomain  = $currentDomain[0]->domain;
                 $post           = Post::create($request->all());
 
-                if (empty($request->album_category_id)) {
+                if (empty($request->category_id)) {
                     // $request->slug = Str::slug($request->title);
                     $paid = 0;
                     $price = 0;
@@ -223,7 +223,7 @@ class PostsController extends Controller
                 $post['status'] = 'active';
                 $post->file = $request->filePath; // Temporary chunk path
                 $post->file_type = $request->fileType;
-                $post->album_category_id = $request->album_category_id;
+                $post->album_category_id = $request->category_id;
                 $post->description = $_POST['description'];
                 $post->short_description = $_POST['short_description'];
 
@@ -275,7 +275,7 @@ class PostsController extends Controller
             //     $post->file      = Storage::disk('spaces')->url($filePath);
             //     $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             // }
-            if (empty($request->album_category_id)) {
+            if (empty($request->category_id)) {
                 // $request->slug = Str::slug($request->title);
                 $paid = 0;
                 $price = 0;
@@ -293,7 +293,7 @@ class PostsController extends Controller
                 $post->short_description = $_POST['short_description'];
             $post->file = $request->filePath; // Temporary chunk path
             $post->file_type = $request->fileType;
-            $post->album_category_id = $request->album_category_id;
+            $post->album_category_id = $request->category_id;
 
 
             $post->save();
