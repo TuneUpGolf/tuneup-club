@@ -105,7 +105,7 @@
                                                                         {{-- Edit --}}
                                                                         <li>
                                                                             <a class="dropdown-item"
-                                                                                href="{{ route('album.edit', $post->id) }}">
+                                                                                href="{{ route('blogs.edit', $post->id) }}">
                                                                                 <i class="ti ti-edit me-2 text-black"></i>
                                                                                 Edit
                                                                             </a>
@@ -115,7 +115,7 @@
                                                                         <li>
                                                                             {!! Form::open([
                                                                                 'method' => 'DELETE',
-                                                                                'route' => ['album.destroy', $post->id],
+                                                                                'route' => ['blogs.destroy', $post->id],
                                                                                 'id' => 'delete-form-' . $post->id,
                                                                             ]) !!}
                                                                             <a href="javascript:void(0);"
@@ -128,7 +128,7 @@
                                                                 </div>
                                                             @else
                                                                 {{-- Show like button --}}
-                                                                <div class="bg-white py-2 px-3 rounded-3xl shadow">
+                                                                {{-- <div class="bg-white py-2 px-3 rounded-3xl shadow">
                                                                     {!! Form::open([
                                                                         'route' => ['album.category.album.like', ['post_id' => $post->id]],
                                                                         'method' => 'Post',
@@ -140,7 +140,7 @@
                                                                         <span>{{ $post->likeAlbum()->count() }} Likes</span>
                                                                     </button>
                                                                     {!! Form::close() !!}
-                                                                </div>
+                                                                </div> --}}
                                                             @endif
 
 
