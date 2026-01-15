@@ -259,6 +259,17 @@
                                         'id' => 'description'
                                     ]) !!}
                                 </div>
+
+                                  <div class="form-group">
+                                    <label for="short_description" class="form-label required">{{ __('Short Description') }}</label>
+                                    {!! Form::textarea('short_description', null, [
+                                        'class' => 'form-control',
+                                        'placeholder' => __('Enter short_description'),
+                                        'required' => 'required',
+                                        'rows' => '8',
+                                        'id' => 'short_description'
+                                    ]) !!}
+                                </div>
                             </div>
                         </div>
 
@@ -326,6 +337,11 @@
             height: 300
         });
 
+         CKEDITOR.replace('short_description', {
+            filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
+            filebrowserUploadMethod: 'form',
+            height: 300
+        });
         // Initialize Choices.js
         document.addEventListener('DOMContentLoaded', function() {
             var categorySelect = document.getElementById('category_id');
