@@ -177,7 +177,7 @@ class PostsController extends Controller
 
     public function store(Request $request)
     {
-                    dd($request->all());
+                    // dd($request->all());
         if (Auth::user()->can('create-blog')) {
             try {
                 // if ($request->filled('category_id')) {
@@ -208,8 +208,8 @@ class PostsController extends Controller
                 $currentDomain  = tenant('domains');
                 $currentDomain  = $currentDomain[0]->domain;
                 $post           = Post::create($request->all());
-
-                if (empty($request->category_id)) {
+                    // dd("stop");
+                if (!empty($request->category_id)) {
                     // $request->slug = Str::slug($request->title);
                     $paid = 0;
                     $price = 0;
@@ -217,6 +217,8 @@ class PostsController extends Controller
                     $paid =  $request?->paid == 1 ? true : false;
                     $price = $request?->paid == 1 ? $request?->price : 0;
                 }
+
+                // dd($paid,$price);
 
                 $post['paid']   = $paid;
                 $post['price']  = $price;
@@ -275,7 +277,7 @@ class PostsController extends Controller
             //     $post->file      = Storage::disk('spaces')->url($filePath);
             //     $post->file_type = Str::contains($request->file('file')->getMimeType(), 'video') ? 'video' : 'image';
             // }
-            if (empty($request->category_id)) {
+            if (!empty($request->category_id)) {
                 // $request->slug = Str::slug($request->title);
                 $paid = 0;
                 $price = 0;
