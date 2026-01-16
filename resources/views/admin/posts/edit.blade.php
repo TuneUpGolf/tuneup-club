@@ -121,14 +121,16 @@
             margin-bottom: 0.5rem;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border-radius: 8px;
             border: 1px solid #ced4da;
             padding: 0.75rem;
             transition: all 0.3s;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
@@ -190,7 +192,7 @@
                             // 'enctype' => 'multipart/form-data',
                             'id' => 'postForm',
                         ]) !!}
-                        
+
                         <div class="row">
                             <!-- Left Column -->
                             <div class="col-lg-6">
@@ -200,77 +202,61 @@
                                         'class' => 'form-control',
                                         'placeholder' => __('Enter title'),
                                         'required' => 'required',
-                                        'id' => 'title'
+                                        'id' => 'title',
                                     ]) !!}
                                 </div>
+                            </div>
+                            <div class="col-lg-6">
 
                                 <div class="form-group">
                                     <label for="category_id" class="form-label">{{ __('Category') }}</label>
                                     <select name="category_id" id="category_id" class="form-select">
                                         <option value="">Select Category (Optional)</option>
                                         @foreach ($categories as $category)
-                                            <option {{ $category->id == $posts->album_category_id ? 'selected' : ''}} value="{{ $category->id }}">{{ $category->title }}</option>
+                                            <option {{ $category->id == $posts->album_category_id ? 'selected' : '' }}
+                                                value="{{ $category->id }}">{{ $category->title }}</option>
                                         @endforeach
                                     </select>
-                                    <small class="text-muted">If no category is selected, price settings will be available</small>
+                                    <small class="text-muted">If no category is selected, price settings will be
+                                        available</small>
                                 </div>
+                            </div>
 
-                                <!-- Price and Switch Container - Initially visible if no category is selected -->
-                                <div id="priceSwitchContainer" class="{{ $posts->album_category_id ? 'hidden' : 'price-container' }}">
-                                    <div class="switch-button-container">
-                                        <div>
-                                            <label class="switch-label">{{ __('Paid Content') }}</label>
-                                            <div class="form-check form-switch">
-                                                {!! Form::checkbox('paid', 1, $posts->paid ?? true, [
-                                                    'class' => 'form-check-input',
-                                                    'id' => 'paidSwitch',
-                                                    'role' => 'switch',
-                                                    'style' => 'width: 3em; height: 1.5em;'
-                                                ]) !!}
-                                                <label class="form-check-label" for="paidSwitch"></label>
-                                            </div>
+                            <!-- Price and Switch Container - Initially visible if no category is selected -->
+                            <div id="priceSwitchContainer"
+                                class="{{ $posts->album_category_id ? 'hidden' : 'price-container' }}">
+                                <div class="switch-button-container">
+                                    <div>
+                                        <label class="switch-label">{{ __('Paid Content') }}</label>
+                                        <div class="form-check form-switch">
+                                            {!! Form::checkbox('paid', 1, $posts->paid ?? true, [
+                                                'class' => 'form-check-input',
+                                                'id' => 'paidSwitch',
+                                                'role' => 'switch',
+                                                'style' => 'width: 3em; height: 1.5em;',
+                                            ]) !!}
+                                            <label class="form-check-label" for="paidSwitch"></label>
                                         </div>
-                                        
-                                        <div id="priceFieldContainer" class="{{ $posts->paid ? '' : 'hidden' }}">
-                                            <div class="form-group" style="margin-bottom: 0;">
-                                                <label for="price" class="form-label">{{ __('Price') }}</label>
-                                                {!! Form::number('price', null, [
-                                                    'class' => 'form-control',
-                                                    'placeholder' => __('0.00'),
-                                                    'step' => '0.01',
-                                                    'min' => '0',
-                                                    'id' => 'price'
-                                                ]) !!}
-                                            </div>
+                                    </div>
+
+                                    <div id="priceFieldContainer" class="{{ $posts->paid ? '' : 'hidden' }}">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label for="price" class="form-label">{{ __('Price') }}</label>
+                                            {!! Form::number('price', null, [
+                                                'class' => 'form-control',
+                                                'placeholder' => __('0.00'),
+                                                'step' => '0.01',
+                                                'min' => '0',
+                                                'id' => 'price',
+                                            ]) !!}
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            {{-- </div> --}}
 
                             <!-- Right Column -->
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="description" class="form-label required">{{ __('Description') }}</label>
-                                    {!! Form::textarea('description', null, [
-                                        'class' => 'form-control',
-                                        'placeholder' => __('Enter description'),
-                                        'required' => 'required',
-                                        'rows' => '8',
-                                        'id' => 'description'
-                                    ]) !!}
-                                </div>
 
-                                  <div class="form-group">
-                                    <label for="short_description" class="form-label required">{{ __('Short Description') }}</label>
-                                    {!! Form::textarea('short_description', null, [
-                                        'class' => 'form-control',
-                                        'placeholder' => __('Enter short_description'),
-                                        'required' => 'required',
-                                        'rows' => '8',
-                                        'id' => 'short_description'
-                                    ]) !!}
-                                </div>
-                            </div>
                         </div>
 
                         <!-- File Upload Section - Full Width -->
@@ -292,7 +278,8 @@
 
                                     <!-- Progress Bar -->
                                     <div class="progress mt-2" id="progressContainer">
-                                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;">0%</div>
+                                        <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;">0%
+                                        </div>
                                     </div>
 
                                     <!-- Upload Status -->
@@ -302,8 +289,39 @@
                                     <input type="hidden" name="chunk_path" id="chunkPath" value="{{ $posts->file }}">
                                     <input type="hidden" name="filePath" id="filePath" value="{{ $posts->file }}">
                                     <input type="hidden" name="fileType" id="fileType" value="{{ $posts->file_type }}">
-                                    
-                               
+
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="description" class="form-label required">{{ __('Description') }}</label>
+                                    {!! Form::textarea('description', null, [
+                                        'class' => 'form-control',
+                                        'placeholder' => __('Enter description'),
+                                        'required' => 'required',
+                                        'rows' => '8',
+                                        'id' => 'description',
+                                    ]) !!}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+
+                                <div class="form-group">
+                                    <label for="short_description"
+                                        class="form-label required">{{ __('Short Description') }}</label>
+                                    {!! Form::textarea('short_description', null, [
+                                        'class' => 'form-control',
+                                        'placeholder' => __('Enter short_description'),
+                                        'required' => 'required',
+                                        'rows' => '8',
+                                        'id' => 'short_description',
+                                    ]) !!}
                                 </div>
                             </div>
                         </div>
@@ -314,7 +332,7 @@
                                 {!! Form::button(__('Save Changes'), [
                                     'type' => 'submit',
                                     'class' => 'btn btn-primary',
-                                    'id' => 'submitBtn'
+                                    'id' => 'submitBtn',
                                 ]) !!}
                             </div>
                         </div>
@@ -338,7 +356,7 @@
             removeButtons: 'NumberedList'
         });
 
-         CKEDITOR.replace('short_description', {
+        CKEDITOR.replace('short_description', {
             filebrowserUploadUrl: "{{ route('ckeditor.upload', ['_token' => csrf_token()]) }}",
             filebrowserUploadMethod: 'form',
             height: 300,
@@ -359,7 +377,7 @@
             // Toggle price field based on paid switch
             const paidSwitch = document.getElementById('paidSwitch');
             const priceFieldContainer = document.getElementById('priceFieldContainer');
-            
+
             if (paidSwitch) {
                 paidSwitch.addEventListener('change', function() {
                     if (this.checked) {
@@ -375,7 +393,7 @@
             // Toggle price/switch container based on category selection
             const categorySelectElement = document.getElementById('category_id');
             const priceSwitchContainer = document.getElementById('priceSwitchContainer');
-            
+
             if (categorySelectElement) {
                 categorySelectElement.addEventListener('change', function() {
                     if (this.value) {
@@ -532,7 +550,7 @@
             // Initialize based on current category selection
             const categorySelect = document.getElementById('category_id');
             const priceSwitchContainer = document.getElementById('priceSwitchContainer');
-            
+
             if (categorySelect && categorySelect.value) {
                 priceSwitchContainer.classList.add('hidden');
             }

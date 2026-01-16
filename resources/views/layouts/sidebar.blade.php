@@ -342,9 +342,9 @@
                                         </li>
                                     @endcan
                                     @can('manage-blog')
-                                        <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
+                                        {{-- <li class="dash-item {{ request()->is('blogs') ? 'active' : '' }}">
                                             <a class="dash-link" href="{{ route('blogs.index') }}">{{ __('Feed') }}</a>
-                                        </li>
+                                        </li> --}}
                                         <li class="dash-item {{ request()->is('blogs/manage/posts') ? 'active' : '' }}">
                                             <a class="dash-link"
                                                 href="{{ route('blogs.manage') }}">{{ __('Manage Tips/Drills') }}</a>
