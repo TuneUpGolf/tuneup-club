@@ -9,11 +9,25 @@
         <div class="col-xl-12">
             <div class="card">
                 <div class="card-body table-border-style">
+                    <!-- Filter Dropdown -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <label class="input-group-text" for="paymentFilter">Payment Type:</label>
+                                <select class="form-select" id="paymentFilter">
+                                    <option value="">All</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="free">Free</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="table-responsive">
                         <table class="table table-bordered data-table w-100">
                             <thead>
                                 <tr>
-                                    <th id="icon12"></th> <!-- ✅ Responsive control column -->
+                                    <th id="icon12"></th>
                                     <th>#</th>
                                     <th>Title</th>
                                     <th>Paid</th>
@@ -42,6 +56,7 @@
         </div>
     </div>
 @endsection
+
 @push('css')
     @include('layouts.includes.datatable_css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
@@ -106,35 +121,36 @@
         }
     </style>
 @endpush
+
 @push('javascript')
     @include('layouts.includes.datatable_js')
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- ✅ DataTables Core -->
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-
-    <!-- ✅ Buttons -->
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
-
-    <!-- ✅ Responsive -->
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
     <script>
         $(function() {
             let createUrl = "{{ route('blogs.create') }}";
-            let reorderUrl = "{{ route('post.reorder') }}"; // You'll need to create this route
-
+            let reorderUrl = "{{ route('post.reorder') }}";
+            
+            // Initialize DataTable with custom filtering
             let table = $('.data-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('blogs.manage') }}",
+                ajax: {
+                    url: "{{ route('blogs.manage') }}",
+                    data: function(d) {
+                        // Add payment filter to request
+                        d.payment_filter = $('#paymentFilter').val();
+                    }
+                },
                 columns: [{
                         className: 'dt-control',
                         orderable: false,
@@ -185,7 +201,7 @@
                         renderer: function(api, rowIdx, columns) {
                             let data = $('<table/>').addClass('vertical-table');
                             $.each(columns, function(i, col) {
-                                if (i === 0) return; // skip responsive control column
+                                if (i === 0) return;
                                 data.append(
                                     '<tr>' +
                                     '<td><strong>' + col.title + '</strong></td>' +
@@ -225,17 +241,14 @@
                     var table = this;
                     var tableContainer = $(table.api().table().container());
 
-                    // Customize search input
                     var searchInput = $('#' + table.api().table().container().id +
                         ' label input[type="search"]');
                     searchInput.removeClass('form-control form-control-sm').addClass('dataTable-input');
 
-                    // Customize length selector
                     $(table.api().table().container()).find(".dataTables_length select")
                         .removeClass('custom-select custom-select-sm form-control form-control-sm')
                         .addClass('dataTable-selector');
 
-                    // Custom table title
                     tableContainer.find(".dataTable-title").html(
                         $("<div>").addClass("flex justify-start items-center").append(
                             $("<div>").addClass("custom-table-header"),
@@ -245,37 +258,40 @@
                 }
             });
 
+            // Filter change handler
+            $('#paymentFilter').on('change', function() {
+                table.ajax.reload();
+            });
+
             function handleResponsiveColumn(table) {
                 if (window.innerWidth <= 1300) {
-                    // Show responsive icon column
                     $('#icon12').show();
                     table.column(0).visible(true);
                 } else {
-                    // Hide responsive icon column
                     $('#icon12').hide();
                     table.column(0).visible(false);
                 }
             }
 
-            // Run on load and resize
             handleResponsiveColumn(table);
             $(window).on('resize', function() {
                 handleResponsiveColumn(table);
             });
         });
     </script>
+    
+    <!-- Video Modal Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById("videoModal");
             const closeBtn = document.querySelector(".close");
             const video = document.getElementById("videoPlayer");
 
-            // Delegate click event to dynamically created .video-thumbnail elements
             document.addEventListener('click', function(e) {
                 if (e.target && e.target.classList.contains('video-thumbnail')) {
                     const videoSrc = e.target.getAttribute('data-video');
                     video.querySelector('source').src = videoSrc;
-                    video.load(); // refresh video source
+                    video.load();
                     modal.style.display = "block";
                     video.play();
                 }
