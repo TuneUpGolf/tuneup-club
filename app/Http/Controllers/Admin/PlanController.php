@@ -113,7 +113,7 @@ class PlanController extends Controller
     }
     public function reorder(Request $request)
     {
-
+    // dd($request->all());
         foreach ($request->order as $item) {
             \App\Models\Plan::where('id', $item['id'])
                 ->update(['column_order' => $item['position']]);

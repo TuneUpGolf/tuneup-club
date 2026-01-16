@@ -35,7 +35,7 @@ class Plan extends Model
         'stripe_price_id',
         'stripe_price_quarter_id',
         'stripe_price_year_id',
-        
+        'column_order',
         'stripe_product_id',
         'lesson_limit'
     ];
