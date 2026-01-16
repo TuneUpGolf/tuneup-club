@@ -79,54 +79,92 @@ class PostsController extends Controller
         }
 
         $user = Auth::user();
+        $paymentFilter = $request->input('payment_filter'); // Get filter value
 
-        $query = Post::query();
+        $query = Post::with('albumCategory') // Eager load albumCategory relationship
+            ->select('post.*');
 
         if ($user->type == Role::ROLE_ADMIN) {
-            $posts = $query->orderBy('column_order', 'asc')->get();
+            // Admin sees all posts
         } elseif ($user->type == Role::ROLE_INFLUENCER) {
-            $posts = $query->where('influencer_id', $user->id)->orderBy('column_order', 'asc')->get();
+            $query->where('influencer_id', $user->id);
         } else {
-            $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
+            $query->where('follower_id', $user->id);
         }
 
-        // $albums = Post::where('influencer_id', $user->id)
-        //     ->where('status', 'active')
-        //     ->orderBy('column_order', 'asc')
-        //     ->get();
-
-        // // Add type "album" + unify file path
-        // $albums->map(function ($album) {
-        //     $album->type = 'album';
-        //     $album->file = preg_replace('/^\d+\//', '', $album->media);
-        //     return $album;
-        // });
-
-        // -------------------------
-        // MERGE POSTS + ALBUMS
-        // -------------------------
-        $items = $posts;
-
-        $items = $items->sortBy('column_order');
+        // Apply payment filter
+        if ($paymentFilter) {
+            if ($paymentFilter == 'paid') {
+                // Posts that are paid OR albums with payment_mode = 'paid'
+                $query->where(function ($q) {
+                    $q->where('paid', true)
+                        ->orWhereHas('albumCategory', function ($subQ) {
+                            $subQ->where('payment_mode', 'paid');
+                        });
+                });
+            } elseif ($paymentFilter == 'free') {
+                // Posts that are free AND albums with payment_mode != 'paid'
+                $query->where(function ($q) {
+                    $q->where(function ($subQ) {
+                        // Regular posts that are free
+                        $subQ->where('paid', false)
+                            ->whereNull('album_category_id');
+                    })
+                        ->orWhere(function ($subQ) {
+                            // Albums that are not paid
+                            $subQ->whereNotNull('album_category_id')
+                                ->whereHas('albumCategory', function ($albumQ) {
+                                    $albumQ->where('payment_mode', '!=', 'paid')
+                                        ->orWhereNull('payment_mode');
+                                });
+                        });
+                });
+            }
+        }
 
         if ($request->ajax()) {
-
-            return DataTables::of($posts)
+            return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('title', function ($post) {
                     return $post->title;
-                })->addColumn('paid', function ($post) {
-                    $paid = $post->album_category_id ? '-' : ($post->paid == true ? "Yes"  : "No");
-                    return $paid;
+                })
+                ->addColumn('paid', function ($post) {
+                    // Check if album_category_id exists
+                    if ($post->album_category_id) {
+                        // Check album's payment_mode
+                        return '-';
+                        $isPaid = $post->albumCategory && $post->albumCategory->payment_mode == 'paid';
+                        return $isPaid ? "Yes" : "No";
+                    } else {
+                        // Regular post - check paid field
+
+                        return $post->paid == true ? "Yes" : "No";
+                    }
                 })
                 ->addColumn('sales', function (Post $post) {
-
-                    $count = $post->album_category_id ? '-' :  PurchasePost::where('active_status', true)->where('post_id', $post->id)->count();
-                    return $count;
+                    if ($post->album_category_id) {
+                        // For albums, you might want to count album purchases
+                        // Adjust this based on your actual relationship
+                        return '-'; // Or implement album sales count
+                    } else {
+                        // Regular post sales
+                        return PurchasePost::where('active_status', true)
+                            ->where('post_id', $post->id)
+                            ->count();
+                    }
                 })
                 ->addColumn('price', function (Post $post) {
-                    $price = $post->album_category_id ? '-' :  ($post->paid == true ? $post->price : 0);
-                    return $price;
+                    if ($post->album_category_id) {
+                        return '-';
+                        // Check album price
+                        if ($post->albumCategory && $post->albumCategory->payment_mode == 'paid') {
+                            return $post->albumCategory->price ?? 0;
+                        }
+                        return 0;
+                    } else {
+                        // Regular post price
+                        return $post->paid == true ? $post->price : 0;
+                    }
                 })
                 ->addColumn("photo", function (Post $post) {
                     if ($post->file) {
@@ -136,10 +174,9 @@ class PostsController extends Controller
                         } else {
                             $thumbnail = asset('assets/images/video-thumbanail.jpeg');
                             $return = "<video width='50' class='video-thumbnail' data-video='" . $post->file . "' style='cursor:pointer;'>
-                                        <source src='" . $post->file . "' type='video/mp4'>
-                                        <img src='" . $thumbnail . "' width='50' />
-                                      </video>";
-                            // $return = "<img src='" . $thumbnail . "' width='50' class='video-thumbnail' data-video='" . $post->file . "' style='cursor:pointer;' />";
+                                    <source src='" . $post->file . "' type='video/mp4'>
+                                    <img src='" . $thumbnail . "' width='50' />
+                                  </video>";
                         }
                     } else {
                         $return = "<img src='" . asset('assets/images/image-thumbanail.jpeg') . "' width='50' />";
@@ -152,8 +189,11 @@ class PostsController extends Controller
                 })
                 ->addColumn('action', function (Post $post) {
                     return view('admin.posts.action', compact('post'));
-                })->rawColumns(['action',  'photo'])->make(true);
+                })
+                ->rawColumns(['action',  'photo'])
+                ->make(true);
         }
+
         return view('admin.posts.index');
     }
 
@@ -181,7 +221,7 @@ class PostsController extends Controller
 
     public function store(Request $request)
     {
-                    // dd($_POST['description']);
+        // dd($_POST['description']);
         if (Auth::user()->can('create-blog')) {
             try {
                 // if ($request->filled('category_id')) {
@@ -212,7 +252,7 @@ class PostsController extends Controller
                 $currentDomain  = tenant('domains');
                 $currentDomain  = $currentDomain[0]->domain;
                 $post           = Post::create($request->all());
-                    // dd("stop");
+                // dd("stop");
                 if (!empty($request->category_id)) {
                     // $request->slug = Str::slug($request->title);
                     $paid = 0;
@@ -295,8 +335,8 @@ class PostsController extends Controller
             $post->price       = $price;
             // $post->description = $request->description;
             // $post->short_description    = $request->short_description;
-              $post->description = $_POST['description'];
-                $post->short_description = $_POST['short_description'];
+            $post->description = $_POST['description'];
+            $post->short_description = $_POST['short_description'];
             $post->file = $request->filePath; // Temporary chunk path
             $post->file_type = $request->fileType;
             $post->album_category_id = $request->category_id;
@@ -638,26 +678,26 @@ class PostsController extends Controller
     }
 
     public function reorder1()
-{
-    if (!Auth::user()->can('manage-blog')) {
-        abort(403, 'Unauthorized action.');
+    {
+        if (!Auth::user()->can('manage-blog')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user = Auth::user();
+        $query = Post::query();
+
+        if ($user->type == Role::ROLE_ADMIN) {
+            $posts = $query->orderBy('column_order', 'asc')->get();
+        } elseif ($user->type == Role::ROLE_INFLUENCER) {
+            $posts = $query->where('influencer_id', $user->id)->orderBy('column_order', 'asc')->get();
+        } else {
+            $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
+        }
+
+        return view('admin.posts.reorder', compact('posts'));
     }
 
-    $user = Auth::user();
-    $query = Post::query();
-
-    if ($user->type == Role::ROLE_ADMIN) {
-        $posts = $query->orderBy('column_order', 'asc')->get();
-    } elseif ($user->type == Role::ROLE_INFLUENCER) {
-        $posts = $query->where('influencer_id', $user->id)->orderBy('column_order', 'asc')->get();
-    } else {
-        $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
-    }
-
-    return view('admin.posts.reorder', compact('posts'));
-}
-
-  public function updateOrder(Request $request)
+    public function updateOrder(Request $request)
     {
         if (!Auth::user()->can('manage-blog')) {
             return response()->json([
@@ -668,24 +708,24 @@ class PostsController extends Controller
 
         try {
             $order = $request->input('order');
-            
+
             if (empty($order)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No order data provided.'
                 ]);
             }
-            
+
             foreach ($order as $item) {
                 Post::where('id', $item['id'])->update([
                     'column_order' => $item['position']
                 ]);
             }
-            
+
             // Get updated order for response (optional)
             $user = Auth::user();
             $query = Post::query();
-            
+
             if ($user->type == Role::ROLE_ADMIN) {
                 $posts = $query->orderBy('column_order', 'asc')->get();
             } elseif ($user->type == Role::ROLE_INFLUENCER) {
@@ -693,23 +733,22 @@ class PostsController extends Controller
             } else {
                 $posts = $query->where('follower_id', $user->id)->orderBy('column_order', 'asc')->get();
             }
-            
-            $newOrder = $posts->map(function($post) {
+
+            $newOrder = $posts->map(function ($post) {
                 return [
                     'id' => $post->id,
                     'column_order' => $post->column_order
                 ];
             });
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order updated successfully.',
                 'new_order' => $newOrder
             ]);
-            
         } catch (\Exception $e) {
             \Log::error('Reorder error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error updating order: ' . $e->getMessage()
