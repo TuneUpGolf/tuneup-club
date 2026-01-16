@@ -80,6 +80,16 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 
     <style>
+        .wrap {
+            white-space: wrap !important;
+        }
+
+        @media (max-width: 575px) {
+            .dt-buttons .btn span {
+                font-size: 13px !important;
+            }
+        }
+
         .drag-handle {
             cursor: grab;
             font-size: 18px;
@@ -169,6 +179,7 @@
                     // },
                     {
                         data: 'name',
+                        className: 'wrap',
                         name: 'name'
                     },
                     {
@@ -220,9 +231,9 @@
                         }
                     }
                 },
-                order: [
-                    [2, 'asc']
-                ],
+                // order: [
+                //     [2, 'asc']
+                // ],
 
                 dom: `
             <'dataTable-top row'
@@ -293,6 +304,13 @@
                 } else {
                     $('#icon12').hide();
                     table.column(0).visible(false);
+                }
+                if (window.innerWidth <= 500) {
+                    // $('#icon12').show();
+                    table.column(1).visible(false);
+                } else {
+                    // $('#icon12').hide();
+                    table.column(1).visible(true);
                 }
             }
             handleResponsiveColumn(table);
