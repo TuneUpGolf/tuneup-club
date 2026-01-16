@@ -204,6 +204,8 @@
                                         'id' => 'title',
                                     ]) !!}
                                 </div>
+                            </div>
+                            <div class="col-lg-6">
 
                                 <div class="form-group">
                                     <label for="category_id" class="form-label">{{ __('Category') }}</label>
@@ -216,6 +218,7 @@
                                     <small class="text-muted">If no category is selected, price settings will be
                                         available</small>
                                 </div>
+                            </div>
 
                                 <!-- Price and Switch Container - Only show for non-Student users -->
                                 @if (Auth::user()->type != 'Student')
@@ -249,34 +252,12 @@
                                         </div>
                                     </div>
                                 @endif
-                            </div>
+                            {{-- </div> --}}
 
                             <!-- Right Column -->
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="description" class="form-label required">{{ __('Description') }}</label>
-                                    {!! Form::textarea('description', null, [
-                                        'class' => 'form-control',
-                                        'placeholder' => __('Enter description'),
-                                        'required' => 'required',
-                                        'rows' => '8',
-                                        'id' => 'description',
-                                    ]) !!}
-                                </div>
-                                  <div class="form-group">
-                                    <label for="short_description"
-                                        class="form-label required">{{ __('Short Description') }}</label>
-                                    {!! Form::textarea('short_description', null, [
-                                        'class' => 'form-control',
-                                        'placeholder' => __('Enter short_description'),
-                                        'required' => 'required',
-                                        'rows' => '8',
-                                        'id' => 'short_description',
-                                    ]) !!}
-                                </div>
-                            </div>
 
-                          
+
+
                         </div>
 
                         <!-- File Upload Section - Full Width -->
@@ -308,10 +289,40 @@
 
                                     <!-- Hidden fields -->
                                     <input type="hidden" name="chunk_path" id="chunkPath">
-                                    <input type="hidden" name="filePath"  id="filePath">
-                                    <input type="hidden" name="fileType"  id="fileType">
+                                    <input type="hidden" name="filePath" id="filePath">
+                                    <input type="hidden" name="fileType" id="fileType">
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row">
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="description" class="form-label required">{{ __('Description') }}</label>
+                                {!! Form::textarea('description', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter description'),
+                                    'required' => 'required',
+                                    'rows' => '8',
+                                    'id' => 'description',
+                                ]) !!}
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+                                <label for="short_description"
+                                    class="form-label required">{{ __('Short Description') }}</label>
+                                {!! Form::textarea('short_description', null, [
+                                    'class' => 'form-control',
+                                    'placeholder' => __('Enter short_description'),
+                                    'required' => 'required',
+                                    'rows' => '8',
+                                    'id' => 'short_description',
+                                ]) !!}
+                            </div>
+                        </div>
                         </div>
 
                         <div class="card-footer bg-transparent border-0">
@@ -325,6 +336,7 @@
                                 ]) !!}
                             </div>
                         </div>
+
                         {!! Form::close() !!}
                     </div>
                 </div>

@@ -31,10 +31,10 @@
             </div>
         </div>
     </div>
-    <div id="videoModal" class="modal">
+    <div id="videoModal" class="modal" style="">
         <span class="close"
             style="position:absolute; top:10px; right:20px; font-size:30px; color:white; cursor:pointer;">&times;</span>
-        <div class="modal-content" style="margin:10% auto; width:80%; text-align:center;">
+        <div class="modal-content" style="margin:3% auto; width:75%; text-align:center; max-height:none;">
             <video id="videoPlayer" width="100%" controls>
                 <source src="" type="video/mp4">
                 Your browser does not support HTML5 video.
