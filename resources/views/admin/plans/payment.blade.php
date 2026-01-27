@@ -373,7 +373,7 @@
                                                                     placeholder="{{ __('Enter mobile number') }}">
                                                             </div>
                                                         @endif
-                                                        <div class="d-flex align-items-center">
+                                                        {{-- <div class="d-flex align-items-center">
                                                             <div class="form-group w-100">
                                                                 <label for="paypal_coupon"
                                                                     class="form-label">{{ __('Coupon') }}</label>
@@ -387,7 +387,7 @@
                                                                         class="ti ti-square-check btn-apply"></i>
                                                                 </a>
                                                             </div>
-                                                        </div>
+                                                        </div> --}}
                                                     </div>
                                                 </div>
                                             </div>
