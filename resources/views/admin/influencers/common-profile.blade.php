@@ -50,9 +50,9 @@
         -webkit-line-clamp: 1; */
         /* -webkit-box-orient: vertical;
         overflow: hidden; */
-        min-height: 5.6rem; /* locks height */
+        min-height: 5.6rem;
+        /* locks height */
     }
-
 </style>
 <div class="flex flex-col">
     {{-- <div class="profile-backdrop">
@@ -87,6 +87,28 @@
         </div>
         @if ($tab == 'lessons')
             <div id="Lessons" class="tabcontent items-center block">
+                @php
+                    $student = Auth::user();
+                    $remaining = 0;
+
+                    if ($student && $student->hasActiveOnlineSubscription()) {
+                        $remaining = $student->getRemainingFreeOnlineLessons();
+                    }
+                @endphp
+
+                @if ($remaining > 0 && $remaining !== PHP_INT_MAX)
+                    <div
+                        class="mt-3 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm font-medium shadow-sm">
+                        🎉 You have <span class="font-semibold">{{ $remaining }}</span> free
+                        online lesson{{ $remaining > 1 ? 's' : '' }} available this month.
+                    </div>
+                @elseif ($remaining === PHP_INT_MAX)
+                    <div
+                        class="mt-3 p-3 bg-blue-100 border border-blue-300 rounded-lg text-blue-800 text-sm font-medium shadow-sm">
+                        ♾️ You have <span class="font-semibold">unlimited</span> online lessons
+                        available this month.
+                    </div>
+                @endif
                 @if (!!$totalLessons)
                     <livewire:lessons-grid-view />
                 @else
@@ -180,7 +202,7 @@
                                                         );
                                                         $purchasePost = $purchasePost->active_status ?? false;
                                                     @endphp
-                                                                                    {{-- @dd($purchasePost, $isSubscribed, $isInfluencer, $post->id); --}}
+                                                    {{-- @dd($purchasePost, $isSubscribed, $isInfluencer, $post->id); --}}
 
 
                                                     @include('admin.posts.blog', [
@@ -235,11 +257,11 @@
                                                     {{ $plan->duration . ' ' . $plan->durationtype }}
                                                 </strong></span>
                                             <br> --}}
-                                         <span class="text-gray-600 d-block min-h-[24px]">
-                                            <strong class="{{ $plan->lesson_limit == 0 ? 'invisible' : '' }}">
-                                                Online Lesson Limit: {{ $plan->lesson_limit_label }}
-                                            </strong>
-                                        </span>
+                                            <span class="text-gray-600 d-block min-h-[24px]">
+                                                <strong class="{{ $plan->lesson_limit == 0 ? 'invisible' : '' }}">
+                                                    Online Lesson Limit: {{ $plan->lesson_limit_label }}
+                                                </strong>
+                                            </span>
 
                                             {{-- <div class="flex gap-1 items-center mt-2 ">
                                                 <p class="text-4xl font-bold">
@@ -251,9 +273,8 @@
                                         </div>
                                         <div class="border-t border-gray-300"></div>
                                         <div class="px-3 py-4">
-                                             <select name="" id="sub_price_dropdown_{{$plan->id}}"
-                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
-                                                >
+                                            <select name="" id="sub_price_dropdown_{{ $plan->id }}"
+                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2">
                                                 <option value="">Select Plan</option>
                                                 @if ($plan->stripe_price_id)
                                                     <option value="{{ $plan->stripe_price_id }}">Monthly -
@@ -316,8 +337,9 @@
                                                                 class="lesson-btn text-center font-bold text-lg mt-auto">
                                                                 {{ __('Renew') }}
                                                             </a> --}}
-                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto" onclick="submitSubscription({{$plan->id}})">Renew</button>
-
+                                                            <button
+                                                                class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                                onclick="submitSubscription({{ $plan->id }})">Renew</button>
                                                         @endif
                                                     @elseif ($hasActivePlan)
                                                         {{-- 🚫 User has another ACTIVE plan --}}
@@ -331,8 +353,9 @@
                                                             class="lesson-btn text-center font-bold text-lg mt-auto">
                                                             {{ __('Buy Plan') }}
                                                         </a> --}}
-                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto" onclick="submitSubscription({{$plan->id}})">Buy Plan</button>
-
+                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                            onclick="submitSubscription({{ $plan->id }})">Buy
+                                                            Plan</button>
                                                     @endif
                                                 @elseif ($webUser || $influencer)
                                                     {{-- 🚷 Logged in as non-student --}}
@@ -363,12 +386,12 @@
 
         @endif
 
-        @if($tab == 'purchases')
+        @if ($tab == 'purchases')
             {!! $dataTable->table([
                 'class' => 'table table-bordered table-striped',
                 'style' => 'width:100%',
-                'id' => 'purchases-table'
-            ]) !!}                           
+                'id' => 'purchases-table',
+            ]) !!}
         @endif
 
         @if ($isChatTab)
@@ -385,37 +408,138 @@
                                         data-wow-delay="0.2s">
                                         <div class="rounded-lg shadow popular-wrap h-100">
                                             <div class="px-3 pt-4 ">
-                                                <p class="text-2xl font-bold mb-1">{{ $plan->name }}</p>
-                                                <div class="flex gap-2 items-center mt-2 ">
-                                                    <p class=" text-6xl font-bold">
-                                                        {{ $currency_symbol . ' ' . $plan->price }} /</p>
-                                                    <p class="text-2xl text-gray-600">
-                                                        {{ $plan->duration . ' ' . $plan->durationtype }}</p>
-                                                </div>
+                                                <p class="text-2xl font-bold mb-1 plan-name">
+                                                    {{ $plan->name }}
+                                                </p>
+
+                                                {{-- <span class="text-gray-600"><strong>Influencer:
+                                                    {{ $plan->influencer->name }}</strong></span>
+                                            <br> --}}
+                                                {{-- <span class="text-gray-600"><strong>Total Duration:
+                                                    {{ $plan->duration . ' ' . $plan->durationtype }}
+                                                </strong></span>
+                                            <br> --}}
+                                                <span class="text-gray-600 d-block min-h-[24px]">
+                                                    <strong class="{{ $plan->lesson_limit == 0 ? 'invisible' : '' }}">
+                                                        Online Lesson Limit: {{ $plan->lesson_limit_label }}
+                                                    </strong>
+                                                </span>
+
+                                                {{-- <div class="flex gap-1 items-center mt-2 ">
+                                                <p class="text-4xl font-bold">
+                                                    {{ '$' . $plan->price }}/</p>
+                                                <p class="text-2xl text-gray-600">
+                                                    {{ $plan->durationtype . 'ly'}}
+                                                </p>
+                                            </div> --}}
                                             </div>
                                             <div class="border-t border-gray-300"></div>
                                             <div class="px-3 py-4">
+                                                <select name="" id="sub_price_dropdown_{{ $plan->id }}"
+                                                    class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2">
+                                                    <option value="">Select Plan</option>
+                                                    @if ($plan->stripe_price_id)
+                                                        <option value="{{ $plan->stripe_price_id }}">Monthly -
+                                                            ${{ $plan->price }}
+                                                        </option>
+                                                    @endif
+
+                                                    @if ($plan->stripe_price_quarter_id)
+                                                        <option value="{{ $plan->stripe_price_quarter_id }}">
+                                                            Quarterly -
+                                                            ${{ $plan->price_quarter }}
+                                                        </option>
+                                                    @endif
+
+                                                    @if ($plan->stripe_price_year_id)
+                                                        <option value="{{ $plan->stripe_price_year_id }}">Yearly -
+                                                            ${{ $plan->price_year }}
+                                                        </option>
+                                                    @endif
+                                                </select>
                                                 @if ($plan->id != 1)
-                                                    @if (
-                                                        $plan->id == $user->plan_id &&
-                                                            !empty($user->plan_expired_date) &&
-                                                            Carbon::parse($user->plan_expired_date)->gte(now()))
-                                                        <a href="javascript:void(0)" data-id="{{ $plan->id }}"
-                                                            class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                            data-amount="{{ $plan->price }}">{{ __('Expire at') }}
-                                                            {{ Carbon::parse($user->plan_expired_date)->format('d/m/Y') }}</a>
-                                                    @else
-                                                        <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                            @if ($plan->id == $user->plan_id)
-                                                                {{ __('Renew') }}
+                                                    @php
+                                                        $follower = auth('follower')->user();
+                                                        $webUser = auth('web')->user();
+                                                        $influencer = auth('influencers')->user();
+
+                                                        $hasStudent = !is_null($follower);
+                                                        $hasPlan = $hasStudent && !is_null($follower->plan_id);
+                                                        $isCurrentPlan = $hasPlan && $plan->id == $follower->plan_id;
+                                                        $isActive =
+                                                            $isCurrentPlan &&
+                                                            !empty($follower->plan_expired_date) &&
+                                                            \Carbon\Carbon::parse($follower->plan_expired_date)->gte(
+                                                                now(),
+                                                            );
+
+                                                        // NEW: Check if user has any ACTIVE plan (not just any plan)
+                                                        $hasActivePlan =
+                                                            $hasStudent &&
+                                                            $hasPlan &&
+                                                            !empty($follower->plan_expired_date) &&
+                                                            \Carbon\Carbon::parse($follower->plan_expired_date)->gte(
+                                                                now(),
+                                                            );
+                                                    @endphp
+
+                                                    @if ($hasStudent)
+                                                        @if ($isCurrentPlan)
+                                                            @if ($isActive)
+                                                                {{-- ✅ Current active plan --}}
+                                                                <a href="javascript:void(0)"
+                                                                    data-id="{{ $plan->id }}"
+                                                                    class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                                    data-amount="{{ $plan->price }}">
+                                                                    {{ __('Expire at') }}
+                                                                    {{ \Carbon\Carbon::parse($follower->plan_expired_date)->format('d/m/Y') }}
+                                                                </a>
+                                                                <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                                    class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn">
+                                                                    {{ __('Cancel Plan') }}
+                                                                </a>
                                                             @else
-                                                                {{ __('Buy Plan') }}
+                                                                {{-- 🔁 Expired plan → Renew --}}
+                                                                {{-- <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                                class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                {{ __('Renew') }}
+                                                            </a> --}}
+                                                                <button
+                                                                    class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                                    onclick="submitSubscription({{ $plan->id }})">Renew</button>
                                                             @endif
+                                                        @elseif ($hasActivePlan)
+                                                            {{-- 🚫 User has another ACTIVE plan --}}
+                                                            <button disabled
+                                                                class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                                {{ __('Buy Plan') }}
+                                                            </button>
+                                                        @else
+                                                            {{-- 🛒 No active plan or plan expired → Can buy any plan --}}
+                                                            {{-- <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                            {{ __('Buy Plan') }}
+                                                        </a> --}}
+                                                            <button
+                                                                class="lesson-btn text-center font-bold text-lg mt-auto"
+                                                                onclick="submitSubscription({{ $plan->id }})">Buy
+                                                                Plan</button>
+                                                        @endif
+                                                    @elseif ($webUser || $influencer)
+                                                        {{-- 🚷 Logged in as non-student --}}
+                                                        <button disabled
+                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                            {{ __('Buy Plan') }}
+                                                        </button>
+                                                    @else
+                                                        {{-- 🔐 Guest user --}}
+                                                        <a href="{{ route('login') }}"
+                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
+                                                            {{ __('Buy Plan') }}
                                                         </a>
                                                     @endif
                                                 @endif
-                                                <p class="font-semibold text-xl mb-2 mt-2">Features</p>
+                                                <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
                                                 <p class="text-gray-600">
                                                     {!! $plan->description !!}
                                                 </p>
@@ -486,16 +610,16 @@
             });
         });
 
-          function submitSubscription(planId){
-            let subscription = document.getElementById("sub_price_dropdown_"+planId).value;
+        function submitSubscription(planId) {
+            let subscription = document.getElementById("sub_price_dropdown_" + planId).value;
 
             // console.log(subscription);
-            if(subscription == ""){
+            if (subscription == "") {
                 alert("Select a plan before continuing.");
                 return;
             }
 
-             window.location.href = `/payment/${planId}/${subscription}`;
+            window.location.href = `/payment/${planId}/${subscription}`;
         }
     </script>
 @endpush

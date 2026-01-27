@@ -395,7 +395,7 @@ class PurchaseDataTable extends DataTable
         ];
 
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
-            $columns[] = Column::make('follower_name')->title("Follower")->searchable(true)->addClass('min-tablet');
+            $columns[] = Column::make('follower_name')->title("Student Name")->searchable(true)->addClass('min-tablet');
         } elseif (Auth::user()->type == Role::ROLE_FOLLOWER) {
             $columns[] = Column::make('influencer_name')->title(__('Instructor Name'))->searchable(true)->addClass('min-tablet');
         }

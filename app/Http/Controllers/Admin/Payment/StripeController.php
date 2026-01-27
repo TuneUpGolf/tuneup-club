@@ -601,6 +601,7 @@ class StripeController extends Controller
 
                 'quantity' => 1,
             ]],
+            'allow_promotion_codes' => true,
             'customer_email' => Auth::user()->email,
             'success_url' => route('stripe.success.pay', Crypt::encrypt([
                 'coupon' => $request->coupon,
@@ -695,28 +696,45 @@ class StripeController extends Controller
 
     public function paymentCancel($data)
     {
-        if (strpos($data, '&session_id=') !== false) {
-            [$encrypted, $sessionId] = explode('&session_id=', $data, 2);
-        } else {
-            $encrypted = $data;
-            $sessionId = null;
+        try {
+            if (strpos($data, '&session_id=') !== false) {
+                [$encrypted, $sessionId] = explode('&session_id=', $data, 2);
+            } else {
+                $encrypted = $data;
+                $sessionId = null;
+            }
+
+            $data = Crypt::decrypt($encrypted);
+
+            if (Auth::check() && Auth::user()->type === 'Admin') {
+                tenancy()->central(function ($tenant) use ($data) {
+                    $order = Order::findOrFail($data['order_id']);
+                    $order->status = 2;
+                    $order->payment_type = 'stripe';
+                    $order->save();
+                });
+            } else {
+                $order = Order::findOrFail($data['order_id']);
+                $order->status = 2;
+                $order->payment_type = 'stripe';
+                $order->save();
+            }
+
+            return redirect()
+                ->route('home')
+                ->with('failed', __('Payment canceled.'));
+        } catch (\Throwable $e) {
+            // Optional: log the error for debugging
+            \Log::error('Payment cancel failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('home')
+                ->with('failed', __('Payment cancelled. Please try again.'));
         }
-        $data = Crypt::decrypt($data);
-        if (Auth::user()->type == 'Admin') {
-            $order = tenancy()->central(function ($tenant) use ($data) {
-                $datas               = Order::find($data['order_id']);
-                $datas->status       = 2;
-                $datas->payment_type = 'stripe';
-                $datas->update();
-            });
-        } else {
-            $datas               = Order::find($data['order_id']);
-            $datas->status       = 2;
-            $datas->payment_type = 'stripe';
-            $datas->update();
-        }
-        return redirect()->route('plans.index')->with('errors', __('Payment canceled.'));
     }
+
 
     public function paymentSuccess($data)
     {
