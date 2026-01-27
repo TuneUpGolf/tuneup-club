@@ -13,6 +13,7 @@ class PurchaseCompleted extends TemplateMailable
     public $name;
     public $id;
     public $amount;
+    public $lesson_name;
     /**
      * Create a new message instance.
      *
@@ -23,6 +24,8 @@ class PurchaseCompleted extends TemplateMailable
         //
         $this->name = $purchase->follower->name;
         $this->id = $purchase->id;
+        $this->amount = $purchase->total_amount;
+        $this->lesson_name = $purchase->lesson ? $purchase->lesson->lesson_name : 'N/A';
     }
 
     public function build()
