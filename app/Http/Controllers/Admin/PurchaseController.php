@@ -1020,7 +1020,7 @@ class PurchaseController extends Controller
 
                 // Send email notification
                 SendEmail::dispatch(
-                    $purchaseVideo->purchase->student?->email,
+                    $purchaseVideo->purchase->follower?->email,
                     new PurchaseFeedback($purchaseVideo->purchase)
                 );
 
