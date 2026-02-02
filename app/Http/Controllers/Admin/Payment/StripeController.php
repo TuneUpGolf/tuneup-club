@@ -741,6 +741,7 @@ class StripeController extends Controller
 
         $session_id = request('session_id');
         $sessionId = $session_id;
+        $planExpiredDate = null;
 
         // ✅ Remove session id as other data is encrypted
         if (strpos($data, '?') !== false) {
