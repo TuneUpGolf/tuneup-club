@@ -109,7 +109,7 @@
 {{-- View Feedback (Follower / Influencer) --}}
 @if ($canViewFeedback && $purchase->videos?->first()?->feedbackContent?->first())
 
-      <a class="btn btn-sm small btn-warning"
+      <a class="btn btn-sm small btn-primary"
        href="{{ route('purchase.feedback.index', ['purchase_id' => $purchase->id]) }}"
        data-bs-toggle="tooltip"
        data-bs-placement="bottom"
