@@ -2,12 +2,13 @@
 
 namespace App\DataTables\Admin;
 
+use Carbon\Carbon;
+use App\Models\Role;
 use App\Models\Lesson;
 use App\Models\Purchase;
-use App\Models\Role;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use App\Facades\UtilityFacades;
 use Yajra\DataTables\Html\Column;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Services\DataTable;
 
 class PurchaseDataTable extends DataTable
@@ -107,23 +108,53 @@ class PurchaseDataTable extends DataTable
             ->editColumn('due_date', function ($purchase) {
                 return Carbon::parse($purchase->created_at)->toFormattedDateString();
             })
+            ->addColumn('total_amount', function ($query) {
+                    if ($query->does_user_have_subscription) {
+                        $planName = $query->userSubscription?->plan?->name ?? 'N/A';
+                        return '<span class="text-green-600 font-semibold">Included in Subscription<br>' . $planName . '</span>';
+                    }
+                    return UtilityFacades::amount_format($query->total_amount);
+                })
+            // YEH NAYA COLUMN ADD KAREIN FOR COUPONS
+          // PurchaseDataTable.php me:
+            ->addColumn('coupon', function ($purchase) {   
+                if ($purchase->coupon_id && $purchase->coupon) {
+                    $originalAmount = $purchase->total_amount;
+                    $finalPrice = $originalAmount;
+                    
+                    if ($purchase->coupon->discount_type == 'percentage') {
+                        $discount = ($originalAmount * $purchase->coupon->discount_value) / 100;
+                        $finalPrice = $originalAmount - $discount;
+                    } elseif ($purchase->coupon->discount_type == 'flat') {
+                        $finalPrice = $originalAmount - $purchase->coupon->discount_value;
+                    }
+                    
+                    return $purchase->coupon->code 
+                        . '<br><small>Final: ' . \App\Facades\UtilityFacades::amount_format($finalPrice, 2) . '</small>';
+                }
+                
+                return '-';
+            })
             ->addColumn('action', function ($purchase) {
                 return view('admin.purchases.action', compact('purchase'));
             })
-            ->rawColumns(['action', 'status', 'follower_name', 'influencer_name', 'lesson_name']);
+            ->rawColumns(['action', 'status', 'follower_name', 'influencer_name', 'lesson_name','total_amount']);
     }
 
     public function query(Purchase $model)
     {
         $user = Auth::user();
-
         $query = $model->newQuery()
             ->select([
                 'purchases.*',                         // Select all purchase fields
                 'lessons.lesson_name as lesson_name',  // Get lesson name
                 'influencers.name as influencer_name', // Get influencer name
                 'followers.name as follower_name',     // Get follower name
+                // 'coupons.code as coupon_code',
+       
             ])
+            // ->with(['userCoupon.coupon']) //  Eager load coupon relationship
+            ->with(['coupon']) // ✅ Eager load both relations
             ->join('lessons', 'purchases.lesson_id', '=', 'lessons.id')
             ->join('users as influencers', 'purchases.influencer_id', '=', 'influencers.id')
             ->join('followers as followers', 'purchases.follower_id', '=', 'followers.id')
@@ -377,16 +408,19 @@ class PurchaseDataTable extends DataTable
     {
         $columns = [
             Column::make('No')
-                ->title(__('Submission #'))
+                ->title(__('#'))
                 ->data('DT_RowIndex')
                 ->name('DT_RowIndex')
                 ->searchable(false)
+                                // ->addClass('fw-bold')
+
                 ->orderable(false)
                 ->addClass('min-desktop'), // always visible
 
             Column::make('lesson_name')
-                ->title(__('Lesson'))
+                ->title(__('Lesson Title'))
                 ->searchable(true)
+                // ->addClass('fw-bold')
                 ->addClass('all'), // hide on phones, show on tablet/desktop
 
             // Column::make('status')
@@ -397,7 +431,7 @@ class PurchaseDataTable extends DataTable
         if (Auth::user()->type == Role::ROLE_INFLUENCER) {
             $columns[] = Column::make('follower_name')->title("Student Name")->searchable(true)->addClass('min-tablet');
         } elseif (Auth::user()->type == Role::ROLE_FOLLOWER) {
-            $columns[] = Column::make('influencer_name')->title(__('Instructor Name'))->searchable(true)->addClass('min-tablet');
+            $columns[] = Column::make('influencer_name')->title(__('Instructor Name'))->searchable(true)->addClass('fw-bold')->addClass('min-tablet');
         }
 
         return array_merge($columns, [
@@ -405,12 +439,21 @@ class PurchaseDataTable extends DataTable
                 ->title(__('Submission Date'))
                 ->defaultContent()
                 ->orderable(false)
+                // ->addClass('fw-bold')
                 ->searchable(false)
                 ->addClass('all'), // always visible even on mobile
 
             Column::make('total_amount')
                 ->title(__('Total ($)'))
                 ->orderable(false)
+                // ->addClass('fw-bold')
+                ->addClass('min-tablet'),
+
+            Column::make('coupon')
+                ->title(__('Coupon'))
+                ->orderable(false)
+                ->searchable(false)
+                // ->addClass('fw-bold')
                 ->addClass('min-tablet'),
 
             Column::computed('action')
@@ -418,6 +461,7 @@ class PurchaseDataTable extends DataTable
                 ->exportable(false)
                 ->printable(false)
                 ->width(60)
+                // ->addClass('fw-bold')
                 ->addClass('min-desktop')
                 ->width('20%'),
         ]);

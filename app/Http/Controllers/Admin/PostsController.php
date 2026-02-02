@@ -354,7 +354,7 @@ class PostsController extends Controller
         if (Auth::user()->can('delete-blog')) {
             $post = Post::find($id);
             $post->delete();
-            return redirect()->route('blogs.index')->with('success', __('Posts deleted successfully.'));
+            return redirect()->route('blogs.manage')->with('success', __('Posts deleted successfully.'));
         } else {
             return redirect()->back()->with('failed', __('Permission denied.'));
         }

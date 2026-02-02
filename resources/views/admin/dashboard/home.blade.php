@@ -77,59 +77,64 @@
         flex: unset !important;
     }
 }
-
-
-    </style>
+#purchases-table thead th {
+    font-weight: 700 !important;
+}
+  table.dataTable thead th {
+        font-weight: 700 !important;
+        color: #000 !important;
+    }
+</style>
     <div class="row">
         <div class="col-xxl-12">
             <div class="row">
                 @can('manage-lessons')
+                    <!-- Completed Submissions Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-6 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes">
-                            <div class="p-2 p-sm-3">
-                                <div class="flex flex-row flex-wrap items-center gap-3">
-                                    <div class="bg-card1 p-2 rounded">
+                        <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes shadow-sm">
+                            <div class="p-3 h-full flex flex-col">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-card1 p-2 rounded-lg flex-shrink-0">
                                         <svg width="28" height="28" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"
                                             enable-background="new 0 0 64 64">
                                             <path
                                                 d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
-                                    <!-- <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold"> {{ __('Completed') }} </span>
-                                    </div> -->
-                                    <div class="order-3 order-sm-2">
-                                        <!-- Desktop / Tablet text -->
-                                        <span class="font-roboto font-semibold d-none d-md-inline">
+                                    <div class="flex-1 min-w-0">
+                                        <!-- Desktop/Tablet text -->
+                                        <span class="font-roboto font-semibold text-sm md:text-base d-none d-md-inline truncate">
                                             {{ __('Completed Submissions') }}
                                         </span>
-
                                         <!-- Mobile text -->
-                                        <span class="font-roboto font-semibold d-inline d-md-none">
+                                        <span class="font-roboto font-semibold text-sm d-inline d-md-none truncate">
                                             {{ __('Completed') }}
                                         </span>
                                     </div>
-
-                                    <p class="order-2 order-sm-3 mb-0 font-sans  bg-card-text text-2xl ml-auto">
+                                </div>
+                                
+                                <div class="mt-auto pt-2">
+                                    <p class="mb-0 font-sans bg-card-text text-2xl md:text-3xl font-bold text-center md:text-left">
                                         {{ $purchaseComplete }}
-                                     </p>
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Pending Submissions Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-6 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes">
-                            <div class="p-2 p-sm-3">
-                                <div class="flex flex-row flex-wrap items-center gap-3">
-                                    <div class="bg-card4 p-2 rounded">
-
+                        <div class="relative flex flex-col bg-white rounded-lg h-100 top-boxes shadow-sm">
+                            <div class="p-3 h-full flex flex-col">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-card4 p-2 rounded-lg flex-shrink-0">
                                         <svg width="28" height="28" viewBox="0 0 128 128"
                                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                             aria-hidden="true" role="img" class="iconify iconify--noto"
                                             preserveAspectRatio="xMidYMid meet">
+                                            <!-- SVG content remains the same -->
                                             <path
                                                 d="M23.36 116.32v-7.42c7.4-1.9 67.86 0 81.28 0v7.42c0 4.24-18.2 7.68-40.64 7.68s-40.64-3.44-40.64-7.68z"
                                                 fill="#8b5738">
@@ -154,11 +159,11 @@
                                             </ellipse>
                                             <g>
                                                 <path
-                                                    d="M90.59 108.57c.92-.27 1.42-1.31.97-2.16c-3.14-5.94-16.54-6.11-21.61-17.27c-3.38-7.45-3.57-17.81-3.67-22.24c-.14-5.99 2.85-7.28 2.85-7.28c14.16-5.7 24.57-18.86 25.17-30.61c.06-1.17-22.18 9.17-29.83 10.66c-14.14 2.76-28.23-.87-28.31-.37c5.24 11.47 15.79 17.46 22.86 20.32c1.68.69 4.46 3.3 4.37 11.14c-.07 5.61-.77 20.4-10.44 26.69c-3.64 2.37-11.69 5.84-13.19 9.61c-.33.83.14 1.77 1.01 1.99c2.76.7 11.18 1.93 24.27 1.93c10.29.01 20.45-.93 25.55-2.41z"
+                                                    d="M90.59 108.57c.92-.27 1.42-1.31.97-2.16c-3.14-5.94-16.54-6.11-21.61-17.27c-3.38-7.45-3.57-17.81-3.67-22.24c-.14-5.99 2.85-7.28 2.85-7.28c14.16-5.7 24.57-18.86 25.17-30.61c.06-1.17-22.18 9.17-29.83 10.66c-14.14 2.76-28.23-.87-28.31-.37c5.24 11.47 15.79 17.46 22.86 20.32c1.68.69 4.46 3.3 4.37 11.14c-.07 5.61-.77 20.4-10.44 26.69c-3.64 2.37-11.69 5.84-13.19 9.61c-.33.83.14 1.77 1.01 1.99c2.76.70 11.18 1.93 24.27 1.93c10.29.01 20.45-.93 25.55-2.41z"
                                                     fill="#ffca28">
                                                 </path>
                                                 <path
-                                                    d="M42.37 43.29c5.36 2.77 17.12 6.72 22.92 4.72s28.23-16.01 29-19c.96-3.7-26 5.71-35.49 7.91c-6.43 1.49-18.71.72-21.47 1.3c-2.75.57.11 2.52 5.04 5.07z"
+                                                    d="M42.37 43.29c5.36 2.77 17.12 6.72 22.92 4.72s28.23-16.01 29-19c.96-3.70-26 5.71-35.49 7.91c-6.43 1.49-18.71.72-21.47 1.30c-2.75.57.11 2.52 5.04 5.07z"
                                                     fill="#e2a610">
                                                 </path>
                                             </g>
@@ -170,42 +175,41 @@
                                             </g>
                                             <g opacity=".6">
                                                 <path
-                                                    d="M42.9 80.6c-3.13 3.66-5.48 8.58-4.59 13.33c.94 5.01 5.6 3.63 7.22 2.36c5.16-4.05 3.75-9.24 7.74-15.07c.68-1 3.52-4.13 3.12-6.1c-.24-1.17-2.96-1.77-7.91.71c-2.18 1.1-3.97 2.9-5.58 4.77z"
+                                                    d="M42.9 80.6c-3.13 3.66-5.48 8.58-4.59 13.33c.94 5.01 5.60 3.63 7.22 2.36c5.16-4.05 3.75-9.24 7.74-15.07c.68-1 3.52-4.13 3.12-6.10c-.24-1.17-2.96-1.77-7.91.71c-2.18 1.10-3.97 2.90-5.58 4.77z"
                                                     fill="#ffffff">
                                                 </path>
                                             </g>
                                         </svg>
                                     </div>
-                                    <!-- <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold"> {{ __('Pending') }} </span>
-                                    </div> -->
-                                     <div class="order-3 order-sm-2">
-                                        <!-- Desktop / Tablet text -->
-                                        <span class="font-roboto font-semibold d-none d-md-inline">
+                                    <div class="flex-1 min-w-0">
+                                        <!-- Desktop/Tablet text -->
+                                        <span class="font-roboto font-semibold text-sm md:text-base d-none d-md-inline truncate">
                                             {{ __('Pending Submissions') }}
                                         </span>
-
                                         <!-- Mobile text -->
-                                        <span class="font-roboto font-semibold d-inline d-md-none">
+                                        <span class="font-roboto font-semibold text-sm d-inline d-md-none truncate">
                                             {{ __('Pending') }}
                                         </span>
                                     </div>
-
-                                    <p class="order-2 order-sm-3 mb-0 font-sans bg-card4-text text-2xl ml-auto">
-                                            {{ $purchaseInprogress }}
-                                         </p>
-
+                                </div>
+                                
+                                <div class="mt-auto pt-2">
+                                    <p class="mb-0 font-sans bg-card4-text text-2xl md:text-3xl font-bold text-center md:text-left">
+                                        {{ $purchaseInprogress }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @endcan
+                
                 @can('manage-followers')
+                    <!-- Total Users Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg h-100">
-                            <div class="p-2 p-sm-3">
-                                <div class="flex flex-row flex-wrap items-center gap-3">
-                                    <div class="bg-card2 p-2 rounded">
+                        <div class="relative flex flex-col bg-white rounded-lg h-100 shadow-sm">
+                            <div class="p-3 h-full flex flex-col">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-card2 p-2 rounded-lg flex-shrink-0">
                                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <rect width="24" height="24" fill="none" />
@@ -223,23 +227,28 @@
                                                 fill="#2DBCFF" />
                                         </svg>
                                     </div>
-                                    <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold">{{ __('Total Users') }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="font-roboto font-semibold text-sm md:text-base truncate">{{ __('Total Users') }}</span>
                                     </div>
-                                    <p class="order-2 order-sm-3 mb-0 font-sans bg-card2-text text-2xl ml-auto">
-                                        {{ $followers }} </p>
+                                </div>
+                                
+                                <div class="mt-auto pt-2">
+                                    <p class="mb-0 font-sans bg-card2-text text-2xl md:text-3xl font-bold text-center md:text-left">
+                                        {{ $followers }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @endcan
+                
                 @if (Auth::user()->type == 'Admin' || Auth::user()->type == 'Influencer')
+                    <!-- Total Earnings Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
-                        <div class="relative flex flex-col bg-white rounded-lg h-100">
-                            <div class="p-2 p-sm-3">
-                                <div class="flex flex-row flex-wrap items-center gap-3">
-                                    <div class="bg-card3 p-2 rounded">
-
+                        <div class="relative flex flex-col bg-white rounded-lg h-100 shadow-sm">
+                            <div class="p-3 h-full flex flex-col">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="bg-card3 p-2 rounded-lg flex-shrink-0">
                                         <svg width="28" height="28" viewBox="0 0 128 128"
                                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                             aria-hidden="true" role="img" class="iconify iconify--noto"
@@ -250,40 +259,44 @@
                                                     fill="#FFCA28">
                                                 </path>
                                                 <path
-                                                    d="M104.36 8.18c-.85 14.65-15.14 24.37-21.92 28.65l4.4 3.78s2.79.06 6.61-1.16c6.55-2.08 16.12-7.96 16.78-11.43c.97-5.05-4.21-3.95-5.38-7.94c-.61-2.11 2.97-6.1-.49-11.9zm-24.58 3.91s-2.55-2.61-4.44-3.8c-.94 1.77-1.61 3.69-1.94 5.67c-.59 3.48 0 8.42 1.39 12.1c.22.57 1.04.48 1.13-.12c1.2-7.91 3.86-13.85 3.86-13.85z"
+                                                    d="M104.36 8.18c-.85 14.65-15.14 24.37-21.92 28.65l4.4 3.78s2.79.06 6.61-1.16c6.55-2.08 16.12-7.96 16.78-11.43c.97-5.05-4.21-3.95-5.38-7.94c-.61-2.11 2.97-6.1-.49-11.90zm-24.58 3.91s-2.55-2.61-4.44-3.80c-.94 1.77-1.61 3.69-1.94 5.67c-.59 3.48 0 8.42 1.39 12.10c.22.57 1.04.48 1.13-.12c1.20-7.91 3.86-13.85 3.86-13.85z"
                                                     fill="#E2A610">
                                                 </path>
                                                 <path
-                                                    d="M61.96 38.16S30.77 41.53 16.7 68.61c-14.07 27.08-2.11 43.5 10.55 49.48c12.66 5.98 44.56 8.09 65.31 3.17s25.94-15.12 24.97-24.97c-1.41-14.38-14.77-23.22-14.77-23.22s.53-17.76-13.25-29.29c-12.23-10.24-27.55-5.62-27.55-5.62z"
+                                                    d="M61.96 38.16S30.77 41.53 16.7 68.61c-14.07 27.08-2.11 43.50 10.55 49.48c12.66 5.98 44.56 8.09 65.31 3.17s25.94-15.12 24.97-24.97c-1.41-14.38-14.77-23.22-14.77-23.22s.53-17.76-13.25-29.29c-12.23-10.24-27.55-5.62-27.55-5.62z"
                                                     fill="#FFCA28">
                                                 </path>
                                                 <path
-                                                    d="M74.76 83.73c-6.69-8.44-14.59-9.57-17.12-12.6c-1.38-1.65-2.19-3.32-1.88-5.39c.33-2.2 2.88-3.72 4.86-4.09c2.31-.44 7.82-.21 12.45 4.2c1.1 1.04.7 2.66.67 4.11c-.08 3.11 4.37 6.13 7.97 3.53c3.61-2.61.84-8.42-1.49-11.24c-1.76-2.13-8.14-6.82-16.07-7.56c-2.23-.21-11.2-1.54-16.38 8.31c-1.49 2.83-2.04 9.67 5.76 15.45c1.63 1.21 10.09 5.51 12.44 8.3c4.07 4.83 1.28 9.08-1.9 9.64c-8.67 1.52-13.58-3.17-14.49-5.74c-.65-1.83.03-3.81-.81-5.53c-.86-1.77-2.62-2.47-4.48-1.88c-6.1 1.94-4.16 8.61-1.46 12.28c2.89 3.93 6.44 6.3 10.43 7.6c14.89 4.85 22.05-2.81 23.3-8.42c.92-4.11.82-7.67-1.8-10.97z"
+                                                    d="M74.76 83.73c-6.69-8.44-14.59-9.57-17.12-12.60c-1.38-1.65-2.19-3.32-1.88-5.39c.33-2.20 2.88-3.72 4.86-4.09c2.31-.44 7.82-.21 12.45 4.20c1.10 1.04.70 2.66.67 4.11c-.08 3.11 4.37 6.13 7.97 3.53c3.61-2.61.84-8.42-1.49-11.24c-1.76-2.13-8.14-6.82-16.07-7.56c-2.23-.21-11.20-1.54-16.38 8.31c-1.49 2.83-2.04 9.67 5.76 15.45c1.63 1.21 10.09 5.51 12.44 8.30c4.07 4.83 1.28 9.08-1.90 9.64c-8.67 1.52-13.58-3.17-14.49-5.74c-.65-1.83.03-3.81-.81-5.53c-.86-1.77-2.62-2.47-4.48-1.88c-6.10 1.94-4.16 8.61-1.46 12.28c2.89 3.93 6.44 6.30 10.43 7.60c14.89 4.85 22.05-2.81 23.30-8.42c.92-4.11.82-7.67-1.80-10.97z"
                                                     fill="#6B4B46">
                                                 </path>
                                                 <path d="M71.16 48.99c-12.67 27.06-14.85 61.23-14.85 61.23"
                                                     stroke="#6B4B46" stroke-width="5" stroke-miterlimit="10">
                                                 </path>
                                                 <path
-                                                    d="M81.67 31.96c8.44 2.75 10.31 10.38 9.7 12.46c-.73 2.44-10.08-7.06-23.98-6.49c-4.86.2-3.45-2.78-1.2-4.5c2.97-2.27 7.96-3.91 15.48-1.47z"
+                                                    d="M81.67 31.96c8.44 2.75 10.31 10.38 9.7 12.46c-.73 2.44-10.08-7.06-23.98-6.49c-4.86.20-3.45-2.78-1.20-4.50c2.97-2.27 7.96-3.91 15.48-1.47z"
                                                     fill="#6D4C41">
                                                 </path>
                                                 <path
-                                                    d="M81.67 31.96c8.44 2.75 10.31 10.38 9.7 12.46c-.73 2.44-10.08-7.06-23.98-6.49c-4.86.2-3.45-2.78-1.2-4.5c2.97-2.27 7.96-3.91 15.48-1.47z"
+                                                    d="M81.67 31.96c8.44 2.75 10.31 10.38 9.7 12.46c-.73 2.44-10.08-7.06-23.98-6.49c-4.86.20-3.45-2.78-1.20-4.50c2.97-2.27 7.96-3.91 15.48-1.47z"
                                                     fill="#6B4B46">
                                                 </path>
                                                 <path
-                                                    d="M96.49 58.86c1.06-.73 4.62.53 5.62 7.5c.49 3.41.64 6.71.64 6.71s-4.2-3.77-5.59-6.42c-1.75-3.35-2.43-6.59-.67-7.79z"
+                                                    d="M96.49 58.86c1.06-.73 4.62.53 5.62 7.50c.49 3.41.64 6.71.64 6.71s-4.20-3.77-5.59-6.42c-1.75-3.35-2.43-6.59-.67-7.79z"
                                                     fill="#E2A610">
                                                 </path>
                                             </g>
                                         </svg>
                                     </div>
-                                    <div class="order-3 order-sm-2">
-                                        <span class="font-roboto font-semibold">{{ __('Total Earnings') }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="font-roboto font-semibold text-sm md:text-base truncate">{{ __('Total Earnings') }}</span>
                                     </div>
-                                    <p class="order-2 order-sm-3 mb-0 font-sans bg-card3-text text-2xl ml-auto">
-                                        {{ Utility::amount_format($earning) }} </p>
+                                </div>
+                                
+                                <div class="mt-auto pt-2">
+                                    <p class="mb-0 font-sans bg-card3-text text-2xl md:text-3xl font-bold text-center md:text-left">
+                                        {{ Utility::amount_format($earning) }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -510,5 +523,8 @@
             }, cb);
             cb(start, end);
         });
+
+    
+
     </script>
 @endpush
