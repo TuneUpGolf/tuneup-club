@@ -241,144 +241,134 @@
                 <div class="row gy-4 gx-3 ">
                     @foreach ($plans as $plan)
                         @if ($plan->active_status == 1)
-                            <div class="col-xl-3 col-md-6 py-4">
-                                <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"
-                                    data-wow-delay="0.2s">
-                                    <div class="rounded-lg shadow popular-wrap h-100">
-                                        <div class="px-3 pt-4 ">
-                                            <p class="text-2xl font-bold mb-1 plan-name">
-                                                {{ $plan->name }}
-                                            </p>
+                             <div class="col-xl-3 col-md-6 py-4">
+                                                <div class="card price-card price-1 wow animate__fadeInUp ani-fade m-0 h-100"
+                                                    data-wow-delay="0.2s">
+                                                    <div class="rounded-lg shadow popular-wrap h-100">
+                                                        <div class="px-3 pt-4">
+                                                            <p class="text-2xl font-bold mb-1">{{ $plan->name }}</p>
+                                                            <span class="text-gray-600"><strong>Instructor:
+                                                                    {{ $plan->influencer->name }}</strong></span>
+                                                            <br>
+                                                            @if ($plan->lesson_limit != 0)
+                                                                <span class="text-gray-600"><strong>Online Lesson Limit:
+                                                                        {{ $plan->lesson_limit_label }}</strong></span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="border-t border-gray-300"></div>
 
-                                            {{-- <span class="text-gray-600"><strong>Influencer:
-                                                    {{ $plan->influencer->name }}</strong></span>
-                                            <br> --}}
-                                            {{-- <span class="text-gray-600"><strong>Total Duration:
-                                                    {{ $plan->duration . ' ' . $plan->durationtype }}
-                                                </strong></span>
-                                            <br> --}}
-                                            <span class="text-gray-600 d-block min-h-[24px]">
-                                                <strong class="{{ $plan->lesson_limit == 0 ? 'invisible' : '' }}">
-                                                    Online Lesson Limit: {{ $plan->lesson_limit_label }}
-                                                </strong>
-                                            </span>
+                                                        <div class="px-3 py-4" id="sub">
+                                                            @php
+                                                                $student = auth('follower')->user();
+                                                                $hasStudent = !is_null($student);
 
-                                            {{-- <div class="flex gap-1 items-center mt-2 ">
-                                                <p class="text-4xl font-bold">
-                                                    {{ '$' . $plan->price }}/</p>
-                                                <p class="text-2xl text-gray-600">
-                                                    {{ $plan->durationtype . 'ly'}}
-                                                </p>
-                                            </div> --}}
-                                        </div>
-                                        <div class="border-t border-gray-300"></div>
-                                        <div class="px-3 py-4">
-                                            <select name="" id="sub_price_dropdown_{{ $plan->id }}"
-                                                class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2">
-                                                <option value="">Select Plan</option>
-                                                @if ($plan->stripe_price_id)
-                                                    <option value="{{ $plan->stripe_price_id }}">Monthly -
-                                                        ${{ $plan->price }}
-                                                    </option>
-                                                @endif
+                                                                // Check if student has this plan currently assigned
+                                                                $hasThisPlan =
+                                                                    $hasStudent &&
+                                                                    !is_null($student->plan_id) &&
+                                                                    $student->plan_id == $plan->id;
 
-                                                @if ($plan->stripe_price_quarter_id)
-                                                    <option value="{{ $plan->stripe_price_quarter_id }}">
-                                                        Quarterly -
-                                                        ${{ $plan->price_quarter }}
-                                                    </option>
-                                                @endif
+                                                                // Check if student has ANY plan assigned (active until canceled)
+                                                                $hasAnyPlan =
+                                                                    $hasStudent && !is_null($student->plan_id);
 
-                                                @if ($plan->stripe_price_year_id)
-                                                    <option value="{{ $plan->stripe_price_year_id }}">Yearly -
-                                                        ${{ $plan->price_year }}
-                                                    </option>
-                                                @endif
-                                            </select>
-                                            @if ($plan->id != 1)
-                                                @php
-                                                    $follower = auth('follower')->user();
-                                                    $webUser = auth('web')->user();
-                                                    $influencer = auth('influencers')->user();
+                                                                // Check if this is the current plan
+                                                                $isCurrentPlan = $hasThisPlan;
 
-                                                    $hasStudent = !is_null($follower);
-                                                    $hasPlan = $hasStudent && !is_null($follower->plan_id);
-                                                    $isCurrentPlan = $hasPlan && $plan->id == $follower->plan_id;
-                                                    $isActive =
-                                                        $isCurrentPlan &&
-                                                        !empty($follower->plan_expired_date) &&
-                                                        \Carbon\Carbon::parse($follower->plan_expired_date)->gte(now());
+                                                                // Check if student has a DIFFERENT plan
+                                                                $hasDifferentPlan = $hasAnyPlan && !$hasThisPlan;
+                                                            @endphp
 
-                                                    // NEW: Check if user has any ACTIVE plan (not just any plan)
-                                                    $hasActivePlan =
-                                                        $hasStudent &&
-                                                        $hasPlan &&
-                                                        !empty($follower->plan_expired_date) &&
-                                                        \Carbon\Carbon::parse($follower->plan_expired_date)->gte(now());
-                                                @endphp
+                                                            @if ($plan->id != 1)
+                                                                <select name=""
+                                                                    id="sub_price_dropdown_{{ $plan->id }}"
+                                                                    class="no-nice-select w-full border rounded-lg p-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
+                                                                    {{ $hasDifferentPlan ? 'disabled' : '' }}>
+                                                                    <option value="">Select Plan</option>
+                                                                    @if ($plan->stripe_price_id)
+                                                                        <option value="{{ $plan->stripe_price_id }}">
+                                                                            Monthly -
+                                                                            ${{ $plan->price }}
+                                                                        </option>
+                                                                    @endif
 
-                                                @if ($hasStudent)
-                                                    @if ($isCurrentPlan)
-                                                        @if ($isActive)
-                                                            {{-- ✅ Current active plan --}}
-                                                            <a href="javascript:void(0)" data-id="{{ $plan->id }}"
-                                                                class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                                data-amount="{{ $plan->price }}">
-                                                                {{ __('Expire at') }}
-                                                                {{ \Carbon\Carbon::parse($follower->plan_expired_date)->format('d/m/Y') }}
-                                                            </a>
-                                                            <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn">
-                                                                {{ __('Cancel Plan') }}
-                                                            </a>
-                                                        @else
-                                                            {{-- 🔁 Expired plan → Renew --}}
-                                                            {{-- <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                                class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                                {{ __('Renew') }}
-                                                            </a> --}}
-                                                            <button
-                                                                class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                                onclick="submitSubscription({{ $plan->id }})">Renew</button>
-                                                        @endif
-                                                    @elseif ($hasActivePlan)
-                                                        {{-- 🚫 User has another ACTIVE plan --}}
-                                                        <button disabled
-                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                            {{ __('Buy Plan') }}
-                                                        </button>
-                                                    @else
-                                                        {{-- 🛒 No active plan or plan expired → Can buy any plan --}}
-                                                        {{-- <a href="{{ route('payment', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
-                                                            class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                            {{ __('Buy Plan') }}
-                                                        </a> --}}
-                                                        <button class="lesson-btn text-center font-bold text-lg mt-auto"
-                                                            onclick="submitSubscription({{ $plan->id }})">Buy
-                                                            Plan</button>
-                                                    @endif
-                                                @elseif ($webUser || $influencer)
-                                                    {{-- 🚷 Logged in as non-student --}}
-                                                    <button disabled
-                                                        class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                        {{ __('Buy Plan') }}
-                                                    </button>
-                                                @else
-                                                    {{-- 🔐 Guest user --}}
-                                                    <a href="{{ route('login') }}"
-                                                        class="lesson-btn text-center font-bold text-lg mt-auto">
-                                                        {{ __('Buy Plan') }}
-                                                    </a>
-                                                @endif
-                                            @endif
-                                            <p class="font-semibold text-xl mb-2 mt-2">Includes:</p>
-                                            <p class="text-gray-600">
-                                                {!! $plan->description !!}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                                                    @if ($plan->stripe_price_quarter_id)
+                                                                        <option
+                                                                            value="{{ $plan->stripe_price_quarter_id }}">
+                                                                            Quarterly -
+                                                                            ${{ $plan->price_quarter }}
+                                                                        </option>
+                                                                    @endif
+
+                                                                    @if ($plan->stripe_price_year_id)
+                                                                        <option value="{{ $plan->stripe_price_year_id }}">
+                                                                            Yearly -
+                                                                            ${{ $plan->price_year }}
+                                                                        </option>
+                                                                    @endif
+                                                                </select>
+
+                                                                @if ($hasStudent)
+                                                                    @if ($isCurrentPlan)
+                                                                        {{-- ✅ User currently has THIS plan -- Can cancel --}}
+                                                                        <div class="text-center">
+                                                                            <div
+                                                                                class="bg-green-100 text-green-800 rounded-lg p-3 mb-2">
+                                                                                <p class="font-bold">Current Plan</p>
+                                                                                <p>Active until canceled</p>
+                                                                            </div>
+                                                                            <a href="{{ route('plans.cancel', \Illuminate\Support\Facades\Crypt::encrypt($plan->id)) }}"
+                                                                                onclick="return confirm('Are you sure you want to cancel this plan?')"
+                                                                                class="lesson-btn text-center font-bold text-lg mt-2 cancel-btn bg-red-600 hover:bg-red-700">
+                                                                                {{ __('Cancel Plan') }}
+                                                                            </a>
+                                                                        </div>
+                                                                    @elseif ($hasDifferentPlan)
+                                                                        {{-- 🚫 User has a DIFFERENT plan -- Block buying --}}
+                                                                        <div class="text-center">
+                                                                            <div
+                                                                                class="bg-gray-100 text-gray-800 rounded-lg p-3 mb-2">
+                                                                                <p class="font-bold">Another Plan Active
+                                                                                </p>
+                                                                                <p class="text-sm">Cancel your current plan
+                                                                                    to switch</p>
+                                                                            </div>
+                                                                            <button disabled
+                                                                                class="lesson-btn w-full text-center font-bold text-lg mt-auto bg-gray-400 cursor-not-allowed">
+                                                                                Buy Plan
+                                                                            </button>
+                                                                        </div>
+                                                                    @else
+                                                                        {{-- 🛒 User has NO plan -- Can buy --}}
+                                                                        <button
+                                                                            class="lesson-btn w-full text-center font-bold text-lg mt-auto bg-blue-600 hover:bg-blue-700"
+                                                                            onclick="submitSubscription({{ $plan->id }})">
+                                                                            Buy Plan
+                                                                        </button>
+                                                                    @endif
+                                                                @elseif (auth('web')->user() || auth('instructors')->user())
+                                                                    {{-- 🚷 Logged in as non-student --}}
+                                                                    <div class="text-center bg-gray-100 rounded-lg p-3">
+                                                                        <p class="text-gray-600">Available for students
+                                                                            only</p>
+                                                                    </div>
+                                                                @else
+                                                                    {{-- 🔐 Guest user --}}
+                                                                    <a href="{{ route('login') }}"
+                                                                        class="lesson-btn w-full text-center font-bold text-lg mt-auto bg-blue-600 hover:bg-blue-700">
+                                                                        Login to Buy
+                                                                    </a>
+                                                                @endif
+                                                            @endif
+
+                                                            <p class="font-semibold text-xl mb-2 mt-4">Includes:</p>
+                                                            <div class="text-gray-600">
+                                                                {!! $plan->description !!}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                         @endif
                     @endforeach
                 </div>

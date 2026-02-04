@@ -19,6 +19,7 @@ class ClientSubscription extends Model
         'stripe_customer_id',
         'stripe_subscription_id',
         'status',
+        'duration'
     ];
 
     public function follower()

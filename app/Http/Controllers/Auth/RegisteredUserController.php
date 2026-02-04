@@ -71,19 +71,21 @@ class RegisteredUserController extends Controller
 
             $user->assignRole(Role::ROLE_FOLLOWER);
 
-            $chatUserDetails = $this->chatService->getUserProfile($request->email);
-            if ($chatUserDetails['code'] == 200) {
-                $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
-                $user->update([
-                    'chat_user_id' => $chatUserDetails['data']['_id'],
-                ]);
-            } elseif ($chatUserDetails['code'] == 204) {
-                $created = $this->chatService->createUser($user);
-                if (! $created) {
+            if (env("APP_ENV") != "local") {
+                $chatUserDetails = $this->chatService->getUserProfile($request->email);
+                if ($chatUserDetails['code'] == 200) {
+                    $this->chatService->updateUser($chatUserDetails['data']['_id'], 'tenant_id', tenant('id'), $request->eamil);
+                    $user->update([
+                        'chat_user_id' => $chatUserDetails['data']['_id'],
+                    ]);
+                } elseif ($chatUserDetails['code'] == 204) {
+                    $created = $this->chatService->createUser($user);
+                    if (! $created) {
+                        throw new \Exception('Failed to chat user.');
+                    }
+                } else {
                     throw new \Exception('Failed to chat user.');
                 }
-            } else {
-                throw new \Exception('Failed to chat user.');
             }
 
             // dd($chatUserDetails, $created);
@@ -97,11 +99,13 @@ class RegisteredUserController extends Controller
             }
 
             // dd($user, $influencer);
+            if (env("APP_ENV") != "local") {
 
-            $groupId = $this->chatService->createGroup($user->chat_user_id, $influencer->chat_user_id);
-            if ($groupId) {
-                $user->group_id = $groupId;
-                $user->save();
+                $groupId = $this->chatService->createGroup($user->chat_user_id, $influencer->chat_user_id);
+                if ($groupId) {
+                    $user->group_id = $groupId;
+                    $user->save();
+                }
             }
 
             ProcessSignupEmails::dispatchSync($user, tenant('id'));

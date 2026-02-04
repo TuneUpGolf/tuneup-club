@@ -2,7 +2,7 @@
 @section('title', __('Student Subscriptions'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Student Subscriptions') }}</li>
+    <li class="breadcrumb-item">{{ __('Subscribed Students') }}</li>
 @endsection
 
 @section('content')
@@ -17,6 +17,9 @@
                                     <th>#</th>
                                     <th>Student Name</th>
                                     <th>Plan Name</th>
+                                    <th>Duration</th>
+                                    <th>Next Payment</th>
+                                    <th>Remaining Lessons</th>
                                     <th class="mobile-hide">Status</th>
                                     <th class="">History</th>
                                 </tr>
@@ -132,6 +135,100 @@
             font-weight: 500;
             color: #28a745;
         }
+        
+        /* Status badge responsiveness */
+        .badge {
+            white-space: nowrap;
+        }
+        
+        /* Remaining lessons badge styles */
+        .remaining-lessons-badge {
+            display: inline-block;
+            padding: 0.25em 0.65em;
+            font-size: 0.75em;
+            font-weight: 500;
+            border-radius: 9999px;
+        }
+        .remaining-lessons-green {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .remaining-lessons-blue {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .remaining-lessons-gray {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        
+        /* Status filter styles */
+        .dataTables_filter {
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .status-filter-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 10px;
+        }
+        
+        .status-filter-label {
+            font-weight: 500;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        .status-filter-select {
+            min-width: 120px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .dataTables_filter {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 10px;
+            }
+            
+            .status-filter-container {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .status-filter-select {
+                flex: 1;
+                max-width: 150px;
+            }
+            
+            .tb-search {
+                width: 100%;
+            }
+            
+            .tb-search input {
+                width: 100% !important;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 992px) {
+            .status-filter-container {
+                margin-right: 0;
+            }
+            
+            .status-filter-label {
+                display: none;
+            }
+        }
     </style>
 @endpush
 
@@ -144,30 +241,68 @@
             var table = $('#subscriptionsTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('purchase.subscription') }}",
+                ajax: {
+                    url: "{{ route('purchase.subscription') }}",
+                    data: function(d) {
+                        d.status = $('#statusFilter').val();
+                    }
+                },
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        width: '5%'
                     },
                     {
                         data: 'student_name',
-                        name: 'student_name'
+                        name: 'student_name',
+                        width: '12%'
                     },
                     {
                         data: 'plan_name',
-                        name: 'plan_name'
+                        name: 'plan_name',
+                        width: '12%'
+                    },
+                    {
+                        data: 'duration',
+                        name: 'duration',
+                        width: '8%',
+                        render: function(data) {
+                            if (!data || data === 'N/A') return 'N/A';
+                            return data.charAt(0).toUpperCase() + data.slice(1);
+                        }
+                    },
+                    {
+                        data: 'next_payment_date',
+                        name: 'next_payment_date',
+                        width: '12%',
+                        render: function(data) {
+                            return data || 'N/A';
+                        }
+                    },
+                    {
+                        data: 'remaining_lessons',
+                        name: 'remaining_lessons',
+                        width: '10%',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            return data || 'N/A';
+                        }
                     },
                     {
                         data: 'status_badge',
-                        name: 'status'
+                        name: 'status',
+                        width: '8%',
+                        className: 'mobile-hide'
                     },
                     {
                         data: 'subscription_history',
                         name: 'subscription_history',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        width: '33%'
                     }
                 ],
                 order: [],
@@ -181,11 +316,27 @@
                     },
                     {
                         responsivePriority: 3,
-                        targets: 4
+                        targets: 7 // History column
+                    },
+                    {
+                        responsivePriority: 4,
+                        targets: 4 // Next Payment column
+                    },
+                    {
+                        responsivePriority: 5,
+                        targets: 5 // Remaining Lessons column
+                    },
+                    {
+                        responsivePriority: 6,
+                        targets: 2 // Plan Name column
+                    },
+                    {
+                        responsivePriority: 7,
+                        targets: 3 // Duration column
                     },
                     {
                         responsivePriority: 10000,
-                        targets: [2, 3]
+                        targets: 6 // Status column (lowest priority for mobile)
                     }
                 ],
                 dom: `<'dataTable-top row'
@@ -198,6 +349,30 @@
                         <'col-sm-7'p>
                     >`,
                 responsive: true,
+                initComplete: function() {
+                    // Add status filter to the search container
+                    var statusFilter = `
+                        <div class="status-filter-container">
+                            <label class="status-filter-label">Status:</label>
+                            <select class="status-filter-select" id="statusFilter">
+                                <option value="">All</option>
+                                <option value="active">Active</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    `;
+                    
+                    // Insert status filter before the search input
+                    $('.dataTables_filter').prepend(statusFilter);
+                    
+                    // Initialize tooltips
+                    $('[data-bs-toggle="tooltip"]').tooltip();
+                    
+                    // Status filter change event
+                    $('#statusFilter').on('change', function() {
+                        table.ajax.reload();
+                    });
+                },
                 drawCallback: function() {
                     $('[data-bs-toggle="tooltip"]').tooltip();
                 }
