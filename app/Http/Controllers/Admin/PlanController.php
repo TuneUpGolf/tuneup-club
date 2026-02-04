@@ -105,7 +105,8 @@ class PlanController extends Controller
                     return UtilityFacades::amount_format($plan->price);
                 })
                 ->addColumn('purchases_count', function (Plan $plan) {
-                    return $plan->buyers_count ?? 0;
+                    $client_subscription_count = ClientSubscription::where('plan_id', $plan->id)->count();
+                    return $client_subscription_count ?? 0;
                 })
                 ->rawColumns(['action', 'active_status', 'name'])
                 ->make(true);

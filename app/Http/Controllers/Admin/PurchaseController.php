@@ -1619,12 +1619,16 @@ class PurchaseController extends Controller
         return [];
     }
 
-     public function subscription_index(Request $request)
+    public function subscription_index(Request $request)
     {
-        // dd("test");
         if (Auth::user()->can('manage-purchases')) {
-            $query = ClientSubscription::with(['follower', 'plan'])
+            $query = ClientSubscription::with(['follower', 'plan', 'details'])
                 ->where('influencer_id', Auth::id());
+
+            // Apply status filter if provided
+            if ($request->has('status') && $request->status != '') {
+                $query->where('status', $request->status);
+            }
 
             if ($request->ajax()) {
                 return datatables()
@@ -1636,7 +1640,49 @@ class PurchaseController extends Controller
                     ->addColumn('plan_name', function ($subscription) {
                         return $subscription->plan ? e($subscription->plan->name) : 'N/A';
                     })
-                  ->addColumn('subscription_history', function ($subscription) {
+                    ->addColumn('duration', function ($subscription) {
+                        return $subscription->duration ? ucfirst($subscription->duration) : 'N/A';
+                    })
+                    ->addColumn('next_payment_date', function ($subscription) {
+                        // Return null if duration is null
+                        if (!$subscription->duration) {
+                            return 'N/A';
+                        }
+
+                        // Calculate next payment date based on duration
+                        $createdDate = $subscription->created_at;
+                        $lastPaymentDate = $subscription->last_payment_date ?? $createdDate;
+
+                        try {
+                            $nextPaymentDate = match ($subscription->duration) {
+                                'monthly' => Carbon::parse($lastPaymentDate)->addMonth(),
+                                'quarterly' => Carbon::parse($lastPaymentDate)->addMonths(3),
+                                'yearly' => Carbon::parse($lastPaymentDate)->addYear(),
+                                default => null
+                            };
+
+                            return $nextPaymentDate ? $nextPaymentDate->format('M d, Y h:i A') : 'N/A';
+                        } catch (\Exception $e) {
+                            return 'N/A';
+                        }
+                    })
+                    ->addColumn('remaining_lessons', function ($subscription) {
+                        $remaining = 0;
+
+                        // Check if student has active online subscription
+                        if ($subscription->follower && $subscription->follower->hasActiveOnlineSubscription()) {
+                            $remaining = $subscription->follower->getRemainingFreeOnlineLessons($subscription->influencer_id);
+                        }
+
+                        if ($remaining > 0 && $remaining !== PHP_INT_MAX) {
+                            return '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full border border-green-200">🎉 ' . $remaining . '</span>';
+                        } elseif ($remaining === PHP_INT_MAX) {
+                            return '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full border border-blue-200">♾️ Unlimited</span>';
+                        }
+
+                        return '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full border border-gray-200">None</span>';
+                    })
+                    ->addColumn('subscription_history', function ($subscription) {
                         $history = '<ul class="subscription-history-list">';
 
                         // Current subscription info
@@ -1654,8 +1700,8 @@ class PurchaseController extends Controller
                                 $history .= '<span class="history-date">' . $detail->created_at->format('M d, Y h:i A') . '</span> - ';
 
                                 // Get price from associated plan
-                                if ($detail->clientSubscription?->plan) {
-                                    $history .= '<span class="history-price">$' . number_format($detail->clientSubscription?->plan->price, 2) . '</span>';
+                                if ($detail->StudentSubscription?->plan) {
+                                    $history .= '<span class="history-price">$' . number_format($detail->StudentSubscription?->plan->price, 2) . '</span>';
                                 } elseif ($detail->old_plan_details) {
                                     $oldDetails = json_decode($detail->old_plan_details, true);
                                     $history .= '<span class="history-price">$' . number_format($oldDetails['price'] ?? 0, 2) . '</span>';
@@ -1681,15 +1727,15 @@ class PurchaseController extends Controller
 
                         return '<span class="' . $badgeClass . '">' . ucfirst($subscription->status) . '</span>';
                     })
-                    ->rawColumns(['status_badge', 'subscription_history'])
+                    ->rawColumns(['status_badge', 'subscription_history', 'next_payment_date', 'duration', 'remaining_lessons'])
                     ->make(true);
             }
-            // dd("test");
+
             return view('admin.subscriptions.index');
         }
     }
 
-     public function smartVideoDownload($id)
+    public function smartVideoDownload($id)
     {
         $purchase = Purchase::findOrFail($id);
         $url = trim($purchase->videos->first()?->video_url ?? '');
@@ -1873,5 +1919,4 @@ class PurchaseController extends Controller
             exit;
         }
     }
-
 }

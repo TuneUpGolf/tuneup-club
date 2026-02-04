@@ -917,6 +917,7 @@ class StripeController extends Controller
                         'stripe_customer_id' => $customer_id,
                         'stripe_subscription_id' => $subscription_id,
                         'status' => 'active',
+                        'duration' => $data['duration'],
                     ]);
 
                     $influencer = $plan->influencer;
