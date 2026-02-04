@@ -81,6 +81,7 @@ class PlanController extends Controller
                 ->of($plans)
                 ->addIndexColumn()
                 ->editColumn('name', function ($plan) {
+                    return $plan->name;
                     $url = route('plans.buyers', $plan->id);
                     return '<a href="#" class="js-plan-buyers" data-plan-id="' . $plan->id . '" data-url="' . $url . '">' . e($plan->name) . '</a>';
                 })
