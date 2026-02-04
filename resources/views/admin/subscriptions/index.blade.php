@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', __('Student Subscriptions'))
+@section('title', __('Subscribed Students'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item">{{ __('Subscribed Students') }}</li>
