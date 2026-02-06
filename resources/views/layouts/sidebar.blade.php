@@ -27,6 +27,20 @@
                         <span class="dash-mtext">{{ __('Dashboard') }}</span>
                     </a>
                 </li>
+
+                 @if ($users->type == 'Influencer')
+                    @if (checkInstructorSubscription())
+                        <li class="dash-item dash-hasmenu {{ request()->is('testimonial*') ? 'active' : '' }}">
+                            <a class="dash-link text-danger" href="{{ route('subscription.inactive') }}">
+                                <span class="dash-micon"><i class="ti ti-alert-circle text-danger"></i></span>
+                                <span class="dash-mtext text-danger fw-bold">{{ __('Activate TuneUp Subscription') }}</span>
+                                {{-- <span class="dash-arrow">
+                    <i class="ti ti-chevron-right text-danger"></i>
+                </span> --}}
+                            </a>
+                        </li>
+                    @endif
+                @endif
                 @if ($users->type == 'Super Admin')
                     <li
                         class="dash-item dash-hasmenu {{ request()->is('users*') || request()->is('roles*') ? 'active dash-trigger' : 'collapsed' }}">

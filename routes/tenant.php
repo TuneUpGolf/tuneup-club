@@ -160,9 +160,11 @@ Route::middleware([
         Route::resource('help-section', HelpSectionController::class);
     });
 
-    Route::group(['middleware' => ['auth:web,follower', 'Setting', 'xss', '2fa', 'verified', 'verified_phone', 'restrict_influencer']], function () {
+    Route::group(['middleware' => ['auth:web,follower', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
 
         Route::impersonate();
+                Route::group(['middleware' => ['restrict_influencer']], function () {
+
         //help section
         Route::resource('help-section', HelpSectionController::class);
         // category
@@ -565,6 +567,8 @@ Route::middleware([
         Route::post('plan-pay-with-mollie', [MolliePaymentController::class, 'planPayWithMollie'])->name('plan.pay.with.mollie');
         Route::get('plan/mollie/{plan}', [MolliePaymentController::class, 'getPaymentStatus'])->name('plan.mollie');
     });
+    });
+
 
     //API CALLS FOR APP
     Route::group(['middleware' => [

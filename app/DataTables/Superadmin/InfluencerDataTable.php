@@ -1,8 +1,10 @@
 <?php
+
 namespace App\DataTables\Superadmin;
 
-use App\Facades\UtilityFacades;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Facades\UtilityFacades;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
@@ -33,12 +35,12 @@ class InfluencerDataTable extends DataTable
             ->editColumn('name', function (User $user) {
                 $imageSrc = $user->dp ?? asset('assets/img/logo/logo.png');
                 $html     =
-                '
+                    '
                 <div class="flex justify-start items-center">'
-                .
-                "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
-                .
-                "<span class='pl-2'>" . $user->name . " </span>" .
+                    .
+                    "<img src=' " . $imageSrc . " ' width='20' class='rounded-full'/>"
+                    .
+                    "<span class='pl-2'>" . $user->name . " </span>" .
                     '</div>';
                 return $html;
             })
@@ -57,7 +59,7 @@ class InfluencerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('Verified') .
+                        . __('Verified') .
                         '</span>
                         </div>
                         ';
@@ -76,7 +78,7 @@ class InfluencerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('UnVerified') .
+                        . __('UnVerified') .
                         '</span>
                         </div>
                         ';
@@ -98,7 +100,7 @@ class InfluencerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('Verified') .
+                        . __('Verified') .
                         '</span>
                         </div>
                         ';
@@ -117,24 +119,87 @@ class InfluencerDataTable extends DataTable
                     </defs>
                     </svg>
                     <span class="text-verified pl-1">'
-                    . __('UnVerified') .
+                        . __('UnVerified') .
                         '</span>
                         </div>
                         ';
                     return $html;
                 }
             })
-            ->editColumn('active_status', function (User $user) {
-                $checked = ($user->active_status == 1) ? 'checked' : '';
-                $status  = '<label class="form-switch">
-                             <input class="form-check-input chnageStatus" name="custom-switch-checkbox" ' . $checked . ' data-id="' . $user->id . '" data-url="' . route('user.status', $user->id) . '" type="checkbox">
-                             </label>';
-                return $status;
+            ->addColumn('subscription_status', function (User $user) {
+                // Check if instructor has active subscription in central database
+                $subscription = tenancy()->central(function () use ($user) {
+                    return \App\Models\InfluencerSubscription::where('influencer_id', $user->id)
+                        ->where('tenant_id', $user->tenant_id)
+                        ->where('plan_id', $user->subscription_plan_id)
+                        ->where('status', 'active')
+                        ->first();
+                });
+
+                if ($subscription) {
+                    // Has active paid subscription
+                    // $expiryDate = Carbon::parse($subscription->expires_at)->format('M d, Y');
+                    $html = '<span class="badge bg-success text-white px-2 py-1 rounded">';
+                    $html .= __('Paid Subscription');
+                    // $html .= '<br><small class="text-xs">' . __('Expires: ') . $expiryDate . '</small>';
+                    $html .= '</span>';
+                    return $html;
+                } elseif ($user->days_limit > 0) {
+                    // Has free trial
+                    if (empty($user->start_login_date)) {
+                        // Trial not started yet
+                        $html = '<span class="badge bg-info text-white px-2 py-1 rounded">';
+                        $html .= __('Free Trial: ' . $user->days_limit . ' days');
+                        $html .= '<br><small class="text-xs">' . __('Not started yet') . '</small>';
+                        $html .= '</span>';
+                        return $html;
+                    } else {
+                        // Trial in progress
+                        $startDate = Carbon::parse($user->start_login_date);
+                        $endDate = $startDate->copy()->addDays($user->days_limit);
+                        $now = Carbon::now();
+
+                        if ($now->greaterThan($endDate)) {
+                            // Trial expired
+                            $html = '<span class="badge bg-danger text-white px-2 py-1 rounded">';
+                            $html .= __('Trial Expired');
+                            $html .= '</span>';
+                            return $html;
+                        } else {
+                            // Trial active
+                            $daysLeft = $now->diffInDays($endDate, false);
+                            $html = '<span class="badge bg-warning text-dark px-2 py-1 rounded">';
+                            $html .= __('Free Trial');
+                            $html .= '<br><small class="text-xs">' . __('Days left: ') . $daysLeft . '</small>';
+                            $html .= '</span>';
+                            return $html;
+                        }
+                    }
+                } else {
+                    // No subscription or trial
+                    $html = '<span class="badge bg-secondary text-white px-2 py-1 rounded">';
+                    $html .= __('No Subscription');
+                    $html .= '</span>';
+                    return $html;
+                }
+            })
+            ->addColumn('plan_info', function (User $user) {
+                if ($user->subscription_plan_id) {
+                    // Get plan name from central database
+                    $plan = tenancy()->central(function () use ($user) {
+                        return \App\Models\Plan::find($user->subscription_plan_id);
+                    });
+
+                    if ($plan) {
+                        return $plan->name;
+                    }
+                }
+                return __('No Plan');
             })
             ->addColumn('action', function (User $user) {
                 return view('superadmin.influencers.action', compact('user'));
             })
-            ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name']);
+            ->rawColumns(['role', 'action', 'email_verified_at', 'phone_verified_at', 'active_status', 'name', 'subscription_status']);
         return $data;
     }
 
@@ -224,10 +289,10 @@ class InfluencerDataTable extends DataTable
                         <'col-sm-7'p>>
                         ",
                 'buttons'        => $buttons,
-                
+
                 "scrollX" => true,
                 "responsive" => [
-                    "scrollX"=> false,
+                    "scrollX" => false,
                     "details" => [
                         "display" => "$.fn.dataTable.Responsive.display.childRow", // <- keeps rows collapsed
                         "renderer" => "function (api, rowIdx, columns) {
@@ -279,15 +344,15 @@ class InfluencerDataTable extends DataTable
                       });
                 }',
             ])->language([
-            'buttons' => [
-                'create' => __('Create'),
-                'export' => __('Export'),
-                'print'  => __('Print'),
-                'reload' => __('Import'),
-                'excel'  => __('Excel'),
-                'csv'    => __('CSV'),
-            ],
-        ]);
+                'buttons' => [
+                    'create' => __('Create'),
+                    'export' => __('Export'),
+                    'print'  => __('Print'),
+                    'reload' => __('Import'),
+                    'excel'  => __('Excel'),
+                    'csv'    => __('CSV'),
+                ],
+            ]);
     }
 
     protected function getColumns()
@@ -297,10 +362,12 @@ class InfluencerDataTable extends DataTable
             Column::make('No')->title(__('#'))->data('DT_RowIndex')->name('DT_RowIndex')->searchable(false)->orderable(false),
             Column::make('name')->title(__('User')),
             Column::make('email')->title(__('Email')),
+            Column::make('plan_info')->title(__('Plan'))->orderable(false),
+            Column::make('subscription_status')->title(__('Subscription Status'))->orderable(false),
             Column::make('email_verified_at')->title(__('Email Verified Status')),
             Column::make('phone_verified_at')->title(__('Phone Verified Status')),
-            Column::make('created_at')->title(__('Created At')),
-            Column::make('active_status')->title(__('Status')),
+            // Column::make('created_at')->title(__('Created At')),
+
             Column::computed('action')->title(__('Action'))
                 ->exportable(false)
                 ->printable(false)
