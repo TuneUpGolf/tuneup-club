@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
+use App\Models\InfluencerSubscription;
 
 if (!function_exists('mark_user_online')) {
     /**
@@ -78,4 +79,41 @@ if (!function_exists('is_user_online')) {
     {
         return (bool) Redis::exists("user:online:{$userId}");
     }
+}
+
+
+if (!function_exists('checkInstructorSubscription')) {
+    function checkInstructorSubscription()
+    {
+          $user = Auth::user();
+        // Allow through if no user or not Instructor
+        if (!$user || $user->type !== 'Influencer') {
+            return false;
+        }
+        // dd($user);
+
+        // Allow if instructor has no subscription plan set (e.g. free access or trial)
+        if (is_null($user->subscription_plan_id)) {
+            return false;
+        }
+
+
+
+        // ✅ Check central subscription safely
+        $subscription = tenancy()->central(function () use ($user) {
+            return InfluencerSubscription::where('influencer_id', $user->id)
+                ->where('tenant_id', $user->tenant_id)
+                ->where('plan_id', $user->subscription_plan_id)
+                ->where('status', 'active')
+                ->first();
+        });
+
+        if (!$subscription) {
+            return true;
+        }
+
+        return false;
+    }
+
+    
 }

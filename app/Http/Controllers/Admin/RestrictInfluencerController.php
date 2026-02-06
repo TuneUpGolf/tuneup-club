@@ -63,12 +63,7 @@ class RestrictInfluencerController extends Controller
                     'user_id' => $user->id,
                     'type' => 'stripe',
                 ])) . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => route('instructor.stripe.cancel.pay', Crypt::encrypt([
-                    'plan_id' => $plan->id,
-                    'price' => $plan->price,
-                    'user_id' => $user->id,
-                    'type' => 'stripe',
-                ])),
+                'cancel_url' => route('subscription.inactive'),
             ]);
 
             return $session;

@@ -109,6 +109,16 @@
                             @endif
                         </div>
 
+                           <div class="form-group">
+                            {{ Form::label('days_limit', __('Free Trail (In Days)'), ['class' => 'form-label']) }}
+                           <input type="number" name="days_limit" id="days_limit" class="form-control" value="{{$user->days_limit}}">
+                            @if ($errors->has('days_limit'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('days_limit') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
                         {{-- @if (tenant('id') != null && $user->type != 'Admin')
                             <div class="form-group">
                                 {{ Form::label('roles', __('Role'), ['class' => 'form-label']) }}

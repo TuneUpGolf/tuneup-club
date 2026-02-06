@@ -390,6 +390,7 @@ class UserController extends Controller
             'phone'         => 'required',
             'password'      => 'same:password_confirmation',
             'country'       => 'required',
+            'days_limit'    => 'nullable'
         ]);
         $input          = $request->all();
         $user           = User::find($influencer_id);
@@ -397,10 +398,24 @@ class UserController extends Controller
         $user->dial_code    = $request->dial_code;
         $user->phone        = str_replace(' ', '', $request->phone);
 
-        $user->subscription_plan_id = $request->subscription_plan_id != '' ? $request->subscription_plan_id : null;
+        $subscriptionPlanId = $request->subscription_plan_id != '' ? $request->subscription_plan_id : null;
+        $daysLimit = $request->days_limit != '' ? $request->days_limit : null;
 
+        $isDirty = ($user->subscription_plan_id != $subscriptionPlanId) ||
+            ($user->days_limit != $daysLimit);
 
+        // Set the values
+        $user->subscription_plan_id = $subscriptionPlanId;
+        $user->days_limit = $daysLimit;
+
+        // Reset start_login_date if either field changed
+        if ($isDirty) {
+            $user->start_login_date = null;
+        }
+
+        $input = $request->except(['password', 'password_confirmation']);
         $user->update($input);
+
         if (!empty($request->password)) {
             $user->password = bcrypt($request->password);
             $user->save();
