@@ -54,12 +54,12 @@
 
        <!-- MOBILE VIEW -->
         <div class="hero-sec md:hidden">
-            <img class="w-full" src="{{ $user->mobile_banner_image ?: $user->banner_image }}" alt="mobile-banner">
+            <img class="w-full" src="{{ $influencerDetailsr->mobile_banner_image ?: $influencerDetails->banner_image }}" alt="mobile-banner">
         </div>
 
         <!-- DESKTOP VIEW -->
         <div class="hero-sec hidden md:block">
-            <img class="w-full" src="{{ $user->banner_image ?: $user->mobile_banner_image }}" alt="desktop-banner">
+            <img class="w-full" src="{{ $influencerDetails->banner_image ?: $influencerDetails->mobile_banner_image }}" alt="desktop-banner">
         </div>
     </section>
 
