@@ -135,30 +135,61 @@
                                             </div>
                                             <div class="p-3 card-body setting-card setting-logo-box">
                                                 <div class="row">
-                                                    <div class="col-12">
-                                                        <div
-                                                            class="py-2 text-center logo-content logo-set-bg app-image-set">
-                                                            <a href="{{ Utility::getsettings('banner_image') }}"
-                                                                target="_blank">
-                                                                <img src="{{ \App\Models\User::where('type', '!=', 'Admin')?->first()?->banner_image}}"
-                                                                    id="banner_image">
-                                                            </a>
+                                                    <!-- Desktop Banner -->
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <label
+                                                                class="mx-auto mb-0 banner_crop_desktop btn btn-primary btn-lg d-block col-sm-12"
+                                                                for="bannerDesktopCrop">
+                                                                {{ __('Update Banner (Desktop)') }}
+                                                                {{ Form::file('banner_desktop', ['id' => 'bannerDesktopCrop', 'class' => 'd-none', 'accept' => 'image/jpeg, image/png']) }}
+                                                            </label>
+                                                        </div>
+
+                                                        <div id="banner-desktop-updater" class="col-xs-12 d-none mt-3">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="image-preview-desktop"
+                                                                        style="margin-bottom: 90px;"></div>
+                                                                </div>
+                                                                <div class="col-md-12 mt-2">
+                                                                    <input type="hidden" name="banner_desktop_url"
+                                                                        value="{{ route('settings.desktopapp.update') }}">
+                                                                    {{ Form::button(__('Rotate'), ['class' => 'btn btn-gradient-info btn-sm mb-1', 'data-target' => 'desktop']) }}
+                                                                    {{ Form::button(__('Save Banner'), ['class' => 'btn btn-gradient-primary btn-sm mb-1', 'data-target' => 'desktop']) }}
+                                                                    {{ Form::button(__('Cancel'), ['class' => 'btn btn-gradient-secondary btn-sm', 'data-target' => 'desktop']) }}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-12">
-                                                        <div class="mt-4 choose-files">
-                                                            <label class="form-label d-block">
-                                                                <div class="m-auto bg-primary">
-                                                                    <i class="px-1 ti ti-upload"></i>
-                                                                    {{ __('Choose File Here') }}
-                                                                    <input type="file" class="form-control file"
-                                                                        accept="image/png, image/gif, image/jpeg, image/jpg"
-                                                                        id="banner_image" name="banner_image"
-                                                                        data-filename="banner_image"
-                                                                        onchange="document.getElementById('banner_image').src = window.URL.createObjectURL(this.files[0])">
-                                                                </div>
+
+                                                    <!-- Mobile Banner -->
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <label
+                                                                class="mx-auto mb-0 banner_crop_mobile btn btn-success btn-lg d-block col-sm-12"
+                                                                for="bannerMobileCrop">
+                                                                {{ __('Update Banner (Mobile)') }}
+                                                                {{ Form::file('banner_mobile', ['id' => 'bannerMobileCrop', 'class' => 'd-none', 'accept' => 'image/jpeg, image/png, image/gif, image/webp']) }}
                                                             </label>
-                                                            <p class="edit-favicon"></p>
+                                                        </div>
+
+                                                        <div id="banner-mobile-updater" class="col-xs-12 d-none mt-3">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="image-preview-mobile"
+                                                                        style="margin-bottom: 90px;"></div>
+                                                                </div>
+                                                                <div class="col-md-12 mt-2">
+                                                                    <input type="hidden" name="banner_mobile_url"
+                                                                        value="{{ route('settings.mobileapp.update') }}">
+                                                                    <div class="d-flex flex-wrap gap-2">
+                                                                        {{ Form::button(__('Rotate'), ['class' => 'btn btn-gradient-info btn-sm rotate-btn', 'data-target' => 'mobile']) }}
+                                                                        {{ Form::button(__('Save Banner'), ['class' => 'btn btn-gradient-primary btn-sm save-btn', 'data-target' => 'mobile']) }}
+                                                                        {{ Form::button(__('Cancel'), ['class' => 'btn btn-gradient-secondary btn-sm cancel-btn', 'data-target' => 'mobile']) }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1911,10 +1942,56 @@
 @endsection
 @push('css')
     <link rel="stylesheet" href="{{ asset('assets/css/plugins/bootstrap-switch-button.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/croppie/css/croppie.min.css') }}">
+    <style>
+        .image-preview-desktop,
+        .image-preview-mobile {
+            max-width: 100%;
+            height: 250px;
+            margin: 0 auto;
+            border: 2px dashed #ccc;
+            background: #f9f9f9;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        .crop-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .crop-preview {
+            width: 200px;
+            height: 150px;
+            overflow: hidden;
+            margin: 10px auto;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-group-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .mobile-cropper-wrapper {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+    </style>
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.12/css/intlTelInput.min.css">
 @endpush
 @push('javascript')
     <script src="{{ asset('assets/js/plugins/bootstrap-switch-button.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script>
+     <script src="{{ asset('vendor/croppie/js/croppie.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/plugins/choices.min.js') }}"></script> --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         var scrollSpy = new bootstrap.ScrollSpy(document.body, {
             target: '#useradd-sidenav',
@@ -1929,6 +2006,308 @@
                     placeholderValue: 'This is a placeholder set in the config',
                     searchPlaceholderValue: 'Select Option',
                 });
+            }
+        });
+
+         $(document).ready(function() {
+            let desktopCrop;
+
+            let mobileCrop = null;
+            let mobileCropper = null;
+            let currentMobileFile = null;
+
+            // Initialize Desktop Croppie (e.g. 1920x600)
+            desktopCrop = $('.image-preview-desktop').croppie({
+                enableExif: true,
+                enforceBoundary: true,
+                enableOrientation: true,
+                viewport: {
+                    width: 400,
+                    height: 175,
+                    type: 'square'
+                }, // 16:5 ratio preview
+                boundary: {
+                    width: '100%',
+                    height: '100%'
+                }
+            });
+
+            // Initialize Mobile Croppie (e.g. 800x1000 - vertical)
+            // mobileCrop = $('.image-preview-mobile').croppie({
+            //     enableExif: true,
+            //     enableOrientation: true,
+            //     enforceBoundary: true, // Prevent background outside image
+
+            //     viewport: {
+            //         width: 250, // Give a neutral viewport
+            //         height: 250, // Square = "free feeling"
+            //         type: 'square'
+            //     },
+
+            //     boundary: {
+            //         width: '100%',
+            //         height: 300
+            //     },
+
+            //     showZoomer: true
+            // });
+
+
+
+            // Desktop Upload
+            $('#bannerDesktopCrop').on('change', function() {
+                readImageFile(this, desktopCrop, '#banner-desktop-updater');
+            });
+
+            // Mobile Upload
+            $('#bannerMobileCrop').on('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid File',
+                        text: 'Please select a valid image file (JPEG, PNG, GIF, WebP)'
+                    });
+                    $(this).val('');
+                    return;
+                }
+
+                currentMobileFile = file;
+
+                // Show the cropping interface
+                $('#banner-mobile-updater').removeClass('d-none');
+
+                // Read the image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Destroy previous cropper if exists
+                    if (mobileCropper) {
+                        mobileCropper.destroy();
+                        $('.image-preview-mobile').html('');
+                    }
+
+                    // Create new image element
+                    const img = document.createElement('img');
+                    img.id = 'mobile-crop-image';
+                    img.src = e.target.result;
+                    img.style.maxWidth = '100%';
+
+                    // Clear and add image to container
+                    $('.image-preview-mobile').html(img);
+
+                    // Initialize Cropper.js with free ratio
+                    const image = document.getElementById('mobile-crop-image');
+                    mobileCropper = new Cropper(image, {
+                        aspectRatio: NaN, // Free ratio (NaN means no fixed aspect ratio)
+                        viewMode: 1, // Restrict crop box to not exceed the canvas
+                        dragMode: 'crop', // Initial mode is crop
+                        autoCropArea: 0.8, // 80% of the image will be auto-cropped initially
+                        responsive: true,
+                        restore: true,
+                        guides: true,
+                        center: true,
+                        highlight: true,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: true,
+                        minContainerWidth: 200,
+                        minContainerHeight: 150,
+                        ready: function() {
+                            console.log('Cropper.js ready for free ratio cropping');
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Rotate Button for Mobile
+            $(document).on('click', '.rotate-btn[data-target="mobile"]', function() {
+                if (mobileCropper) {
+                    mobileCropper.rotate(90);
+                }
+            });
+
+            // Save Button for Mobile
+            $(document).on('click', '.save-btn[data-target="mobile"]', function() {
+                if (!mobileCropper || !currentMobileFile) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Image',
+                        text: 'Please select an image first'
+                    });
+                    return;
+                }
+
+                const btn = $(this);
+                btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Saving...');
+
+                // Get the cropped data with high resolution
+                const canvas = mobileCropper.getCroppedCanvas({
+                    // Get natural image dimensions for maximum quality
+                    width: mobileCropper.getImageData().naturalWidth,
+                    height: mobileCropper.getImageData().naturalHeight,
+                    fillColor: '#fff',
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                });
+
+                // Or for specific high-quality dimensions:
+                // const canvas = mobileCropper.getCroppedCanvas({
+                //     width: 1920, // HD quality width
+                //     height: 1080, // HD quality height
+                //     fillColor: '#fff',
+                //     imageSmoothingEnabled: true,
+                //     imageSmoothingQuality: 'high'
+                // });
+
+                // Convert to blob with maximum quality
+                canvas.toBlob(function(blob) {
+                    // Convert blob to base64
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = function() {
+                        const base64data = reader.result;
+
+                        // Send to server
+                        $.ajax({
+                            url: $('input[name="banner_mobile_url"]').val(),
+                            type: 'POST',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                banner: base64data,
+                                original_filename: currentMobileFile.name,
+                                width: canvas.width,
+                                height: canvas.height
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: response.message ||
+                                        'Mobile banner saved successfully!',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(function() {
+                                    $('#banner-mobile-updater').addClass(
+                                        'd-none');
+                                    $('#bannerMobileCrop').val('');
+                                    mobileCropper.destroy();
+                                    mobileCropper = null;
+                                    currentMobileFile = null;
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: xhr.responseJSON?.message ||
+                                        'Failed to save banner'
+                                });
+                            },
+                            complete: function() {
+                                btn.prop('disabled', false).html('Save Banner');
+                            }
+                        });
+                    };
+                }, 'image/jpeg', 0.95); // 95% quality for JPEG
+            });
+
+            // Cancel Button for Mobile
+            $(document).on('click', '.cancel-btn[data-target="mobile"]', function() {
+                $('#banner-mobile-updater').addClass('d-none');
+                $('#bannerMobileCrop').val('');
+                if (mobileCropper) {
+                    mobileCropper.destroy();
+                    mobileCropper = null;
+                }
+                currentMobileFile = null;
+            });
+
+
+            // Rotate Button
+            $(document).on('click', 'button[data-target]', function() {
+                const target = $(this).data('target');
+                const croppieInstance = target === 'desktop' ? desktopCrop : mobileCrop;
+                if ($(this).text().includes('Rotate')) {
+                    croppieInstance.croppie('rotate', 90);
+                }
+            });
+
+            // Save Button
+            $(document).on('click', 'button[data-target]', function() {
+                const target = $(this).data('target');
+                if (!$(this).text().includes('Save')) return;
+
+                const croppieInstance = target === 'desktop' ? desktopCrop : mobileCrop;
+                const urlInput = target === 'desktop' ? 'input[name="banner_desktop_url"]' :
+                    'input[name="banner_mobile_url"]';
+                const updater = target === 'desktop' ? '#banner-desktop-updater' : '#banner-mobile-updater';
+
+                const btn = $(this);
+                btn.prop('disabled', true).html('Saving...');
+
+                croppieInstance.croppie('result', {
+                    type: 'canvas',
+                    size: 'original', // or 'viewport' if you want cropped only
+                    format: 'jpeg',
+                    quality: 0.9
+                }).then(function(blobUrl) {
+                    $.ajax({
+                        url: $(urlInput).val(),
+                        type: 'POST',
+                        data: {
+                            banner: blobUrl,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                text: response.message || "Banner updated!",
+                                icon: "success",
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        },
+                        error: function() {
+                            Swal.fire({
+                                text: "Error saving banner",
+                                icon: "error"
+                            });
+                        },
+                        complete: function() {
+                            btn.prop('disabled', false).html('Save Banner');
+                        }
+                    });
+                });
+            });
+
+            // Cancel Button
+            $(document).on('click', 'button[data-target]', function() {
+                if ($(this).text().includes('Cancel')) {
+                    const target = $(this).data('target');
+                    const updater = target === 'desktop' ? '#banner-desktop-updater' :
+                        '#banner-mobile-updater';
+                    $(updater).addClass('d-none');
+                    $(`#banner${target === 'desktop' ? 'Desktop' : 'Mobile'}Crop`).val('');
+                }
+            });
+
+            // Helper: Read and bind image
+            function readImageFile(input, croppieInstance, updaterSelector) {
+                if (input.files && input.files[0]) {
+                    $(updaterSelector).removeClass('d-none');
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        croppieInstance.croppie('bind', {
+                            url: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
             }
         });
 
