@@ -54,7 +54,7 @@
 
        <!-- MOBILE VIEW -->
         <div class="hero-sec md:hidden">
-            <img class="w-full" src="{{ $influencerDetailsr->mobile_banner_image ?: $influencerDetails->banner_image }}" alt="mobile-banner">
+            <img class="w-full" src="{{ $influencerDetails->mobile_banner_image ?: $influencerDetails->banner_image }}" alt="mobile-banner">
         </div>
 
         <!-- DESKTOP VIEW -->
