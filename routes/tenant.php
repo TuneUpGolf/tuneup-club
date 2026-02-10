@@ -163,410 +163,412 @@ Route::middleware([
     Route::group(['middleware' => ['auth:web,follower', 'Setting', 'xss', '2fa', 'verified', 'verified_phone']], function () {
 
         Route::impersonate();
-                Route::group(['middleware' => ['restrict_influencer']], function () {
+        Route::group(['middleware' => ['restrict_influencer']], function () {
 
-        //help section
-        Route::resource('help-section', HelpSectionController::class);
-        // category
-        Route::resource('category', CategoryController::class);
-        Route::post('category-status/{id}', [CategoryController::class, 'categoryStatus'])->name('category.status');
+            //help section
+            Route::resource('help-section', HelpSectionController::class);
+            // category
+            Route::resource('category', CategoryController::class);
+            Route::post('category-status/{id}', [CategoryController::class, 'categoryStatus'])->name('category.status');
 
-        Route::resource('faqs', FaqController::class);
-        Route::resource('blogs', PostsController::class)->except(['show']);
-        Route::get('blogs/manage/posts', [PostsController::class, 'managePosts'])->name('blogs.manage');
-        Route::get('/posts/reorder', [PostsController::class, 'reorder1'])->name('post.reorder');
-        Route::post('/posts/reorder/update', [PostsController::class, 'updateOrder'])->name('post.reorder.updatee');
-        Route::get('blogs/manage/report', [PostsController::class, 'manageReportedPosts'])->name('blogs.report');
-        Route::post('post-reorder', [PostsController::class, 'reorder'])->name('post-reorder');
-        Route::post('notification/status/{id}', [NotificationsSettingController::class, 'changeStatus'])->name('notification.status.change');
-        Route::resource('support-ticket', SupportTicketController::class);
-        Route::resource('email-template', EmailTemplateController::class);
-        Route::resource('sms-template', SmsTemplateController::class);
-        Route::get('change-language/{lang}', [LanguageController::class, 'changeLanquage'])->name('change.language');
-        Route::post('support-ticket/{id}/conversion', [ConversionsController::class, 'store'])->name('conversion.store');
-        Route::resource('pagesetting', PageSettingController::class);
+            Route::resource('faqs', FaqController::class);
+            Route::resource('blogs', PostsController::class)->except(['show']);
+            Route::get('blogs/manage/posts', [PostsController::class, 'managePosts'])->name('blogs.manage');
+            Route::get('/posts/reorder', [PostsController::class, 'reorder1'])->name('post.reorder');
+            Route::post('/posts/reorder/update', [PostsController::class, 'updateOrder'])->name('post.reorder.updatee');
+            Route::get('blogs/manage/report', [PostsController::class, 'manageReportedPosts'])->name('blogs.report');
+            Route::post('post-reorder', [PostsController::class, 'reorder'])->name('post-reorder');
+            Route::post('notification/status/{id}', [NotificationsSettingController::class, 'changeStatus'])->name('notification.status.change');
+            Route::resource('support-ticket', SupportTicketController::class);
+            Route::resource('email-template', EmailTemplateController::class);
+            Route::resource('sms-template', SmsTemplateController::class);
+            Route::get('change-language/{lang}', [LanguageController::class, 'changeLanquage'])->name('change.language');
+            Route::post('support-ticket/{id}/conversion', [ConversionsController::class, 'store'])->name('conversion.store');
+            Route::resource('pagesetting', PageSettingController::class);
 
-        // user
-        Route::resource('users', UserController::class);
-        Route::get('user-emailverified/{id}', [UserController::class, 'userEmailVerified'])->name('user.email.verified');
-        Route::get('user-phoneverified/{id}', [UserController::class, 'userPhoneVerified'])->name('user.phone.verified');
-        Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
+            // user
+            Route::resource('users', UserController::class);
+            Route::get('user-emailverified/{id}', [UserController::class, 'userEmailVerified'])->name('user.email.verified');
+            Route::get('user-phoneverified/{id}', [UserController::class, 'userPhoneVerified'])->name('user.phone.verified');
+            Route::post('user-status/{id}', [UserController::class, 'userStatus'])->name('user.status');
 
-        //chat
-        Route::get('follower-chat', [FollowerCOntroller::class, 'followerChat'])->name('follower.chat');
+            //chat
+            Route::get('follower-chat', [FollowerCOntroller::class, 'followerChat'])->name('follower.chat');
 
-        //influencer
-        Route::get('/influencer/import', [InfluencerController::class, 'import'])->name('influencer.import');
-        Route::resource('influencer', InfluencerController::class);
-        Route::get('influencer/profile/get', [InfluencerController::class, 'viewProfile'])->name('influencer.profile');
-        Route::get('influencer-emailverified/{id}', [InfluencerController::class, 'userEmailVerified'])->name('influencer.email.verified');
-        Route::get('influencer-phoneverified/{id}', [InfluencerController::class, 'userPhoneVerified'])->name('influencer.phone.verified');
-        ROute::get('influencer/profiles/all', [InfluencerController::class, 'influencerProfile'])->name('influencer.profiles');
-        Route::post('influencer-status/{id}', [InfluencerController::class, 'userStatus'])->name('influencer.status');
-        Route::post('/import_influencers', [InfluencerController::class, 'importfun'])->name('influencer.import_influencers');
-        Route::get('get-video/{video}', [PurchaseController::class, 'getVideo'])->name('getVideo');
+            //influencer
+            Route::get('/influencer/import', [InfluencerController::class, 'import'])->name('influencer.import');
+            Route::resource('influencer', InfluencerController::class);
+            Route::get('influencer/profile/get', [InfluencerController::class, 'viewProfile'])->name('influencer.profile');
+            Route::get('influencer-emailverified/{id}', [InfluencerController::class, 'userEmailVerified'])->name('influencer.email.verified');
+            Route::get('influencer-phoneverified/{id}', [InfluencerController::class, 'userPhoneVerified'])->name('influencer.phone.verified');
+            ROute::get('influencer/profiles/all', [InfluencerController::class, 'influencerProfile'])->name('influencer.profiles');
+            Route::post('influencer-status/{id}', [InfluencerController::class, 'userStatus'])->name('influencer.status');
+            Route::post('/import_influencers', [InfluencerController::class, 'importfun'])->name('influencer.import_influencers');
+            Route::get('get-video/{video}', [PurchaseController::class, 'getVideo'])->name('getVideo');
 
-        Route::get('/follower/import', [FollowerController::class, 'import'])->name('follower.import');
-        Route::resource('follower', FollowerController::class);
-        Route::resource('all-chat', FollowerController::class);
-        Route::post('chat-notification', [FollowerController::class, 'chatNotification'])->name('chat.notification');
-        Route::get('follower-emailverified/{id}', [FollowerController::class, 'userEmailVerified'])->name('follower.email.verified');
-        Route::get('follower-phoneverified/{id}', [FollowerController::class, 'userPhoneVerified'])->name('follower.phone.verified');
-        Route::post('follower-status/{id}', [FollowerController::class, 'userStatus'])->name('follower.status');
-        Route::post('follower-chat/{id}', [FollowerController::class, 'userChatStatus'])->name('follower.chatstatus');
-        Route::post('/import_followers', [FollowerController::class, 'importfun'])->name('follower.import_followers');
-        Route::get('follower/{id}', [FollowerController::class, 'show'])->name('follower.show');
-        Route::get('follower-purchases/data', [FollowerController::class, 'followerPurchasesData'])->name('follower-purchases.data');
-        Route::get('follower/purchases', [FollowerController::class, 'purchases'])->name('follower.purchases');
+            Route::get('/follower/import', [FollowerController::class, 'import'])->name('follower.import');
+            Route::resource('follower', FollowerController::class);
+            Route::resource('all-chat', FollowerController::class);
+            Route::post('chat-notification', [FollowerController::class, 'chatNotification'])->name('chat.notification');
+            Route::get('follower-emailverified/{id}', [FollowerController::class, 'userEmailVerified'])->name('follower.email.verified');
+            Route::get('follower-phoneverified/{id}', [FollowerController::class, 'userPhoneVerified'])->name('follower.phone.verified');
+            Route::post('follower-status/{id}', [FollowerController::class, 'userStatus'])->name('follower.status');
+            Route::post('follower-chat/{id}', [FollowerController::class, 'userChatStatus'])->name('follower.chatstatus');
+            Route::post('/import_followers', [FollowerController::class, 'importfun'])->name('follower.import_followers');
+            Route::get('follower/{id}', [FollowerController::class, 'show'])->name('follower.show');
+            Route::get('follower-purchases/data', [FollowerController::class, 'followerPurchasesData'])->name('follower-purchases.data');
+            Route::get('follower/purchases', [FollowerController::class, 'purchases'])->name('follower.purchases');
 
-        Route::resource('lesson', LessonController::class);
-        Route::post('/lesson/reorder', [LessonController::class, 'reorder'])
-            ->name('lesson.reorder');
-        Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
-        Route::get('lesson/purchase/all', [LessonController::class, 'availableLessons'])->name('lesson.available');
-        Route::get('get/lesson/influencer/', [LessonController::class, 'getAllByInfluencer']);
-        Route::get('get/all', [LessonController::class, 'getAll']);
-        Route::get('lesson/slot/create', [LessonController::class, 'createSlot'])->name('slot.create');
-        Route::post('lesson/slot/add', [LessonController::class, 'addConsectuiveSlots'])->name('slot.add');
-        Route::get('lesson/slot/view', [LessonController::class, 'viewSlots'])->name('slot.view');
-        Route::post('lesson/slot/done', [LessonController::class, 'completeSlot'])->name('slot.complete');
-        Route::post('lesson/slot/booking', [LessonController::class, 'bookSlotApi'])->name('slot.book');
-        Route::post('lesson/slot/admin', [LessonController::class, 'bookAdminSlot'])->name('slot.admin');
-        Route::post('lesson/slot/update', [LessonController::class, 'updateSlot'])->name('slot.update');
+            Route::resource('lesson', LessonController::class);
+            Route::post('/lesson/reorder', [LessonController::class, 'reorder'])
+                ->name('lesson.reorder');
+            Route::get('lesson/manage/slot', [LessonController::class, 'manageSlots'])->name('slot.manage');
+            Route::get('lesson/purchase/all', [LessonController::class, 'availableLessons'])->name('lesson.available');
+            Route::get('get/lesson/influencer/', [LessonController::class, 'getAllByInfluencer']);
+            Route::get('get/all', [LessonController::class, 'getAll']);
+            Route::get('lesson/slot/create', [LessonController::class, 'createSlot'])->name('slot.create');
+            Route::post('lesson/slot/add', [LessonController::class, 'addConsectuiveSlots'])->name('slot.add');
+            Route::get('lesson/slot/view', [LessonController::class, 'viewSlots'])->name('slot.view');
+            Route::post('lesson/slot/done', [LessonController::class, 'completeSlot'])->name('slot.complete');
+            Route::post('lesson/slot/booking', [LessonController::class, 'bookSlotApi'])->name('slot.book');
+            Route::post('lesson/slot/admin', [LessonController::class, 'bookAdminSlot'])->name('slot.admin');
+            Route::post('lesson/slot/update', [LessonController::class, 'updateSlot'])->name('slot.update');
 
-        //purchase
-        Route::resource('purchase', PurchaseController::class);
-        Route::get('subscription/purchase', [PurchaseController::class, 'subscription_index'])->name('purchase.subscription');
+            //purchase
+            Route::resource('purchase', PurchaseController::class);
+            Route::get('subscription/purchase', [PurchaseController::class, 'subscription_index'])->name('purchase.subscription');
 
-        ////download
-        Route::get('streamM3U8ToMov/{id}', [PurchaseController::class, 'smartVideoDownload'])->name('streamM3U8ToMov');
-        Route::get('streamM3U8ToMov2/{id}', [PurchaseController::class, 'smartVideoDownload2'])->name('streamM3U8ToMov2');
+            ////download
+            Route::get('streamM3U8ToMov/{id}', [PurchaseController::class, 'smartVideoDownload'])->name('streamM3U8ToMov');
+            Route::get('streamM3U8ToMov2/{id}', [PurchaseController::class, 'smartVideoDownload2'])->name('streamM3U8ToMov2');
 
-        Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');
-        Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
-        Route::get('/upcoming-lessons/data', [PurchaseController::class, 'upcomingLessonsData'])->name('upcoming-lessons.data');
-        Route::post('purchase/payment', [PurchaseController::class, 'purchasePayment'])->name('purchase.payment');
-        Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
-        Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');
-        Route::get('purchase/get/follower', [PurchaseController::class, 'getFollowerPurchases']);
-        Route::get('purchase/get/video', [PurchaseController::class, 'getPurchaseVideos']);
-        Route::get('purchase/add/follower/video', [PurchaseController::class, 'addVideoIndex'])->name('purchase.video.index');
-        Route::get('purchase/add/follower/lesson', [PurchaseController::class, 'viewLesson'])->name('purchase.lesson');
-
-
-        Route::get('purchase/feedback/all', [PurchaseController::class, 'feedbackIndex'])->name('purchase.feedback.index');
-        Route::get('purchase/add/feedback/create', [PurchaseController::class, 'addFeedBackIndex'])->name('purchase.feedback.create');
-        Route::post('purchase/add/feedback/add', [PurchaseController::class, 'addFeedBack'])->name('purchase.feedback.add');
-        Route::post('purchase/add/feedback/update', [PurchaseController::class, 'updateFeedBack'])->name('purchase.feedback.update');
-        Route::get('purchase/add/feedback/edit', [PurchaseController::class, 'editFeedBackIndex'])->name('purchase.feedback.edit');
-        Route::delete('/purchase-feedback/{purchaseVideo}', [PurchaseController::class, 'deleteFeedback'])->name('purchase.feedback.delete');
-        Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
-
-        Route::post('/album/upload-chunk', [AlbumController::class, 'uploadChunk'])->name('album.upload.chunk');
-        Route::post('/album/finalize-upload', [AlbumController::class, 'finalizeUpload'])->name('album.upload.finalize');
-
-        //follow
-        Route::post('follow/influencer', [FollowController::class, 'followInfluencer'])->name('follow.influencer');
-        Route::post('follow/subscribe/influencer', [FollowController::class, 'subscribeInst'])->name('follow.sub.influencer');
-        Route::get('follow/subscriptions/follower', [FollowController::class, 'mySubscriptions'])->name('follow.subsctiptions');
-
-        //purchasePost
-        Route::post('purchase/post/influencer', [PurchasePostController::class, 'purchasePost'])->name('purchase.post.index');
-        Route::post('purchase/like', [PostsController::class, 'likePost'])->name('purchase.like');
-
-        // role
-        Route::resource('roles', RoleController::class);
-        Route::post('role-permission/{id}', [RoleController::class, 'assignPermission'])->name('role.permission');
-
-        // Route::get("yesy", [HomeController::class, 'testt']);
-        // home
-        Route::post('change/theme/mode', [HomeController::class, 'changeThemeMode'])->name('change.theme.mode');
-        Route::get('home', [HomeController::class, 'index'])->name('home');
-        Route::post('chart', [HomeController::class, 'chart'])->name('get.chart.data');
-        Route::post('read/notification', [HomeController::class, 'readNotification'])->name('admin.read.notification');
-        Route::get('sales', [HomeController::class, 'sales'])->name('sales.index');
-        Route::post('subscribe-service-plan/{id}', [HomeController::class, 'subscribeServicePlan'])->name('subscribe.service.plan');
-        Route::get('/influencer/payment/success', [HomeController::class, 'paymentSuccess'])->name('influencer.payment.success');
-        Route::get('/influencer/payment/cancel', [HomeController::class, 'paymentCancel'])->name('influencer.payment.cancel');
-        // coupon
-        Route::get('apply-coupon', [CouponController::class, 'applyCoupon'])->name('apply.coupon');
-        Route::resource('coupon', CouponController::class);
-        Route::post('coupon-status/{id}', [CouponController::class, 'couponStatus'])->name('coupon.status');
-        Route::get('coupon/show', [CouponController::class, 'show'])->name('coupons.show');
-        Route::get('coupon/csv/upload', [CouponController::class, 'uploadCsv'])->name('coupon.upload');
-        Route::post('coupon/csv/upload/store', [CouponController::class, 'uploadCsvStore'])->name('coupon.upload.store');
-        Route::get('coupon/mass/create', [CouponController::class, 'massCreate'])->name('coupon.mass.create');
-        Route::post('coupon/mass/store', [CouponController::class, 'massCreateStore'])->name('coupon.mass.store');
-
-        // testimonial
-        Route::resource('testimonial', TestimonialController::class);
-        Route::post('testimonial-status/{id}', [TestimonialController::class, 'testimonialStatus'])->name('testimonial.status');
-
-        //stripe connect
-        Route::post('stripe/connect/create', [StripeController::class, 'connectStripe'])->name('stripe.create');
-        Route::get('stripe/connect/disconnect/{userId}', [ProfileController::class, 'disconnectStripe'])->name('stripe.disconnect');
-        Route::post('profile/stripe/verify', [ProfileController::class, 'verifyStripe'])->name('profile.verify.stripe');
-        Route::post('profile/stripe/stripe_transaction_fee', [ProfileController::class, 'verifyStripeTransactionFee'])->name('profile.verify.stripe_transaction_fee');
-
-        //event
-        Route::get('event', [EventController::class, 'index'])->name('event.index');
-        Route::post('event/getdata', [EventController::class, 'getEventData'])->name('event.get.data');
-        Route::get('event/create', [EventController::class, 'create'])->name('event.create');
-        Route::post('event/store', [EventController::class, 'store'])->name('event.store');
-        Route::get('event/edit/{event}', [EventController::class, 'edit'])->name('event.edit');
-        Route::any('event/update/{event}', [EventController::class, 'update'])->name('event.update');
-        Route::DELETE('event/delete/{event}', [EventController::class, 'destroy'])->name('event.destroy');
-
-        //announcement 
-        Route::resource('announcements', AnnouncementController::class);
-        Route::get('announcements/action', [AnnouncementController::class, 'action'])->name('announcements.action');
-
-        Route::get('/purchases/data', [PurchaseController::class, 'data'])->name('purchase.data');
+            Route::get('purchase/checkout', [PurchaseController::class, 'store'])->name('purchase.checkout');
+            Route::post('purchase/store', [PurchaseController::class, 'store'])->name('purchase.store');
+            Route::get('/upcoming-lessons/data', [PurchaseController::class, 'upcomingLessonsData'])->name('upcoming-lessons.data');
+            Route::post('purchase/payment', [PurchaseController::class, 'purchasePayment'])->name('purchase.payment');
+            Route::post('purchase/confirm/redirect', [PurchaseController::class, 'confirmPurchaseWithRedirect'])->name('purchase-confirm-redirect');
+            Route::post('purchase/video', [PurchaseController::class, 'addVideo'])->name('purchase.video.add');
+            Route::get('purchase/get/follower', [PurchaseController::class, 'getFollowerPurchases']);
+            Route::get('purchase/get/video', [PurchaseController::class, 'getPurchaseVideos']);
+            Route::get('purchase/add/follower/video', [PurchaseController::class, 'addVideoIndex'])->name('purchase.video.index');
+            Route::get('purchase/add/follower/lesson', [PurchaseController::class, 'viewLesson'])->name('purchase.lesson');
 
 
-        // plans
-        Route::resource('plans', PlanController::class);
-        Route::get('myplans', [PlanController::class, 'myPlan'])->name('plans.myplan');
-        Route::get('/plans/myplan/data', [PlanController::class, 'myPlanData'])->name('plans.myplan.data');
-        Route::post('/plan/reorder', [PlanController::class, 'reorder'])
-            ->name('plan.reorder');
+            Route::get('purchase/feedback/all', [PurchaseController::class, 'feedbackIndex'])->name('purchase.feedback.index');
+            Route::get('purchase/add/feedback/create', [PurchaseController::class, 'addFeedBackIndex'])->name('purchase.feedback.create');
+            Route::post('purchase/add/feedback/add', [PurchaseController::class, 'addFeedBack'])->name('purchase.feedback.add');
+            Route::post('purchase/add/feedback/update', [PurchaseController::class, 'updateFeedBack'])->name('purchase.feedback.update');
+            Route::get('purchase/add/feedback/edit', [PurchaseController::class, 'editFeedBackIndex'])->name('purchase.feedback.edit');
+            Route::delete('/purchase-feedback/{purchaseVideo}', [PurchaseController::class, 'deleteFeedback'])->name('purchase.feedback.delete');
+            Route::get('purchase/lesson/{id}', [PurchaseController::class, 'showLesson'])->name('purchase.show');
 
-        Route::get('myplans-create', [PlanController::class, 'createMyPlan'])->name('plans.createmyplan');
-        Route::get('myplans/{id}/edit', [PlanController::class, 'editMyplan'])->name('requestdomain.editplan');
-        Route::post('myplan-status/{id}', [PlanController::class, 'planStatus'])->name('myplan.status');
-        Route::get('payment/{code}/{subscription?}', [PlanController::class, 'payment'])->name('payment');
-        Route::get('plans/{plan}/buyers', [PlanController::class, 'buyers'])->name('plans.buyers');
-        Route::get('cancel-plan/{plan_id}', [PlanController::class, 'cancelPlan'])->name('plans.cancel');
+            Route::post('/album/upload-chunk', [AlbumController::class, 'uploadChunk'])->name('album.upload.chunk');
+            Route::post('/album/finalize-upload', [AlbumController::class, 'finalizeUpload'])->name('album.upload.finalize');
 
-        // offline request
-        Route::resource('offline', OfflineRequestController::class);
-        Route::get('offline-request/{id}', [OfflineRequestController::class, 'offlineRequestStatus'])->name('offline.request.status');
-        Route::get('offline-request/disapprove/{id}', [OfflineRequestController::class, 'disApproveStatus'])->name('offline.disapprove.status');
-        Route::post('offline-request/disapprove-update/{id}', [OfflineRequestController::class, 'offlineDisApprove'])->name('request.user.disapprove.update');
-        Route::post('offline-payment', [OfflineRequestController::class, 'offlinePaymentEntry'])->name('offline.payment.request');
+            //follow
+            Route::post('follow/influencer', [FollowController::class, 'followInfluencer'])->name('follow.influencer');
+            Route::post('follow/subscribe/influencer', [FollowController::class, 'subscribeInst'])->name('follow.sub.influencer');
+            Route::get('follow/subscriptions/follower', [FollowController::class, 'mySubscriptions'])->name('follow.subsctiptions');
 
-        //2fa
-        Route::group(['prefix' => '2fa'], function () {
-            Route::get('/', [LoginSecurityController::class, 'show2faForm']);
-            Route::post('generateSecret', [LoginSecurityController::class, 'generate2faSecret'])->name('generate2faSecret');
-            Route::post('enable2fa', [LoginSecurityController::class, 'enable2fa'])->name('enable2fa');
-            Route::post('disable2fa', [LoginSecurityController::class, 'disable2fa'])->name('disable2fa');
-            Route::post('2faVerify', function () {
-                return redirect(route('home'));
-                // return redirect(URL()->previous());
-            })->name('2faVerify');
-        });
+            //purchasePost
+            Route::post('purchase/post/influencer', [PurchasePostController::class, 'purchasePost'])->name('purchase.post.index');
+            Route::post('purchase/like', [PostsController::class, 'likePost'])->name('purchase.like');
 
-        // profile
-        Route::get('profile/edit', [ProfileController::class, 'index'])->name('profile.view');
-        Route::delete('/profile-destroy/delete', [ProfileController::class, 'destroy'])->name('profile.delete');
-        Route::get('profile-status', [ProfileController::class, 'profileStatus'])->name('profile.status');
-        Route::post('update-avatar', [ProfileController::class, 'updateAvatar'])->name('update.avatar');
-        Route::post('profile/basicinfo/update/', [ProfileController::class, 'BasicInfoUpdate'])->name('profile.update.basicinfo');
-        Route::post('profile/socialmedia/update/', [ProfileController::class, 'SocialMediaUpdate'])->name('update.socialmedia');
-        Route::post('profile/bio/update/', [ProfileController::class, 'BioUpdate'])->name('profile.update.bioupdate');
-        Route::post('profile/subscription_text/update/', [ProfileController::class, 'subscriptionTextUpdate'])->name('profile.update.subscription_text');
-        Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
-        Route::post('update-banner-image', [ProfileController::class, 'BannerDetails'])->name('update.banner.image');
+            // role
+            Route::resource('roles', RoleController::class);
+            Route::post('role-permission/{id}', [RoleController::class, 'assignPermission'])->name('role.permission');
 
-        //setting
-        Route::get('settings', [SettingsController::class, 'index'])->name('settings');
-        Route::post('settings/app-name/update', [SettingsController::class, 'appNameUpdate'])->name('settings.appname.update');
-        Route::post('settings/pusher-setting/update', [SettingsController::class, 'pusherSettingUpdate'])->name('settings.pusher.setting.update');
-        Route::post('settings/s3-setting/update', [SettingsController::class, 's3SettingUpdate'])->name('settings.s3.setting.update');
-        Route::post('settings/email-setting/update', [SettingsController::class, 'emailSettingUpdate'])->name('settings.email.setting.update');
-        Route::post('settings/sms-setting/update', [SettingsController::class, 'smsSettingUpdate'])->name('settings.sms.setting.update');
-        Route::post('settings/payment-setting/update', [SettingsController::class, 'paymentSettingUpdate'])->name('settings.payment.setting.update');
-        Route::post('settings/social-setting/update', [SettingsController::class, 'socialSettingUpdate'])->name('settings.social.setting.update');
-        Route::post('settings/google-calender/update', [SettingsController::class, 'GoogleCalenderUpdate'])->name('settings.google.calender.update');
-        Route::post('settings/auth-settings/update', [SettingsController::class, 'authSettingsUpdate'])->name('settings.auth.settings.update');
-        Route::post('test-mail', [SettingsController::class, 'testSendMail'])->name('test.send.mail');
-        Route::post('ckeditor/upload', [SettingsController::class, 'upload'])->name('ckeditor.upload');
-        Route::post('settings/change-domain', [SettingsController::class, 'changeDomainRequest'])->name('settings.change.domain');
-        Route::get('test-mail', [SettingsController::class, 'testMail'])->name('test.mail');
-        Route::post('settings/cookie-setting/update', [SettingsController::class, 'cookieSettingUpdate'])->name('settings.cookie.setting.update');
-        Route::post('setting/seo/save', [SettingsController::class, 'SeoSetting'])->name('setting.seo.save');
+            // Route::get("yesy", [HomeController::class, 'testt']);
+            // home
+            Route::post('change/theme/mode', [HomeController::class, 'changeThemeMode'])->name('change.theme.mode');
+            Route::get('home', [HomeController::class, 'index'])->name('home');
+            Route::post('chart', [HomeController::class, 'chart'])->name('get.chart.data');
+            Route::post('read/notification', [HomeController::class, 'readNotification'])->name('admin.read.notification');
+            Route::get('sales', [HomeController::class, 'sales'])->name('sales.index');
+            Route::post('subscribe-service-plan/{id}', [HomeController::class, 'subscribeServicePlan'])->name('subscribe.service.plan');
+            Route::get('/influencer/payment/success', [HomeController::class, 'paymentSuccess'])->name('influencer.payment.success');
+            Route::get('/influencer/payment/cancel', [HomeController::class, 'paymentCancel'])->name('influencer.payment.cancel');
+            // coupon
+            Route::get('apply-coupon', [CouponController::class, 'applyCoupon'])->name('apply.coupon');
+            Route::resource('coupon', CouponController::class);
+            Route::post('coupon-status/{id}', [CouponController::class, 'couponStatus'])->name('coupon.status');
+            Route::get('coupon/show', [CouponController::class, 'show'])->name('coupons.show');
+            Route::get('coupon/csv/upload', [CouponController::class, 'uploadCsv'])->name('coupon.upload');
+            Route::post('coupon/csv/upload/store', [CouponController::class, 'uploadCsvStore'])->name('coupon.upload.store');
+            Route::get('coupon/mass/create', [CouponController::class, 'massCreate'])->name('coupon.mass.create');
+            Route::post('coupon/mass/store', [CouponController::class, 'massCreateStore'])->name('coupon.mass.store');
 
-        // Album Category Routes
-        Route::controller(AlbumCategoryController::class)->prefix('album-category')->name('album.category.')->group(function () {
-            Route::get('/', 'index')->name('manage');
-            Route::get('change-order/{id}', 'change_order')->name('change-order');
-            Route::post('albums/reorder/{id}', 'reorder')->name('album-reorder');
-            Route::get('create', 'create')->name('create');
-            Route::post('store', 'store')->name('store');
-            Route::get('edit/{id}', 'edit')->name('edit');
-            Route::patch('update/{id}', 'update')->name('update');
-            Route::delete('delete/{id}', 'destroy')->name('destroy');
-            Route::get('show', 'getCategories')->name('show');
-            Route::get('albums/{id}', 'getCategoryAlbums')->name('album');
-            Route::post('album/like', 'likeAlbum')->name('album.like');
-            Route::post('purchase/album/instructor', 'purchaseAlbumCategory')->name('purchase.album.index');
-            Route::get('create-album/{id}', 'createAlbum')->name('create-album');
-        });
+            // testimonial
+            Route::resource('testimonial', TestimonialController::class);
+            Route::post('testimonial-status/{id}', [TestimonialController::class, 'testimonialStatus'])->name('testimonial.status');
 
-        //Album Routes
+            //stripe connect
+            Route::post('stripe/connect/create', [StripeController::class, 'connectStripe'])->name('stripe.create');
+            Route::get('stripe/connect/disconnect/{userId}', [ProfileController::class, 'disconnectStripe'])->name('stripe.disconnect');
+            Route::post('profile/stripe/verify', [ProfileController::class, 'verifyStripe'])->name('profile.verify.stripe');
+            Route::post('profile/stripe/stripe_transaction_fee', [ProfileController::class, 'verifyStripeTransactionFee'])->name('profile.verify.stripe_transaction_fee');
 
-        Route::controller(AlbumController::class)->prefix('album')->name('album.')->group(function () {
-            Route::get('/', 'index')->name('manage');
-            Route::get('create', 'create')->name('create');
-            Route::post('store', 'store')->name('store');
-            Route::get('edit/{id}', 'edit')->name('edit');
-            Route::patch('update/{id}', 'update')->name('update');
-            Route::delete('delete/{id}', 'destroy')->name('destroy');
-        });
-        //frontend
-        Route::group(['prefix' => 'landingpage-setting'], function () {
-            Route::get('app-setting', [LandingPageController::class, 'landingPageSetting'])->name('landingpage.setting');
-            Route::post('app-setting/store', [LandingPageController::class, 'appSettingStore'])->name('landing.app.store');
+            //event
+            Route::get('event', [EventController::class, 'index'])->name('event.index');
+            Route::post('event/getdata', [EventController::class, 'getEventData'])->name('event.get.data');
+            Route::get('event/create', [EventController::class, 'create'])->name('event.create');
+            Route::post('event/store', [EventController::class, 'store'])->name('event.store');
+            Route::get('event/edit/{event}', [EventController::class, 'edit'])->name('event.edit');
+            Route::any('event/update/{event}', [EventController::class, 'update'])->name('event.update');
+            Route::DELETE('event/delete/{event}', [EventController::class, 'destroy'])->name('event.destroy');
+
+            //announcement 
+            Route::resource('announcements', AnnouncementController::class);
+            Route::get('announcements/action', [AnnouncementController::class, 'action'])->name('announcements.action');
+
+            Route::get('/purchases/data', [PurchaseController::class, 'data'])->name('purchase.data');
+
+
+            // plans
+            Route::resource('plans', PlanController::class);
+            Route::get('myplans', [PlanController::class, 'myPlan'])->name('plans.myplan');
+            Route::get('/plans/myplan/data', [PlanController::class, 'myPlanData'])->name('plans.myplan.data');
+            Route::post('/plan/reorder', [PlanController::class, 'reorder'])
+                ->name('plan.reorder');
+
+            Route::get('myplans-create', [PlanController::class, 'createMyPlan'])->name('plans.createmyplan');
+            Route::get('myplans/{id}/edit', [PlanController::class, 'editMyplan'])->name('requestdomain.editplan');
+            Route::post('myplan-status/{id}', [PlanController::class, 'planStatus'])->name('myplan.status');
+            Route::get('payment/{code}/{subscription?}', [PlanController::class, 'payment'])->name('payment');
+            Route::get('plans/{plan}/buyers', [PlanController::class, 'buyers'])->name('plans.buyers');
+            Route::get('cancel-plan/{plan_id}', [PlanController::class, 'cancelPlan'])->name('plans.cancel');
+
+            // offline request
+            Route::resource('offline', OfflineRequestController::class);
+            Route::get('offline-request/{id}', [OfflineRequestController::class, 'offlineRequestStatus'])->name('offline.request.status');
+            Route::get('offline-request/disapprove/{id}', [OfflineRequestController::class, 'disApproveStatus'])->name('offline.disapprove.status');
+            Route::post('offline-request/disapprove-update/{id}', [OfflineRequestController::class, 'offlineDisApprove'])->name('request.user.disapprove.update');
+            Route::post('offline-payment', [OfflineRequestController::class, 'offlinePaymentEntry'])->name('offline.payment.request');
+
+            //2fa
+            Route::group(['prefix' => '2fa'], function () {
+                Route::get('/', [LoginSecurityController::class, 'show2faForm']);
+                Route::post('generateSecret', [LoginSecurityController::class, 'generate2faSecret'])->name('generate2faSecret');
+                Route::post('enable2fa', [LoginSecurityController::class, 'enable2fa'])->name('enable2fa');
+                Route::post('disable2fa', [LoginSecurityController::class, 'disable2fa'])->name('disable2fa');
+                Route::post('2faVerify', function () {
+                    return redirect(route('home'));
+                    // return redirect(URL()->previous());
+                })->name('2faVerify');
+            });
+
+            // profile
+            Route::get('profile/edit', [ProfileController::class, 'index'])->name('profile.view');
+            Route::delete('/profile-destroy/delete', [ProfileController::class, 'destroy'])->name('profile.delete');
+            Route::get('profile-status', [ProfileController::class, 'profileStatus'])->name('profile.status');
+            Route::post('update-avatar', [ProfileController::class, 'updateAvatar'])->name('update.avatar');
+            Route::post('profile/basicinfo/update/', [ProfileController::class, 'BasicInfoUpdate'])->name('profile.update.basicinfo');
+            Route::post('profile/socialmedia/update/', [ProfileController::class, 'SocialMediaUpdate'])->name('update.socialmedia');
+            Route::post('profile/bio/update/', [ProfileController::class, 'BioUpdate'])->name('profile.update.bioupdate');
+            Route::post('profile/subscription_text/update/', [ProfileController::class, 'subscriptionTextUpdate'])->name('profile.update.subscription_text');
+            Route::post('update-login', [ProfileController::class, 'LoginDetails'])->name('update.login.details');
+            Route::post('update-banner-image', [ProfileController::class, 'BannerDetails'])->name('update.banner.image');
+
+            //setting
+            Route::get('settings', [SettingsController::class, 'index'])->name('settings');
+            Route::post('settings/app-mobile/update', [SettingsController::class, 'addMobileImage'])->name('settings.mobileapp.update');
+            Route::post('settings/app-desktop/update', [SettingsController::class, 'addDesktopImage'])->name('settings.desktopapp.update');
+            Route::post('settings/app-name/update', [SettingsController::class, 'appNameUpdate'])->name('settings.appname.update');
+            Route::post('settings/pusher-setting/update', [SettingsController::class, 'pusherSettingUpdate'])->name('settings.pusher.setting.update');
+            Route::post('settings/s3-setting/update', [SettingsController::class, 's3SettingUpdate'])->name('settings.s3.setting.update');
+            Route::post('settings/email-setting/update', [SettingsController::class, 'emailSettingUpdate'])->name('settings.email.setting.update');
+            Route::post('settings/sms-setting/update', [SettingsController::class, 'smsSettingUpdate'])->name('settings.sms.setting.update');
+            Route::post('settings/payment-setting/update', [SettingsController::class, 'paymentSettingUpdate'])->name('settings.payment.setting.update');
+            Route::post('settings/social-setting/update', [SettingsController::class, 'socialSettingUpdate'])->name('settings.social.setting.update');
+            Route::post('settings/google-calender/update', [SettingsController::class, 'GoogleCalenderUpdate'])->name('settings.google.calender.update');
+            Route::post('settings/auth-settings/update', [SettingsController::class, 'authSettingsUpdate'])->name('settings.auth.settings.update');
+            Route::post('test-mail', [SettingsController::class, 'testSendMail'])->name('test.send.mail');
+            Route::post('ckeditor/upload', [SettingsController::class, 'upload'])->name('ckeditor.upload');
+            Route::post('settings/change-domain', [SettingsController::class, 'changeDomainRequest'])->name('settings.change.domain');
+            Route::get('test-mail', [SettingsController::class, 'testMail'])->name('test.mail');
+            Route::post('settings/cookie-setting/update', [SettingsController::class, 'cookieSettingUpdate'])->name('settings.cookie.setting.update');
+            Route::post('setting/seo/save', [SettingsController::class, 'SeoSetting'])->name('setting.seo.save');
+
+            // Album Category Routes
+            Route::controller(AlbumCategoryController::class)->prefix('album-category')->name('album.category.')->group(function () {
+                Route::get('/', 'index')->name('manage');
+                Route::get('change-order/{id}', 'change_order')->name('change-order');
+                Route::post('albums/reorder/{id}', 'reorder')->name('album-reorder');
+                Route::get('create', 'create')->name('create');
+                Route::post('store', 'store')->name('store');
+                Route::get('edit/{id}', 'edit')->name('edit');
+                Route::patch('update/{id}', 'update')->name('update');
+                Route::delete('delete/{id}', 'destroy')->name('destroy');
+                Route::get('show', 'getCategories')->name('show');
+                Route::get('albums/{id}', 'getCategoryAlbums')->name('album');
+                Route::post('album/like', 'likeAlbum')->name('album.like');
+                Route::post('purchase/album/instructor', 'purchaseAlbumCategory')->name('purchase.album.index');
+                Route::get('create-album/{id}', 'createAlbum')->name('create-album');
+            });
+
+            //Album Routes
+
+            Route::controller(AlbumController::class)->prefix('album')->name('album.')->group(function () {
+                Route::get('/', 'index')->name('manage');
+                Route::get('create', 'create')->name('create');
+                Route::post('store', 'store')->name('store');
+                Route::get('edit/{id}', 'edit')->name('edit');
+                Route::patch('update/{id}', 'update')->name('update');
+                Route::delete('delete/{id}', 'destroy')->name('destroy');
+            });
+            //frontend
+            Route::group(['prefix' => 'landingpage-setting'], function () {
+                Route::get('app-setting', [LandingPageController::class, 'landingPageSetting'])->name('landingpage.setting');
+                Route::post('app-setting/store', [LandingPageController::class, 'appSettingStore'])->name('landing.app.store');
+
+                // menu
+                Route::get('menu-setting', [LandingPageController::class, 'menuSetting'])->name('menusetting.index');
+                Route::post('menu-setting-section1/store', [LandingPageController::class, 'menuSettingSection1Store'])->name('landing.menusection1.store');
+                Route::post('menu-setting-section2/store', [LandingPageController::class, 'menuSettingSection2Store'])->name('landing.menusection2.store');
+                Route::post('menu-setting-section3/store', [LandingPageController::class, 'menuSettingSection3Store'])->name('landing.menusection3.store');
+
+                // feature
+                Route::get('feature-setting', [LandingPageController::class, 'featureSetting'])->name('landing.feature.index');
+                Route::post('feature-setting/store', [LandingPageController::class, 'featureSettingStore'])->name('landing.feature.store');
+                Route::get('feature/create', [LandingPageController::class, 'featureCreate'])->name('feature.create');
+                Route::post('feature/store', [LandingPageController::class, 'featureStore'])->name('feature.store');
+                Route::get('feature/edit/{key}', [LandingPageController::class, 'featureEdit'])->name('feature.edit');
+                Route::post('feature/update/{key}', [LandingPageController::class, 'featureUpdate'])->name('feature.update');
+                Route::get('feature/delete/{key}', [LandingPageController::class, 'featureDelete'])->name('feature.delete');
+
+                // business growth
+                Route::get('business-growth-setting', [LandingPageController::class, 'businessGrowthSetting'])->name('landing.business.growth.index');
+                Route::post('business-growth-setting/store', [LandingPageController::class, 'businessGrowthSettingStore'])->name('landing.business.growth.store');
+
+                Route::get('business-growth/create', [LandingPageController::class, 'businessGrowthCreate'])->name('business.growth.create');
+                Route::post('business-growth/store', [LandingPageController::class, 'businessGrowthStore'])->name('business.growth.store');
+                Route::get('business-growth/edit/{key}', [LandingPageController::class, 'businessGrowthEdit'])->name('business.growth.edit');
+                Route::post('business-growth/update/{key}', [LandingPageController::class, 'businessGrowthUpdate'])->name('business.growth.update');
+                Route::get('business-growth/delete/{key}', [LandingPageController::class, 'businessGrowthDelete'])->name('business.growth.delete');
+
+                Route::get('business-growth-view/create', [LandingPageController::class, 'businessGrowthViewCreate'])->name('business.growth.view.create');
+                Route::post('business-growth-view/store', [LandingPageController::class, 'businessGrowthViewStore'])->name('business.growth.view.store');
+                Route::get('business-growth-view/edit/{key}', [LandingPageController::class, 'businessGrowthViewEdit'])->name('business.growth.view.edit');
+                Route::post('business-growth-view/update/{key}', [LandingPageController::class, 'businessGrowthViewUpdate'])->name('business.growth.view.update');
+                Route::get('business-growth-view/delete/{key}', [LandingPageController::class, 'businessGrowthViewDelete'])->name('business.growth.view.delete');
+
+                //Footer
+                Route::get('footer-setting', [LandingPageController::class, 'footerSetting'])->name('landing.footer.index');
+                Route::post('footer-setting/store', [LandingPageController::class, 'footerSettingStore'])->name('landing.footer.store');
+
+                Route::get('main/menu/create', [LandingPageController::class, 'footerMainMenuCreate'])->name('footer.main.menu.create');
+                Route::post('main/menu/store', [LandingPageController::class, 'footerMainMenuStore'])->name('footer.main.menu.store');
+                Route::get('main/menu/edit/{id}', [LandingPageController::class, 'footerMainMenuEdit'])->name('footer.main.menu.edit');
+                Route::post('main/menu/update/{id}', [LandingPageController::class, 'footerMainMenuUpdate'])->name('footer.main.menu.update');
+                Route::get('main/menu/delete/{id}', [LandingPageController::class, 'footerMainMenuDelete'])->name('footer.main.menu.delete');
+
+                Route::get('sub/menu/create', [LandingPageController::class, 'footerSubMenuCreate'])->name('footer.sub.menu.create');
+                Route::post('sub/menu/store', [LandingPageController::class, 'footerSubMenuStore'])->name('footer.sub.menu.store');
+                Route::get('sub/menu/edit/{id}', [LandingPageController::class, 'footerSubMenuEdit'])->name('footer.sub.menu.edit');
+                Route::post('sub/menu/update/{id}', [LandingPageController::class, 'footerSubMenuUpdate'])->name('footer.sub.menu.update');
+                Route::get('sub/menu/delete/{id}', [LandingPageController::class, 'footerSubMenuDelete'])->name('footer.sub.menu.delete');
+
+                //Header
+                Route::get('header-setting', [LandingPageController::class, 'headerSetting'])->name('landing.header.index');
+
+                Route::get('headersub/menu/create', [LandingPageController::class, 'headerSubMenuCreate'])->name('header.sub.menu.create');
+                Route::post('headersub/menu/store', [LandingPageController::class, 'headerSubMenuStore'])->name('header.sub.menu.store');
+                Route::get('headersub/menu/edit/{id}', [LandingPageController::class, 'headerSubMenuEdit'])->name('header.sub.menu.edit');
+                Route::post('headersub/menu/update/{id}', [LandingPageController::class, 'headerSubMenuUpdate'])->name('header.sub.menu.update');
+                Route::get('headersub/menu/delete/{id}', [LandingPageController::class, 'headerSubMenuDelete'])->name('header.sub.menu.delete');
+
+                Route::get('start-view-setting', [LandingPageController::class, 'startViewSetting'])->name('landing.start.view.index');
+                Route::post('start-view-setting/store', [LandingPageController::class, 'startViewSettingStore'])->name('landing.start.view.store');
+
+                Route::get('faq-setting', [LandingPageController::class, 'faqSetting'])->name('landing.faq.index');
+                Route::post('faq-setting/store', [LandingPageController::class, 'faqSettingStore'])->name('landing.faq.store');
+
+                Route::get('contactus-setting', [LandingPageController::class, 'contactusSetting'])->name('landing.contactus.index');
+                Route::post('contactus-setting/store', [LandingPageController::class, 'contactusSettingStore'])->name('landing.contactus.store');
+
+                Route::get('login-setting', [LandingPageController::class, 'loginSetting'])->name('landing.login.index');
+                Route::post('login-setting/store', [LandingPageController::class, 'loginSettingStore'])->name('landing.login.store');
+
+                Route::get('recaptcha-setting', [LandingPageController::class, 'recaptchaSetting'])->name('landing.recaptcha.index');
+                Route::post('recaptcha-setting/store', [LandingPageController::class, 'recaptchaSettingStore'])->name('landing.recaptcha.store');
+
+                Route::get('blog-setting', [LandingPageController::class, 'blogSetting'])->name('landing.blog.index');
+                Route::post('blog-setting/store', [LandingPageController::class, 'blogSettingStore'])->name('landing.blog.store');
+
+                Route::get('testimonial-setting', [LandingPageController::class, 'testimonialSetting'])->name('landing.testimonial.index');
+                Route::post('testimonial-setting/store', [LandingPageController::class, 'testimonialSettingStore'])->name('landing.testimonial.store');
+
+                Route::get('page-background-setting', [LandingPageController::class, 'pageBackground'])->name('landing.page.background.index');
+                Route::post('page-background-setting/store', [LandingPageController::class, 'pageBackgroundStore'])->name('landing.page.background.tore');
+            });
+
+            //document
+            Route::resource('document', DocumentGenratorController::class);
+            Route::get('document/design/{id}', [DocumentGenratorController::class, 'design'])->name('document.design');
+            Route::post('document/design-menu/{id}', [DocumentGenratorController::class, 'documentDesignMenu'])->name('document.design.menu');
+
+            //status drag-drop
+            Route::post('document/designmenu', [DocumentGenratorController::class, 'updateDesign'])->name('updatedesign.document');
+            Route::get('document-status/{id}', [DocumentGenratorController::class, 'documentStatus'])->name('document.status');
 
             // menu
-            Route::get('menu-setting', [LandingPageController::class, 'menuSetting'])->name('menusetting.index');
-            Route::post('menu-setting-section1/store', [LandingPageController::class, 'menuSettingSection1Store'])->name('landing.menusection1.store');
-            Route::post('menu-setting-section2/store', [LandingPageController::class, 'menuSettingSection2Store'])->name('landing.menusection2.store');
-            Route::post('menu-setting-section3/store', [LandingPageController::class, 'menuSettingSection3Store'])->name('landing.menusection3.store');
+            Route::get('docmenu/index', [DocumentMenuController::class, 'index'])->name('docmenu.index');
+            Route::get('docmenu/create/{docmenuId}', [DocumentMenuController::class, 'create'])->name('docmenu.create');
+            Route::post('docmenu/store', [DocumentMenuController::class, 'store'])->name('docmenu.store');
+            Route::delete('document/menu/{id}', [DocumentMenuController::class, 'destroy'])->name('document.designdelete');
 
-            // feature
-            Route::get('feature-setting', [LandingPageController::class, 'featureSetting'])->name('landing.feature.index');
-            Route::post('feature-setting/store', [LandingPageController::class, 'featureSettingStore'])->name('landing.feature.store');
-            Route::get('feature/create', [LandingPageController::class, 'featureCreate'])->name('feature.create');
-            Route::post('feature/store', [LandingPageController::class, 'featureStore'])->name('feature.store');
-            Route::get('feature/edit/{key}', [LandingPageController::class, 'featureEdit'])->name('feature.edit');
-            Route::post('feature/update/{key}', [LandingPageController::class, 'featureUpdate'])->name('feature.update');
-            Route::get('feature/delete/{key}', [LandingPageController::class, 'featureDelete'])->name('feature.delete');
+            // submenu
+            Route::get('docsubmenu/create/{id}/{docMenuId}', [DocumentMenuController::class, 'subMenuCreate'])->name('docsubmenu.create');
+            Route::post('docsubmenu/store', [DocumentMenuController::class, 'subMenuStore'])->name('docsubmenu.store');
+            Route::get('document/submenu/{id}', [DocumentMenuController::class, 'subMenuDestroy'])->name('document.submenu.designdelete');
 
-            // business growth
-            Route::get('business-growth-setting', [LandingPageController::class, 'businessGrowthSetting'])->name('landing.business.growth.index');
-            Route::post('business-growth-setting/store', [LandingPageController::class, 'businessGrowthSettingStore'])->name('landing.business.growth.store');
+            //stripe
+            Route::get('stripe', [StripeController::class, 'stripe'])->name('stripe.pay');
+            Route::post('stripe/pending', [StripeController::class, 'stripePostPending'])->name('stripe.pending');
+            Route::post('stripe/session', [StripeController::class, 'stripeSession'])->name('stripe.session');
+            Route::get('payment-success/{id}', [StripeController::class, 'paymentSuccess'])->name('stripe.success.pay');
+            Route::get('payment-cancel/{id}', [StripeController::class, 'paymentCancel'])->name('stripe.cancel.pay');
 
-            Route::get('business-growth/create', [LandingPageController::class, 'businessGrowthCreate'])->name('business.growth.create');
-            Route::post('business-growth/store', [LandingPageController::class, 'businessGrowthStore'])->name('business.growth.store');
-            Route::get('business-growth/edit/{key}', [LandingPageController::class, 'businessGrowthEdit'])->name('business.growth.edit');
-            Route::post('business-growth/update/{key}', [LandingPageController::class, 'businessGrowthUpdate'])->name('business.growth.update');
-            Route::get('business-growth/delete/{key}', [LandingPageController::class, 'businessGrowthDelete'])->name('business.growth.delete');
+            //razorpay
+            Route::post('razorpay/payment', [RazorpayController::class, 'razorpayPayment'])->name('payrazorpay.payment');
+            Route::get('razorpay/transaction/callback/{transactionId}/{couponId}/{plansId}', [RazorpayController::class, 'RazorpayCallback']);
 
-            Route::get('business-growth-view/create', [LandingPageController::class, 'businessGrowthViewCreate'])->name('business.growth.view.create');
-            Route::post('business-growth-view/store', [LandingPageController::class, 'businessGrowthViewStore'])->name('business.growth.view.store');
-            Route::get('business-growth-view/edit/{key}', [LandingPageController::class, 'businessGrowthViewEdit'])->name('business.growth.view.edit');
-            Route::post('business-growth-view/update/{key}', [LandingPageController::class, 'businessGrowthViewUpdate'])->name('business.growth.view.update');
-            Route::get('business-growth-view/delete/{key}', [LandingPageController::class, 'businessGrowthViewDelete'])->name('business.growth.view.delete');
+            //flutterwave
+            Route::post('flutterwave/payment', [FlutterwaveController::class, 'flutterwavePayment'])->name('pay.flutterwave.payment');
+            Route::get('flutterwave/transaction/callback/{transactionId}/{couponId}/{plansId}', [FlutterwaveController::class, 'FlutterwaveCallback']);
 
-            //Footer
-            Route::get('footer-setting', [LandingPageController::class, 'footerSetting'])->name('landing.footer.index');
-            Route::post('footer-setting/store', [LandingPageController::class, 'footerSettingStore'])->name('landing.footer.store');
+            //paystack
+            Route::post('paystack/payment', [PaystackController::class, 'paystackPayment'])->name('paypaystack.payment');
+            Route::get('paystack/transaction/callback/{transactionId}/{couponId}/{plansId}', [PaystackController::class, 'paystackCallback']);
 
-            Route::get('main/menu/create', [LandingPageController::class, 'footerMainMenuCreate'])->name('footer.main.menu.create');
-            Route::post('main/menu/store', [LandingPageController::class, 'footerMainMenuStore'])->name('footer.main.menu.store');
-            Route::get('main/menu/edit/{id}', [LandingPageController::class, 'footerMainMenuEdit'])->name('footer.main.menu.edit');
-            Route::post('main/menu/update/{id}', [LandingPageController::class, 'footerMainMenuUpdate'])->name('footer.main.menu.update');
-            Route::get('main/menu/delete/{id}', [LandingPageController::class, 'footerMainMenuDelete'])->name('footer.main.menu.delete');
+            //coingate
+            Route::post('coingate/prepare', [CoingateController::class, 'coingatePrepare'])->name('coingate.payment.prepare');
+            Route::get('coingate-success/{id}', [CoingateController::class, 'coingateCallback'])->name('coingate.payment.callback');
 
-            Route::get('sub/menu/create', [LandingPageController::class, 'footerSubMenuCreate'])->name('footer.sub.menu.create');
-            Route::post('sub/menu/store', [LandingPageController::class, 'footerSubMenuStore'])->name('footer.sub.menu.store');
-            Route::get('sub/menu/edit/{id}', [LandingPageController::class, 'footerSubMenuEdit'])->name('footer.sub.menu.edit');
-            Route::post('sub/menu/update/{id}', [LandingPageController::class, 'footerSubMenuUpdate'])->name('footer.sub.menu.update');
-            Route::get('sub/menu/delete/{id}', [LandingPageController::class, 'footerSubMenuDelete'])->name('footer.sub.menu.delete');
+            //mercado
+            Route::post('mercado/prepare', [MercadoController::class, 'mercadoPrepare'])->name('mercado.payment.prepare');
+            Route::any('mercado-payment-callback/{id}', [MercadoController::class, 'mercadoCallback'])->name('mercado.payment.callback');
 
-            //Header
-            Route::get('header-setting', [LandingPageController::class, 'headerSetting'])->name('landing.header.index');
+            //payfast
+            Route::post('payfast/prepare', [PayfastController::class, 'payfastPrepare'])->name('payfast.payment.prepare');
+            Route::get('payfast/callback/{id}', [PayfastController::class, 'payfastCallback'])->name('payfast.payment.callback');
 
-            Route::get('headersub/menu/create', [LandingPageController::class, 'headerSubMenuCreate'])->name('header.sub.menu.create');
-            Route::post('headersub/menu/store', [LandingPageController::class, 'headerSubMenuStore'])->name('header.sub.menu.store');
-            Route::get('headersub/menu/edit/{id}', [LandingPageController::class, 'headerSubMenuEdit'])->name('header.sub.menu.edit');
-            Route::post('headersub/menu/update/{id}', [LandingPageController::class, 'headerSubMenuUpdate'])->name('header.sub.menu.update');
-            Route::get('headersub/menu/delete/{id}', [LandingPageController::class, 'headerSubMenuDelete'])->name('header.sub.menu.delete');
+            //Toyyibpay
+            Route::post('toyyibpay/prepare', [ToyyibpayController::class, 'charge'])->name('toyyibpay.payment.charge');
+            Route::get('toyyibpay/callback/{planid}/{orderid}/{coupon}', [ToyyibpayController::class, 'toyyibpayCallback'])->name('toyyibpay.payment.callback');
 
-            Route::get('start-view-setting', [LandingPageController::class, 'startViewSetting'])->name('landing.start.view.index');
-            Route::post('start-view-setting/store', [LandingPageController::class, 'startViewSettingStore'])->name('landing.start.view.store');
+            //Iyzipay
+            Route::post('iyzipay/prepare', [IyziPayController::class, 'initiatePayment'])->name('iyzipay.payment.init');
+            Route::post('iyzipay/callback', [IyzipayController::class, 'iyzipayCallback'])->name('iyzipay.payment.callback');
 
-            Route::get('faq-setting', [LandingPageController::class, 'faqSetting'])->name('landing.faq.index');
-            Route::post('faq-setting/store', [LandingPageController::class, 'faqSettingStore'])->name('landing.faq.store');
+            // paytab
+            Route::post('plan-pay-with-paytab', [PaytabController::class, 'planPayWithPaytab'])->name('plan.pay.with.paytab');
+            Route::any('paytab-success/plan', [PaytabController::class, 'paytabGetPayment'])->name('plan.paytab.success');
 
-            Route::get('contactus-setting', [LandingPageController::class, 'contactusSetting'])->name('landing.contactus.index');
-            Route::post('contactus-setting/store', [LandingPageController::class, 'contactusSettingStore'])->name('landing.contactus.store');
-
-            Route::get('login-setting', [LandingPageController::class, 'loginSetting'])->name('landing.login.index');
-            Route::post('login-setting/store', [LandingPageController::class, 'loginSettingStore'])->name('landing.login.store');
-
-            Route::get('recaptcha-setting', [LandingPageController::class, 'recaptchaSetting'])->name('landing.recaptcha.index');
-            Route::post('recaptcha-setting/store', [LandingPageController::class, 'recaptchaSettingStore'])->name('landing.recaptcha.store');
-
-            Route::get('blog-setting', [LandingPageController::class, 'blogSetting'])->name('landing.blog.index');
-            Route::post('blog-setting/store', [LandingPageController::class, 'blogSettingStore'])->name('landing.blog.store');
-
-            Route::get('testimonial-setting', [LandingPageController::class, 'testimonialSetting'])->name('landing.testimonial.index');
-            Route::post('testimonial-setting/store', [LandingPageController::class, 'testimonialSettingStore'])->name('landing.testimonial.store');
-
-            Route::get('page-background-setting', [LandingPageController::class, 'pageBackground'])->name('landing.page.background.index');
-            Route::post('page-background-setting/store', [LandingPageController::class, 'pageBackgroundStore'])->name('landing.page.background.tore');
+            // Mollie
+            Route::post('plan-pay-with-mollie', [MolliePaymentController::class, 'planPayWithMollie'])->name('plan.pay.with.mollie');
+            Route::get('plan/mollie/{plan}', [MolliePaymentController::class, 'getPaymentStatus'])->name('plan.mollie');
         });
-
-        //document
-        Route::resource('document', DocumentGenratorController::class);
-        Route::get('document/design/{id}', [DocumentGenratorController::class, 'design'])->name('document.design');
-        Route::post('document/design-menu/{id}', [DocumentGenratorController::class, 'documentDesignMenu'])->name('document.design.menu');
-
-        //status drag-drop
-        Route::post('document/designmenu', [DocumentGenratorController::class, 'updateDesign'])->name('updatedesign.document');
-        Route::get('document-status/{id}', [DocumentGenratorController::class, 'documentStatus'])->name('document.status');
-
-        // menu
-        Route::get('docmenu/index', [DocumentMenuController::class, 'index'])->name('docmenu.index');
-        Route::get('docmenu/create/{docmenuId}', [DocumentMenuController::class, 'create'])->name('docmenu.create');
-        Route::post('docmenu/store', [DocumentMenuController::class, 'store'])->name('docmenu.store');
-        Route::delete('document/menu/{id}', [DocumentMenuController::class, 'destroy'])->name('document.designdelete');
-
-        // submenu
-        Route::get('docsubmenu/create/{id}/{docMenuId}', [DocumentMenuController::class, 'subMenuCreate'])->name('docsubmenu.create');
-        Route::post('docsubmenu/store', [DocumentMenuController::class, 'subMenuStore'])->name('docsubmenu.store');
-        Route::get('document/submenu/{id}', [DocumentMenuController::class, 'subMenuDestroy'])->name('document.submenu.designdelete');
-
-        //stripe
-        Route::get('stripe', [StripeController::class, 'stripe'])->name('stripe.pay');
-        Route::post('stripe/pending', [StripeController::class, 'stripePostPending'])->name('stripe.pending');
-        Route::post('stripe/session', [StripeController::class, 'stripeSession'])->name('stripe.session');
-        Route::get('payment-success/{id}', [StripeController::class, 'paymentSuccess'])->name('stripe.success.pay');
-        Route::get('payment-cancel/{id}', [StripeController::class, 'paymentCancel'])->name('stripe.cancel.pay');
-
-        //razorpay
-        Route::post('razorpay/payment', [RazorpayController::class, 'razorpayPayment'])->name('payrazorpay.payment');
-        Route::get('razorpay/transaction/callback/{transactionId}/{couponId}/{plansId}', [RazorpayController::class, 'RazorpayCallback']);
-
-        //flutterwave
-        Route::post('flutterwave/payment', [FlutterwaveController::class, 'flutterwavePayment'])->name('pay.flutterwave.payment');
-        Route::get('flutterwave/transaction/callback/{transactionId}/{couponId}/{plansId}', [FlutterwaveController::class, 'FlutterwaveCallback']);
-
-        //paystack
-        Route::post('paystack/payment', [PaystackController::class, 'paystackPayment'])->name('paypaystack.payment');
-        Route::get('paystack/transaction/callback/{transactionId}/{couponId}/{plansId}', [PaystackController::class, 'paystackCallback']);
-
-        //coingate
-        Route::post('coingate/prepare', [CoingateController::class, 'coingatePrepare'])->name('coingate.payment.prepare');
-        Route::get('coingate-success/{id}', [CoingateController::class, 'coingateCallback'])->name('coingate.payment.callback');
-
-        //mercado
-        Route::post('mercado/prepare', [MercadoController::class, 'mercadoPrepare'])->name('mercado.payment.prepare');
-        Route::any('mercado-payment-callback/{id}', [MercadoController::class, 'mercadoCallback'])->name('mercado.payment.callback');
-
-        //payfast
-        Route::post('payfast/prepare', [PayfastController::class, 'payfastPrepare'])->name('payfast.payment.prepare');
-        Route::get('payfast/callback/{id}', [PayfastController::class, 'payfastCallback'])->name('payfast.payment.callback');
-
-        //Toyyibpay
-        Route::post('toyyibpay/prepare', [ToyyibpayController::class, 'charge'])->name('toyyibpay.payment.charge');
-        Route::get('toyyibpay/callback/{planid}/{orderid}/{coupon}', [ToyyibpayController::class, 'toyyibpayCallback'])->name('toyyibpay.payment.callback');
-
-        //Iyzipay
-        Route::post('iyzipay/prepare', [IyziPayController::class, 'initiatePayment'])->name('iyzipay.payment.init');
-        Route::post('iyzipay/callback', [IyzipayController::class, 'iyzipayCallback'])->name('iyzipay.payment.callback');
-
-        // paytab
-        Route::post('plan-pay-with-paytab', [PaytabController::class, 'planPayWithPaytab'])->name('plan.pay.with.paytab');
-        Route::any('paytab-success/plan', [PaytabController::class, 'paytabGetPayment'])->name('plan.paytab.success');
-
-        // Mollie
-        Route::post('plan-pay-with-mollie', [MolliePaymentController::class, 'planPayWithMollie'])->name('plan.pay.with.mollie');
-        Route::get('plan/mollie/{plan}', [MolliePaymentController::class, 'getPaymentStatus'])->name('plan.mollie');
-    });
     });
 
 

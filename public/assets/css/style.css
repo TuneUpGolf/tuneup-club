@@ -30485,7 +30485,7 @@ div#calendar .fc-list-table {
 }
 
 .landing-hero .hero-sec img {
-  height: 600px;
+  height: auto;
   object-fit: cover;
 }
 
@@ -30531,8 +30531,9 @@ div#calendar .fc-list-table {
   }
 
   .landing-hero .hero-sec img {
-    height: 400px;
-
+    max-height: 400px;
+    height: auto;
+    object-fit: cover;
   }
 
   .bill-detail-page td {

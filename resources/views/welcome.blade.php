@@ -52,10 +52,14 @@
 
     <section class="landing-hero">
 
-        <div class="hero-sec">
-            <img class="w-full"
-                src="{{ $influencerDetails?->banner_image ?? asset('assets/images/landing-page-images/banner1.png') }}"
-                alt="hero-banner">
+       <!-- MOBILE VIEW -->
+        <div class="hero-sec md:hidden">
+            <img class="w-full" src="{{ $user->mobile_banner_image ?: $user->banner_image }}" alt="mobile-banner">
+        </div>
+
+        <!-- DESKTOP VIEW -->
+        <div class="hero-sec hidden md:block">
+            <img class="w-full" src="{{ $user->banner_image ?: $user->mobile_banner_image }}" alt="desktop-banner">
         </div>
     </section>
 

@@ -29,6 +29,112 @@ class SettingsController extends Controller
         return view('admin.settings.index', compact('order', 'notificationsSettings'));
     }
 
+    public function addMobileImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'banner' => 'required|string',
+            ]);
+
+            $base64Image = $request->banner;
+
+            // Extract image extension
+            if (!preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
+                return response()->json([
+                    'message' => 'Invalid image format'
+                ], 422);
+            }
+
+            $extension = $type[1]; // png, jpg, jpeg, etc.
+            $base64Image = substr($base64Image, strpos($base64Image, ',') + 1);
+            $imageData = base64_decode($base64Image);
+
+            if ($imageData === false) {
+                return response()->json([
+                    'message' => 'Base64 decode failed'
+                ], 422);
+            }
+
+            $user = User::where('type', '!=', 'Admin')->first();
+
+            $currentDomain = tenant('domains')[0]->domain;
+
+            $fileName = time() . '_' . uniqid() . '.' . $extension;
+            $filePath = $currentDomain . '/uploads/banner/' . Auth::user()->id . '/' . $fileName;
+
+            // Upload to DigitalOcean Spaces
+            Storage::disk('spaces')->put($filePath, $imageData, 'public');
+
+            $relativePath = Storage::disk('spaces')->url($filePath);
+
+            $user->mobile_banner_image = $relativePath;
+            $user->save();
+
+            return response()->json([
+                'message' => 'Mobile banner updated successfully!',
+                'url'     => $relativePath
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload mobile banner',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function addDesktopImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'banner' => 'required|string',
+            ]);
+
+            $base64Image = $request->banner;
+
+            // Extract image extension
+            if (!preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
+                return response()->json([
+                    'message' => 'Invalid image format'
+                ], 422);
+            }
+
+            $extension = $type[1]; // png, jpg, jpeg, etc.
+            $base64Image = substr($base64Image, strpos($base64Image, ',') + 1);
+            $imageData = base64_decode($base64Image);
+
+            if ($imageData === false) {
+                return response()->json([
+                    'message' => 'Base64 decode failed'
+                ], 422);
+            }
+
+            $user = User::where('type', '!=', 'Admin')->first();
+
+            $currentDomain = tenant('domains')[0]->domain;
+
+            $fileName = time() . '_' . uniqid() . '.' . $extension;
+            $filePath = $currentDomain . '/uploads/banner/' . Auth::user()->id . '/' . $fileName;
+
+            // Upload to DigitalOcean Spaces
+            Storage::disk('spaces')->put($filePath, $imageData, 'public');
+
+            $relativePath = Storage::disk('spaces')->url($filePath);
+
+            $user->banner_image = $relativePath;
+            $user->save();
+
+            return response()->json([
+                'message' => 'Desktop banner updated successfully!',
+                'url'     => $relativePath
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload desktop banner',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function appNameUpdate(Request $request)
     {
         request()->validate([
@@ -40,25 +146,25 @@ class SettingsController extends Controller
         $data = [
             'app_name' => $request->app_name,
         ];
-        if ($request->hasFile('banner_image')) {
-            // $userDetail    = Auth::user();
-            $user          = User::where('type', '!=', 'Admin')->first();
-            $currentDomain = tenant('domains');
-            $currentDomain = $currentDomain[0]->domain;
-            $file     = $request->file('banner_image');
-            $fileName = time() . '_' . $file->getClientOriginalName();
+        // if ($request->hasFile('banner_image')) {
+        //     // $userDetail    = Auth::user();
+        //     $user          = User::where('type', '!=', 'Admin')->first();
+        //     $currentDomain = tenant('domains');
+        //     $currentDomain = $currentDomain[0]->domain;
+        //     $file     = $request->file('banner_image');
+        //     $fileName = time() . '_' . $file->getClientOriginalName();
 
-            $filePath = $currentDomain . '/' . "uploads/banner/" . Auth::user()->id . '/' . $fileName;
-            Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
-            $relativePath = Storage::disk('spaces')->url($filePath);
-            // Save relative path in DB
-            // dd($relativePath);
-            // $user->update([
-            //     'banner_image' => $relativePath,
-            // ]);
-            $user->banner_image = $relativePath;
-            $user->save();
-        }
+        //     $filePath = $currentDomain . '/' . "uploads/banner/" . Auth::user()->id . '/' . $fileName;
+        //     Storage::disk('spaces')->put($filePath, file_get_contents($file), 'public');
+        //     $relativePath = Storage::disk('spaces')->url($filePath);
+        //     // Save relative path in DB
+        //     // dd($relativePath);
+        //     // $user->update([
+        //     //     'banner_image' => $relativePath,
+        //     // ]);
+        //     $user->banner_image = $relativePath;
+        //     $user->save();
+        // }
         if ($request->app_logo) {
             Storage::delete(UtilityFacades::getsettings('app_logo'));
             $appLogoName        = 'app-logo.' . $request->app_logo->extension();
