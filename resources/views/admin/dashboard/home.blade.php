@@ -52,39 +52,43 @@
                 min-height: unset;
             }
         }
-/* Filter container */
-.dataTables_filter {
-    display: flex !important;
-    gap: 8px;
-    align-items: center;
-    justify-content: flex-end;
-    flex-wrap: nowrap !important;
-    width: 100%;
-}
 
-/* Remove label width issue */
-.dataTables_filter label {
-    display: contents !important;
-}
+        /* Filter container */
+        .dataTables_filter {
+            display: flex !important;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: nowrap !important;
+            width: 100%;
+        }
 
-/* Equal width for mobile */
+        /* Remove label width issue */
+        .dataTables_filter label {
+            display: contents !important;
+        }
 
-/* Desktop */
-@media (min-width: 769px) {
-    .dt-search,
-    .dt-select {
-        width: 220px !important;
-        flex: unset !important;
-    }
-}
-#purchases-table thead th {
-    font-weight: 700 !important;
-}
-  table.dataTable thead th {
-        font-weight: 700 !important;
-        color: #000 !important;
-    }
-</style>
+        /* Equal width for mobile */
+
+        /* Desktop */
+        @media (min-width: 769px) {
+
+            .dt-search,
+            .dt-select {
+                width: 220px !important;
+                flex: unset !important;
+            }
+        }
+
+        #purchases-table thead th {
+            font-weight: 700 !important;
+        }
+
+        table.dataTable thead th {
+            font-weight: 700 !important;
+            color: #000 !important;
+        }
+    </style>
     <div class="row">
         <div class="col-xxl-12">
             <div class="row">
@@ -99,13 +103,14 @@
                                             enable-background="new 0 0 64 64">
                                             <path
                                                 d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z"
                                                 fill="#4AD991" />
                                         </svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <!-- Desktop/Tablet text -->
-                                        <span class="font-roboto font-semibold text-sm md:text-base d-none d-md-inline truncate">
+                                        <span
+                                            class="font-roboto font-semibold text-sm md:text-base d-none d-md-inline truncate">
                                             {{ __('Completed Submissions') }}
                                         </span>
                                         <!-- Mobile text -->
@@ -114,9 +119,10 @@
                                         </span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-auto pt-2">
-                                    <p class="mb-0 font-sans bg-card-text text-2xl md:text-3xl font-bold text-center md:text-left">
+                                    <p
+                                        class="mb-0 font-sans bg-card-text text-2xl md:text-3xl font-bold text-center md:text-left">
                                         {{ $purchaseComplete }}
                                     </p>
                                 </div>
@@ -183,7 +189,8 @@
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <!-- Desktop/Tablet text -->
-                                        <span class="font-roboto font-semibold text-sm md:text-base d-none d-md-inline truncate">
+                                        <span
+                                            class="font-roboto font-semibold text-sm md:text-base d-none d-md-inline truncate">
                                             {{ __('Pending Submissions') }}
                                         </span>
                                         <!-- Mobile text -->
@@ -192,9 +199,10 @@
                                         </span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-auto pt-2">
-                                    <p class="mb-0 font-sans bg-card4-text text-2xl md:text-3xl font-bold text-center md:text-left">
+                                    <p
+                                        class="mb-0 font-sans bg-card4-text text-2xl md:text-3xl font-bold text-center md:text-left">
                                         {{ $purchaseInprogress }}
                                     </p>
                                 </div>
@@ -202,7 +210,7 @@
                         </div>
                     </div>
                 @endcan
-                
+
                 @can('manage-followers')
                     <!-- Total Users Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
@@ -228,12 +236,14 @@
                                         </svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <span class="font-roboto font-semibold text-sm md:text-base truncate">{{ __('Total Users') }}</span>
+                                        <span
+                                            class="font-roboto font-semibold text-sm md:text-base truncate">{{ __('Total Users') }}</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-auto pt-2">
-                                    <p class="mb-0 font-sans bg-card2-text text-2xl md:text-3xl font-bold text-center md:text-left">
+                                    <p
+                                        class="mb-0 font-sans bg-card2-text text-2xl md:text-3xl font-bold text-center md:text-left">
                                         {{ $followers }}
                                     </p>
                                 </div>
@@ -241,7 +251,7 @@
                         </div>
                     </div>
                 @endcan
-                
+
                 @if (Auth::user()->type == 'Admin' || Auth::user()->type == 'Influencer')
                     <!-- Total Earnings Card -->
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12 pb-3">
@@ -289,12 +299,14 @@
                                         </svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <span class="font-roboto font-semibold text-sm md:text-base truncate">{{ __('Total Earnings') }}</span>
+                                        <span
+                                            class="font-roboto font-semibold text-sm md:text-base truncate">{{ __('Total Earnings') }}</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-auto pt-2">
-                                    <p class="mb-0 font-sans bg-card3-text text-2xl md:text-3xl font-bold text-center md:text-left">
+                                    <p
+                                        class="mb-0 font-sans bg-card3-text text-2xl md:text-3xl font-bold text-center md:text-left">
                                         {{ Utility::amount_format($earning) }}
                                     </p>
                                 </div>
@@ -305,25 +317,52 @@
             </div>
             <div class="row">
                 @if (Auth::user()->type == 'Influencer' && !$users->is_stripe_connected)
-                    <div class="col-lg-4">
-                        <div class="card bg-primary">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-sm">
-                                        <h2 class="text-white ">{{ 'Connect Stripe' }}</h2>
-                                        <p class="text-white">
-                                            {{ __('To receive payments for your lessons and subscriptions, please connect your Stripe account.') }}
-                                            {{ __('Ensure that payouts are enabled in your Stripe settings to start receiving funds.') }}
-                                        </p>
-                                        <div class="quick-add-btn">
-                                            {!! Form::open([
-                                                'method' => 'POST',
-                                                'class' => 'd-inline',
-                                                'route' => ['stripe.create', ['influencer_id' => $users->id]],
-                                                'id' => 'stripe-create',
-                                            ]) !!}
-                                            {{ Form::button(__('Connect Stripe'), ['type' => 'submit', 'class' => 'btn-q-add  dash-btn btn btn-default btn-light']) }}
-                                            {!! Form::close() !!}
+                    <div class="flex justify-start gap-2 flex-wrap">
+                        <div class="col-lg-4">
+                            <div class="card bg-primary">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-sm">
+                                            <h2 class="text-white ">{{ 'Connect Stripe' }}</h2>
+                                            <p class="text-white">
+                                                {{ __('To receive payments for your lessons and subscriptions, please connect your Stripe account.') }}
+                                                {{ __('Ensure that payouts are enabled in your Stripe settings to start receiving funds.') }}
+                                            </p>
+                                            <div class="quick-add-btn">
+                                                {!! Form::open([
+                                                    'method' => 'POST',
+                                                    'class' => 'd-inline',
+                                                    'route' => ['stripe.create', ['influencer_id' => $users->id]],
+                                                    'id' => 'stripe-create',
+                                                ]) !!}
+                                                {{ Form::button(__('Connect Stripe'), ['type' => 'submit', 'class' => 'btn-q-add  dash-btn btn btn-default btn-light']) }}
+                                                {!! Form::close() !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card bg-primary">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-sm">
+                                            <h2 class="text-white ">{{ 'Connect Stripe (Existing Account)' }}</h2>
+                                            <p class="text-white">
+                                                {{ __('To receive payments for your lessons and subscriptions, you’ll need to connect your Stripe account.') }}
+                                            </p>
+                                            <div class="quick-add-btn">
+                                                {!! Form::open([
+                                                    'method' => 'GET',
+                                                    'class' => 'd-inline',
+                                                    'route' => ['stripe.connect.existing', ['influencer_id' => $users->id]],
+                                                    'id' => 'stripe-create',
+                                                ]) !!}
+                                                {{ Form::button(__('Connect Stripe'), ['type' => 'submit', 'class' => 'btn-q-add  dash-btn btn btn-default btn-light']) }}
+                                                {!! Form::close() !!}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -523,8 +562,5 @@
             }, cb);
             cb(start, end);
         });
-
-    
-
     </script>
 @endpush

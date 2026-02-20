@@ -302,7 +302,11 @@ Route::middleware([
             Route::resource('testimonial', TestimonialController::class);
             Route::post('testimonial-status/{id}', [TestimonialController::class, 'testimonialStatus'])->name('testimonial.status');
 
+
             //stripe connect
+             Route::get('stripe/connect/existing/{influencer_id}', [StripeController::class, 'connectExistingStripe'])
+                ->name('stripe.connect.existing');
+
             Route::post('stripe/connect/create', [StripeController::class, 'connectStripe'])->name('stripe.create');
             Route::get('stripe/connect/disconnect/{userId}', [ProfileController::class, 'disconnectStripe'])->name('stripe.disconnect');
             Route::post('profile/stripe/verify', [ProfileController::class, 'verifyStripe'])->name('profile.verify.stripe');

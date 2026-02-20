@@ -43,6 +43,29 @@ class StripeController extends Controller
         return ['html' => $view->render()];
     }
 
+    public function connectExistingStripe($influencer_id)
+    {
+        $tenant_id = tenant('id');
+        $influencer = User::findOrFail($influencer_id);
+
+        // Encode instructor + tenant in state
+        $state = base64_encode(json_encode([
+            'influencer_id' => $influencer->id,
+            'tenant_id' => $tenant_id,
+            'return_url' => route('home'),
+        ]));
+
+        $query = http_build_query([
+            'response_type' => 'code',
+            'client_id' => config('services.stripe.client_id'),
+            'scope' => 'read_write',
+            'redirect_uri' => env("APP_URL") . '/stripe/connect/callback',
+            'state' => $state,
+        ]);
+
+        return redirect('https://connect.stripe.com/oauth/authorize?' . $query);
+    }
+
     public function connectStripe(Request $request)
     {
         try {
