@@ -75,6 +75,9 @@ use App\Http\Controllers\Admin\PostController;
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
+Route::get('stripe/connect/callback', [StripeWebhookController::class, 'handleStripeCallback'])
+                ->name('stripe.connect.callback');
+
 
 require __DIR__ . '/auth.php';
 Route::group(['middleware' => ['Setting', 'xss']], function () {

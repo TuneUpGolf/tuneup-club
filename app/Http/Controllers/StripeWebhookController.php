@@ -166,4 +166,41 @@ class StripeWebhookController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function handleStripeCallback(Request $request)
+    {
+           
+        
+        try {
+            $stripeClient = new \Stripe\StripeClient(config('services.stripe.secret'));
+
+            $response = $stripeClient->oauth->token([
+                'grant_type' => 'authorization_code',
+                'code' => $request->code,
+            ]);
+
+            // Decode state
+            $stateData = json_decode(base64_decode($request->state), true);
+
+            $tenant_id = $stateData['tenant_id'];
+            $influencer_id = $stateData['influencer_id'];
+            $return_url = $stateData['return_url'];
+
+
+            // Initialize tenant context if needed
+            tenancy()->initialize($tenant_id);
+
+            $influencer = User::findOrFail($influencer_id);
+
+            $influencer->is_stripe_connected = true; 
+            $influencer->stripe_account_id = $response->stripe_user_id;
+            $influencer->save();
+
+            return redirect()->away($return_url)
+                ->with('success', 'Stripe account connected successfully.');
+        } catch (\Exception $e) {
+            return redirect()->away($return_url)
+                ->with('error', $e->getMessage());
+        }
+    }
 }
