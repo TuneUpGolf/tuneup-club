@@ -152,17 +152,17 @@
             let reorderUrl = "{{ route('post.reorder') }}";
 
             // Load album categories for filter
-            $.ajax({
-                url: "{{ route('album.categories.list') }}", // You'll need to create this route
-                method: 'GET',
-                success: function(response) {
-                    let options = '<option value="">All Categories</option>';
-                    response.forEach(function(category) {
-                        options += `<option value="${category.id}">${category.name}</option>`;
-                    });
-                    $('#albumCategoryFilter').html(options);
-                }
-            });
+            // $.ajax({
+            //     url: "{{ route('album.categories.list') }}", // You'll need to create this route
+            //     method: 'GET',
+            //     success: function(response) {
+            //         let options = '<option value="">All Categories</option>';
+            //         response.forEach(function(category) {
+            //             options += `<option value="${category.id}">${category.name}</option>`;
+            //         });
+            //         $('#albumCategoryFilter').html(options);
+            //     }
+            // });
 
             // Initialize DataTable with custom filtering
             let table = $('.data-table').DataTable({
