@@ -27,7 +27,7 @@
                                 <select class="form-select" id="albumCategoryFilter">
                                     <option value="">All Categories</option>
                                     @foreach ($albumCategories as $albumCategory)
-                                        <option value="{{ $albumCategory->id }}">{{ $albumCategory->name }}</option>
+                                        <option value="{{ $albumCategory->id }}">{{ $albumCategory->title }}</option>
                                     @endforeach
                                 </select>
                             </div>
