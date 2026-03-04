@@ -242,7 +242,7 @@
                         }
                     },
                     {
-                        text: '<i class="fa fa-sort"></i> Reorder Posts',
+                        text: '<i class="fa fa-sort"></i> Reorder Tips/Drills',
                         className: 'btn btn-light-info no-corner me-1 reorder-posts',
                         action: function() {
                             window.location.href = reorderUrl;
@@ -264,7 +264,7 @@
                     tableContainer.find(".dataTable-title").html(
                         $("<div>").addClass("flex justify-start items-center").append(
                             $("<div>").addClass("custom-table-header"),
-                            $("<span>").addClass("font-medium text-2xl pl-4").text("All Posts")
+                            $("<span>").addClass("font-medium text-2xl pl-4").text("All Tips/Drills")
                         )
                     );
                 }
