@@ -1,8 +1,8 @@
 @extends('layouts.main')
-@section('title', __('Posts'))
+@section('title', __('Tips/Drills'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Posts') }}</li>
+    <li class="breadcrumb-item">{{ __('Tips/Drills') }}</li>
 @endsection
 @section('content')
     <div class="row">
