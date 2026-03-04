@@ -21,8 +21,19 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <label class="input-group-text" for="albumCategoryFilter">Album Category:</label>
+                                <select class="form-select" id="albumCategoryFilter">
+                                    <option value="">All Categories</option>
+                                    @foreach ($albumCategories as $albumCategory)
+                                        <option value="{{ $albumCategory->id }}">{{ $albumCategory->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    
+
                     <div class="table-responsive">
                         <table class="table table-bordered data-table w-100">
                             <thead>
@@ -139,7 +150,20 @@
         $(function() {
             let createUrl = "{{ route('blogs.create') }}";
             let reorderUrl = "{{ route('post.reorder') }}";
-            
+
+            // Load album categories for filter
+            $.ajax({
+                url: "{{ route('album.categories.list') }}", // You'll need to create this route
+                method: 'GET',
+                success: function(response) {
+                    let options = '<option value="">All Categories</option>';
+                    response.forEach(function(category) {
+                        options += `<option value="${category.id}">${category.name}</option>`;
+                    });
+                    $('#albumCategoryFilter').html(options);
+                }
+            });
+
             // Initialize DataTable with custom filtering
             let table = $('.data-table').DataTable({
                 processing: true,
@@ -147,8 +171,9 @@
                 ajax: {
                     url: "{{ route('blogs.manage') }}",
                     data: function(d) {
-                        // Add payment filter to request
+                        // Add filters to request
                         d.payment_filter = $('#paymentFilter').val();
+                        d.album_category_filter = $('#albumCategoryFilter').val();
                     }
                 },
                 columns: [{
@@ -221,8 +246,7 @@
                     "<'dataTable-search tb-search col-lg-3 col-sm-12'f>>" +
                     "<'dataTable-container'<'col-sm-12'tr>>" +
                     "<'dataTable-bottom row'<'dataTable-dropdown page-dropdown col-lg-2 col-sm-12'l><'col-sm-7'p>>",
-                buttons: [
-                    {
+                buttons: [{
                         text: '<i class="fa fa-plus"></i> Create',
                         className: 'btn btn-light-primary no-corner me-1 add_module',
                         action: function() {
@@ -258,8 +282,8 @@
                 }
             });
 
-            // Filter change handler
-            $('#paymentFilter').on('change', function() {
+            // Filter change handlers
+            $('#paymentFilter, #albumCategoryFilter').on('change', function() {
                 table.ajax.reload();
             });
 
@@ -279,7 +303,7 @@
             });
         });
     </script>
-    
+
     <!-- Video Modal Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -80,6 +80,7 @@ class PostsController extends Controller
 
         $user = Auth::user();
         $paymentFilter = $request->input('payment_filter'); // Get filter value
+         $albumCategoryFilter = $request->input('album_category_filter'); // Get album category filter
 
         $query = Post::with('albumCategory') // Eager load albumCategory relationship
             ->select('post.*');
@@ -120,6 +121,10 @@ class PostsController extends Controller
                         });
                 });
             }
+        }
+
+        if ($albumCategoryFilter) {
+            $query->where('album_category_id', $albumCategoryFilter);
         }
 
         if ($request->ajax()) {
@@ -193,8 +198,13 @@ class PostsController extends Controller
                 ->rawColumns(['action',  'photo'])
                 ->make(true);
         }
+        $albumCategories = AlbumCategory::query();
 
-        return view('admin.posts.index');
+        if (Auth::user()->type == 'Influencer') {
+            $albumCategories->where('instructor_id', Auth::user()->id);
+        }
+        $albumCategories = $albumCategories->get();
+        return view('admin.posts.index', compact('albumCategories'));
     }
 
     public function manageReportedPosts(ReportedPostDataTable $dataTable)
