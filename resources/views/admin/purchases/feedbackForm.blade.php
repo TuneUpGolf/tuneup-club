@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', __(auth()->user()->type == 'Instructor' ? 'Provide Feedback' : 'Create Purchase'))
+@section('title', __(auth()->user()->type == 'Influencer' ? 'Provide Feedback' : 'Create Purchase'))
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('purchase.index') }}">{{ __('Purchase') }}</a></li>
@@ -143,7 +143,7 @@
                                                     <span class="item-type {{ $item instanceof \App\Models\Post ? 'post' : 'album' }}">
                                                         {{ $item instanceof \App\Models\Post ? 'Post' : 'Album' }}
                                                     </span>
-                                                    <div><small>{{ Str::limit($item->description ?? '', 50) }}</small></div>
+                                                    <div><small>{!! Str::limit($item->description ?? '', 50) !!}</small></div>
                                                 </div>
                                             @endforeach
                                         </div>

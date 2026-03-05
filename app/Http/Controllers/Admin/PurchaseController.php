@@ -536,7 +536,7 @@ class PurchaseController extends Controller
                     SendEmail::dispatch($purchase?->lesson?->user?->email, new VideoAdded($purchase));
 
                     $message = __('Hello, :name, has submitted an online submission.', [
-                        'name' => $purchase->student->name,
+                        'name' => $purchase->follower->name,
                     ]);
 
                     SendPushNotification::dispatch($purchase?->lesson?->user?->pushToken?->token, 'Video Submitted', $message);
@@ -1172,7 +1172,7 @@ class PurchaseController extends Controller
 
                 // Send email notification
                 SendEmail::dispatch(
-                    $purchaseVideo->purchase->student->email,
+                    $purchaseVideo->purchase->follower->email,
                     new PurchaseFeedback($purchaseVideo->purchase),
                     auth()->user()->id
                 );
@@ -1182,9 +1182,9 @@ class PurchaseController extends Controller
                     'name' => $purchaseVideo->purchase->lesson->user->name,
                 ]);
 
-                if (isset($purchaseVideo->purchase->student->pushToken->token)) {
+                if (isset($purchaseVideo->purchase->follower->pushToken->token)) {
                     SendPushNotification::dispatch(
-                        $purchaseVideo->purchase->student->pushToken->token,
+                        $purchaseVideo->purchase->follower->pushToken->token,
                         'Feedback Received',
                         $message
                     );
