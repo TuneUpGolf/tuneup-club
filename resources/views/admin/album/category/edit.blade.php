@@ -83,7 +83,7 @@
                             'method' => 'Patch',
                             'class' => 'form-horizontal',
                             'data-validate',
-                            // 'enctype' => 'multipart/form-data',
+                            'enctype' => 'multipart/form-data',
                         ]) !!}
                         <div class="row">
                             <div class="col-sm-6">
