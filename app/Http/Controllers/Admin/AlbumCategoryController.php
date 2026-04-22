@@ -19,6 +19,7 @@ use App\Models\PurchaseAlbum;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\DataTables\Admin\AlbumCategoryDataTable;
 
@@ -63,6 +64,14 @@ class AlbumCategoryController extends Controller
 
                 $album_category->image = $request->filePath; // Temporary chunk path
                 $album_category->file_type = $request->fileType;
+
+                if ($request->hasFile('locked_thumbnail')) {
+                    $tenantId = tenant('id');
+                    $lockedFile = $request->file('locked_thumbnail');
+                    $lockedName = $tenantId . '/locked-thumbnails/' . uniqid() . '_' . time() . '.' . $lockedFile->getClientOriginalExtension();
+                    Storage::disk('spaces')->put($lockedName, file_get_contents($lockedFile), 'public');
+                    $album_category->locked_thumbnail = Storage::disk('spaces')->url($lockedName);
+                }
                 // if ($request->hasfile('file')) {
                 //     // $file = $request->file('file')->store('album_category');
                 //     // $album_category->image = $file ?? null;
@@ -115,6 +124,14 @@ class AlbumCategoryController extends Controller
             $album_category   = AlbumCategory::find($id);
             $album_category->image = $request->filePath; // Temporary chunk path
             $album_category->file_type = $request->fileType;
+
+            if ($request->hasFile('locked_thumbnail')) {
+                $tenantId = tenant('id');
+                $lockedFile = $request->file('locked_thumbnail');
+                $lockedName = $tenantId . '/locked-thumbnails/' . uniqid() . '_' . time() . '.' . $lockedFile->getClientOriginalExtension();
+                Storage::disk('spaces')->put($lockedName, file_get_contents($lockedFile), 'public');
+                $album_category->locked_thumbnail = Storage::disk('spaces')->url($lockedName);
+            }
             // if ($request->hasFile('file') && $request->file('file')->isValid()) {
             //     // $path           = $request->file('file')->store('album_category');
             //     // $album_category->image    = $path;

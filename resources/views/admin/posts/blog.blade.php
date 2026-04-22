@@ -50,8 +50,12 @@
 
         @if ($post->file_type == 'image')
             @if ($isPaid && !$isPurchased && !$isInfluencer && !$isSubscribed)
+                @php
+                    $lockedPreview = $post->locked_thumbnail ?: $post->file;
+                    $hasCustomLocked = !empty($post->locked_thumbnail);
+                @endphp
                 <div class="relative paid-post-wrap">
-                    <img class="w-full post-thumbnail" src="{{ $post->file }}" />
+                    <img class="w-full post-thumbnail{{ $hasCustomLocked ? '' : ' post-thumbnail-blurred' }}" src="{{ $lockedPreview }}" />
                     <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                         <div
                             class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
@@ -90,9 +94,13 @@
         @else
             @if ($isPaid && !$isPurchased && !$isInfluencer && !$isSubscribed)
                 <div class="relative paid-post-wrap">
-                    <video class="w-full post-thumbnail pointer-events-none opacity-50">
-                        <source src="{{ $post->file }}#t=0.001">
-                    </video>
+                    @if (!empty($post->locked_thumbnail))
+                        <img class="w-full post-thumbnail" src="{{ $post->locked_thumbnail }}" alt="Locked Video" />
+                    @else
+                        <video class="w-full post-thumbnail pointer-events-none opacity-50">
+                            <source src="{{ $post->file }}#t=0.001">
+                        </video>
+                    @endif
                     <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
                         <div
                             class="ctm-icon-box bg-white rounded-full text-primary w-24 h-24 text-7xl flex items-center justify-content-center text-center border border-5 mb-3">
@@ -207,6 +215,12 @@
 
 @push('css')
     <style>
+        /* Blur fallback when no custom locked_thumbnail is provided */
+        .post-thumbnail-blurred {
+            filter: blur(10px);
+            opacity: 0.85;
+        }
+
         /* Modal styling */
         .modal {
             display: none;

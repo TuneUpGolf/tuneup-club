@@ -19,6 +19,7 @@ class AlbumCategory extends Model
         'payment_mode',
         'price',
         'image',
+        'locked_thumbnail',
         'file_type'
     ];
     protected $casts = [

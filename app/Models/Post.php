@@ -21,6 +21,8 @@ class Post extends Model
         'file_type',
         'album_category_id',
         'file',
+        'thumbnail',
+        'locked_thumbnail',
     ];
 
     protected $casts = [

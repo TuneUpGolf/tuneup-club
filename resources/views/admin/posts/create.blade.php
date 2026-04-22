@@ -188,7 +188,7 @@
                             'method' => 'POST',
                             'class' => 'form-horizontal',
                             'data-validate',
-                            // 'enctype' => 'multipart/form-data',
+                            'enctype' => 'multipart/form-data',
                             'id' => 'postForm',
                         ]) !!}
 
@@ -291,6 +291,18 @@
                                     <input type="hidden" name="chunk_path" id="chunkPath">
                                     <input type="hidden" name="filePath" id="filePath">
                                     <input type="hidden" name="fileType" id="fileType">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="thumbnail" class="form-label">{{ __('Thumbnail Image') }}</label>
+                                    <small class="text-muted d-block mb-2">{{ __('Shown as cover image for PDF/file posts.') }}</small>
+                                    <input type="file" name="thumbnail" id="thumbnail" class="form-control" accept="image/*">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="locked_thumbnail" class="form-label">{{ __('Locked Thumbnail') }}</label>
+                                    <small class="text-muted d-block mb-2">{{ __('Shown on the locked preview (paid posts only) instead of the blurred media.') }}</small>
+                                    <input type="file" name="locked_thumbnail" id="locked_thumbnail" class="form-control" accept="image/*">
                                 </div>
                             </div>
                         </div>

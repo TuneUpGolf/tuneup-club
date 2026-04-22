@@ -189,7 +189,7 @@
                             'method' => 'Patch',
                             'class' => 'form-horizontal',
                             'data-validate',
-                            // 'enctype' => 'multipart/form-data',
+                            'enctype' => 'multipart/form-data',
                             'id' => 'postForm',
                         ]) !!}
 
@@ -291,6 +291,30 @@
                                     <input type="hidden" name="fileType" id="fileType" value="{{ $posts->file_type }}">
 
 
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="thumbnail" class="form-label">{{ __('Thumbnail Image') }}</label>
+                                    <small class="text-muted d-block mb-2">{{ __('Shown as cover image for PDF/file posts.') }}</small>
+                                    <input type="file" name="thumbnail" id="thumbnail" class="form-control" accept="image/*">
+                                    @if (!empty($posts->thumbnail))
+                                        <div class="mt-2">
+                                            <img src="{{ $posts->thumbnail }}" alt="Current thumbnail" style="max-height: 100px; border-radius: 6px;">
+                                            <small class="text-muted d-block">{{ __('Upload a new file to replace.') }}</small>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="locked_thumbnail" class="form-label">{{ __('Locked Thumbnail') }}</label>
+                                    <small class="text-muted d-block mb-2">{{ __('Shown on the locked preview (paid posts only) instead of the blurred media.') }}</small>
+                                    <input type="file" name="locked_thumbnail" id="locked_thumbnail" class="form-control" accept="image/*">
+                                    @if (!empty($posts->locked_thumbnail))
+                                        <div class="mt-2">
+                                            <img src="{{ $posts->locked_thumbnail }}" alt="Current locked thumbnail" style="max-height: 100px; border-radius: 6px;">
+                                            <small class="text-muted d-block">{{ __('Upload a new file to replace.') }}</small>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
