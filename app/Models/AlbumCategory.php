@@ -31,6 +31,12 @@ class AlbumCategory extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'album_category_id');
+    }
+
     public function purchaseAlbum()
     {
         return $this->hasOne(PurchaseAlbum::class)->where([
