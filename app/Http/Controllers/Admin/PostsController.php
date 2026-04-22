@@ -283,6 +283,22 @@ class PostsController extends Controller
                 $post->description = $_POST['description'];
                 $post->short_description = $_POST['short_description'];
 
+                if ($request->hasFile('thumbnail')) {
+                    $tenantId = tenant('id');
+                    $thumbnailFile = $request->file('thumbnail');
+                    $thumbnailName = $tenantId . '/thumbnails/' . uniqid() . '_' . time() . '.' . $thumbnailFile->getClientOriginalExtension();
+                    Storage::disk('spaces')->put($thumbnailName, file_get_contents($thumbnailFile), 'public');
+                    $post->thumbnail = Storage::disk('spaces')->url($thumbnailName);
+                }
+
+                if ($request->hasFile('locked_thumbnail')) {
+                    $tenantId = tenant('id');
+                    $lockedFile = $request->file('locked_thumbnail');
+                    $lockedName = $tenantId . '/locked-thumbnails/' . uniqid() . '_' . time() . '.' . $lockedFile->getClientOriginalExtension();
+                    Storage::disk('spaces')->put($lockedName, file_get_contents($lockedFile), 'public');
+                    $post->locked_thumbnail = Storage::disk('spaces')->url($lockedName);
+                }
+
                 // if ($request->hasFile('photo')) {
                 //     $fileName = $request->file('photo');
                 //     $filePath = $currentDomain . '/' . Auth::user()->id . '/posts' . $fileName;
@@ -351,6 +367,21 @@ class PostsController extends Controller
             $post->file_type = $request->fileType;
             $post->album_category_id = $request->category_id;
 
+            if ($request->hasFile('thumbnail')) {
+                $tenantId = tenant('id');
+                $thumbnailFile = $request->file('thumbnail');
+                $thumbnailName = $tenantId . '/thumbnails/' . uniqid() . '_' . time() . '.' . $thumbnailFile->getClientOriginalExtension();
+                Storage::disk('spaces')->put($thumbnailName, file_get_contents($thumbnailFile), 'public');
+                $post->thumbnail = Storage::disk('spaces')->url($thumbnailName);
+            }
+
+            if ($request->hasFile('locked_thumbnail')) {
+                $tenantId = tenant('id');
+                $lockedFile = $request->file('locked_thumbnail');
+                $lockedName = $tenantId . '/locked-thumbnails/' . uniqid() . '_' . time() . '.' . $lockedFile->getClientOriginalExtension();
+                Storage::disk('spaces')->put($lockedName, file_get_contents($lockedFile), 'public');
+                $post->locked_thumbnail = Storage::disk('spaces')->url($lockedName);
+            }
 
             $post->save();
             return redirect()->route('blogs.manage')->with('success', __('Posts updated successfully'));

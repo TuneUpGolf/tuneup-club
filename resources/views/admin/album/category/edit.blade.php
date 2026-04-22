@@ -139,6 +139,18 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    {{ Form::label('locked_thumbnail', __('Locked Thumbnail (shown when paid & not purchased)'), ['class' => 'form-label']) }}
+                                    <input type="file" name="locked_thumbnail" id="locked_thumbnail" class="form-control" accept="image/*">
+                                    @if (!empty($posts->locked_thumbnail))
+                                        <div class="mt-2">
+                                            <img src="{{ $posts->locked_thumbnail }}" alt="Current locked thumbnail" style="max-height: 100px; border-radius: 6px;">
+                                            <small class="text-muted d-block">{{ __('Upload a new file to replace.') }}</small>
+                                        </div>
+                                    @else
+                                        <small class="text-muted">{{ __('Optional. Displayed on the locked preview instead of the blurred media.') }}</small>
+                                    @endif
+                                </div>
+                                <div class="form-group">
                                     {{ Form::label('description', __('Description'), ['class' => 'form-label']) }} *
                                     {!! Form::textarea('description', null, [
                                         'class' => 'form-control ',

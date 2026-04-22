@@ -141,6 +141,11 @@
                                         {{ Form::label('price', __('Price'), ['class' => 'form-label']) }}
                                         {{ Form::number('price', null, ['class' => 'form-control', 'placeholder' => __('Enter Price'), 'step' => '0.01']) }}
                                     </div>
+                                    <div class="form-group">
+                                        {{ Form::label('locked_thumbnail', __('Locked Thumbnail (shown when paid & not purchased)'), ['class' => 'form-label']) }}
+                                        <input type="file" name="locked_thumbnail" id="locked_thumbnail" class="form-control" accept="image/*">
+                                        <small class="text-muted">{{ __('Optional. Displayed on the locked preview instead of the blurred media.') }}</small>
+                                    </div>
                                 @endif
                             </div>
                             <div class="col-xl-12">
