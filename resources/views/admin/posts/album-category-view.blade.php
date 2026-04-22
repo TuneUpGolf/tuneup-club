@@ -204,8 +204,16 @@
                                                              </button>
                                                          </h1>
                                                      @else
-                                                         <h1 class="text-xl font-bold truncate  paidpost">
+                                                         <h1 class="text-xl font-bold truncate paidpost">
                                                              {{ $post->title }}
+                                                             @if ($post->posts && $post->posts->isNotEmpty())
+                                                                 <button type="button"
+                                                                     class="btn btn-sm btn-primary ml-2"
+                                                                     data-bs-toggle="modal"
+                                                                     data-bs-target="#lockedCategoryModal{{ $post->id }}">
+                                                                     View
+                                                                 </button>
+                                                             @endif
                                                          </h1>
                                                      @endif
 
@@ -234,6 +242,71 @@
                                                  </div>
                                              </div>
                                          </div>
+
+                                         @if (!$can_view_post && $post->posts && $post->posts->isNotEmpty())
+                                             <div class="modal fade" id="lockedCategoryModal{{ $post->id }}"
+                                                 tabindex="-1"
+                                                 aria-labelledby="lockedCategoryModalLabel{{ $post->id }}"
+                                                 aria-hidden="true">
+                                                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                                                     <div class="modal-content">
+                                                         <div class="modal-header">
+                                                             <h1 class="modal-title font-bold text-lg"
+                                                                 id="lockedCategoryModalLabel{{ $post->id }}">
+                                                                 {{ $post->title }}
+                                                                 <span class="ml-2 px-2 py-1 rounded-full bg-orange text-white" style="font-size: 12px;">
+                                                                     <i class="ti ti-lock"></i> Locked Preview
+                                                                 </span>
+                                                             </h1>
+                                                             <button type="button"
+                                                                 class="bg-gray-900 flex font-bold h-8 items-center justify-center m-2 right-2 rounded-full shadow-md text-2xl top-2 w-8 z-10"
+                                                                 data-bs-dismiss="modal" aria-label="Close">
+                                                                 <span aria-hidden="true">&times;</span>
+                                                             </button>
+                                                         </div>
+                                                         <div class="modal-body">
+                                                             <p class="text-gray-500 mb-3">
+                                                                 <i class="ti ti-info-circle"></i>
+                                                                 {{ __('Unlock this category to view its full content.') }}
+                                                             </p>
+                                                             <div class="flex flex-wrap w-100">
+                                                                 @foreach ($post->posts as $lp)
+                                                                     @php
+                                                                         $lpImage = $lp->locked_thumbnail
+                                                                             ?: ($lp->thumbnail ?: ($lp->file_type == 'image' ? $lp->file : null));
+                                                                         $hasCustom = !empty($lp->locked_thumbnail);
+                                                                     @endphp
+                                                                     <div class="w-full md:w-1/2 lg:w-1/3 p-2">
+                                                                         <div class="shadow rounded-2 overflow-hidden position-relative locked-preview-card">
+                                                                             <div class="relative paid-post-wrap">
+                                                                                 @if ($lpImage)
+                                                                                     <img class="w-full post-thumbnail{{ $hasCustom ? '' : ' locked-preview-blurred' }}"
+                                                                                         src="{{ $lpImage }}"
+                                                                                         alt="{{ $lp->title }}" />
+                                                                                 @else
+                                                                                     <div class="w-full post-thumbnail bg-gray-300"></div>
+                                                                                 @endif
+                                                                                 <div class="absolute inset-0 flex justify-center items-center paid-post flex-col">
+                                                                                     <div class="ctm-icon-box bg-white rounded-full text-primary w-16 h-16 text-4xl flex items-center justify-content-center text-center border border-5">
+                                                                                         <i class="ti ti-lock"></i>
+                                                                                     </div>
+                                                                                 </div>
+                                                                             </div>
+                                                                             <div class="px-3 py-2">
+                                                                                 <h5 class="font-bold truncate">{{ $lp->title }}</h5>
+                                                                             </div>
+                                                                         </div>
+                                                                     </div>
+                                                                 @endforeach
+                                                             </div>
+                                                         </div>
+                                                         <div class="modal-footer">
+                                                             <button type="button" class="lesson-btn" data-bs-dismiss="modal">Close</button>
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         @endif
                                      @endforeach
                                  @else
                                      <p class="text-gray-500 text-lg mt-5">No Album Category Available.</p>
@@ -248,6 +321,14 @@
      <style>
         .longDescContent li{
             list-style: disc;
+        }
+        /* Blur fallback when no custom locked_thumbnail is uploaded (modal preview) */
+        .locked-preview-blurred {
+            filter: blur(8px);
+            opacity: 0.85;
+        }
+        .locked-preview-card .post-thumbnail {
+            height: 240px;
         }
      </style>
      <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
