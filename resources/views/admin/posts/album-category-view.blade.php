@@ -127,10 +127,9 @@
                                                          @php
                                                              $lockedPreview = $post->locked_thumbnail
                                                                  ?: 'https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg';
-                                                             $hasCustomLocked = !empty($post->locked_thumbnail);
                                                          @endphp
                                                          <div class="relative paid-post-wrap">
-                                                             <img class=" w-full post-thumbnail{{ $hasCustomLocked ? '' : ' post-thumbnail-blurred' }}"
+                                                             <img class=" w-full post-thumbnail"
                                                                  src="{{ $lockedPreview }}"
                                                                  alt="Post Image" />
                                                              <div
@@ -164,10 +163,9 @@
                                                          @php
                                                              $lockedPreview = $post->locked_thumbnail
                                                                  ?: 'https://xn--kbenhavnercafeen-lxb.dk/wp-content/uploads/2025/03/Sourdough_Bread1.jpg';
-                                                             $hasCustomLocked = !empty($post->locked_thumbnail);
                                                          @endphp
                                                          <div class="relative paid-post-wrap">
-                                                             <img class=" w-full post-thumbnail{{ $hasCustomLocked ? '' : ' post-thumbnail-blurred' }}"
+                                                             <img class=" w-full post-thumbnail"
                                                                  src="{{ $lockedPreview }}"
                                                                  alt="Post Image" />
                                                              <div
@@ -250,11 +248,6 @@
      <style>
         .longDescContent li{
             list-style: disc;
-        }
-        /* Blur fallback when no custom locked_thumbnail is provided */
-        .post-thumbnail-blurred {
-            filter: blur(10px);
-            opacity: 0.85;
         }
      </style>
      <div class="modal" id="longDescModal" tabindex="-1" role="dialog">
